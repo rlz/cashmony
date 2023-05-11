@@ -1,0 +1,11 @@
+#App {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    #MainArea {
+        overflow: scroll;
+        flex: 1 0 0;
+    }
+}
