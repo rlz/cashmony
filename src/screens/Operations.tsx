@@ -2,7 +2,6 @@ import React, { useState, type ReactElement } from 'react'
 import { observer } from 'mobx-react-lite'
 import { Avatar, Backdrop, Box, Paper, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography, useTheme } from '@mui/material'
 import { type Operation, type OperationsModel } from '../model/operations'
-import { CURRENCIES } from '../helpers/currencies'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightLong, faCreditCard, faExclamation, faHandHoldingDollar, faMoneyBillTransfer, faWallet } from '@fortawesome/free-solid-svg-icons'
 
@@ -74,27 +73,54 @@ export const OperationsScreen = observer(
 function Transaction ({ op }: { op: Operation }): ReactElement {
     const theme = useTheme()
 
-    const opCurrency = CURRENCIES[op.currency]
+    const color = {
+        adjustment: theme.palette.warning,
+        transfer: theme.palette.info,
+        expense: theme.palette.error,
+        income: theme.palette.success
+    }[op.type]
+
+    const IconBox = (): ReactElement => <Box>
+        <Avatar sx={{ bgcolor: color.light }}>
+            <FontAwesomeIcon icon={{
+                adjustment: faExclamation,
+                transfer: faMoneyBillTransfer,
+                expense: faCreditCard,
+                income: faHandHoldingDollar
+            }[op.type]}
+            />
+        </Avatar>
+    </Box>
+
+    const Amount = ({ amount }: { amount: number }): ReactElement => <Typography variant='body1' color={color.dark}>
+        {
+            amount.toLocaleString(
+                undefined,
+                {
+                    style: 'currency',
+                    currency: op.currency,
+                    currencyDisplay: 'narrowSymbol'
+                }
+            )
+        }
+    </Typography>
 
     if (op.type === 'adjustment') {
         return <Paper elevation={4} sx={{ p: 1 }}>
             <Box display='flex' gap={theme.spacing(2)}>
-                <Box>
-                    <Avatar sx={{ bgcolor: theme.palette.warning.light }}>
-                        <FontAwesomeIcon icon={faExclamation}/>
-                    </Avatar>
-                </Box>
+                <IconBox />
                 <Box flex="1 0 0">
                     <Box display="flex">
-                        <Typography variant='body1' color={theme.palette.warning.dark}>
-                            {op.amount.toFixed(opCurrency.decimal_digits)}{' '}
-                            {opCurrency.symbol_native}
+                        <Typography variant='body1' flex="1 0 0" color={theme.palette.grey[500]}>
+                            Adjustment
                         </Typography>
-                        <Typography variant='body2' textAlign="right" flex="1 0 0">
-                            {op.account.name}
-                        </Typography>
+                        <Box textAlign="right">
+                            <Amount amount={op.amount}/>
+                            <Typography variant='body2'>
+                                <FontAwesomeIcon icon={faWallet}/> {op.account.name}
+                            </Typography>
+                        </Box>
                     </Box>
-                    <Typography variant='body2'>{'\u00a0'}</Typography>
                     <Typography variant='body2' fontStyle="italic">
                         {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
                     </Typography>
@@ -106,16 +132,14 @@ function Transaction ({ op }: { op: Operation }): ReactElement {
     if (op.type === 'transfer') {
         return <Paper elevation={4} sx={{ p: 1 }}>
             <Box display='flex' gap={theme.spacing(2)}>
-                <Box>
-                    <Avatar sx={{ bgcolor: theme.palette.info.light }}>
-                        <FontAwesomeIcon icon={faMoneyBillTransfer}/>
-                    </Avatar>
-                </Box>
+                <IconBox />
                 <Box flex="1 0 0">
-                    <Typography variant='body1' color={theme.palette.info.dark}>
-                        {op.amount.toFixed(opCurrency.decimal_digits)}{' '}
-                        {opCurrency.symbol_native}
-                    </Typography>
+                    <Box display="flex">
+                        <Typography variant='body1' flex="1 0 0" color={theme.palette.grey[500]}>
+                            Transfer
+                        </Typography>
+                        <Amount amount={op.amount} />
+                    </Box>
                     <Typography variant='body2'>
                         {op.account.name} ({op.account.amount.toFixed(2)})
                         {' '}<FontAwesomeIcon icon={faArrowRightLong} />{' '}
@@ -129,31 +153,32 @@ function Transaction ({ op }: { op: Operation }): ReactElement {
         </Paper>
     }
 
-    if (op.type === 'expense') {
+    if (['expense', 'income'].includes(op.type)) {
         return <Paper elevation={4} sx={{ p: 1 }}>
             <Box display='flex' gap={theme.spacing(2)}>
-                <Box>
-                    <Avatar sx={{ bgcolor: theme.palette.error.light }}>
-                        <FontAwesomeIcon icon={faCreditCard}/>
-                    </Avatar>
-                </Box>
+                <IconBox />
                 <Box flex="1 0 0">
                     <Box display="flex">
                         <Box flex="1 0 0">
-                            <Typography variant='body1' color={theme.palette.error.dark}>
-                                {Math.abs(op.amount).toFixed(opCurrency.decimal_digits)}{' '}
-                                {opCurrency.symbol_native}
+                            <Typography variant='body1'>
+                                {
+                                    op.categories.length === 0
+                                        ? <Typography component="span" color={theme.palette.grey[500]}>No category</Typography>
+                                        : (
+                                            op.categories.length === 1
+                                                ? op.categories[0].name
+                                                : `${op.categories.length} categories`
+                                        )
+                                }
                             </Typography>
                             <Typography variant='body2'>
                                 {op.tags.join(', ')}
                             </Typography>
                         </Box>
                         <Box textAlign="right">
+                            <Amount amount={Math.abs(op.amount)}/>
                             <Typography variant='body2'>
                                 <FontAwesomeIcon icon={faWallet}/> {op.account.name}
-                            </Typography>
-                            <Typography variant='body2'>
-                                {op.categories.length === 1 ? op.categories[0].name : `${op.categories.length} cats`}
                             </Typography>
                         </Box>
                     </Box>
@@ -165,39 +190,6 @@ function Transaction ({ op }: { op: Operation }): ReactElement {
         </Paper>
     }
 
-    return <Paper elevation={4} sx={{ p: 1 }}>
-        <Box display='flex' gap={theme.spacing(2)}>
-            <Box>
-                <Avatar sx={{ bgcolor: theme.palette.success.light }}>
-                    <FontAwesomeIcon icon={faHandHoldingDollar}/>
-                </Avatar>
-            </Box>
-            <Box flex="1 0 0">
-                <Box display="flex">
-                    <Box flex="1 0 0">
-                        <Typography variant='body1' color={theme.palette.success.dark}>
-                            {Math.abs(op.amount).toFixed(opCurrency.decimal_digits)}{' '}
-                            {opCurrency.symbol_native}
-                        </Typography>
-                        <Typography variant='body2'>
-                            {op.tags.join(', ')}
-                        </Typography>
-                    </Box>
-                    <Box textAlign="right">
-                        <Typography variant='body2'>
-                            <FontAwesomeIcon icon={faWallet}/> {op.account.name}
-                        </Typography>
-                        <Typography variant='body2'>
-                            {op.categories.length === 0
-                                ? 'No cat'
-                                : (op.categories.length === 0 ? op.categories[0].name : `${op.categories.length} cats`)}
-                        </Typography>
-                    </Box>
-                </Box>
-                <Typography variant='body2' fontStyle="italic">
-                    {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
-                </Typography>
-            </Box>
-        </Box>
-    </Paper>
+    console.log(op)
+    throw Error(`Unexpected operation type: ${op.type}`)
 }
