@@ -106,7 +106,13 @@ const Drawer = observer((props: Props): ReactElement => {
             value={OperationsModel.instance().startDate.toFormat('yyyy-LL-dd')}
             onChange={(v) => {
                 runInAction(() => {
-                    OperationsModel.instance().startDate = DateTime.fromFormat(v.target.value, 'yyyy-LL-dd', { zone: 'utc' })
+                    const om = OperationsModel.instance()
+                    if (v.target.value === '') {
+                        const now = DateTime.now()
+                        om.startDate = DateTime.utc(now.year, now.month, now.day)
+                    } else {
+                        om.startDate = DateTime.fromFormat(v.target.value, 'yyyy-LL-dd', { zone: 'utc' })
+                    }
                 })
             }}
         />
