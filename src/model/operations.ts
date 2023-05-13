@@ -97,6 +97,10 @@ export class OperationsModel {
         void this.readAll()
     }
 
+    async getOperation (id: string): Promise<Operation> {
+        return await FIN_DATA_DB.getOperation(id)
+    }
+
     static instance (): OperationsModel {
         if (operationsModel === null) {
             operationsModel = new OperationsModel()

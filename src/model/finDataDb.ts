@@ -24,6 +24,11 @@ export const FIN_DATA_DB = {
         return (await db.getAll(OPERATIONS_STORE_NAME)).map(storeToOp)
     },
 
+    async getOperation (id: string): Promise<Operation> {
+        const db = await openFinDataDb()
+        return storeToOp(await db.get(OPERATIONS_STORE_NAME, id))
+    },
+
     async getOperations (lower: DateTime, upper: DateTime): Promise<Operation[]> {
         const db = await openFinDataDb()
         return (await db.getAllFromIndex(
