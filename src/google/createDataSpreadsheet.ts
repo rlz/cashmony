@@ -16,7 +16,7 @@ export async function createDataSpreadsheet (google: Google): Promise<void> {
                 sheets: [
                     {
                         properties: {
-                            title: 'Transactions'
+                            title: 'Operations'
                         },
                         data: [
                             {
@@ -25,10 +25,10 @@ export async function createDataSpreadsheet (google: Google): Promise<void> {
                                 rowData: [
                                     {
                                         values: [
-                                            'Id', 'Modified', 'Date', 'Value', 'Currency',
-                                            'Account', 'Account Value',
-                                            'Budget', 'Budget Value',
-                                            'Tags', 'Comment'
+                                            'opId', 'opType', 'lastModified', 'date',
+                                            'amount', 'currency',
+                                            'accOrCat', 'accOrCatAmount',
+                                            'tags', 'comment'
                                         ].map(i => {
                                             return {
                                                 userEnteredValue: {

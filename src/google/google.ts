@@ -1,7 +1,5 @@
 import './google.scss'
-import { makeAutoObservable, observable, runInAction } from 'mobx'
 import makeUrl from './makeUrl'
-import { type DateTime } from 'luxon'
 import { createDataSpreadsheet } from './createDataSpreadsheet'
 
 const ACCESS_TOKEN = 'access_token'
@@ -14,13 +12,6 @@ let google: Google | null = null
 export class Google {
     accessToken = localStorage.getItem(ACCESS_TOKEN)
     finDataSpreadsheetId: string | null = null
-    transactions: readonly Transaction[] = []
-
-    private constructor () {
-        makeAutoObservable(this, {
-            transactions: observable.shallow
-        })
-    }
 
     static instance (): Google {
         if (google === null) {
@@ -53,10 +44,8 @@ export class Google {
         }
 
         if (reply.status === UNAUTHENTICATED) {
-            runInAction(() => {
-                localStorage.removeItem(ACCESS_TOKEN)
-                this.accessToken = null
-            })
+            localStorage.removeItem(ACCESS_TOKEN)
+            this.accessToken = null
             return {
                 status: UNAUTHENTICATED,
                 body: await reply.json()
@@ -99,12 +88,10 @@ export class Google {
                     params[param] = decodeURIComponent(value)
                 })
                 if ('access_token' in params && 'expires_in' in params && 'scope' in params && 'token_type' in params) {
-                    runInAction(() => {
-                        this.accessToken = params.access_token
-                        localStorage.setItem(ACCESS_TOKEN, params.access_token)
-                        console.log('Authenticated')
-                        resolve()
-                    })
+                    this.accessToken = params.access_token
+                    localStorage.setItem(ACCESS_TOKEN, params.access_token)
+                    console.log('Authenticated')
+                    resolve()
                 } else {
                     reject(Error(`Can not parse auth URL: ${redirectUrl}`))
                 }
@@ -128,10 +115,8 @@ export class Google {
             const files = json.files.filter(f => f.name === '.FinData')
 
             if (files.length > 0) {
-                runInAction(() => {
-                    this.finDataSpreadsheetId = files[0].id
-                    console.log(`Data spreadsheet found (${this.finDataSpreadsheetId})`)
-                })
+                this.finDataSpreadsheetId = files[0].id
+                console.log(`Data spreadsheet found (${this.finDataSpreadsheetId})`)
             } else {
                 await createDataSpreadsheet(this)
             }
@@ -165,19 +150,4 @@ interface GoogleDriveFiles {
     readonly mimeType: string
     readonly id: string
     readonly name: string
-}
-
-export interface Transaction {
-    readonly row: number
-    readonly id: string
-    readonly modified: DateTime
-    readonly date: DateTime
-    readonly value: number
-    readonly currency: string
-    readonly account: string
-    readonly accountValue: number
-    readonly budget: string | null
-    readonly budgetValue: number | null
-    readonly tags: string
-    readonly comment: string
 }

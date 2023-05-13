@@ -58,7 +58,7 @@ function opToStore (o: Operation): any {
 function storeToOp (o: any): Operation {
     return {
         ...o,
-        lastModified: DateTime.fromMillis(o.lastModified),
-        date: DateTime.fromMillis(o.date)
+        lastModified: DateTime.fromMillis(o.lastModified, { zone: 'utc' }),
+        date: DateTime.fromMillis(o.date, { zone: 'utc' })
     }
 }

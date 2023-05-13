@@ -2,12 +2,13 @@ import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, SwipeableDrawer, type SwipeableDrawerProps, TextField } from '@mui/material'
 import React, { type ReactElement } from 'react'
-import { OperationsModel, fromOldGoogle } from '../model/operations'
+import { type Operation, OperationsModel } from '../model/operations'
 import { runInAction } from 'mobx'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import { Google } from '../google/google'
-import { loadTransactions } from '../google/loadTransactions'
+import { loadOperations } from '../google/loadOperations'
+import deepEqual from 'fast-deep-equal'
 
 export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElement => {
     return <SwipeableDrawer
@@ -52,6 +53,47 @@ const operations = OperationsModel.instance()
 async function loadDataFromGoogle (): Promise<void> {
     await google.authenticate()
     await google.searchOrCreateDataSpreadsheet()
-    await loadTransactions(google)
-    await operations.put(fromOldGoogle(google.transactions))
+    const googleOps = await loadOperations(google)
+    const localOps = operations.operations
+
+    const googleOpsMap = new Map<string, Operation>()
+    googleOps.forEach(o => googleOpsMap.set(o.id, o))
+
+    const localOpsMap = new Map<string, Operation>()
+    localOps.forEach(o => localOpsMap.set(o.id, o))
+
+    let matched = 0
+    const latestInGoogle: Operation[] = []
+    let latestInLocal = 0
+    let missedInGoogle = 0
+    const missedInLocal: Operation[] = []
+
+    for (const googleOp of googleOps) {
+        const localOp = localOpsMap.get(googleOp.id)
+
+        if (localOp === undefined) {
+            missedInLocal.push(googleOp)
+            continue
+        }
+
+        localOpsMap.delete(googleOp.id)
+
+        if (deepEqual(googleOp, localOp)) {
+            matched += 1
+        } else if (localOp.lastModified.toMillis() >= googleOp.lastModified.toMillis()) {
+            latestInLocal += 1
+        } else {
+            latestInGoogle.push(googleOp)
+        }
+    }
+
+    missedInGoogle = localOpsMap.size
+
+    console.log('Sync Result', {
+        matched,
+        latestInGoogle: latestInGoogle.length,
+        latestInLocal,
+        missedInGoogle,
+        missedInLocal: missedInLocal.length
+    })
 }
