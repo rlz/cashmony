@@ -1,7 +1,7 @@
 import React, { useState, type ReactElement } from 'react'
 import { observer } from 'mobx-react-lite'
 import { Avatar, Backdrop, Box, Paper, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography, useTheme } from '@mui/material'
-import { type Operation, type OperationsModel } from '../model/operations'
+import { type NotDeletedOperation, type OperationsModel } from '../model/operations'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightLong, faCreditCard, faExclamation, faHandHoldingDollar, faMoneyBillTransfer, faWallet } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
@@ -76,7 +76,7 @@ export const OperationsScreen = observer(
     }
 )
 
-function Transaction ({ op }: { op: Operation }): ReactElement {
+function Transaction ({ op }: { op: NotDeletedOperation }): ReactElement {
     const theme = useTheme()
     const navigate = useNavigate()
 

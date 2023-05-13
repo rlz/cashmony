@@ -18,32 +18,36 @@ export const OperationScreen = (): ReactElement => {
         void getData()
     }, [])
 
-    return <Box p={1}>
-        <Typography variant='h3'>
-            {op?.account.amount.toLocaleString(undefined, {
-                style: 'currency',
-                currency: op.currency,
-                currencyDisplay: 'narrowSymbol'
-            })}
-        </Typography>
-        <Accordion>
-            <AccordionSummary
-                expandIcon={<FontAwesomeIcon icon={faChevronDown} />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-            >
-                <Typography>Accordion 1</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-                <Typography>
+    if (op?.type === 'expense') {
+        return <Box p={1}>
+            <Typography variant='h3'>
+                {op?.account.amount.toLocaleString(undefined, {
+                    style: 'currency',
+                    currency: op.currency,
+                    currencyDisplay: 'narrowSymbol'
+                })}
+            </Typography>
+            <Accordion>
+                <AccordionSummary
+                    expandIcon={<FontAwesomeIcon icon={faChevronDown} />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                >
+                    <Typography>Accordion 1</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Typography>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
             malesuada lacus ex, sit amet blandit leo lobortis eget.
-                </Typography>
-            </AccordionDetails>
-            <AccordionActions>
-                <Button>OK</Button>
-                <Button>Cancel</Button>
-            </AccordionActions>
-        </Accordion>
-    </Box>
+                    </Typography>
+                </AccordionDetails>
+                <AccordionActions>
+                    <Button>OK</Button>
+                    <Button>Cancel</Button>
+                </AccordionActions>
+            </Accordion>
+        </Box>
+    }
+
+    return <>Unsupported type!</>
 }

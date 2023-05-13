@@ -47,14 +47,20 @@ export interface AdjustmentOperation extends BaseOperation {
     type: 'adjustment'
 }
 
-export type Operation = IncomeOperation | ExpenseOperation | TransferOperation | AdjustmentOperation
+export interface DeletedOperation {
+    readonly id: string
+    readonly type: 'deleted'
+}
+
+export type Operation = IncomeOperation | ExpenseOperation | TransferOperation | AdjustmentOperation | DeletedOperation
+export type NotDeletedOperation = Exclude<Operation, DeletedOperation>
 
 let operationsModel: OperationsModel | null = null
 
 export class OperationsModel {
     startDate: DateTime
     operations: readonly Operation[] = []
-    displayOperations: Operation[][] = []
+    displayOperations: NotDeletedOperation[][] = []
 
     private constructor () {
         const now = DateTime.now()
@@ -75,7 +81,7 @@ export class OperationsModel {
                 return
             }
 
-            const displayOps: Operation[][] = [[]]
+            const displayOps: NotDeletedOperation[][] = [[]]
             let currentDateArray = displayOps[0]
             let currentDate = ops[0].date.toMillis()
 
@@ -131,6 +137,18 @@ const OP_WEIGHTS = {
 }
 
 function operationComparator (o1: Operation, o2: Operation): number {
+    if (o1.type === 'deleted' && o2.type === 'deleted') {
+        return o1.id < o2.id ? -1 : 1
+    }
+
+    if (o1.type === 'deleted') {
+        return -1
+    }
+
+    if (o2.type === 'deleted') {
+        return 1
+    }
+
     const d = o1.date.toMillis() - o2.date.toMillis()
     if (d !== 0) {
         return d

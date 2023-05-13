@@ -67,6 +67,8 @@ async function loadDataFromGoogle (): Promise<void> {
     let latestInLocal = 0
     let missedInGoogle = 0
     const missedInLocal: Operation[] = []
+    const deletedInGoogle: Operation[] = []
+    let deletedInLocal = 0
 
     for (const googleOp of googleOps) {
         const localOp = localOpsMap.get(googleOp.id)
@@ -80,6 +82,10 @@ async function loadDataFromGoogle (): Promise<void> {
 
         if (deepEqual(googleOp, localOp)) {
             matched += 1
+        } else if (googleOp.type === 'deleted') {
+            deletedInGoogle.push(googleOp)
+        } else if (localOp.type === 'deleted') {
+            deletedInLocal += 1
         } else if (localOp.lastModified.toMillis() >= googleOp.lastModified.toMillis()) {
             latestInLocal += 1
         } else {
@@ -94,6 +100,8 @@ async function loadDataFromGoogle (): Promise<void> {
         latestInGoogle: latestInGoogle.length,
         latestInLocal,
         missedInGoogle,
-        missedInLocal: missedInLocal.length
+        missedInLocal: missedInLocal.length,
+        deletedInGoogle: deletedInGoogle.length,
+        deletedInLocal
     })
 }

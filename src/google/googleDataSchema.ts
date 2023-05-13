@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { type TransferOperation, type Operation, type ExpenseOperation } from '../model/operations'
+import { type TransferOperation, type Operation, type ExpenseOperation, type NotDeletedOperation } from '../model/operations'
 import { fromGoogleDateTime, toGoogleDateTime } from '../helpers/dates'
 
 const G_OPS_INIT_ROW_SCHEMA = z.tuple(
@@ -14,6 +14,13 @@ const G_OPS_INIT_ROW_SCHEMA = z.tuple(
         z.number(), // account or category amount
         z.string(), // tags
         z.string() // comment
+    ]
+)
+
+const G_OPS_DELETED_ROW_SCHEMA = z.tuple(
+    [
+        z.string(), // opId
+        z.literal('deleted') // opType
     ]
 )
 
@@ -57,12 +64,18 @@ const G_OPS_EXT_ROW_SCHEMA = z.tuple(
 
 type GoogleOpsInitRow = z.infer<typeof G_OPS_INIT_ROW_SCHEMA>
 type GoogleOpsExtRow = z.infer<typeof G_OPS_EXT_ROW_SCHEMA>
-type GoogleOpsRow = GoogleOpsInitRow | GoogleOpsExtRow
+type GoogleOpsDeletedRow = z.infer<typeof G_OPS_DELETED_ROW_SCHEMA>
+type GoogleOpsRow = GoogleOpsInitRow | GoogleOpsExtRow | GoogleOpsDeletedRow
 
 export function opsToGoogle (ops: readonly Operation[]): GoogleOpsRow[] {
     const rows: GoogleOpsRow[] = []
 
     ops.forEach(o => {
+        if (o.type === 'deleted') {
+            rows.push([o.id, o.type])
+            return
+        }
+
         rows.push([
             o.id,
             o.type,
@@ -109,7 +122,7 @@ export function opsToGoogle (ops: readonly Operation[]): GoogleOpsRow[] {
 export function opsFromGoogle (rows: unknown[]): Operation[] {
     const result: Operation[] = []
 
-    let baseOpInfo: Omit<Operation, 'categories' | 'toAccount'> | null = null
+    let baseOpInfo: Omit<NotDeletedOperation, 'categories' | 'toAccount'> | null = null
     let toAccount: Pick<TransferOperation, 'toAccount'> | null = null
     let categories: Pick<ExpenseOperation, 'categories'> | null = null
 
@@ -152,6 +165,15 @@ export function opsFromGoogle (rows: unknown[]): Operation[] {
 
     for (const r of rows) {
         if (baseOpInfo !== null && typeof r === 'object' && r !== null && 1 in r && r[1] !== '') {
+            if (r[1] === 'deleted') {
+                const row = G_OPS_DELETED_ROW_SCHEMA.parse(r)
+                result.push({
+                    id: row[0],
+                    type: 'deleted'
+                })
+                continue
+            }
+
             makeOp()
         }
 

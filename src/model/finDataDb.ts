@@ -1,5 +1,5 @@
 import { type IDBPDatabase, openDB } from 'idb'
-import { type Operation } from './operations'
+import { type NotDeletedOperation, type Operation } from './operations'
 import { DateTime } from 'luxon'
 
 const OPERATIONS_STORE_NAME = 'operations'
@@ -29,13 +29,13 @@ export const FIN_DATA_DB = {
         return storeToOp(await db.get(OPERATIONS_STORE_NAME, id))
     },
 
-    async getOperations (lower: DateTime, upper: DateTime): Promise<Operation[]> {
+    async getOperations (lower: DateTime, upper: DateTime): Promise<NotDeletedOperation[]> {
         const db = await openFinDataDb()
         return (await db.getAllFromIndex(
             OPERATIONS_STORE_NAME,
             OPERATIONS_DATE_INDEX_NAME,
             IDBKeyRange.bound(lower.toMillis(), upper.toMillis(), true, false)
-        )).map(storeToOp)
+        )).map(storeToOpNoDeleted)
     },
 
     async putOperations (operations: Operation[]): Promise<void> {
@@ -48,6 +48,10 @@ export const FIN_DATA_DB = {
 }
 
 function opToStore (o: Operation): any {
+    if (o.type === 'deleted') {
+        return o
+    }
+
     return {
         ...o,
         lastModified: o.lastModified.toMillis(),
@@ -55,10 +59,18 @@ function opToStore (o: Operation): any {
     }
 }
 
-function storeToOp (o: any): Operation {
+function storeToOpNoDeleted (o: any): NotDeletedOperation {
     return {
         ...o,
         lastModified: DateTime.fromMillis(o.lastModified, { zone: 'utc' }),
         date: DateTime.fromMillis(o.date, { zone: 'utc' })
     }
+}
+
+function storeToOp (o: any): Operation {
+    if (o.type === 'deleted') {
+        return o
+    }
+
+    return storeToOpNoDeleted(o)
 }
