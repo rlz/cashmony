@@ -10,6 +10,7 @@ import { Google } from '../google/google'
 import { loadOperations } from '../google/loadOperations'
 import deepEqual from 'fast-deep-equal'
 import { type Operation } from '../model/model'
+import { storeOperations } from '../google/storeOperations'
 
 export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElement => {
     return <SwipeableDrawer
@@ -66,7 +67,6 @@ async function loadDataFromGoogle (): Promise<void> {
     let matched = 0
     const latestInGoogle: Operation[] = []
     let latestInLocal = 0
-    let missedInGoogle = 0
     const missedInLocal: Operation[] = []
     const deletedInGoogle: Operation[] = []
     let deletedInLocal = 0
@@ -94,15 +94,19 @@ async function loadDataFromGoogle (): Promise<void> {
         }
     }
 
-    missedInGoogle = localOpsMap.size
-
     console.log('Sync Result', {
         matched,
         latestInGoogle: latestInGoogle.length,
         latestInLocal,
-        missedInGoogle,
+        missedInGoogle: localOpsMap.size,
         missedInLocal: missedInLocal.length,
         deletedInGoogle: deletedInGoogle.length,
         deletedInLocal
     })
+
+    await operations.put([...missedInLocal, ...latestInGoogle, ...deletedInGoogle])
+
+    if (latestInLocal > 0 || localOpsMap.size > 0 || deletedInLocal > 0) {
+        await storeOperations(google, operations.operations)
+    }
 }

@@ -2,6 +2,12 @@ import { isOk, type Google } from './google'
 import makeUrl from './makeUrl'
 import { type Operation } from '../model/model'
 import { opsToGoogle } from './googleDataSchema'
+import { z } from 'zod'
+
+const CLEAR_REPLY_BODY_SCHEMA = z.object({
+    clearedRange: z.string(),
+    spreadsheetId: z.string()
+})
 
 async function clearData (google: Google): Promise<void> {
     if (google.finDataSpreadsheetId === null) {
@@ -18,15 +24,21 @@ async function clearData (google: Google): Promise<void> {
         }
     )
     if (isOk(reply)) {
-        const values = reply.body
+        const replyBody = CLEAR_REPLY_BODY_SCHEMA.parse(reply.body)
 
-        console.log('Reply from Google clear data')
-
-        console.log(values)
+        console.log(`Cleared Google Spreadsheet ${replyBody.spreadsheetId} (range: ${replyBody.clearedRange})`)
     } else {
         console.warn('Unauthorized!')
     }
 }
+
+const PUT_REPLY_BODY_SCHEMA = z.object({
+    spreadsheetId: z.string(),
+    updatedCells: z.number().int(),
+    updatedColumns: z.number().int(),
+    updatedRange: z.string(),
+    updatedRows: z.number().int()
+})
 
 export async function storeOperations (google: Google, operations: readonly Operation[]): Promise<void> {
     console.log('Store operation')
@@ -39,8 +51,6 @@ export async function storeOperations (google: Google, operations: readonly Oper
     const id = encodeURIComponent(google.finDataSpreadsheetId)
     const range = 'Operations!A2:J200000'
     const values = opsToGoogle(operations)
-
-    console.log(values)
 
     const reply = await google.fetch(
         makeUrl(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(range)}`, {
@@ -61,11 +71,9 @@ export async function storeOperations (google: Google, operations: readonly Oper
         }
     )
     if (isOk(reply)) {
-        const values = reply.body
+        const replyBody = PUT_REPLY_BODY_SCHEMA.parse(reply.body)
 
-        console.log('Reply from Google PUT')
-
-        console.log(values)
+        console.log(`Store values in ${replyBody.spreadsheetId} Spreadsheet (range: ${replyBody.updatedRange}, cells: ${replyBody.updatedCells})`)
     } else {
         console.warn('Unauthorized!')
     }

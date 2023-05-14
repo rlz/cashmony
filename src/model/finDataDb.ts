@@ -44,6 +44,12 @@ export const FIN_DATA_DB = {
         const tx = db.transaction(OPERATIONS_STORE_NAME, 'readwrite')
         await Promise.all(operations.map(async o => await tx.store.put(opToStore(o))))
         await tx.done
+    },
+
+    async clearOperations (): Promise<void> {
+        const db = await openFinDataDb()
+
+        await db.clear(OPERATIONS_STORE_NAME)
     }
 }
 

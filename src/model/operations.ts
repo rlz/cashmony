@@ -50,6 +50,28 @@ export class OperationsModel {
         void this.readAll()
     }
 
+    get allExpenseTags (): string[] {
+        const tags = new Map<string, number>()
+
+        const x = (): void => {
+            for (const [t, rank] of tags) {
+                tags.set(t, rank * 0.99)
+            }
+        }
+
+        this.operations.forEach(o => {
+            x()
+            if (o.type === 'expense') {
+                o.tags.forEach(t => {
+                    const rank = tags.get(t)
+                    tags.set(t, (rank ?? 0) + 1)
+                })
+            }
+        })
+
+        return Array.from(tags.entries()).sort((e1, e2) => e2[1] - e1[1]).map(e => e[0])
+    }
+
     async getOperation (id: string): Promise<Operation> {
         return await FIN_DATA_DB.getOperation(id)
     }
@@ -63,6 +85,10 @@ export class OperationsModel {
     }
 
     async put (ops: Operation[]): Promise<void> {
+        if (ops.length === 0) {
+            return
+        }
+
         await FIN_DATA_DB.putOperations(ops)
         await this.readAll()
     }
