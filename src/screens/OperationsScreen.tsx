@@ -1,11 +1,12 @@
 import React, { useState, type ReactElement } from 'react'
 import { observer } from 'mobx-react-lite'
 import { Avatar, Backdrop, Box, Paper, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography, useTheme } from '@mui/material'
-import { type NotDeletedOperation, type OperationsModel } from '../model/operations'
+import { type OperationsModel } from '../model/operations'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightLong, faCreditCard, faExclamation, faHandHoldingDollar, faMoneyBillTransfer, faWallet } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
 import { MainScreen } from '../widgets/MainScreen'
+import { type NotDeletedOperation } from '../model/model'
 
 const Fab = (): ReactElement => {
     const [open, setOpen] = useState(false)

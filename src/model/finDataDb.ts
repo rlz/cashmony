@@ -1,5 +1,5 @@
 import { type IDBPDatabase, openDB } from 'idb'
-import { type NotDeletedOperation, type Operation } from './operations'
+import { type NotDeletedOperation, type Operation } from './model'
 import { DateTime } from 'luxon'
 
 const OPERATIONS_STORE_NAME = 'operations'

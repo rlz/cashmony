@@ -2,7 +2,7 @@ import { isOk, type Google } from './google'
 import makeUrl from './makeUrl'
 import { opsFromGoogle } from './googleDataSchema'
 import { z } from 'zod'
-import { type Operation } from '../model/operations'
+import { type Operation } from '../model/model'
 
 export async function loadOperations (google: Google): Promise<Operation[]> {
     console.log('Loading transactions')

@@ -1,6 +1,6 @@
 import { isOk, type Google } from './google'
 import makeUrl from './makeUrl'
-import { type Operation } from '../model/operations'
+import { type Operation } from '../model/model'
 import { opsToGoogle } from './googleDataSchema'
 
 async function clearData (google: Google): Promise<void> {

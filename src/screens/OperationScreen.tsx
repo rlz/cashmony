@@ -2,8 +2,9 @@ import React, { useState, type ReactElement, useEffect } from 'react'
 import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Box, Button, Typography } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
-import { OperationsModel, type Operation } from '../model/operations'
+import { OperationsModel } from '../model/operations'
 import { useParams } from 'react-router-dom'
+import { type Operation } from '../model/model'
 
 export const OperationScreen = (): ReactElement => {
     const [op, setOp] = useState<Operation | null>(null)

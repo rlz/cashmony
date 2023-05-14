@@ -2,13 +2,14 @@ import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, SwipeableDrawer, type SwipeableDrawerProps, TextField } from '@mui/material'
 import React, { type ReactElement } from 'react'
-import { type Operation, OperationsModel } from '../model/operations'
+import { OperationsModel } from '../model/operations'
 import { runInAction } from 'mobx'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import { Google } from '../google/google'
 import { loadOperations } from '../google/loadOperations'
 import deepEqual from 'fast-deep-equal'
+import { type Operation } from '../model/model'
 
 export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElement => {
     return <SwipeableDrawer

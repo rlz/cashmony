@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { type TransferOperation, type Operation, type ExpenseOperation, type NotDeletedOperation } from '../model/operations'
+import { type TransferOperation, type Operation, type ExpenseOperation, type NotDeletedOperation } from '../model/model'
 import { fromGoogleDateTime, toGoogleDateTime } from '../helpers/dates'
 
 const G_OPS_INIT_ROW_SCHEMA = z.tuple(
