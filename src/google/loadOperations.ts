@@ -1,8 +1,12 @@
 import { isOk, type Google } from './google'
 import makeUrl from './makeUrl'
 import { opsFromGoogle } from './googleDataSchema'
-import { z } from 'zod'
 import { type Operation } from '../model/model'
+import { assertRowsType } from '../typeCheckers.g/google'
+
+export interface RowsType {
+    values: unknown[]
+}
 
 export async function loadOperations (google: Google): Promise<Operation[]> {
     console.log('Loading transactions')
@@ -18,9 +22,7 @@ export async function loadOperations (google: Google): Promise<Operation[]> {
         })
     )
     if (isOk(reply)) {
-        const rows = z.object({
-            values: z.array(z.unknown())
-        }).parse(reply.body).values
+        const rows = assertRowsType(reply.body).values
 
         const ops = opsFromGoogle(rows)
 

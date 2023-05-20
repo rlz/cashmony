@@ -1,11 +1,13 @@
 import { DateTime } from 'luxon'
 import { makeAutoObservable, observable, runInAction, autorun } from 'mobx'
-import { FIN_DATA_DB } from './finDataDb'
 import { type NotDeletedOperation, type Operation, operationComparator } from './model'
+import { FinDataDb } from './finDataDb'
 
 let operationsModel: OperationsModel | null = null
 
 export class OperationsModel {
+    private readonly finDataDb = FinDataDb.instance()
+
     startDate: DateTime
     operations: readonly Operation[] = []
     displayOperations: NotDeletedOperation[][] = []
@@ -21,7 +23,7 @@ export class OperationsModel {
             const upper = this.startDate
             const lower = upper.minus({ days: 60 })
 
-            const ops = (await FIN_DATA_DB.getOperations(lower, upper)).sort((o1, o2) => operationComparator(o2, o1))
+            const ops = (await this.finDataDb.getOperations(lower, upper)).sort((o1, o2) => operationComparator(o2, o1))
             if (ops.length === 0) {
                 runInAction(() => {
                     this.displayOperations = []
@@ -73,7 +75,7 @@ export class OperationsModel {
     }
 
     async getOperation (id: string): Promise<Operation> {
-        return await FIN_DATA_DB.getOperation(id)
+        return await this.finDataDb.getOperation(id)
     }
 
     static instance (): OperationsModel {
@@ -89,12 +91,12 @@ export class OperationsModel {
             return
         }
 
-        await FIN_DATA_DB.putOperations(ops)
+        await this.finDataDb.putOperations(ops)
         await this.readAll()
     }
 
     private async readAll (): Promise<void> {
-        const newOperations = await FIN_DATA_DB.readAllOperations()
+        const newOperations = await this.finDataDb.readAllOperations()
         newOperations.sort(operationComparator)
 
         runInAction(() => {

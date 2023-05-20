@@ -34,7 +34,7 @@ export function EditorAppBar ({ title, navigateOnBack, onSave }: Props): ReactEl
                         color="inherit"
                         aria-label="menu"
                         sx={{ ml: 2 }}
-                        onClick={() => { navigate(navigateOnBack) }}
+                        onClick={onSave}
                     >
                         <FontAwesomeIcon icon={faCircleCheck}/>
                     </IconButton>

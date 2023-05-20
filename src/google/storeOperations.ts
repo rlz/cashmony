@@ -2,12 +2,12 @@ import { isOk, type Google } from './google'
 import makeUrl from './makeUrl'
 import { type Operation } from '../model/model'
 import { opsToGoogle } from './googleDataSchema'
-import { z } from 'zod'
+import { assertClearReplyBody, assertPutReplyBody } from '../typeCheckers.g/google'
 
-const CLEAR_REPLY_BODY_SCHEMA = z.object({
-    clearedRange: z.string(),
-    spreadsheetId: z.string()
-})
+export interface ClearReplyBody {
+    clearedRange: string
+    spreadsheetId: string
+}
 
 async function clearData (google: Google): Promise<void> {
     if (google.finDataSpreadsheetId === null) {
@@ -24,21 +24,35 @@ async function clearData (google: Google): Promise<void> {
         }
     )
     if (isOk(reply)) {
-        const replyBody = CLEAR_REPLY_BODY_SCHEMA.parse(reply.body)
+        const replyBody = assertClearReplyBody(reply.body)
 
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         console.log(`Cleared Google Spreadsheet ${replyBody.spreadsheetId} (range: ${replyBody.clearedRange})`)
     } else {
         console.warn('Unauthorized!')
     }
 }
 
-const PUT_REPLY_BODY_SCHEMA = z.object({
-    spreadsheetId: z.string(),
-    updatedCells: z.number().int(),
-    updatedColumns: z.number().int(),
-    updatedRange: z.string(),
-    updatedRows: z.number().int()
-})
+export interface PutReplyBody {
+    spreadsheetId: string
+
+    /**
+     * @type uint
+     */
+    updatedCells: number
+
+    /**
+     * @type uint
+     */
+    updatedColumns: number
+
+    updatedRange: string
+
+    /**
+     * @type uint
+     */
+    updatedRows: number
+}
 
 export async function storeOperations (google: Google, operations: readonly Operation[]): Promise<void> {
     console.log('Store operation')
@@ -71,8 +85,9 @@ export async function storeOperations (google: Google, operations: readonly Oper
         }
     )
     if (isOk(reply)) {
-        const replyBody = PUT_REPLY_BODY_SCHEMA.parse(reply.body)
+        const replyBody = assertPutReplyBody(reply.body)
 
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         console.log(`Store values in ${replyBody.spreadsheetId} Spreadsheet (range: ${replyBody.updatedRange}, cells: ${replyBody.updatedCells})`)
     } else {
         console.warn('Unauthorized!')

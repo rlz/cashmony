@@ -1,5 +1,5 @@
 import React, { useState, type ReactElement, useEffect } from 'react'
-import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Box, Button, Chip, Typography, useTheme } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Chip, Typography, useTheme } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { OperationsModel } from '../model/operations'
@@ -77,10 +77,6 @@ export const OperationScreen = (): ReactElement => {
                                 })}
                             </Box>
                         </AccordionDetails>
-                        <AccordionActions>
-                            <Button>OK</Button>
-                            <Button>Cancel</Button>
-                        </AccordionActions>
                     </Accordion>
                 </Box>
             </Box>

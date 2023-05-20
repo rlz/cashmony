@@ -10,7 +10,8 @@ const UNAUTHENTICATED = 401
 let google: Google | null = null
 
 export class Google {
-    accessToken = localStorage.getItem(ACCESS_TOKEN)
+    private authPromiseResolve: (() => void) | null = null
+    private accessToken = localStorage.getItem(ACCESS_TOKEN)
     finDataSpreadsheetId: string | null = null
 
     static instance (): Google {
@@ -71,33 +72,21 @@ export class Google {
             }
         )
 
-        await new Promise<void>((resolve, reject) => {
-            const iframe = document.createElement('iframe')
-            iframe.id = 'GoogleAuth'
-            iframe.src = url
-            iframe.onload = (ev) => {
-                const redirectUrl = iframe.contentWindow?.location.href
-                iframe.remove()
-                if (redirectUrl === undefined) {
-                    throw Error('Undefined redirect URL')
-                }
+        window.open(url, 'auth')
 
-                const params: Record<string, string> = {}
-                redirectUrl.substring(redirectUrl.indexOf('#') + 1).split('&').forEach(i => {
-                    const [param, value] = i.split('=')
-                    params[param] = decodeURIComponent(value)
-                })
-                if ('access_token' in params && 'expires_in' in params && 'scope' in params && 'token_type' in params) {
-                    this.accessToken = params.access_token
-                    localStorage.setItem(ACCESS_TOKEN, params.access_token)
-                    console.log('Authenticated')
-                    resolve()
-                } else {
-                    reject(Error(`Can not parse auth URL: ${redirectUrl}`))
-                }
-            }
-            document.body.appendChild(iframe)
+        await new Promise<void>((resolve) => {
+            this.authPromiseResolve = resolve
         })
+    }
+
+    finishAuth (accessToken: string): void {
+        this.accessToken = accessToken
+        localStorage.setItem(ACCESS_TOKEN, accessToken)
+        console.log('Authenticated')
+        if (this.authPromiseResolve !== null) {
+            this.authPromiseResolve()
+            this.authPromiseResolve = null
+        }
     }
 
     async searchOrCreateDataSpreadsheet (): Promise<void> {

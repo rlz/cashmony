@@ -1,70 +1,36 @@
-import { z } from 'zod'
 import { type TransferOperation, type Operation, type ExpenseOperation, type NotDeletedOperation } from '../model/model'
 import { fromGoogleDateTime, toGoogleDateTime } from '../helpers/dates'
+import { assertGoogleOpsExtRow, assertGoogleOpsInitRow, isGoogleOpsDeletedRow, isGoogleOpsInitRow } from '../typeCheckers.g/google'
 
-const G_OPS_INIT_ROW_SCHEMA = z.tuple(
-    [
-        z.string(), // opId
-        z.union([z.literal('adjustment'), z.literal('transfer'), z.literal('income'), z.literal('expense')]), // opType
-        z.number(), // modified
-        z.number(), // date
-        z.number(), // amount
-        z.string(), // currency
-        z.string(), // account or category
-        z.number(), // account or category amount
-        z.string(), // tags
-        z.string() // comment
-    ]
-)
+export type GoogleOpsInitRow = [
+    string, // opId
+    'adjustment' | 'transfer' | 'income' | 'expense', // opType
+    number, // modified
+    number, // date
+    number, // amount
+    string, // currency
+    string, // account or category
+    number, // account or category amount
+    string?, // tags
+    string? // comment
+]
 
-const G_OPS_DELETED_ROW_SCHEMA = z.tuple(
-    [
-        z.string(), // opId
-        z.literal('deleted') // opType
-    ]
-)
+export type GoogleOpsExtRow = [
+    string, // opId
+    '', // opType
+    '', // modified
+    '', // date
+    '', // amount
+    '', // currency
+    string, // account or category
+    number // account or category amount
+]
 
-const G_OPS_INIT_ROW_READING_SCHEMA = z.union([
-    G_OPS_INIT_ROW_SCHEMA,
-    z.tuple([
-        z.string(), // opId
-        z.union([z.literal('adjustment'), z.literal('transfer'), z.literal('income'), z.literal('expense')]), // opType
-        z.number(), // modified
-        z.number(), // date
-        z.number(), // amount
-        z.string(), // currency
-        z.string(), // account or category
-        z.number(), // account or category amount
-        z.string() // tags
-    ]),
-    z.tuple([
-        z.string(), // opId
-        z.union([z.literal('adjustment'), z.literal('transfer'), z.literal('income'), z.literal('expense')]), // opType
-        z.number(), // modified
-        z.number(), // date
-        z.number(), // amount
-        z.string(), // currency
-        z.string(), // account or category
-        z.number() // account or category amount
-    ])
-])
+export type GoogleOpsDeletedRow = [
+    string, // opId
+    'deleted' // opType
+]
 
-const G_OPS_EXT_ROW_SCHEMA = z.tuple(
-    [
-        z.string(), // opId
-        z.literal(''), // opType
-        z.literal(''), // modified
-        z.literal(''), // date
-        z.literal(''), // amount
-        z.literal(''), // currency
-        z.string(), // account or category
-        z.number() // account or category amount
-    ]
-)
-
-type GoogleOpsInitRow = z.infer<typeof G_OPS_INIT_ROW_SCHEMA>
-type GoogleOpsExtRow = z.infer<typeof G_OPS_EXT_ROW_SCHEMA>
-type GoogleOpsDeletedRow = z.infer<typeof G_OPS_DELETED_ROW_SCHEMA>
 type GoogleOpsRow = GoogleOpsInitRow | GoogleOpsExtRow | GoogleOpsDeletedRow
 
 export function opsToGoogle (ops: readonly Operation[]): GoogleOpsRow[] {
@@ -164,21 +130,24 @@ export function opsFromGoogle (rows: unknown[]): Operation[] {
     }
 
     for (const r of rows) {
-        if (baseOpInfo !== null && typeof r === 'object' && r !== null && 1 in r && r[1] !== '') {
-            if (r[1] === 'deleted') {
-                const row = G_OPS_DELETED_ROW_SCHEMA.parse(r)
-                result.push({
-                    id: row[0],
-                    type: 'deleted'
-                })
-                continue
-            }
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        if (isGoogleOpsDeletedRow(r)) {
+            result.push({
+                id: r[0],
+                type: 'deleted'
+            })
+            // no ext lines after delete
+            continue
+        }
 
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        if (baseOpInfo !== null && isGoogleOpsInitRow(r)) {
             makeOp()
         }
 
         if (baseOpInfo === null) {
-            const row = G_OPS_INIT_ROW_READING_SCHEMA.parse(r)
+            const row = assertGoogleOpsInitRow(r)
+
             baseOpInfo = {
                 id: row[0],
                 type: row[1],
@@ -200,7 +169,7 @@ export function opsFromGoogle (rows: unknown[]): Operation[] {
                 }
             }
         } else if (baseOpInfo.type === 'transfer') {
-            const row = G_OPS_EXT_ROW_SCHEMA.parse(r)
+            const row = assertGoogleOpsExtRow(r)
 
             toAccount = {
                 toAccount: {
@@ -213,7 +182,7 @@ export function opsFromGoogle (rows: unknown[]): Operation[] {
                 throw Error('Non null category expected here')
             }
 
-            const row = G_OPS_EXT_ROW_SCHEMA.parse(r)
+            const row = assertGoogleOpsExtRow(r)
 
             categories = {
                 categories: [
