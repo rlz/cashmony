@@ -1,13 +1,13 @@
 import React, { useState, type ReactElement, useEffect } from 'react'
-import { Accordion, AccordionDetails, AccordionSummary, Box, Chip, Typography, useTheme } from '@mui/material'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { Box, Typography, useTheme } from '@mui/material'
 import { OperationsModel } from '../model/operations'
 import { useParams } from 'react-router-dom'
 import { type Operation } from '../model/model'
 import { EditorAppBar } from '../widgets/EditorAppBar'
+import { observer } from 'mobx-react-lite'
+import { TagsEditor } from '../widgets/TagsEditor'
 
-export const OperationScreen = (): ReactElement => {
+export const OperationScreen = observer((): ReactElement => {
     const theme = useTheme()
     const [op, setOp] = useState<Operation | null>(null)
     const pathParams = useParams()
@@ -22,8 +22,6 @@ export const OperationScreen = (): ReactElement => {
     }, [])
 
     if (op?.type === 'expense') {
-        const tags = new Set(op.tags)
-
         return <Box width="100vw" height="100vh" display="flex" flexDirection="column">
             <EditorAppBar
                 title='Expense'
@@ -45,43 +43,11 @@ export const OperationScreen = (): ReactElement => {
                             currencyDisplay: 'narrowSymbol'
                         })}
                     </Typography>
-                    <Accordion>
-                        <AccordionSummary
-                            expandIcon={<FontAwesomeIcon icon={faChevronDown} />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
-                        >
-                            <Typography component='div' noWrap flex='1 0 0' width={0}>Tags: {op.tags.join(', ')}</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <Box display="flex" flexWrap="wrap" gap={1}>
-                                {OperationsModel.instance().allExpenseTags.map(t => {
-                                    if (tags.has(t)) {
-                                        return <a key={t} onClick={() => {
-                                            setOp({
-                                                ...op,
-                                                tags: op.tags.filter(i => i !== t)
-                                            })
-                                        }}>
-                                            <Chip color="info" size='small' label={t}/>
-                                        </a>
-                                    }
-                                    return <a key={t} onClick={() => {
-                                        setOp({
-                                            ...op,
-                                            tags: [...op.tags, t]
-                                        })
-                                    }}>
-                                        <Chip size='small' label={t}/>
-                                    </a>
-                                })}
-                            </Box>
-                        </AccordionDetails>
-                    </Accordion>
+                    <TagsEditor tags={op.tags} opType={op.type} onTagsChanged={tags => { setOp({ ...op, tags }) } } />
                 </Box>
             </Box>
         </Box>
     }
 
     return <>Unsupported type: {op?.type}</>
-}
+})
