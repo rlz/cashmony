@@ -9,6 +9,7 @@ import { TagsEditor } from '../widgets/TagsEditor'
 import { AccountEditor } from '../widgets/AccountEditor'
 import { AmountEditor } from '../widgets/AmountEditor'
 import { AccountsModel } from '../model/accounts'
+import { CommentEditor } from '../widgets/CommentEditor'
 
 const accountsModel = AccountsModel.instance()
 
@@ -16,7 +17,9 @@ export const OperationScreen = observer((): ReactElement => {
     const theme = useTheme()
     const [op, setOp] = useState<Operation | null>(null)
     const pathParams = useParams()
-    const [expanded, setExpanded] = useState<'tags' | 'account' | 'amount' | ''>('')
+    const [expanded, setExpanded] = useState<
+    'tags' | 'account' | 'amount' | 'comment' | ''
+    >('')
 
     useEffect(() => {
         console.log('Edit Operation', op)
@@ -85,6 +88,12 @@ export const OperationScreen = observer((): ReactElement => {
                         tags={op.tags}
                         opType={op.type}
                         onTagsChanged={tags => { setOp({ ...op, tags }) } }
+                    />
+                    <CommentEditor
+                        expanded={expanded === 'comment'}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'comment' : '') }}
+                        comment={op.comment}
+                        onCommentChange={comment => { setOp({ ...op, comment }) }}
                     />
                 </Box>
             </Box>
