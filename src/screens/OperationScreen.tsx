@@ -11,15 +11,18 @@ import { AmountEditor } from '../widgets/AmountEditor'
 import { AccountsModel } from '../model/accounts'
 import { CommentEditor } from '../widgets/CommentEditor'
 import { DateSelector } from '../widgets/DateSelector'
+import { CategoriesEditor } from '../widgets/CategoriesEditor'
+import { CategoriesModel } from '../model/categories'
 
 const accountsModel = AccountsModel.instance()
+const categoriesModel = CategoriesModel.instance()
 
 export const OperationScreen = observer((): ReactElement => {
     const theme = useTheme()
     const [op, setOp] = useState<Operation | null>(null)
     const pathParams = useParams()
     const [expanded, setExpanded] = useState<
-    'tags' | 'account' | 'amount' | 'comment' | 'date' | ''
+    'tags' | 'account' | 'amount' | 'comment' | 'date' | 'categories' | ''
     >('')
 
     useEffect(() => {
@@ -89,6 +92,14 @@ export const OperationScreen = observer((): ReactElement => {
                         account={op.account}
                         onAccountChange={account => { setOp(propagateAmount({ ...op, account })) }}
                     />
+                    <CategoriesEditor
+                        opAmount={op.amount}
+                        opCurrency={op.currency}
+                        categories={op.categories}
+                        onCategoriesChange={categories => { setOp(propagateAmount({ ...op, categories })) }}
+                        expanded={expanded === 'categories'}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : '') }}
+                    />
                     <TagsEditor
                         expanded={expanded === 'tags'}
                         onExpandedChange={(expanded) => { setExpanded(expanded ? 'tags' : '') }}
@@ -121,6 +132,21 @@ function propagateAmount (op: NotDeletedOperation): NotDeletedOperation {
                 ...op.account,
                 amount: op.amount
             }
+        }
+    }
+
+    if (
+        (op.type === 'expense' || op.type === 'income') &&
+        op.categories.length === 1 &&
+        op.categories[0].amount !== op.amount &&
+        op.currency === categoriesModel.categories[op.categories[0].name].currency
+    ) {
+        op = {
+            ...op,
+            categories: [{
+                ...op.categories[0],
+                amount: op.amount
+            }]
         }
     }
 

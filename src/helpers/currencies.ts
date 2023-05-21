@@ -16,3 +16,13 @@ export function formatCurrency (amount: number, currency: string): string {
         currencyDisplay: 'narrowSymbol'
     })
 }
+
+export function formatExchangeRate (from: number, to: number): string {
+    if (from === 0 || to === 0) {
+        return 'Exc. rate: _.__'
+    }
+
+    const r = (Math.max(from / to, to / from)).toFixed(2)
+
+    return `Exc. rate: ${r}`
+}

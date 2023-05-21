@@ -1,5 +1,5 @@
 import { type IDBPDatabase, openDB } from 'idb'
-import { type Account, type NotDeletedOperation, type Operation } from './model'
+import { type Category, type Account, type NotDeletedOperation, type Operation } from './model'
 import { DateTime } from 'luxon'
 
 const OPERATIONS_STORE_NAME = 'operations'
@@ -42,6 +42,16 @@ export class FinDataDb {
     async putAccount (account: Account): Promise<void> {
         const db = await this.openDb()
         await db.put(ACCOUNTS_STORE_NAME, account)
+    }
+
+    async readAllCategories (): Promise<Category[]> {
+        const db = await this.openDb()
+        return (await db.getAll(CATEGORIES_STORE_NAME)) as Category[]
+    }
+
+    async putCategory (category: Category): Promise<void> {
+        const db = await this.openDb()
+        await db.put(CATEGORIES_STORE_NAME, category)
     }
 
     async getOperation (id: string): Promise<Operation> {

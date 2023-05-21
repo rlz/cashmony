@@ -5,7 +5,7 @@ import React, { type ReactElement } from 'react'
 import { type NotDeletedOperation } from '../model/model'
 import { AccountsModel } from '../model/accounts'
 import { observer } from 'mobx-react-lite'
-import { formatCurrency } from '../helpers/currencies'
+import { formatCurrency, formatExchangeRate } from '../helpers/currencies'
 import { CurrencyInput } from './CurrencyInput'
 
 interface Props {
@@ -35,7 +35,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                     ? '_.__'
                     : formatCurrency(
                         Math.abs(props.account.amount),
-                        accountsModel.accounts[props.account.name].currency
+                        account.currency
                     )
                 }
             </Typography>
@@ -81,13 +81,3 @@ export const AccountEditor = observer((props: Props): ReactElement => {
         </AccordionDetails>
     </Accordion>
 })
-
-function formatExchangeRate (from: number, to: number): string {
-    if (from === 0 || to === 0) {
-        return 'Exc. rate: _.__'
-    }
-
-    const r = (Math.max(from / to, to / from)).toFixed(2)
-
-    return `Exc. rate: ${r}`
-}
