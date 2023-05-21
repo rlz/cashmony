@@ -10,6 +10,7 @@ import { AccountEditor } from '../widgets/AccountEditor'
 import { AmountEditor } from '../widgets/AmountEditor'
 import { AccountsModel } from '../model/accounts'
 import { CommentEditor } from '../widgets/CommentEditor'
+import { DateSelector } from '../widgets/DateSelector'
 
 const accountsModel = AccountsModel.instance()
 
@@ -18,7 +19,7 @@ export const OperationScreen = observer((): ReactElement => {
     const [op, setOp] = useState<Operation | null>(null)
     const pathParams = useParams()
     const [expanded, setExpanded] = useState<
-    'tags' | 'account' | 'amount' | 'comment' | ''
+    'tags' | 'account' | 'amount' | 'comment' | 'date' | ''
     >('')
 
     useEffect(() => {
@@ -73,6 +74,12 @@ export const OperationScreen = observer((): ReactElement => {
                             }))
                         }}
                         onExpandedChange={(expanded) => { setExpanded(expanded ? 'amount' : '') }}
+                    />
+                    <DateSelector
+                        expanded={expanded === 'date'}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'date' : '') }}
+                        date={op.date}
+                        onDateChange={date => { setOp({ ...op, date }) }}
                     />
                     <AccountEditor
                         opAmount={op.amount}
