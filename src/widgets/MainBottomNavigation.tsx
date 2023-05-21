@@ -1,4 +1,4 @@
-import { faMoneyBillTransfer, faMoneyBillTrendUp, faWallet } from '@fortawesome/free-solid-svg-icons'
+import { faList, faShapes, faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { BottomNavigation, BottomNavigationAction } from '@mui/material'
 import React, { type ReactElement } from 'react'
@@ -14,19 +14,19 @@ export function MainBottomNavigation (): ReactElement {
         <BottomNavigationAction
             value="/operations"
             label="Operations"
-            icon={<FontAwesomeIcon size="2x" icon={faMoneyBillTransfer} />}
+            icon={<FontAwesomeIcon size='lg' icon={faList} />}
             onClick={() => { nav('/operations') }}
         />
         <BottomNavigationAction
             value="/categories"
             label="Categories"
-            icon={<FontAwesomeIcon size='2x' icon={faMoneyBillTrendUp} />}
+            icon={<FontAwesomeIcon size='lg' icon={faShapes} />}
             onClick={() => { nav('/categories') }}
         />
         <BottomNavigationAction
             value="/accounts"
             label="Accounts"
-            icon={<FontAwesomeIcon size="2x" icon={faWallet} />}
+            icon={<FontAwesomeIcon size="lg" icon={faWallet} />}
             onClick={() => { nav('/accounts') }}
         />
     </BottomNavigation>

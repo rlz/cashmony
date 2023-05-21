@@ -101,38 +101,36 @@ function Transaction ({ op }: { op: NotDeletedOperation }): ReactElement {
         </Avatar>
     </Box>
 
-    const Amount = ({ amount }: { amount: number }): ReactElement => <Typography variant='body1' color={color.dark}>
+    const Amount = ({ amount }: { amount: number }): ReactElement => <Typography variant='body1' color={color.light}>
         { formatCurrency(amount, op.currency) }
     </Typography>
 
     if (op.type === 'adjustment') {
-        return <MainScreen>
-            <Paper elevation={4} sx={{ p: 1 }}>
-                <Box display='flex' gap={theme.spacing(2)}>
-                    <IconBox />
-                    <Box flex="1 0 0">
-                        <Box display="flex">
-                            <Typography variant='body1' flex="1 0 0" color={theme.palette.grey[500]}>
+        return <Paper elevation={1} sx={{ p: 1 }}>
+            <Box display='flex' gap={theme.spacing(2)}>
+                <IconBox />
+                <Box flex="1 0 0">
+                    <Box display="flex">
+                        <Typography variant='body1' flex="1 0 0" color={theme.palette.grey[500]}>
                             Adjustment
-                            </Typography>
-                            <Box textAlign="right">
-                                <Amount amount={op.amount}/>
-                                <Typography variant='body2'>
-                                    <FontAwesomeIcon icon={faWallet}/> {op.account.name}
-                                </Typography>
-                            </Box>
-                        </Box>
-                        <Typography variant='body2' fontStyle="italic">
-                            {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
                         </Typography>
+                        <Box textAlign="right">
+                            <Amount amount={op.amount}/>
+                            <Typography variant='body2'>
+                                <FontAwesomeIcon icon={faWallet}/> {op.account.name}
+                            </Typography>
+                        </Box>
                     </Box>
+                    <Typography variant='body2' fontStyle="italic">
+                        {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
+                    </Typography>
                 </Box>
-            </Paper>
-        </MainScreen>
+            </Box>
+        </Paper>
     }
 
     if (op.type === 'transfer') {
-        return <Paper elevation={4} sx={{ p: 1 }}>
+        return <Paper elevation={1} sx={{ p: 1 }}>
             <Box display='flex' gap={theme.spacing(2)}>
                 <IconBox />
                 <Box flex="1 0 0">
@@ -159,7 +157,7 @@ function Transaction ({ op }: { op: NotDeletedOperation }): ReactElement {
         return <a onClick={() => {
             navigate(`/operations/${op.id}`)
         }}>
-            <Paper elevation={4} sx={{ p: 1 }}>
+            <Paper elevation={1} sx={{ p: 1 }}>
                 <Box display='flex' gap={theme.spacing(2)}>
                     <IconBox />
                     <Box flex="1 0 0">
