@@ -1,6 +1,9 @@
 import './google.scss'
 import makeUrl from './makeUrl'
 import { createDataSpreadsheet } from './createDataSpreadsheet'
+import { loadOperations } from './loadOperations'
+import { type Operation } from '../model/model'
+import { storeOperations } from './storeOperations'
 
 const ACCESS_TOKEN = 'access_token'
 const GOOGLE_CLIENT_ID = '969343913019-635prket9b5rq0skn212ab098u5m22pv.apps.googleusercontent.com'
@@ -113,6 +116,9 @@ export class Google {
             console.warn('Unauthorised')
         }
     }
+
+    loadOperations = async (): Promise<Operation[]> => await loadOperations(this)
+    storeOperations = async (ops: readonly Operation[]): Promise<void> => { await storeOperations(this, ops) }
 }
 
 export interface GoogleReply {

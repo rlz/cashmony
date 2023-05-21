@@ -3,11 +3,13 @@ import { type DateTime } from 'luxon'
 export interface Category {
     readonly name: string
     readonly currency: string
+    readonly hidden: boolean
 }
 
 export interface Account {
     readonly name: string
     readonly currency: string
+    readonly hidden: boolean
 }
 
 interface BaseTransaction {

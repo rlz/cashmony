@@ -7,6 +7,7 @@ import { faArrowRightLong, faCreditCard, faExclamation, faHandHoldingDollar, faM
 import { useNavigate } from 'react-router-dom'
 import { MainScreen } from '../widgets/MainScreen'
 import { type NotDeletedOperation } from '../model/model'
+import { formatCurrency } from '../helpers/currencies'
 
 const Fab = (): ReactElement => {
     const [open, setOpen] = useState(false)
@@ -101,16 +102,7 @@ function Transaction ({ op }: { op: NotDeletedOperation }): ReactElement {
     </Box>
 
     const Amount = ({ amount }: { amount: number }): ReactElement => <Typography variant='body1' color={color.dark}>
-        {
-            amount.toLocaleString(
-                undefined,
-                {
-                    style: 'currency',
-                    currency: op.currency,
-                    currencyDisplay: 'narrowSymbol'
-                }
-            )
-        }
+        { formatCurrency(amount, op.currency) }
     </Typography>
 
     if (op.type === 'adjustment') {

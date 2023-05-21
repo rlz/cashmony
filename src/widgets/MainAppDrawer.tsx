@@ -2,15 +2,10 @@ import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, SwipeableDrawer, type SwipeableDrawerProps, TextField } from '@mui/material'
 import React, { type ReactElement } from 'react'
-import { OperationsModel } from '../model/operations'
+import { OperationsModel, syncDataWithGoogle } from '../model/operations'
 import { runInAction } from 'mobx'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
-import { Google } from '../google/google'
-import { loadOperations } from '../google/loadOperations'
-import deepEqual from 'fast-deep-equal'
-import { type Operation } from '../model/model'
-import { storeOperations } from '../google/storeOperations'
 
 export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElement => {
     return <SwipeableDrawer
@@ -21,11 +16,19 @@ export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElemen
     >
         <List sx={{ width: '100vw', maxWidth: '20rem' }}>
             <ListItem disablePadding>
-                <ListItemButton onClick={() => { void loadDataFromGoogle() }}>
+                <ListItemButton onClick={() => { void syncDataWithGoogle() }}>
                     <ListItemIcon>
                         <FontAwesomeIcon icon={faCloudArrowUp} />
                     </ListItemIcon>
                     <ListItemText primary="Sync" />
+                </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+                <ListItemButton onClick={() => { void runAction() }}>
+                    <ListItemIcon>
+                        <FontAwesomeIcon icon={faCloudArrowUp} />
+                    </ListItemIcon>
+                    <ListItemText primary="Run action" />
                 </ListItemButton>
             </ListItem>
         </List>
@@ -49,64 +52,5 @@ export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElemen
     </SwipeableDrawer>
 })
 
-const google = Google.instance()
-const operations = OperationsModel.instance()
-
-async function loadDataFromGoogle (): Promise<void> {
-    await google.authenticate()
-    await google.searchOrCreateDataSpreadsheet()
-    const googleOps = await loadOperations(google)
-    const localOps = operations.operations
-
-    const googleOpsMap = new Map<string, Operation>()
-    googleOps.forEach(o => googleOpsMap.set(o.id, o))
-
-    const localOpsMap = new Map<string, Operation>()
-    localOps.forEach(o => localOpsMap.set(o.id, o))
-
-    let matched = 0
-    const latestInGoogle: Operation[] = []
-    let latestInLocal = 0
-    const missedInLocal: Operation[] = []
-    const deletedInGoogle: Operation[] = []
-    let deletedInLocal = 0
-
-    for (const googleOp of googleOps) {
-        const localOp = localOpsMap.get(googleOp.id)
-
-        if (localOp === undefined) {
-            missedInLocal.push(googleOp)
-            continue
-        }
-
-        localOpsMap.delete(googleOp.id)
-
-        if (deepEqual(googleOp, localOp)) {
-            matched += 1
-        } else if (googleOp.type === 'deleted') {
-            deletedInGoogle.push(googleOp)
-        } else if (localOp.type === 'deleted') {
-            deletedInLocal += 1
-        } else if (localOp.lastModified.toMillis() >= googleOp.lastModified.toMillis()) {
-            latestInLocal += 1
-        } else {
-            latestInGoogle.push(googleOp)
-        }
-    }
-
-    console.log('Sync Result', {
-        matched,
-        latestInGoogle: latestInGoogle.length,
-        latestInLocal,
-        missedInGoogle: localOpsMap.size,
-        missedInLocal: missedInLocal.length,
-        deletedInGoogle: deletedInGoogle.length,
-        deletedInLocal
-    })
-
-    await operations.put([...missedInLocal, ...latestInGoogle, ...deletedInGoogle])
-
-    if (latestInLocal > 0 || localOpsMap.size > 0 || deletedInLocal > 0) {
-        await storeOperations(google, operations.operations)
-    }
+async function runAction (): Promise<void> {
 }

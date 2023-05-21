@@ -6,11 +6,13 @@ import { type Operation } from '../model/model'
 import { EditorAppBar } from '../widgets/EditorAppBar'
 import { observer } from 'mobx-react-lite'
 import { TagsEditor } from '../widgets/TagsEditor'
+import { AccountEditor } from '../widgets/AccountEditor'
 
 export const OperationScreen = observer((): ReactElement => {
     const theme = useTheme()
     const [op, setOp] = useState<Operation | null>(null)
     const pathParams = useParams()
+    const [expanded, setExpanded] = useState<'tags' | 'account' | ''>('')
 
     useEffect(() => {
         const getData = async (): Promise<void> => {
@@ -37,13 +39,27 @@ export const OperationScreen = observer((): ReactElement => {
             >
                 <Box p={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
                     <Typography variant='h3' my={2} color={theme.palette.error.light}>
-                        {Math.abs(op.account.amount).toLocaleString(undefined, {
+                        {Math.abs(op.amount).toLocaleString(undefined, {
                             style: 'currency',
                             currency: op.currency,
                             currencyDisplay: 'narrowSymbol'
                         })}
                     </Typography>
-                    <TagsEditor tags={op.tags} opType={op.type} onTagsChanged={tags => { setOp({ ...op, tags }) } } />
+                    <AccountEditor
+                        opAmount={op.amount}
+                        opCurrency={op.currency}
+                        expanded={expanded === 'account'}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : '') }}
+                        account={op.account}
+                        onAccountChange={account => { setOp({ ...op, account }) }}
+                    />
+                    <TagsEditor
+                        expanded={expanded === 'tags'}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'tags' : '') }}
+                        tags={op.tags}
+                        opType={op.type}
+                        onTagsChanged={tags => { setOp({ ...op, tags }) } }
+                    />
                 </Box>
             </Box>
         </Box>
