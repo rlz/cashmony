@@ -1,7 +1,7 @@
 import './DateSelector.scss'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material'
+import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Button, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import React, { type ReactElement } from 'react'
 import Calendar from 'react-calendar'
@@ -13,16 +13,14 @@ interface Props {
     onDateChange: (date: DateTime) => void
 }
 
-export const DateSelector = (props: Props): ReactElement => {
+export const DateEditor = (props: Props): ReactElement => {
     return <Accordion
         disableGutters
         expanded={props.expanded}
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
     >
         <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-            <Typography component='div' noWrap flex='1 0 0' width={0}>
-                    Date: {props.date.toLocaleString()}
-            </Typography>
+            <Typography>Date</Typography>
         </AccordionSummary>
         <AccordionDetails>
             <Typography
@@ -34,9 +32,7 @@ export const DateSelector = (props: Props): ReactElement => {
                     ? <Calendar
                         value={props.date.toJSDate()}
                         onClickDay={(date) => {
-                            console.log(date)
                             const utc = DateTime.utc(date.getFullYear(), date.getMonth() + 1, date.getDate())
-                            console.log(utc.toISO())
                             props.onDateChange(utc)
                         }}
                     />
@@ -44,5 +40,17 @@ export const DateSelector = (props: Props): ReactElement => {
                 }
             </Typography>
         </AccordionDetails>
+        <AccordionActions>
+            <Button onClick={() => {
+                const now = DateTime.now()
+                const utc = DateTime.utc(now.year, now.month, now.day).minus({ days: 1 })
+                props.onDateChange(utc)
+            }}>Yesterday</Button>
+            <Button onClick={() => {
+                const now = DateTime.now()
+                const utc = DateTime.utc(now.year, now.month, now.day)
+                props.onDateChange(utc)
+            }}>Today</Button>
+        </AccordionActions>
     </Accordion>
 }

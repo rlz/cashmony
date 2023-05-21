@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Accordion, AccordionDetails, AccordionSummary, Box, IconButton, Typography } from '@mui/material'
 import React, { useState, type ReactElement } from 'react'
 import { observer } from 'mobx-react-lite'
-import { formatCurrency, getCurrencySymbol } from '../helpers/currencies'
+import { getCurrencySymbol } from '../helpers/currencies'
 import { CurrencyInput } from './CurrencyInput'
 import { CurrencySelector } from './CurrencySelector'
 
@@ -26,16 +26,7 @@ export const AmountEditor = observer((props: Props): ReactElement => {
             onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
         >
             <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-                <Typography component='div' noWrap flex='1 0 0' width={0}>
-                    {'Amount: '}
-                    {props.amount === 0
-                        ? '_.__'
-                        : formatCurrency(
-                            Math.abs(props.amount),
-                            props.currency
-                        )
-                    }
-                </Typography>
+                <Typography>Amount</Typography>
             </AccordionSummary>
             <AccordionDetails>
                 <Box display="flex" gap={1}>

@@ -10,9 +10,10 @@ import { AccountEditor } from '../widgets/AccountEditor'
 import { AmountEditor } from '../widgets/AmountEditor'
 import { AccountsModel } from '../model/accounts'
 import { CommentEditor } from '../widgets/CommentEditor'
-import { DateSelector } from '../widgets/DateSelector'
+import { DateEditor } from '../widgets/DateEditor'
 import { CategoriesEditor } from '../widgets/CategoriesEditor'
 import { CategoriesModel } from '../model/categories'
+import { formatCurrency } from '../helpers/currencies'
 
 const accountsModel = AccountsModel.instance()
 const categoriesModel = CategoriesModel.instance()
@@ -22,12 +23,8 @@ export const OperationScreen = observer((): ReactElement => {
     const [op, setOp] = useState<Operation | null>(null)
     const pathParams = useParams()
     const [expanded, setExpanded] = useState<
-    'tags' | 'account' | 'amount' | 'comment' | 'date' | 'categories' | ''
-    >('')
-
-    useEffect(() => {
-        console.log('Edit Operation', op)
-    }, [op])
+    'tags' | 'account' | 'amount' | 'comment' | 'date' | 'categories' | null
+    >(null)
 
     useEffect(() => {
         const getData = async (): Promise<void> => {
@@ -39,6 +36,10 @@ export const OperationScreen = observer((): ReactElement => {
     }, [])
 
     if (op?.type === 'expense') {
+        const account = accountsModel.accounts[op.account.name]
+        const category = op.categories.length === 1 ? categoriesModel.categories[op.categories[0].name] : null
+        const categoryAmount = op.categories.length === 1 ? op.categories[0].amount : null
+
         return <Box width="100vw" height="100vh" display="flex" flexDirection="column">
             <EditorAppBar
                 title='Expense'
@@ -48,18 +49,37 @@ export const OperationScreen = observer((): ReactElement => {
             <Box
                 display="flex"
                 flexDirection="column"
-                textOverflow="scroll"
+                overflow="scroll"
                 flex="1 0 0"
                 bgcolor={theme.palette.background.default}
             >
-                <Box p={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
-                    <Typography variant='h3' my={2} color={theme.palette.error.light}>
-                        {Math.abs(op.amount).toLocaleString(undefined, {
-                            style: 'currency',
-                            currency: op.currency,
-                            currencyDisplay: 'narrowSymbol'
-                        })}
-                    </Typography>
+                <Box px={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
+                    <Box py={2}>
+                        <Typography variant='body2' textAlign='center'>
+                            {op.date.toLocaleString({ dateStyle: 'full' })}
+                        </Typography>
+                        <Typography variant='h4' textAlign='center' color={theme.palette.error.light}>
+                            {Math.abs(op.amount).toLocaleString(undefined, {
+                                style: 'currency',
+                                currency: op.currency,
+                                currencyDisplay: 'narrowSymbol'
+                            })}
+                        </Typography>
+                        <Typography variant='body2' mt={1}>
+                            Acc.: {op.account.name} ({formatCurrency(op.account.amount, account.currency)})
+                        </Typography>
+                        {
+                            op.categories.length === 1
+                                ? <Typography variant='body2'>
+                                    Cat.: {op.categories[0].name} ({formatCurrency(categoryAmount ?? 0, category?.currency ?? '')})
+                                </Typography>
+                                : null
+                        }
+                        <Typography variant='body2' mt={1} color='primary.light' noWrap>
+                            {op.tags.join(', ')}
+                        </Typography>
+                        <Typography variant='body2' fontStyle='italic'>{op.comment}</Typography>
+                    </Box>
                     <AmountEditor
                         amount={op.amount}
                         currency={op.currency}
@@ -76,11 +96,11 @@ export const OperationScreen = observer((): ReactElement => {
                                 amount
                             }))
                         }}
-                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'amount' : '') }}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'amount' : null) }}
                     />
-                    <DateSelector
+                    <DateEditor
                         expanded={expanded === 'date'}
-                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'date' : '') }}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'date' : null) }}
                         date={op.date}
                         onDateChange={date => { setOp({ ...op, date }) }}
                     />
@@ -88,7 +108,7 @@ export const OperationScreen = observer((): ReactElement => {
                         opAmount={op.amount}
                         opCurrency={op.currency}
                         expanded={expanded === 'account'}
-                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : '') }}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : null) }}
                         account={op.account}
                         onAccountChange={account => { setOp(propagateAmount({ ...op, account })) }}
                     />
@@ -98,18 +118,18 @@ export const OperationScreen = observer((): ReactElement => {
                         categories={op.categories}
                         onCategoriesChange={categories => { setOp(propagateAmount({ ...op, categories })) }}
                         expanded={expanded === 'categories'}
-                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : '') }}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
                     />
                     <TagsEditor
                         expanded={expanded === 'tags'}
-                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'tags' : '') }}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'tags' : null) }}
                         tags={op.tags}
                         opType={op.type}
                         onTagsChanged={tags => { setOp({ ...op, tags }) } }
                     />
                     <CommentEditor
                         expanded={expanded === 'comment'}
-                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'comment' : '') }}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'comment' : null) }}
                         comment={op.comment}
                         onCommentChange={comment => { setOp({ ...op, comment }) }}
                     />

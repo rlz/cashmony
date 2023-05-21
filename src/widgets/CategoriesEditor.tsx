@@ -5,7 +5,7 @@ import { CategoriesModel } from '../model/categories'
 import { Accordion, AccordionDetails, AccordionSummary, Box, Chip, Typography } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
-import { formatCurrency, formatExchangeRate } from '../helpers/currencies'
+import { formatExchangeRate } from '../helpers/currencies'
 import { CurrencyInput } from './CurrencyInput'
 
 interface Props {
@@ -37,21 +37,7 @@ export const CategoriesEditor = observer((props: Props): ReactElement => {
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
     >
         <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-            <Typography component='div' noWrap flex='1 0 0' width={0}>
-                Category: {category?.name}
-                {
-                    category === null
-                        ? null
-                        : (
-                            props.categories[0].amount === 0
-                                ? ' — _.__'
-                                : ' — ' + formatCurrency(
-                                    Math.abs(props.categories[0].amount),
-                                    category.currency
-                                )
-                        )
-                }
-            </Typography>
+            <Typography>Category</Typography>
         </AccordionSummary>
         <AccordionDetails>
             <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">

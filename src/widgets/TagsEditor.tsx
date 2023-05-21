@@ -25,7 +25,7 @@ export function TagsEditor (props: Props): ReactElement {
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
     >
         <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-            <Typography component='div' noWrap flex='1 0 0' width={0}>Tags: {props.tags.join(', ')}</Typography>
+            <Typography>Tags</Typography>
         </AccordionSummary>
         <AccordionDetails>
             <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">

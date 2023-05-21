@@ -5,7 +5,7 @@ import React, { type ReactElement } from 'react'
 import { type NotDeletedOperation } from '../model/model'
 import { AccountsModel } from '../model/accounts'
 import { observer } from 'mobx-react-lite'
-import { formatCurrency, formatExchangeRate } from '../helpers/currencies'
+import { formatExchangeRate } from '../helpers/currencies'
 import { CurrencyInput } from './CurrencyInput'
 
 interface Props {
@@ -27,18 +27,8 @@ export const AccountEditor = observer((props: Props): ReactElement => {
         expanded={props.expanded}
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
     >
-        <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-            <Typography component='div' noWrap flex='1 0 0' width={0}>
-                Account: {props.account.name}
-                {' — '}
-                {props.account.amount === 0
-                    ? '_.__'
-                    : formatCurrency(
-                        Math.abs(props.account.amount),
-                        account.currency
-                    )
-                }
-            </Typography>
+        <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />}>
+            <Typography>Account</Typography>
         </AccordionSummary>
         <AccordionDetails>
             <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">

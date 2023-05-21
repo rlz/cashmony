@@ -17,9 +17,7 @@ export const CommentEditor = (props: Props): ReactElement => {
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
     >
         <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-            <Typography component='div' noWrap flex='1 0 0' width={0}>
-                    Comment: {props.comment}
-            </Typography>
+            <Typography>Comment</Typography>
         </AccordionSummary>
         <AccordionDetails>
             <TextField
