@@ -2,17 +2,25 @@ import React, { useState, type ReactElement, useEffect } from 'react'
 import { Box, Typography, useTheme } from '@mui/material'
 import { OperationsModel } from '../model/operations'
 import { useParams } from 'react-router-dom'
-import { type Operation } from '../model/model'
+import { type NotDeletedOperation, type Operation } from '../model/model'
 import { EditorAppBar } from '../widgets/EditorAppBar'
 import { observer } from 'mobx-react-lite'
 import { TagsEditor } from '../widgets/TagsEditor'
 import { AccountEditor } from '../widgets/AccountEditor'
+import { AmountEditor } from '../widgets/AmountEditor'
+import { AccountsModel } from '../model/accounts'
+
+const accountsModel = AccountsModel.instance()
 
 export const OperationScreen = observer((): ReactElement => {
     const theme = useTheme()
     const [op, setOp] = useState<Operation | null>(null)
     const pathParams = useParams()
-    const [expanded, setExpanded] = useState<'tags' | 'account' | ''>('')
+    const [expanded, setExpanded] = useState<'tags' | 'account' | 'amount' | ''>('')
+
+    useEffect(() => {
+        console.log('Edit Operation', op)
+    }, [op])
 
     useEffect(() => {
         const getData = async (): Promise<void> => {
@@ -45,13 +53,31 @@ export const OperationScreen = observer((): ReactElement => {
                             currencyDisplay: 'narrowSymbol'
                         })}
                     </Typography>
+                    <AmountEditor
+                        amount={op.amount}
+                        currency={op.currency}
+                        expanded={expanded === 'amount'}
+                        onCurrencyChange={currency => {
+                            setOp({
+                                ...op,
+                                currency
+                            })
+                        }}
+                        onAmountChange={amount => {
+                            setOp(propagateAmount({
+                                ...op,
+                                amount
+                            }))
+                        }}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'amount' : '') }}
+                    />
                     <AccountEditor
                         opAmount={op.amount}
                         opCurrency={op.currency}
                         expanded={expanded === 'account'}
                         onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : '') }}
                         account={op.account}
-                        onAccountChange={account => { setOp({ ...op, account }) }}
+                        onAccountChange={account => { setOp(propagateAmount({ ...op, account })) }}
                     />
                     <TagsEditor
                         expanded={expanded === 'tags'}
@@ -67,3 +93,20 @@ export const OperationScreen = observer((): ReactElement => {
 
     return <>Unsupported type: {op?.type}</>
 })
+
+function propagateAmount (op: NotDeletedOperation): NotDeletedOperation {
+    if (
+        op.amount !== op.account.amount &&
+        op.currency === accountsModel.accounts[op.account.name].currency
+    ) {
+        op = {
+            ...op,
+            account: {
+                ...op.account,
+                amount: op.amount
+            }
+        }
+    }
+
+    return op
+}

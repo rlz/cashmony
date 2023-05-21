@@ -1,11 +1,12 @@
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Accordion, AccordionDetails, AccordionSummary, Box, Chip, InputAdornment, TextField, Typography } from '@mui/material'
-import React, { useState, type ReactElement } from 'react'
-import { type Account, type NotDeletedOperation } from '../model/model'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Chip, Typography } from '@mui/material'
+import React, { type ReactElement } from 'react'
+import { type NotDeletedOperation } from '../model/model'
 import { AccountsModel } from '../model/accounts'
 import { observer } from 'mobx-react-lite'
-import { formatCurrency, getCurrencySymbol } from '../helpers/currencies'
+import { formatCurrency } from '../helpers/currencies'
+import { CurrencyInput } from './CurrencyInput'
 
 interface Props {
     opAmount: number
@@ -19,6 +20,8 @@ interface Props {
 const accountsModel = AccountsModel.instance()
 
 export const AccountEditor = observer((props: Props): ReactElement => {
+    const account = accountsModel.accounts[props.account.name]
+
     return <Accordion
         disableGutters
         expanded={props.expanded}
@@ -58,77 +61,26 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                     </a>
                 })}
             </Box>
-            <AccountAmountEditor
-                opAmount={props.opAmount}
-                opCurrency={props.opCurrency}
-                account={accountsModel.accounts[props.account.name]}
-                accountAmount={props.account.amount}
-                onAccountAmountChange={(accountAmount) => {
-                    props.onAccountChange({
-                        name: props.account.name,
-                        amount: accountAmount
-                    })
-                }}
-            />
+            {props.opCurrency === account.currency
+                ? null
+                : <Box mt={1}>
+                    <CurrencyInput
+                        negative={props.opAmount < 0}
+                        label={`Amount — ${formatExchangeRate(props.opAmount, props.account.amount)}`}
+                        amount={props.account.amount}
+                        currency={account.currency}
+                        onAmountChange={(accountAmount) => {
+                            props.onAccountChange({
+                                name: props.account.name,
+                                amount: accountAmount
+                            })
+                        }}
+                    />
+                </Box>
+            }
         </AccordionDetails>
     </Accordion>
 })
-
-interface Props2 {
-    opAmount: number
-    opCurrency: string
-    account: Account
-    accountAmount: number
-    onAccountAmountChange: (accountAmount: number) => void
-}
-
-const amountInpRes = [
-    /^[0-9]*$/,
-    /^[0-9]+\.$/,
-    /^[0-9]+\.[0-9]+$/
-]
-
-function AccountAmountEditor (props: Props2): ReactElement | null {
-    const mult = props.opAmount < 0 ? -1 : 1
-
-    if (props.opCurrency === props.account.currency) {
-        return null
-    }
-
-    const [amountText, setAmountText] = useState(Math.abs(props.accountAmount).toFixed(2))
-
-    const a = parseFloat(amountText)
-
-    const error = Number.isNaN(a) || a === 0
-
-    return <Box mt={1}>
-        <TextField
-            fullWidth
-            variant='filled'
-            label={`Amount — ${formatExchangeRate(props.opAmount, props.accountAmount)}`}
-            size='small'
-            value={amountText}
-            error={error}
-            InputProps={{
-                startAdornment: <InputAdornment position="start">{getCurrencySymbol(props.account.currency)}</InputAdornment>
-            }}
-            onChange={(ev) => {
-                const text = ev.target.value
-                for (const re of amountInpRes) {
-                    if (re.test(text)) {
-                        setAmountText(ev.target.value)
-
-                        const a = parseFloat(ev.target.value)
-                        if (!Number.isNaN(a) && a !== 0) {
-                            props.onAccountAmountChange(mult * a)
-                            break
-                        }
-                    }
-                }
-            }}
-        />
-    </Box>
-}
 
 function formatExchangeRate (from: number, to: number): string {
     if (from === 0 || to === 0) {

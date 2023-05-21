@@ -6,25 +6,35 @@ import { useNavigate } from 'react-router-dom'
 
 interface Props {
     title: string
-    navigateOnBack: string
+    navigateOnBack?: string
+    onBack?: () => void
     onSave?: () => void
 }
 
-export function EditorAppBar ({ title, navigateOnBack, onSave }: Props): ReactElement {
+export function EditorAppBar ({ title, navigateOnBack, onBack, onSave }: Props): ReactElement {
     const navigate = useNavigate()
+
+    if (onBack === undefined && navigateOnBack !== undefined) {
+        onBack = () => { navigate(navigateOnBack) }
+    }
 
     return <AppBar position="static">
         <Toolbar>
-            <IconButton
-                size="large"
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                sx={{ mr: 2 }}
-                onClick={() => { navigate(navigateOnBack) }}
-            >
-                <FontAwesomeIcon icon={faCircleChevronLeft}/>
-            </IconButton>
+            {
+                onBack === undefined
+                    ? null
+                    : <IconButton
+                        size="large"
+                        edge="start"
+                        color="inherit"
+                        aria-label="menu"
+                        sx={{ mr: 2 }}
+                        onClick={onBack}
+                    >
+                        <FontAwesomeIcon icon={faCircleChevronLeft}/>
+                    </IconButton>
+
+            }
             <Typography variant='h6' flex='1 0 0'>{title}</Typography>
             {
                 onSave !== undefined
