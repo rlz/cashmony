@@ -61,7 +61,7 @@ export const OperationsScreen = observer(
                     <Box key={group[0].date.toISODate()}>
                         <Box px={theme.spacing(1)} pt={theme.spacing(2)}>
                             <Typography
-                                variant='h6'
+                                variant='body2'
                                 color={theme.palette.getContrastText(theme.palette.background.default)}
                             >
                                 {group[0].date.toLocaleString({ dateStyle: 'full' })}
