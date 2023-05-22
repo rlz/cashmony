@@ -2,7 +2,7 @@ import React, { useState, type ReactElement, useEffect } from 'react'
 import { Box, Button, Skeleton, Typography, useTheme } from '@mui/material'
 import { OperationsModel } from '../model/operations'
 import { useParams } from 'react-router-dom'
-import { type ExpenseOperation, type IncomeOperation, type NotDeletedOperation, type Operation } from '../model/model'
+import { type NotDeletedOperation, type Operation } from '../model/model'
 import { EditorAppBar } from '../widgets/EditorAppBar'
 import { observer } from 'mobx-react-lite'
 import { TagsEditor } from '../widgets/TagsEditor'
@@ -32,17 +32,11 @@ export const OperationScreen = observer((): ReactElement => {
         void getData()
     }, [])
 
-    let body = <SkeletonScreen />
-
-    if (op?.type === 'expense' || op?.type === 'income') {
-        body = <ExpenseIncomeScreen op={op} setOp={setOp}/>
-    }
-
     const title = op === null
         ? ''
         : op.type[0].toLocaleUpperCase() + op.type.substring(1)
 
-    return <Box width="100vw" height="100vh" display="flex" flexDirection="column">
+    const wrap = (el: ReactElement): ReactElement => <Box width="100vw" height="100vh" display="flex" flexDirection="column">
         <EditorAppBar
             title={title}
             navigateOnBack='/operations'
@@ -55,74 +49,36 @@ export const OperationScreen = observer((): ReactElement => {
             flex="1 0 0"
             bgcolor={theme.palette.background.default}
         >
-            {body}
+            {el}
         </Box>
     </Box>
+
+    if (op === null) {
+        return wrap(<SkeletonBody/>)
+    }
+
+    if (op.type === 'deleted') {
+        return wrap(<>Deleted</>)
+    }
+
+    return wrap(<OpBody op={op} setOp={setOp}/>)
 })
 
-interface ExpenseIncomeScreenProps {
-    op: ExpenseOperation | IncomeOperation
-    setOp: (op: ExpenseOperation | IncomeOperation) => void
+interface Props {
+    op: NotDeletedOperation
+    setOp: (op: NotDeletedOperation) => void
 }
 
-function SkeletonScreen (): ReactElement {
+function OpBody ({ op, setOp }: Props): ReactElement {
     const theme = useTheme()
-
-    return <Box px={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
-        <Box py={2}>
-            <Skeleton width={90} sx={{ margin: '0 auto' }}/>
-            <Skeleton width={180} height={48} sx={{ margin: '0 auto' }}/>
-            <Skeleton width={190} sx={{ mt: 1 }}/>
-            <Skeleton width={170} />
-            <Skeleton width={230} sx={{ mt: 1 }}/>
-            <Skeleton width={270}/>
-        </Box>
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }}/>
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
-    </Box>
-}
-
-function ExpenseIncomeScreen ({ op, setOp }: ExpenseIncomeScreenProps): ReactElement {
-    const theme = useTheme()
-    const account = accountsModel.accounts[op.account.name]
-    const category = op.categories.length === 1 ? categoriesModel.categories[op.categories[0].name] : null
-    const categoryAmount = op.categories.length === 1 ? op.categories[0].amount : null
-    const amountColor = op.type === 'expense' ? theme.palette.error.light : theme.palette.success.light
 
     const [expanded, setExpanded] = useState<
-    'tags' | 'account' | 'amount' | 'comment' | 'date' | 'categories' | null
+    'amount' | 'tags' | 'account' | 'toAccount' | 'comment' | 'date' | 'categories' | null
     >(null)
 
     return <Box px={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
         <Box py={2}>
-            <Typography variant='body2' textAlign='center'>
-                {op.date.toLocaleString({ dateStyle: 'full' })}
-            </Typography>
-            <Typography variant='h4' textAlign='center' color={amountColor}>
-                {Math.abs(op.amount).toLocaleString(undefined, {
-                    style: 'currency',
-                    currency: op.currency,
-                    currencyDisplay: 'narrowSymbol'
-                })}
-            </Typography>
-            <Typography variant='body2' mt={1}>
-            Acc.: {op.account.name} ({formatCurrency(op.account.amount, account.currency)})
-            </Typography>
-            {
-                op.categories.length === 1
-                    ? <Typography variant='body2'>
-                    Cat.: {op.categories[0].name} ({formatCurrency(categoryAmount ?? 0, category?.currency ?? '')})
-                    </Typography>
-                    : null
-            }
-            <Typography variant='body2' mt={1} color='primary.light' noWrap>
-                {op.tags.join(', ')}
-            </Typography>
-            <Typography variant='body2' fontStyle='italic'>{op.comment}</Typography>
+            <BasicInfo op={op}/>
         </Box>
         <AmountEditor
             amount={op.amount}
@@ -149,6 +105,7 @@ function ExpenseIncomeScreen ({ op, setOp }: ExpenseIncomeScreenProps): ReactEle
             onDateChange={date => { setOp({ ...op, date }) }}
         />
         <AccountEditor
+            title={op.type === 'transfer' ? 'From account' : 'Account'}
             opAmount={op.amount}
             opCurrency={op.currency}
             expanded={expanded === 'account'}
@@ -156,14 +113,32 @@ function ExpenseIncomeScreen ({ op, setOp }: ExpenseIncomeScreenProps): ReactEle
             account={op.account}
             onAccountChange={account => { setOp(propagateAmount({ ...op, account })) }}
         />
-        <CategoriesEditor
-            opAmount={op.amount}
-            opCurrency={op.currency}
-            categories={op.categories}
-            onCategoriesChange={categories => { setOp(propagateAmount({ ...op, categories })) }}
-            expanded={expanded === 'categories'}
-            onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
-        />
+        {
+            op.type === 'transfer'
+                ? <>
+                    <AccountEditor
+                        title='To account'
+                        opAmount={op.amount}
+                        opCurrency={op.currency}
+                        expanded={expanded === 'toAccount'}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'toAccount' : null) }}
+                        account={op.toAccount}
+                        onAccountChange={toAccount => { setOp(propagateAmount({ ...op, toAccount })) }}
+                    /></>
+                : null
+        }
+        {
+            op.type === 'expense' || op.type === 'income'
+                ? <CategoriesEditor
+                    opAmount={op.amount}
+                    opCurrency={op.currency}
+                    categories={op.categories}
+                    onCategoriesChange={categories => { setOp(propagateAmount({ ...op, categories })) }}
+                    expanded={expanded === 'categories'}
+                    onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
+                />
+                : null
+        }
         <TagsEditor
             expanded={expanded === 'tags'}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'tags' : null) }}
@@ -181,6 +156,27 @@ function ExpenseIncomeScreen ({ op, setOp }: ExpenseIncomeScreenProps): ReactEle
     </Box>
 }
 
+function SkeletonBody (): ReactElement {
+    const theme = useTheme()
+
+    return <Box px={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
+        <Box py={2}>
+            <Skeleton width={90} sx={{ margin: '0 auto' }}/>
+            <Skeleton width={180} height={48} sx={{ margin: '0 auto' }}/>
+            <Skeleton width={190} sx={{ mt: 1 }}/>
+            <Skeleton width={170} />
+            <Skeleton width={230} sx={{ mt: 1 }}/>
+            <Skeleton width={270}/>
+        </Box>
+        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }}/>
+        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
+        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
+        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
+        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
+        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
+    </Box>
+}
+
 function propagateAmount<T extends NotDeletedOperation> (op: T): T {
     if (
         op.amount !== op.account.amount &&
@@ -190,6 +186,20 @@ function propagateAmount<T extends NotDeletedOperation> (op: T): T {
             ...op,
             account: {
                 ...op.account,
+                amount: op.type === 'transfer' ? -op.amount : op.amount
+            }
+        }
+    }
+
+    if (
+        op.type === 'transfer' &&
+        op.amount !== op.toAccount.amount &&
+        op.currency === accountsModel.accounts[op.toAccount.name].currency
+    ) {
+        op = {
+            ...op,
+            toAccount: {
+                ...op.toAccount,
                 amount: op.amount
             }
         }
@@ -211,4 +221,67 @@ function propagateAmount<T extends NotDeletedOperation> (op: T): T {
     }
 
     return op
+}
+
+function BasicInfo ({ op }: { op: NotDeletedOperation }): ReactElement {
+    const theme = useTheme()
+
+    const account = accountsModel.accounts[op.account.name]
+    const toAccount = op.type === 'transfer' ? op.toAccount : null
+    const toAccountCurrency = toAccount === null ? null : accountsModel.accounts[toAccount.name].currency
+
+    const amountColor = {
+        expense: theme.palette.error,
+        income: theme.palette.success,
+        transfer: theme.palette.info,
+        adjustment: theme.palette.warning
+    }[op.type].light
+
+    let categoryInfo: ReactElement | null = null
+    if (op.type === 'expense' || op.type === 'income') {
+        if (op.categories.length === 0) {
+            categoryInfo = <Typography variant='body2'>Cat.: -</Typography>
+        } else {
+            categoryInfo = <>{
+                op.categories
+                    .map(c => {
+                        return {
+                            ...c,
+                            currency: categoriesModel.categories[op.categories[0].name].currency
+                        }
+                    })
+                    .map(c => <Typography key={c.name} variant='body2'>
+                        Cat.: {c.name} ({formatCurrency(c.amount, c.currency)})
+                    </Typography>)
+            }</>
+        }
+    }
+
+    return <>
+        <Typography variant='body2' textAlign='center'>
+            {op.date.toLocaleString({ dateStyle: 'full' })}
+        </Typography>
+        <Typography variant='h4' textAlign='center' color={amountColor}>
+            {Math.abs(op.amount).toLocaleString(undefined, {
+                style: 'currency',
+                currency: op.currency,
+                currencyDisplay: 'narrowSymbol'
+            })}
+        </Typography>
+        <Typography variant='body2' mt={1}>
+            {toAccount !== null ? 'From acc.: ' : 'Acc.: '}{op.account.name} ({formatCurrency(op.account.amount, account.currency)})
+        </Typography>
+        {
+            toAccount !== null
+                ? <Typography variant='body2'>
+                    To acc.: {toAccount.name} ({formatCurrency(toAccount.amount, toAccountCurrency ?? '')})
+                </Typography>
+                : null
+        }
+        {categoryInfo}
+        <Typography variant='body2' mt={1} color='primary.light' noWrap>
+            {op.tags.join(', ')}
+        </Typography>
+        <Typography variant='body2' fontStyle='italic'>{op.comment}</Typography>
+    </>
 }

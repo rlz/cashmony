@@ -9,6 +9,7 @@ import { formatExchangeRate } from '../helpers/currencies'
 import { CurrencyInput } from './CurrencyInput'
 
 interface Props {
+    title: string
     opAmount: number
     opCurrency: string
     expanded: boolean
@@ -28,7 +29,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
     >
         <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />}>
-            <Typography>Account</Typography>
+            <Typography>{props.title}</Typography>
         </AccordionSummary>
         <AccordionDetails>
             <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">

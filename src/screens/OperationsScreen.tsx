@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { MainScreen } from '../widgets/MainScreen'
 import { type NotDeletedOperation } from '../model/model'
 import { formatCurrency } from '../helpers/currencies'
+import { AccountsModel } from '../model/accounts'
 
 const Fab = (): ReactElement => {
     const [open, setOpen] = useState(false)
@@ -78,7 +79,9 @@ export const OperationsScreen = observer(
     }
 )
 
-function Transaction ({ op }: { op: NotDeletedOperation }): ReactElement {
+const accountsModel = AccountsModel.instance()
+
+const Transaction = observer(({ op }: { op: NotDeletedOperation }): ReactElement => {
     const theme = useTheme()
     const navigate = useNavigate()
 
@@ -105,95 +108,99 @@ function Transaction ({ op }: { op: NotDeletedOperation }): ReactElement {
         { formatCurrency(amount, op.currency) }
     </Typography>
 
-    if (op.type === 'adjustment') {
-        return <Paper elevation={1} sx={{ p: 1 }}>
-            <Box display='flex' gap={theme.spacing(2)}>
-                <IconBox />
-                <Box flex="1 0 0">
-                    <Box display="flex">
-                        <Typography variant='body1' flex="1 0 0" color={theme.palette.grey[500]}>
-                            Adjustment
-                        </Typography>
-                        <Box textAlign="right">
-                            <Amount amount={op.amount}/>
-                            <Typography variant='body2'>
-                                <FontAwesomeIcon icon={faWallet}/> {op.account.name}
-                            </Typography>
-                        </Box>
-                    </Box>
-                    <Typography variant='body2' fontStyle="italic">
-                        {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
-                    </Typography>
-                </Box>
-            </Box>
-        </Paper>
-    }
-
-    if (op.type === 'transfer') {
-        return <Paper elevation={1} sx={{ p: 1 }}>
-            <Box display='flex' gap={theme.spacing(2)}>
-                <IconBox />
-                <Box flex="1 0 0">
-                    <Box display="flex">
-                        <Typography variant='body1' flex="1 0 0" color={theme.palette.grey[500]}>
-                            Transfer
-                        </Typography>
-                        <Amount amount={op.amount} />
-                    </Box>
-                    <Typography variant='body2'>
-                        {op.account.name} ({op.account.amount.toFixed(2)})
-                        {' '}<FontAwesomeIcon icon={faArrowRightLong} />{' '}
-                        {op.toAccount.name} ({op.toAccount.amount.toFixed(2)})
-                    </Typography>
-                    <Typography variant='body2' fontStyle="italic">
-                        {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
-                    </Typography>
-                </Box>
-            </Box>
-        </Paper>
-    }
-
-    if (['expense', 'income'].includes(op.type)) {
+    const wrap = (el: ReactElement): ReactElement => {
         return <a onClick={() => {
             navigate(`/operations/${op.id}`)
         }}>
             <Paper elevation={1} sx={{ p: 1 }}>
                 <Box display='flex' gap={theme.spacing(2)}>
                     <IconBox />
-                    <Box flex="1 0 0">
-                        <Box display="flex">
-                            <Box flex="1 0 0">
-                                <Typography variant='body1'>
-                                    {
-                                        op.categories.length === 0
-                                            ? <Typography component="span" color={theme.palette.grey[500]}>No category</Typography>
-                                            : (
-                                                op.categories.length === 1
-                                                    ? op.categories[0].name
-                                                    : `${op.categories.length} categories`
-                                            )
-                                    }
-                                </Typography>
-                                <Typography variant='body2'>
-                                    {op.tags.join(', ')}
-                                </Typography>
-                            </Box>
-                            <Box textAlign="right">
-                                <Amount amount={Math.abs(op.amount)}/>
-                                <Typography variant='body2'>
-                                    <FontAwesomeIcon icon={faWallet}/> {op.account.name}
-                                </Typography>
-                            </Box>
-                        </Box>
-                        <Typography variant='body2' fontStyle="italic">
-                            {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
-                        </Typography>
-                    </Box>
+                    <Box flex="1 0 0">{el}</Box>
                 </Box>
             </Paper>
         </a>
     }
 
+    if (op.type === 'adjustment') {
+        return wrap(<>
+            <Box display="flex">
+                <Typography variant='body1' flex="1 0 0" color={theme.palette.grey[500]}>
+                            Adjustment
+                </Typography>
+                <Box textAlign="right">
+                    <Amount amount={op.amount}/>
+                    <Typography variant='body2'>
+                        <FontAwesomeIcon icon={faWallet}/> {op.account.name}
+                    </Typography>
+                </Box>
+            </Box>
+            <Typography variant='body2' fontStyle="italic">
+                {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
+            </Typography>
+        </>)
+    }
+
+    if (op.type === 'transfer') {
+        const fromCurrency = accountsModel.accounts[op.account.name].currency
+        const toCurrency = accountsModel.accounts[op.toAccount.name].currency
+
+        const formatAccountAmount = (amount: number, currency: string): string | null =>
+            op.amount === Math.abs(amount) && op.currency === currency
+                ? null
+                : ` (${formatCurrency(amount, currency)})`
+
+        return wrap(<>
+            <Box display="flex">
+                <Typography variant='body1' flex="1 0 0" color={theme.palette.grey[500]}>
+                            Transfer
+                </Typography>
+                <Amount amount={op.amount} />
+            </Box>
+            <Typography variant='body2'>
+                {op.account.name}
+                { formatAccountAmount(op.account.amount, fromCurrency) }
+                {' '}<FontAwesomeIcon icon={faArrowRightLong} />{' '}
+                {op.toAccount.name}
+                { formatAccountAmount(op.toAccount.amount, toCurrency) }
+            </Typography>
+            <Typography variant='body2' fontStyle="italic">
+                {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
+            </Typography>
+        </>)
+    }
+
+    if (['expense', 'income'].includes(op.type)) {
+        return wrap(<>
+            <Box display="flex">
+                <Box flex="1 0 0">
+                    <Typography variant='body1'>
+                        {
+                            op.categories.length === 0
+                                ? <Typography component="span" color={theme.palette.grey[500]}>No category</Typography>
+                                : (
+                                    op.categories.length === 1
+                                        ? op.categories[0].name
+                                        : `${op.categories.length} categories`
+                                )
+                        }
+                    </Typography>
+                    <Typography variant='body2'>
+                        {op.tags.join(', ')}
+                    </Typography>
+                </Box>
+                <Box textAlign="right">
+                    <Amount amount={Math.abs(op.amount)}/>
+                    <Typography variant='body2'>
+                        <FontAwesomeIcon icon={faWallet}/> {op.account.name}
+                    </Typography>
+                </Box>
+            </Box>
+            <Typography variant='body2' fontStyle="italic">
+                {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
+            </Typography>
+        </>)
+    }
+
     console.log(op)
     throw Error(`Unexpected operation type: ${op.type}`)
-}
+})
