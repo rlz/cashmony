@@ -50,18 +50,16 @@ export function TagsEditor (props: Props): ReactElement {
                     </a>
                 })}
             </Box>
-            <Box mt={1}>
-                <TextField
-                    fullWidth
-                    variant="filled"
-                    size='small'
-                    label="New tag"
-                    value={newTag}
-                    onChange={(ev) => { setNewTag(ev.target.value) }}
-                />
-            </Box>
         </AccordionDetails>
-        <AccordionActions>
+        <AccordionActions sx={{ gap: 1, alignItems: 'stretch' }}>
+            <TextField
+                fullWidth
+                variant="filled"
+                size='small'
+                label="New tag"
+                value={newTag}
+                onChange={(ev) => { setNewTag(ev.target.value) }}
+            />
             <Button onClick={() => {
                 setNewTag('')
                 setNewTags([newTag, ...newTags])
