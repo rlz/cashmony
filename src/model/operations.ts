@@ -1,22 +1,20 @@
-import { DateTime } from 'luxon'
 import { makeAutoObservable, observable, runInAction, autorun } from 'mobx'
 import { type NotDeletedOperation, type Operation, operationComparator } from './model'
 import { FinDataDb } from './finDataDb'
 import { Google } from '../google/google'
 import deepEqual from 'fast-deep-equal'
+import { utcToday } from '../helpers/dates'
 
 let operationsModel: OperationsModel | null = null
 
 export class OperationsModel {
     private readonly finDataDb = FinDataDb.instance()
 
-    startDate: DateTime
+    startDate = utcToday()
     operations: readonly Operation[] = []
     displayOperations: NotDeletedOperation[][] = []
 
     private constructor () {
-        const now = DateTime.now()
-        this.startDate = DateTime.utc(now.year, now.month, now.day)
         makeAutoObservable(this, {
             operations: observable.shallow
         })

@@ -1,7 +1,7 @@
 import React, { useState, type ReactElement, useEffect } from 'react'
 import { Box, Button, Skeleton, Typography, useTheme } from '@mui/material'
 import { OperationsModel } from '../model/operations'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { type NotDeletedOperation, type Operation } from '../model/model'
 import { EditorAppBar } from '../widgets/EditorAppBar'
 import { observer } from 'mobx-react-lite'
@@ -14,6 +14,9 @@ import { DateEditor } from '../widgets/DateEditor'
 import { CategoriesEditor } from '../widgets/CategoriesEditor'
 import { CategoriesModel } from '../model/categories'
 import { formatCurrency } from '../helpers/currencies'
+import { v1 as uuid } from 'uuid'
+import { DateTime } from 'luxon'
+import { utcToday } from '../helpers/dates'
 
 const accountsModel = AccountsModel.instance()
 const categoriesModel = CategoriesModel.instance()
@@ -21,15 +24,41 @@ const categoriesModel = CategoriesModel.instance()
 export const OperationScreen = observer((): ReactElement => {
     const theme = useTheme()
     const [op, setOp] = useState<Operation | null>(null)
+    const location = useLocation()
     const pathParams = useParams()
+    const [searchParams] = useSearchParams()
 
     useEffect(() => {
-        const getData = async (): Promise<void> => {
-            const op = await OperationsModel.instance().getOperation(pathParams.opId as string)
-            setOp(op)
-        }
+        if (location.pathname === '/new-expense') {
+            const account = searchParams.get('account')
 
-        void getData()
+            if (account === null) {
+                throw Error('`account` search param expected')
+            }
+
+            setOp({
+                id: uuid(),
+                type: 'expense',
+                lastModified: DateTime.utc(),
+                date: utcToday(),
+                amount: parseFloat(searchParams.get('amount') ?? '0'),
+                currency: searchParams.get('currency') ?? 'USD',
+                account: {
+                    name: account,
+                    amount: parseFloat(searchParams.get('accountAmount') ?? '0')
+                },
+                categories: [],
+                tags: [],
+                comment: null
+            })
+        } else {
+            const getData = async (): Promise<void> => {
+                const op = await OperationsModel.instance().getOperation(pathParams.opId as string)
+                setOp(op)
+            }
+
+            void getData()
+        }
     }, [])
 
     const title = op === null
@@ -64,12 +93,12 @@ export const OperationScreen = observer((): ReactElement => {
     return wrap(<OpBody op={op} setOp={setOp}/>)
 })
 
-interface Props {
+interface BodyProps {
     op: NotDeletedOperation
     setOp: (op: NotDeletedOperation) => void
 }
 
-function OpBody ({ op, setOp }: Props): ReactElement {
+function OpBody ({ op, setOp }: BodyProps): ReactElement {
     const theme = useTheme()
 
     const [expanded, setExpanded] = useState<
@@ -223,12 +252,12 @@ function propagateAmount<T extends NotDeletedOperation> (op: T): T {
     return op
 }
 
-function BasicInfo ({ op }: { op: NotDeletedOperation }): ReactElement {
+const BasicInfo = observer(({ op }: { op: NotDeletedOperation }): ReactElement => {
     const theme = useTheme()
 
-    const account = accountsModel.accounts[op.account.name]
+    const accountCurrency = accountsModel.accounts[op.account.name]?.currency
     const toAccount = op.type === 'transfer' ? op.toAccount : null
-    const toAccountCurrency = toAccount === null ? null : accountsModel.accounts[toAccount.name].currency
+    const toAccountCurrency = toAccount === null ? null : accountsModel.accounts[toAccount.name]?.currency
 
     const amountColor = {
         expense: theme.palette.error,
@@ -269,12 +298,23 @@ function BasicInfo ({ op }: { op: NotDeletedOperation }): ReactElement {
             })}
         </Typography>
         <Typography variant='body2' mt={1}>
-            {toAccount !== null ? 'From acc.: ' : 'Acc.: '}{op.account.name} ({formatCurrency(op.account.amount, account.currency)})
+            {toAccount !== null ? 'From acc.: ' : 'Acc.: '}
+            {op.account.name}
+            {
+                accountCurrency === undefined || accountCurrency === null
+                    ? null
+                    : ` (${formatCurrency(op.account.amount, accountCurrency)})`
+            }
         </Typography>
         {
             toAccount !== null
                 ? <Typography variant='body2'>
-                    To acc.: {toAccount.name} ({formatCurrency(toAccount.amount, toAccountCurrency ?? '')})
+                    To acc.: {toAccount.name}
+                    {
+                        toAccountCurrency === undefined || toAccountCurrency === null
+                            ? null
+                            : ` (${formatCurrency(toAccount.amount, toAccountCurrency)})`
+                    }
                 </Typography>
                 : null
         }
@@ -284,4 +324,4 @@ function BasicInfo ({ op }: { op: NotDeletedOperation }): ReactElement {
         </Typography>
         <Typography variant='body2' fontStyle='italic'>{op.comment}</Typography>
     </>
-}
+})

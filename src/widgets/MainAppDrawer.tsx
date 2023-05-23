@@ -6,6 +6,7 @@ import { OperationsModel, syncDataWithGoogle } from '../model/operations'
 import { runInAction } from 'mobx'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
+import { utcToday } from '../helpers/dates'
 
 export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElement => {
     return <SwipeableDrawer
@@ -41,8 +42,7 @@ export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElemen
                 runInAction(() => {
                     const om = OperationsModel.instance()
                     if (v.target.value === '') {
-                        const now = DateTime.now()
-                        om.startDate = DateTime.utc(now.year, now.month, now.day)
+                        om.startDate = utcToday()
                     } else {
                         om.startDate = DateTime.fromFormat(v.target.value, 'yyyy-LL-dd', { zone: 'utc' })
                     }

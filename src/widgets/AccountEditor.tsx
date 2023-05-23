@@ -52,7 +52,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                     </a>
                 })}
             </Box>
-            {props.opCurrency === account.currency
+            {account === undefined || props.opCurrency === account.currency
                 ? null
                 : <Box mt={1}>
                     <CurrencyInput

@@ -43,6 +43,10 @@ const router = createBrowserRouter([
     {
         path: 'operations/:opId',
         element: <OperationScreen />
+    },
+    {
+        path: 'new-expense',
+        element: <OperationScreen />
     }
 ])
 

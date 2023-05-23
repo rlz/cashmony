@@ -12,6 +12,7 @@ import { AccountsModel } from '../model/accounts'
 
 const Fab = (): ReactElement => {
     const [open, setOpen] = useState(false)
+    const navigate = useNavigate()
 
     return <>
         <Backdrop open={open} sx={{ backdropFilter: 'grayscale(30%) brightness(300%) blur(2px)' }} />
@@ -28,6 +29,9 @@ const Fab = (): ReactElement => {
                 tooltipOpen
                 tooltipTitle="Expence"
                 FabProps={{ color: 'error', size: 'medium' }}
+                onClick={() => {
+                    navigate('/new-expense?amount=12&currency=RUB&account=Cash&accountAmount=12')
+                }}
             />
             <SpeedDialAction
                 icon={<FontAwesomeIcon icon={faHandHoldingDollar} />}

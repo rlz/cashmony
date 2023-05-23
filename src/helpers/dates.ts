@@ -10,3 +10,8 @@ export function fromGoogleDateTime (date: number): DateTime {
 export function toGoogleDateTime (date: DateTime): number {
     return date.diff(GOOGLE_EPOCH, 'days').days
 }
+
+export function utcToday (): DateTime {
+    const now = DateTime.now()
+    return DateTime.utc(now.year, now.month, now.day)
+}

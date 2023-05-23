@@ -5,6 +5,7 @@ import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Button
 import { DateTime } from 'luxon'
 import React, { type ReactElement } from 'react'
 import Calendar from 'react-calendar'
+import { utcToday } from '../helpers/dates'
 
 interface Props {
     date: DateTime
@@ -42,13 +43,11 @@ export const DateEditor = (props: Props): ReactElement => {
         </AccordionDetails>
         <AccordionActions>
             <Button onClick={() => {
-                const now = DateTime.now()
-                const utc = DateTime.utc(now.year, now.month, now.day).minus({ days: 1 })
+                const utc = utcToday().minus({ days: 1 })
                 props.onDateChange(utc)
             }}>Yesterday</Button>
             <Button onClick={() => {
-                const now = DateTime.now()
-                const utc = DateTime.utc(now.year, now.month, now.day)
+                const utc = utcToday()
                 props.onDateChange(utc)
             }}>Today</Button>
         </AccordionActions>
