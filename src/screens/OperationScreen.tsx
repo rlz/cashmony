@@ -1,7 +1,7 @@
 import React, { useState, type ReactElement, useEffect } from 'react'
 import { Box, Button, Skeleton, Typography, useTheme } from '@mui/material'
 import { OperationsModel } from '../model/operations'
-import { useLocation, useParams, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { type NotDeletedOperation, type Operation } from '../model/model'
 import { EditorAppBar } from '../widgets/EditorAppBar'
 import { observer } from 'mobx-react-lite'
@@ -18,6 +18,7 @@ import { v1 as uuid } from 'uuid'
 import { DateTime } from 'luxon'
 import { utcToday } from '../helpers/dates'
 
+const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
 const categoriesModel = CategoriesModel.instance()
 
@@ -27,6 +28,7 @@ export const OperationScreen = observer((): ReactElement => {
     const location = useLocation()
     const pathParams = useParams()
     const [searchParams] = useSearchParams()
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (location.pathname === '/new-expense') {
@@ -53,7 +55,7 @@ export const OperationScreen = observer((): ReactElement => {
             })
         } else {
             const getData = async (): Promise<void> => {
-                const op = await OperationsModel.instance().getOperation(pathParams.opId as string)
+                const op = await operationsModel.getOperation(pathParams.opId as string)
                 setOp(op)
             }
 
@@ -69,7 +71,11 @@ export const OperationScreen = observer((): ReactElement => {
         <EditorAppBar
             title={title}
             navigateOnBack='/operations'
-            onSave={() => { alert('Save!!') }}
+            onSave={async () => {
+                if (op === null) return
+
+                await operationsModel.put([op]).then(() => { navigate('/operations') })
+            }}
         />
         <Box
             display="flex"

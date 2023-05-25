@@ -1,18 +1,19 @@
-import { faCircleCheck, faCircleChevronLeft } from '@fortawesome/free-solid-svg-icons'
+import { faCircleCheck, faCircleChevronLeft, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AppBar, IconButton, Toolbar, Typography } from '@mui/material'
-import React, { type ReactElement } from 'react'
+import React, { useState, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 interface Props {
-    title: string
+    title: string | null
     navigateOnBack?: string
     onBack?: () => void
-    onSave?: () => void
+    onSave?: (() => void) | (() => Promise<void>)
 }
 
 export function EditorAppBar ({ title, navigateOnBack, onBack, onSave }: Props): ReactElement {
     const navigate = useNavigate()
+    const [inProgress, setInProgress] = useState(false)
 
     if (onBack === undefined && navigateOnBack !== undefined) {
         onBack = () => { navigate(navigateOnBack) }
@@ -44,9 +45,23 @@ export function EditorAppBar ({ title, navigateOnBack, onBack, onSave }: Props):
                         color="inherit"
                         aria-label="menu"
                         sx={{ ml: 2 }}
-                        onClick={onSave}
+                        onClick={() => {
+                            setInProgress(true)
+                            setTimeout(() => {
+                                const ret = onSave()
+                                if (ret !== undefined) {
+                                    void ret.then(() => {
+                                        setInProgress(false)
+                                    })
+                                }
+                            })
+                        }}
                     >
-                        <FontAwesomeIcon icon={faCircleCheck}/>
+                        {
+                            inProgress
+                                ? <FontAwesomeIcon icon={faSpinner} spinPulse />
+                                : <FontAwesomeIcon icon={faCircleCheck}/>
+                        }
                     </IconButton>
                     : undefined
             }
