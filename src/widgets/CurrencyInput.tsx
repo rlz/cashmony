@@ -23,10 +23,10 @@ export function CurrencyInput (props: Props): ReactElement {
     const a = parseFloat(amountText)
 
     useEffect(() => {
-        if (props.amount !== mult * a) {
+        if (amountText !== '' && props.amount !== mult * a) {
             setAmountText(Math.abs(props.amount).toFixed(2))
         }
-    }, [props.amount, mult, a])
+    }, [props.amount, mult, a, amountText])
 
     const error = Number.isNaN(a) || a === 0
 
