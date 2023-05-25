@@ -9,49 +9,41 @@ import { MainScreen } from '../widgets/MainScreen'
 import { type NotDeletedOperation } from '../model/model'
 import { formatCurrency } from '../helpers/currencies'
 import { AccountsModel } from '../model/accounts'
-import { CreateExpense } from '../widgets/CreateExpense'
 
 const Fab = (): ReactElement => {
-    type OpenType = 'fab' | 'expense' | 'income' | 'transfer' | null
-    const [open, setOpen] = useState<OpenType>(null)
+    const [open, setOpen] = useState(false)
+    const navigate = useNavigate()
 
     return <>
-        <Backdrop open={open === 'fab'} sx={{ backdropFilter: 'grayscale(30%) brightness(300%) blur(2px)' }} />
-        {
-            open === null || open === 'fab'
-                ? <SpeedDial
-                    sx={{ position: 'absolute', bottom: 70, right: 16 }}
-                    icon={<SpeedDialIcon />}
-                    ariaLabel="add"
-                    open={open === 'fab'}
-                    onOpen={() => { setOpen('fab') }}
-                    onClose={() => { if (open === 'fab') setOpen(null) }}
-                >
-                    <SpeedDialAction
-                        icon={<FontAwesomeIcon icon={faCreditCard}/>}
-                        tooltipOpen
-                        tooltipTitle="Expence"
-                        FabProps={{ color: 'error', size: 'medium' }}
-                        onClick={() => { setOpen('expense') }}
-                    />
-                    <SpeedDialAction
-                        icon={<FontAwesomeIcon icon={faHandHoldingDollar} />}
-                        tooltipOpen
-                        tooltipTitle="Income"
-                        FabProps={{ color: 'success', size: 'medium' }}
-                    />
-                    <SpeedDialAction
-                        icon={<FontAwesomeIcon icon={faMoneyBillTransfer} />}
-                        tooltipOpen
-                        tooltipTitle="Transfer"
-                        FabProps={{ color: 'info', size: 'medium' }}
-                    />
-                </SpeedDial>
-                : null
-        }
-        {
-            open === 'expense' ? <CreateExpense onClose={() => { setOpen(null) }}/> : null
-        }
+        <Backdrop open={open} sx={{ backdropFilter: 'grayscale(30%) brightness(300%) blur(2px)' }} />
+        <SpeedDial
+            sx={{ position: 'absolute', bottom: 70, right: 16 }}
+            icon={<SpeedDialIcon />}
+            ariaLabel="add"
+            open={open}
+            onOpen={() => { setOpen(true) }}
+            onClose={() => { setOpen(false) }}
+        >
+            <SpeedDialAction
+                icon={<FontAwesomeIcon icon={faCreditCard}/>}
+                tooltipOpen
+                tooltipTitle="Expence"
+                FabProps={{ color: 'error', size: 'medium' }}
+                onClick={() => { navigate('/new-expense') }}
+            />
+            <SpeedDialAction
+                icon={<FontAwesomeIcon icon={faHandHoldingDollar} />}
+                tooltipOpen
+                tooltipTitle="Income"
+                FabProps={{ color: 'success', size: 'medium' }}
+            />
+            <SpeedDialAction
+                icon={<FontAwesomeIcon icon={faMoneyBillTransfer} />}
+                tooltipOpen
+                tooltipTitle="Transfer"
+                FabProps={{ color: 'info', size: 'medium' }}
+            />
+        </SpeedDial>
     </>
 }
 

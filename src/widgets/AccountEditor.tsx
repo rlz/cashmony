@@ -14,14 +14,14 @@ interface Props {
     opCurrency: string
     expanded: boolean
     onExpandedChange: (expanded: boolean) => void
-    account: NotDeletedOperation['account']
+    account: NotDeletedOperation['account'] | null
     onAccountChange: (account: NotDeletedOperation['account']) => void
 }
 
 const accountsModel = AccountsModel.instance()
 
 export const AccountEditor = observer((props: Props): ReactElement => {
-    const account = accountsModel.accounts[props.account.name]
+    const account = props.account !== null ? accountsModel.accounts[props.account.name] : null
 
     return <Accordion
         disableGutters
@@ -34,7 +34,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
         <AccordionDetails>
             <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">
                 { Object.values(accountsModel.accounts).map(a => {
-                    if (a.name === props.account.name) {
+                    if (a.name === props.account?.name) {
                         return <a key={a.name} >
                             <Chip color="primary" size='small' label={a.name}/>
                         </a>
@@ -44,7 +44,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                         onClick={() => {
                             props.onAccountChange({
                                 name: a.name,
-                                amount: props.account.amount
+                                amount: props.account?.amount ?? 0
                             })
                         }}
                     >
@@ -52,7 +52,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                     </a>
                 })}
             </Box>
-            {account === undefined || props.opCurrency === account.currency
+            {props.account === null || account === null || account === undefined || props.opCurrency === account.currency
                 ? null
                 : <Box mt={1}>
                     <CurrencyInput
@@ -61,6 +61,10 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                         amount={props.account.amount}
                         currency={account.currency}
                         onAmountChange={(accountAmount) => {
+                            if (props.account === null) {
+                                throw Error('Not null props.account expected here')
+                            }
+
                             props.onAccountChange({
                                 name: props.account.name,
                                 amount: accountAmount

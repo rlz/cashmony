@@ -8,7 +8,7 @@ interface Props {
     title: string | null
     navigateOnBack?: string
     onBack?: () => void
-    onSave?: (() => void) | (() => Promise<void>)
+    onSave?: (() => void) | (() => Promise<void>) | null
 }
 
 export function EditorAppBar ({ title, navigateOnBack, onBack, onSave }: Props): ReactElement {
@@ -40,6 +40,7 @@ export function EditorAppBar ({ title, navigateOnBack, onBack, onSave }: Props):
             {
                 onSave !== undefined
                     ? <IconButton
+                        disabled={onSave === null}
                         size="large"
                         edge="end"
                         color="inherit"
@@ -48,6 +49,10 @@ export function EditorAppBar ({ title, navigateOnBack, onBack, onSave }: Props):
                         onClick={() => {
                             setInProgress(true)
                             setTimeout(() => {
+                                if (onSave === null) {
+                                    throw Error('Non null onSave expected here')
+                                }
+
                                 const ret = onSave()
                                 if (ret !== undefined) {
                                     void ret.then(() => {

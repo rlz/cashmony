@@ -47,7 +47,7 @@ export function CurrencyInput (props: Props): ReactElement {
                     setAmountText(ev.target.value)
 
                     const a = parseFloat(ev.target.value)
-                    if (!Number.isNaN(a) && a !== 0) {
+                    if (!Number.isNaN(a)) {
                         props.onAmountChange(mult * a)
                         break
                     }
