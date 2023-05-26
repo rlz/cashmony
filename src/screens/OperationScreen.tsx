@@ -24,13 +24,14 @@ const categoriesModel = CategoriesModel.instance()
 
 type PartialOperation =
     Omit<IncomeOperation | ExpenseOperation, 'account'> |
-    Omit<TransferOperation, 'account'> |
+    Omit<TransferOperation, 'account' | 'toAccount'> |
     Omit<AdjustmentOperation, 'account'>
 
 export const OperationScreen = observer((): ReactElement => {
     const theme = useTheme()
     const [op, setOp] = useState<PartialOperation | DeletedOperation | null>(null)
     const [account, setAccount] = useState<NotDeletedOperation['account'] | null>(null)
+    const [toAccount, setToAccount] = useState<NotDeletedOperation['account'] | null>(null)
     const location = useLocation()
     const pathParams = useParams()
     const [searchParams] = useSearchParams()
@@ -63,12 +64,28 @@ export const OperationScreen = observer((): ReactElement => {
                 tags: [],
                 comment: null
             })
+        } else if (location.pathname.endsWith('transfer')) {
+            setOp({
+                id: uuid(),
+                type: 'transfer',
+                lastModified: DateTime.utc(),
+                date: utcToday(),
+                amount: 0,
+                // TODO: use stats to init currency
+                currency: searchParams.get('currency') ?? 'USD',
+                tags: [],
+                comment: null
+            })
         } else {
             const getData = async (): Promise<void> => {
                 const op = await operationsModel.getOperation(pathParams.opId as string)
                 setOp(op)
                 if (op.type !== 'deleted') {
                     setAccount(op.account)
+                }
+
+                if (op.type === 'transfer') {
+                    setToAccount(op.toAccount)
                 }
             }
 
@@ -84,21 +101,35 @@ export const OperationScreen = observer((): ReactElement => {
         <EditorAppBar
             title={title}
             navigateOnBack='/operations'
-            onSave={op !== null && op.type !== 'deleted' && account !== null && op.amount !== 0
-                ? async () => {
-                    if (op === null) {
-                        throw Error('Not null op expected here')
+            onSave={
+                op !== null &&
+                op.type !== 'deleted' &&
+                op.amount !== 0 &&
+                account !== null &&
+                account.amount !== 0 &&
+                (op.type !== 'transfer' || (toAccount !== null && toAccount.amount !== 0))
+                    ? async () => {
+                        if (op === null) {
+                            throw Error('Not null op expected here')
+                        }
+
+                        if (account === null) {
+                            throw Error('Not null account expected here')
+                        }
+
+                        if (op.type === 'transfer') {
+                            if (toAccount === null) {
+                                throw Error('Not null toAccount expected here')
+                            }
+
+                            await operationsModel.put([{ ...op, account, toAccount }])
+                        } else {
+                            await operationsModel.put([{ ...op, account }])
+                        }
+
+                        navigate('/operations')
                     }
-
-                    if (account === null) {
-                        throw Error('Not null acount expected here')
-                    }
-
-                    await operationsModel.put([{ ...op, account }])
-
-                    navigate('/operations')
-                }
-                : (op !== null && op.type !== 'deleted' ? null : undefined)
+                    : (op !== null && op.type !== 'deleted' ? null : undefined)
             }
         />
         <Box
@@ -120,7 +151,7 @@ export const OperationScreen = observer((): ReactElement => {
         return wrap(<>Deleted</>)
     }
 
-    return wrap(<OpBody op={op} setOp={setOp} account={account} setAccount={setAccount} />)
+    return wrap(<OpBody op={op} setOp={setOp} account={account} setAccount={setAccount} toAccount={toAccount} setToAccount={setToAccount}/>)
 })
 
 interface BodyProps {
@@ -128,24 +159,31 @@ interface BodyProps {
     setOp: (op: PartialOperation) => void
     account: NotDeletedOperation['account'] | null
     setAccount: (account: NotDeletedOperation['account'] | null) => void
+    toAccount: NotDeletedOperation['account'] | null
+    setToAccount: (account: NotDeletedOperation['account'] | null) => void
 }
 
-function OpBody ({ op, setOp, account, setAccount }: BodyProps): ReactElement {
+function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: BodyProps): ReactElement {
     const theme = useTheme()
 
     const [expanded, setExpanded] = useState<
     'amount' | 'tags' | 'account' | 'toAccount' | 'comment' | 'date' | 'categories' | null
     >(null)
 
-    const propagateAndSave = (op: PartialOperation, account: NotDeletedOperation['account'] | null): void => {
-        const [prOp, prAccount] = propagateAmount(op, account)
+    const propagateAndSave = (
+        op: PartialOperation,
+        account: NotDeletedOperation['account'] | null,
+        toAccount: NotDeletedOperation['account'] | null
+    ): void => {
+        const [prOp, prAccount, prToAccount] = propagateAmount(op, account, toAccount)
         setOp(prOp)
         setAccount(prAccount)
+        setToAccount(prToAccount)
     }
 
     return <Box px={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
         <Box py={2}>
-            <BasicInfo op={op} account={account} />
+            <BasicInfo op={op} account={account} toAccount={toAccount}/>
         </Box>
         <AmountEditor
             amount={op.amount}
@@ -153,10 +191,10 @@ function OpBody ({ op, setOp, account, setAccount }: BodyProps): ReactElement {
             currency={op.currency}
             expanded={expanded === 'amount'}
             onCurrencyChange={currency => {
-                propagateAndSave({ ...op, currency }, account)
+                propagateAndSave({ ...op, currency }, account, toAccount)
             }}
             onAmountChange={amount => {
-                propagateAndSave({ ...op, amount }, account)
+                propagateAndSave({ ...op, amount }, account, toAccount)
             }}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'amount' : null) }}
         />
@@ -174,7 +212,7 @@ function OpBody ({ op, setOp, account, setAccount }: BodyProps): ReactElement {
             expanded={expanded === 'account'}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : null) }}
             account={account}
-            onAccountChange={account => { propagateAndSave(op, account) }}
+            onAccountChange={account => { propagateAndSave(op, account, toAccount) }}
         />
         {
             op.type === 'transfer'
@@ -186,9 +224,9 @@ function OpBody ({ op, setOp, account, setAccount }: BodyProps): ReactElement {
                         opCurrency={op.currency}
                         expanded={expanded === 'toAccount'}
                         onExpandedChange={(expanded) => { setExpanded(expanded ? 'toAccount' : null) }}
-                        account={op.toAccount}
+                        account={toAccount}
                         onAccountChange={toAccount => {
-                            propagateAndSave({ ...op, toAccount }, account)
+                            propagateAndSave(op, account, toAccount)
                         }}
                     /></>
                 : null
@@ -203,7 +241,7 @@ function OpBody ({ op, setOp, account, setAccount }: BodyProps): ReactElement {
                     opCurrency={op.currency}
                     categories={op.categories}
                     onCategoriesChange={categories => {
-                        propagateAndSave({ ...op, categories }, account)
+                        propagateAndSave({ ...op, categories }, account, toAccount)
                     }}
                 />
                 : null
@@ -246,7 +284,11 @@ function SkeletonBody (): ReactElement {
     </Box>
 }
 
-function propagateAmount<T extends PartialOperation> (op: T, account: NotDeletedOperation['account'] | null): [T, NotDeletedOperation['account'] | null] {
+function propagateAmount<T extends PartialOperation> (
+    op: T,
+    account: NotDeletedOperation['account'] | null,
+    toAccount: NotDeletedOperation['account'] | null
+): [T, NotDeletedOperation['account'] | null, NotDeletedOperation['account'] | null] {
     if (
         account !== null &&
         op.amount !== account.amount &&
@@ -260,15 +302,13 @@ function propagateAmount<T extends PartialOperation> (op: T, account: NotDeleted
 
     if (
         op.type === 'transfer' &&
-        op.amount !== op.toAccount.amount &&
-        op.currency === accountsModel.accounts[op.toAccount.name].currency
+        toAccount !== null &&
+        op.amount !== toAccount.amount &&
+        op.currency === accountsModel.accounts[toAccount.name].currency
     ) {
-        op = {
-            ...op,
-            toAccount: {
-                ...op.toAccount,
-                amount: op.amount
-            }
+        toAccount = {
+            ...toAccount,
+            amount: op.amount
         }
     }
 
@@ -287,19 +327,19 @@ function propagateAmount<T extends PartialOperation> (op: T, account: NotDeleted
         }
     }
 
-    return [op, account]
+    return [op, account, toAccount]
 }
 
 interface BasicInfoProps {
     op: PartialOperation
     account: NotDeletedOperation['account'] | null
+    toAccount: NotDeletedOperation['account'] | null
 }
 
-const BasicInfo = observer(({ op, account }: BasicInfoProps): ReactElement => {
+const BasicInfo = observer(({ op, account, toAccount }: BasicInfoProps): ReactElement => {
     const theme = useTheme()
 
     const accountCurrency = account !== null ? accountsModel.accounts[account.name]?.currency : null
-    const toAccount = op.type === 'transfer' ? op.toAccount : null
     const toAccountCurrency = toAccount === null ? null : accountsModel.accounts[toAccount.name]?.currency
 
     const amountColor = {
@@ -341,7 +381,7 @@ const BasicInfo = observer(({ op, account }: BasicInfoProps): ReactElement => {
             })}
         </Typography>
         <Typography variant='body2' mt={1}>
-            {toAccount !== null ? 'From acc.: ' : 'Acc.: '}
+            {op.type === 'transfer' ? 'From acc.: ' : 'Acc.: '}
             {
                 account === null
                     ? '-'
@@ -356,11 +396,11 @@ const BasicInfo = observer(({ op, account }: BasicInfoProps): ReactElement => {
             }
         </Typography>
         {
-            toAccount !== null
+            op.type === 'transfer'
                 ? <Typography variant='body2'>
-                    To acc.: {toAccount.name}
+                    To acc.: {toAccount?.name ?? '-'}
                     {
-                        toAccountCurrency === undefined || toAccountCurrency === null
+                        toAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
                             ? null
                             : ` (${formatCurrency(toAccount.amount, toAccountCurrency)})`
                     }
