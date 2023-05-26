@@ -37,10 +37,23 @@ export const OperationScreen = observer((): ReactElement => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (location.pathname === '/new-expense') {
+        if (location.pathname.endsWith('expense')) {
             setOp({
                 id: uuid(),
                 type: 'expense',
+                lastModified: DateTime.utc(),
+                date: utcToday(),
+                amount: 0,
+                // TODO: use stats to init currency
+                currency: searchParams.get('currency') ?? 'USD',
+                categories: [],
+                tags: [],
+                comment: null
+            })
+        } else if (location.pathname.endsWith('income')) {
+            setOp({
+                id: uuid(),
+                type: 'income',
                 lastModified: DateTime.utc(),
                 date: utcToday(),
                 amount: 0,
@@ -136,6 +149,7 @@ function OpBody ({ op, setOp, account, setAccount }: BodyProps): ReactElement {
         </Box>
         <AmountEditor
             amount={op.amount}
+            negative={op.type === 'expense'}
             currency={op.currency}
             expanded={expanded === 'amount'}
             onCurrencyChange={currency => {
@@ -155,6 +169,7 @@ function OpBody ({ op, setOp, account, setAccount }: BodyProps): ReactElement {
         <AccountEditor
             title={op.type === 'transfer' ? 'From account' : 'Account'}
             opAmount={op.amount}
+            negative={op.type === 'expense' || op.type === 'transfer'}
             opCurrency={op.currency}
             expanded={expanded === 'account'}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : null) }}
@@ -167,6 +182,7 @@ function OpBody ({ op, setOp, account, setAccount }: BodyProps): ReactElement {
                     <AccountEditor
                         title='To account'
                         opAmount={op.amount}
+                        negative={false}
                         opCurrency={op.currency}
                         expanded={expanded === 'toAccount'}
                         onExpandedChange={(expanded) => { setExpanded(expanded ? 'toAccount' : null) }}
@@ -183,6 +199,7 @@ function OpBody ({ op, setOp, account, setAccount }: BodyProps): ReactElement {
                     expanded={expanded === 'categories'}
                     onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
                     opAmount={op.amount}
+                    negative={op.type === 'expense'}
                     opCurrency={op.currency}
                     categories={op.categories}
                     onCategoriesChange={categories => {

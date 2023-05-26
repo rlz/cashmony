@@ -29,19 +29,21 @@ const Fab = (): ReactElement => {
                 tooltipOpen
                 tooltipTitle="Expence"
                 FabProps={{ color: 'error', size: 'medium' }}
-                onClick={() => { navigate('/new-expense') }}
+                onClick={() => { navigate('/new-op/expense') }}
             />
             <SpeedDialAction
                 icon={<FontAwesomeIcon icon={faHandHoldingDollar} />}
                 tooltipOpen
                 tooltipTitle="Income"
                 FabProps={{ color: 'success', size: 'medium' }}
+                onClick={() => { navigate('/new-op/income') }}
             />
             <SpeedDialAction
                 icon={<FontAwesomeIcon icon={faMoneyBillTransfer} />}
                 tooltipOpen
                 tooltipTitle="Transfer"
                 FabProps={{ color: 'info', size: 'medium' }}
+                onClick={() => { navigate('/new-op/transfer') }}
             />
         </SpeedDial>
     </>

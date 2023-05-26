@@ -9,6 +9,7 @@ import { CurrencySelector } from './CurrencySelector'
 
 interface Props {
     amount: number
+    negative: boolean
     currency: string
     expanded: boolean
     onExpandedChange: (expanded: boolean) => void
@@ -39,7 +40,7 @@ export const AmountEditor = observer((props: Props): ReactElement => {
                     </IconButton>
                     <CurrencyInput
                         label='Amount'
-                        negative={props.amount < 0}
+                        negative={props.negative}
                         amount={props.amount}
                         currency={props.currency}
                         onAmountChange={props.onAmountChange}

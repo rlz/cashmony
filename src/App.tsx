@@ -45,7 +45,15 @@ const router = createBrowserRouter([
         element: <OperationScreen />
     },
     {
-        path: 'new-expense',
+        path: 'new-op/expense',
+        element: <OperationScreen />
+    },
+    {
+        path: 'new-op/income',
+        element: <OperationScreen />
+    },
+    {
+        path: 'new-op/transfer',
         element: <OperationScreen />
     }
 ])

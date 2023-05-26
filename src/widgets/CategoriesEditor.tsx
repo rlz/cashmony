@@ -13,6 +13,7 @@ interface Props {
     onExpandedChange: (expanded: boolean) => void
 
     opAmount: number
+    negative: boolean
     opCurrency: string
 
     categories: ExpenseOperation['categories']
@@ -71,7 +72,7 @@ export const CategoriesEditor = observer((props: Props): ReactElement => {
                 ? null
                 : <Box mt={1}>
                     <CurrencyInput
-                        negative={props.opAmount < 0}
+                        negative={props.negative}
                         label={`Amount — ${formatExchangeRate(props.opAmount, props.categories[0].amount)}`}
                         amount={props.categories[0].amount}
                         currency={category.currency}

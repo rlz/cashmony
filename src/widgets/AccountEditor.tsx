@@ -11,6 +11,7 @@ import { CurrencyInput } from './CurrencyInput'
 interface Props {
     title: string
     opAmount: number
+    negative: boolean
     opCurrency: string
     expanded: boolean
     onExpandedChange: (expanded: boolean) => void
@@ -56,7 +57,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                 ? null
                 : <Box mt={1}>
                     <CurrencyInput
-                        negative={props.opAmount < 0}
+                        negative={props.negative}
                         label={`Amount — ${formatExchangeRate(props.opAmount, props.account.amount)}`}
                         amount={props.account.amount}
                         currency={account.currency}
