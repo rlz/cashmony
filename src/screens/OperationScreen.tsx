@@ -1,5 +1,5 @@
 import React, { useState, type ReactElement, useEffect } from 'react'
-import { Box, Button, Skeleton, Typography, useTheme } from '@mui/material'
+import { Box, Skeleton, Typography, useTheme } from '@mui/material'
 import { OperationsModel } from '../model/operations'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { type ExpenseOperation, type DeletedOperation, type NotDeletedOperation, type IncomeOperation, type TransferOperation, type AdjustmentOperation } from '../model/model'
@@ -17,6 +17,7 @@ import { formatCurrency } from '../helpers/currencies'
 import { v1 as uuid } from 'uuid'
 import { DateTime } from 'luxon'
 import { utcToday } from '../helpers/dates'
+import { DeleteOpButton } from '../widgets/DeleteOpButton'
 
 const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
@@ -138,6 +139,7 @@ export const OperationScreen = observer((): ReactElement => {
             overflow="scroll"
             flex="1 0 0"
             bgcolor={theme.palette.background.default}
+            color="text.primary"
         >
             {el}
         </Box>
@@ -148,7 +150,7 @@ export const OperationScreen = observer((): ReactElement => {
     }
 
     if (op.type === 'deleted') {
-        return wrap(<>Deleted</>)
+        return wrap(<Typography variant='h5' mt={10} textAlign="center">This operation was deleted</Typography>)
     }
 
     return wrap(<OpBody op={op} setOp={setOp} account={account} setAccount={setAccount} toAccount={toAccount} setToAccount={setToAccount}/>)
@@ -164,7 +166,7 @@ interface BodyProps {
 }
 
 function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: BodyProps): ReactElement {
-    const theme = useTheme()
+    const navigate = useNavigate()
 
     const [expanded, setExpanded] = useState<
     'amount' | 'tags' | 'account' | 'toAccount' | 'comment' | 'date' | 'categories' | null
@@ -181,7 +183,7 @@ function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: Bo
         setToAccount(prToAccount)
     }
 
-    return <Box px={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
+    return <Box px={1}>
         <Box py={2}>
             <BasicInfo op={op} account={account} toAccount={toAccount}/>
         </Box>
@@ -259,7 +261,14 @@ function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: Bo
             comment={op.comment}
             onCommentChange={comment => { setOp({ ...op, comment }) }}
         />
-        <Button sx={{ mt: 1 }} variant='contained' color='error' fullWidth>Delete</Button>
+        <DeleteOpButton onDelete={async (): Promise<void> => {
+            await operationsModel.put([{
+                id: op.id,
+                type: 'deleted'
+            }])
+
+            navigate('/operations')
+        }} />
     </Box>
 }
 
