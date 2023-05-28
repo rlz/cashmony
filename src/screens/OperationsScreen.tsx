@@ -1,7 +1,7 @@
 import React, { useState, type ReactElement } from 'react'
 import { observer } from 'mobx-react-lite'
 import { Avatar, Backdrop, Box, Paper, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography, useTheme } from '@mui/material'
-import { type OperationsModel } from '../model/operations'
+import { OperationsModel } from '../model/operations'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightLong, faCreditCard, faExclamation, faHandHoldingDollar, faMoneyBillTransfer, faWallet } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
@@ -49,37 +49,30 @@ const Fab = (): ReactElement => {
     </>
 }
 
-export const OperationsScreen = observer(
-    ({ operationsModel }: { operationsModel: OperationsModel }): ReactElement => {
-        const theme = useTheme()
+const operationsModel = OperationsModel.instance()
 
-        return <MainScreen>
-            <Box
-                id="OperationsScreen"
-                flex="1 0 0"
-                bgcolor="background.default"
-                paddingBottom="90px"
-            >
-                {operationsModel.displayOperations.map(group =>
-                    <Box key={group[0].date.toISODate()}>
-                        <Box px={theme.spacing(1)} pt={theme.spacing(2)}>
-                            <Typography
-                                variant='body2'
-                                color={theme.palette.getContrastText(theme.palette.background.default)}
-                            >
-                                {group[0].date.toLocaleString({ dateStyle: 'full' })}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: theme.spacing(1), padding: theme.spacing(1) }}>
-                            {group.map(t => <Transaction key={t.id} op={t}/>)}
-                        </Box>
-                    </Box>
-                )}
-                <Fab />
+export const OperationsScreen = observer((): ReactElement => {
+    const theme = useTheme()
+
+    return <MainScreen>
+        {operationsModel.displayOperations.map(group =>
+            <Box key={group[0].date.toISODate()}>
+                <Box px={theme.spacing(1)} pt={theme.spacing(2)}>
+                    <Typography
+                        variant='body2'
+                        color={theme.palette.getContrastText(theme.palette.background.default)}
+                    >
+                        {group[0].date.toLocaleString({ dateStyle: 'full' })}
+                    </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: theme.spacing(1), padding: theme.spacing(1) }}>
+                    {group.map(t => <Transaction key={t.id} op={t}/>)}
+                </Box>
             </Box>
-        </MainScreen>
-    }
-)
+        )}
+        <Fab />
+    </MainScreen>
+})
 
 const accountsModel = AccountsModel.instance()
 
@@ -143,8 +136,8 @@ const Transaction = observer(({ op }: { op: NotDeletedOperation }): ReactElement
     }
 
     if (op.type === 'transfer') {
-        const fromCurrency = accountsModel.accounts[op.account.name].currency
-        const toCurrency = accountsModel.accounts[op.toAccount.name].currency
+        const fromCurrency = accountsModel.get(op.account.name).currency
+        const toCurrency = accountsModel.get(op.toAccount.name).currency
 
         const formatAccountAmount = (amount: number, currency: string): string | null =>
             op.amount === Math.abs(amount) && op.currency === currency

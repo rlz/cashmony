@@ -3,6 +3,7 @@ import React, { useState, type ReactElement, useEffect } from 'react'
 import { getCurrencySymbol } from '../helpers/currencies'
 
 interface Props {
+    autoFocus?: boolean
     negative: boolean
     label: string
     amount: number
@@ -17,7 +18,7 @@ const regExps = [
 ]
 
 export function CurrencyInput (props: Props): ReactElement {
-    const [amountText, setAmountText] = useState(Math.abs(props.amount).toFixed(2))
+    const [amountText, setAmountText] = useState(props.amount === 0 ? '' : Math.abs(props.amount).toFixed(2))
 
     const mult = props.negative ? -1 : 1
     const a = parseFloat(amountText)
@@ -31,6 +32,7 @@ export function CurrencyInput (props: Props): ReactElement {
     const error = Number.isNaN(a) || a === 0
 
     return <TextField
+        autoFocus={props.autoFocus}
         fullWidth
         variant='filled'
         label={props.label}

@@ -1,7 +1,7 @@
 import React, { useState, type ReactElement, useEffect } from 'react'
 import { Box, Skeleton, Typography, useTheme } from '@mui/material'
 import { OperationsModel } from '../model/operations'
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { type ExpenseOperation, type DeletedOperation, type NotDeletedOperation, type IncomeOperation, type TransferOperation, type AdjustmentOperation } from '../model/model'
 import { EditorAppBar } from '../widgets/EditorAppBar'
 import { observer } from 'mobx-react-lite'
@@ -18,10 +18,12 @@ import { v1 as uuid } from 'uuid'
 import { DateTime } from 'luxon'
 import { utcToday } from '../helpers/dates'
 import { DeleteOpButton } from '../widgets/DeleteOpButton'
+import { CurrenciesModel } from '../model/currencies'
 
 const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
 const categoriesModel = CategoriesModel.instance()
+const currenciesModel = CurrenciesModel.instance()
 
 type PartialOperation =
     Omit<IncomeOperation | ExpenseOperation, 'account'> |
@@ -35,7 +37,6 @@ export const OperationScreen = observer((): ReactElement => {
     const [toAccount, setToAccount] = useState<NotDeletedOperation['account'] | null>(null)
     const location = useLocation()
     const pathParams = useParams()
-    const [searchParams] = useSearchParams()
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -46,8 +47,7 @@ export const OperationScreen = observer((): ReactElement => {
                 lastModified: DateTime.utc(),
                 date: utcToday(),
                 amount: 0,
-                // TODO: use stats to init currency
-                currency: searchParams.get('currency') ?? 'USD',
+                currency: currenciesModel.currencies[0],
                 categories: [],
                 tags: [],
                 comment: null
@@ -59,8 +59,7 @@ export const OperationScreen = observer((): ReactElement => {
                 lastModified: DateTime.utc(),
                 date: utcToday(),
                 amount: 0,
-                // TODO: use stats to init currency
-                currency: searchParams.get('currency') ?? 'USD',
+                currency: currenciesModel.currencies[0],
                 categories: [],
                 tags: [],
                 comment: null
@@ -72,8 +71,7 @@ export const OperationScreen = observer((): ReactElement => {
                 lastModified: DateTime.utc(),
                 date: utcToday(),
                 amount: 0,
-                // TODO: use stats to init currency
-                currency: searchParams.get('currency') ?? 'USD',
+                currency: currenciesModel.currencies[0],
                 tags: [],
                 comment: null
             })
@@ -123,9 +121,9 @@ export const OperationScreen = observer((): ReactElement => {
                                 throw Error('Not null toAccount expected here')
                             }
 
-                            await operationsModel.put([{ ...op, account, toAccount }])
+                            await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account, toAccount }])
                         } else {
-                            await operationsModel.put([{ ...op, account }])
+                            await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account }])
                         }
 
                         navigate('/operations')
@@ -170,7 +168,7 @@ function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: Bo
 
     const [expanded, setExpanded] = useState<
     'amount' | 'tags' | 'account' | 'toAccount' | 'comment' | 'date' | 'categories' | null
-    >(null)
+    >(op.amount === 0 ? 'amount' : null)
 
     const propagateAndSave = (
         op: PartialOperation,
@@ -301,7 +299,7 @@ function propagateAmount<T extends PartialOperation> (
     if (
         account !== null &&
         op.amount !== account.amount &&
-        op.currency === accountsModel.accounts[account.name].currency
+        op.currency === accountsModel.get(account.name).currency
     ) {
         account = {
             ...account,
@@ -313,7 +311,7 @@ function propagateAmount<T extends PartialOperation> (
         op.type === 'transfer' &&
         toAccount !== null &&
         op.amount !== toAccount.amount &&
-        op.currency === accountsModel.accounts[toAccount.name].currency
+        op.currency === accountsModel.get(toAccount.name).currency
     ) {
         toAccount = {
             ...toAccount,
@@ -348,8 +346,8 @@ interface BasicInfoProps {
 const BasicInfo = observer(({ op, account, toAccount }: BasicInfoProps): ReactElement => {
     const theme = useTheme()
 
-    const accountCurrency = account !== null ? accountsModel.accounts[account.name]?.currency : null
-    const toAccountCurrency = toAccount === null ? null : accountsModel.accounts[toAccount.name]?.currency
+    const accountCurrency = account !== null ? accountsModel.get(account.name).currency : null
+    const toAccountCurrency = toAccount !== null ? accountsModel.get(toAccount.name).currency : null
 
     const amountColor = {
         expense: theme.palette.error,

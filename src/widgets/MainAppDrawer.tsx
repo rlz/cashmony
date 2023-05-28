@@ -2,11 +2,14 @@ import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, SwipeableDrawer, type SwipeableDrawerProps, TextField } from '@mui/material'
 import React, { type ReactElement } from 'react'
-import { OperationsModel, syncDataWithGoogle } from '../model/operations'
+import { syncDataWithGoogle } from '../model/operations'
 import { runInAction } from 'mobx'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import { utcToday } from '../helpers/dates'
+import { AppState } from '../model/appState'
+
+const appState = AppState.instance()
 
 export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElement => {
     return <SwipeableDrawer
@@ -37,14 +40,13 @@ export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElemen
             type='date'
             label="Date"
             sx={{ m: 1 }}
-            value={OperationsModel.instance().startDate.toFormat('yyyy-LL-dd')}
+            value={appState.startDate.toFormat('yyyy-LL-dd')}
             onChange={(v) => {
                 runInAction(() => {
-                    const om = OperationsModel.instance()
                     if (v.target.value === '') {
-                        om.startDate = utcToday()
+                        appState.startDate = utcToday()
                     } else {
-                        om.startDate = DateTime.fromFormat(v.target.value, 'yyyy-LL-dd', { zone: 'utc' })
+                        appState.startDate = DateTime.fromFormat(v.target.value, 'yyyy-LL-dd', { zone: 'utc' })
                     }
                 })
             }}

@@ -1,10 +1,10 @@
 import React, { type ReactElement } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { OperationsScreen } from './screens/OperationsScreen'
-import { OperationsModel } from './model/operations'
 import { OperationScreen } from './screens/OperationScreen'
 import { PostAuthScreen } from './screens/PostAuthScreen'
 import { AuthScreen } from './screens/AuthScreen'
+import { AccountsScreen } from './screens/AccountsScreen'
 
 declare global {
     interface Window { routerNavigate: (to: string) => Promise<void> }
@@ -20,7 +20,7 @@ const router = createBrowserRouter([
             },
             {
                 path: 'operations',
-                element: <OperationsScreen operationsModel={OperationsModel.instance()}/>
+                element: <OperationsScreen />
             },
             {
                 path: 'categories',
@@ -28,7 +28,7 @@ const router = createBrowserRouter([
             },
             {
                 path: 'accounts',
-                element: <>Not implemented!</>
+                element: <AccountsScreen />
             }
         ]
     },

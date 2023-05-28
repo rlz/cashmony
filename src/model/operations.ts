@@ -3,15 +3,16 @@ import { type NotDeletedOperation, type Operation, operationComparator } from '.
 import { FinDataDb } from './finDataDb'
 import { Google } from '../google/google'
 import deepEqual from 'fast-deep-equal'
-import { utcToday } from '../helpers/dates'
 import { type DateTime } from 'luxon'
+import { AppState } from './appState'
+
+const appState = AppState.instance()
 
 let operationsModel: OperationsModel | null = null
 
 export class OperationsModel {
     private readonly finDataDb = FinDataDb.instance()
 
-    startDate = utcToday()
     operations: readonly Operation[] = []
     displayOperations: readonly NotDeletedOperation[][] = []
 
@@ -21,7 +22,7 @@ export class OperationsModel {
         })
 
         autorun(async () => {
-            await this.readDisplayOps(this.startDate)
+            await this.readDisplayOps(appState.startDate)
         })
 
         void this.readAll()
@@ -46,7 +47,7 @@ export class OperationsModel {
 
         await this.finDataDb.putOperations(ops)
         await this.readAll()
-        await this.readDisplayOps(this.startDate)
+        await this.readDisplayOps(appState.startDate)
     }
 
     private async readAll (): Promise<void> {

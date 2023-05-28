@@ -39,6 +39,7 @@ export const AmountEditor = observer((props: Props): ReactElement => {
                         {getCurrencySymbol(props.currency)}
                     </IconButton>
                     <CurrencyInput
+                        autoFocus
                         label='Amount'
                         negative={props.negative}
                         amount={props.amount}

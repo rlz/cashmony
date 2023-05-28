@@ -22,7 +22,7 @@ interface Props {
 const accountsModel = AccountsModel.instance()
 
 export const AccountEditor = observer((props: Props): ReactElement => {
-    const account = props.account !== null ? accountsModel.accounts[props.account.name] : null
+    const account = props.account !== null ? accountsModel.get(props.account.name) : null
 
     return <Accordion
         disableGutters
@@ -34,7 +34,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
         </AccordionSummary>
         <AccordionDetails>
             <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">
-                { Object.values(accountsModel.accounts).map(a => {
+                { Array.from(accountsModel.accounts.values()).map(a => {
                     if (a.name === props.account?.name) {
                         return <a key={a.name} >
                             <Chip color="primary" size='small' label={a.name}/>

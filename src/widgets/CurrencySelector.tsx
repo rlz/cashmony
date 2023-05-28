@@ -4,6 +4,9 @@ import { observer } from 'mobx-react-lite'
 import { CURRENCIES } from '../helpers/currenciesList'
 import { getCurrencySymbol } from '../helpers/currencies'
 import { FullScreenModal } from './FullScreenModal'
+import { CurrenciesModel } from '../model/currencies'
+
+const currenciesModel = CurrenciesModel.instance()
 
 interface Props {
     currency: string | null
@@ -31,7 +34,8 @@ export const CurrencySelector = observer((props: Props): ReactElement => {
         }} />
         <Box overflow="scroll" flex="1 0 0">
             <List>
-                {Object.values(CURRENCIES)
+                {currenciesModel.currencies
+                    .map(c => CURRENCIES[c])
                     .filter(c => {
                         const s = search.trim().toLocaleLowerCase()
 
