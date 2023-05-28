@@ -5,6 +5,7 @@ import { OperationScreen } from './screens/OperationScreen'
 import { PostAuthScreen } from './screens/PostAuthScreen'
 import { AuthScreen } from './screens/AuthScreen'
 import { AccountsScreen } from './screens/AccountsScreen'
+import { CategoriesScreen } from './screens/CategoriesScreen'
 
 declare global {
     interface Window { routerNavigate: (to: string) => Promise<void> }
@@ -24,7 +25,7 @@ const router = createBrowserRouter([
             },
             {
                 path: 'categories',
-                element: <>Not implemented!</>
+                element: <CategoriesScreen />
             },
             {
                 path: 'accounts',

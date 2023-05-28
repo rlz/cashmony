@@ -64,7 +64,7 @@ export class AccountsModel {
             const currentAmounts = new Map(Array.from(this.accounts.values()).map(account => [account.name, 0]))
             let currentOpIndex = 0
             const operationsLength = operationsModel.operations.length
-            for (let date = firstOp.date; date <= today; date = date.plus({ day: 1 })) {
+            for (let date = firstOp.date.minus({ day: 1 }); date <= today; date = date.plus({ day: 1 })) {
                 while (currentOpIndex < operationsLength) {
                     const currentOp = operationsModel.operations[currentOpIndex]
 
