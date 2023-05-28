@@ -1,9 +1,10 @@
-import { autorun, makeAutoObservable, observable, runInAction } from 'mobx'
+import { autorun, makeAutoObservable, observable, runInAction, toJS } from 'mobx'
 import { FinDataDb } from './finDataDb'
 import { type NotDeletedOperation, type Account } from './model'
 import { OperationsModel } from './operations'
 import { utcToday } from '../helpers/dates'
 import { AppState } from './appState'
+import { compareByStats } from '../helpers/stats'
 
 const operationsModel = OperationsModel.instance()
 const appState = AppState.instance()
@@ -13,12 +14,36 @@ let accountsModel: AccountsModel | null = null
 export class AccountsModel {
     private readonly finDataDb = FinDataDb.instance()
     accounts: ReadonlyMap<string, Account> = new Map()
+    accountsSorted: readonly string[] = []
     amounts: ReadonlyMap<string, ReadonlyMap<string, number>> = new Map()
 
     private constructor () {
         makeAutoObservable(this, {
             accounts: observable.shallow,
+            accountsSorted: observable.shallow,
             amounts: observable.shallow
+        })
+
+        autorun(() => {
+            if (this.accounts.size === 0) {
+                return
+            }
+
+            const stats = new Map<string, number>()
+
+            for (const op of operationsModel.operations) {
+                if (op.type === 'deleted') continue
+
+                for (const [c, s] of stats) {
+                    stats.set(c, s * 0.999)
+                }
+
+                stats.set(op.account.name, (stats.get(op.account.name) ?? 0) + 1)
+            }
+
+            runInAction(() => {
+                this.accountsSorted = [...toJS(this.accounts).keys()].sort(compareByStats(stats))
+            })
         })
 
         autorun(() => {

@@ -8,6 +8,7 @@ import { type Operation } from '../model/model'
 interface Props {
     expanded: boolean
     onExpandedChange: (expanded: boolean) => void
+    categories: readonly string[]
     tags: readonly string[]
     opType: Exclude<Operation['type'], 'deleted'>
     onTagsChanged: (newTags: readonly string[]) => void
@@ -19,6 +20,12 @@ export function TagsEditor (props: Props): ReactElement {
     const [newTag, setNewTag] = useState('')
     const [newTags, setNewTags] = useState<readonly string[]>([])
 
+    const mergedTags = mergeTags(
+        props.categories.reduce<readonly string[]>((tags, cat) => [...tags, ...tagsModel.byCat.get(cat) ?? []], []),
+        tagsModel[props.opType],
+        tagsModel.all
+    )
+
     return <Accordion
         disableGutters
         expanded={props.expanded}
@@ -29,7 +36,7 @@ export function TagsEditor (props: Props): ReactElement {
         </AccordionSummary>
         <AccordionDetails>
             <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">
-                {[...newTags, ...mergeTags(tagsModel[props.opType], tagsModel.all)].map(t => {
+                {[...newTags, ...mergedTags].map(t => {
                     if (props.tags.includes(t)) {
                         return <a
                             key={t}

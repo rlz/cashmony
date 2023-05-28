@@ -165,6 +165,7 @@ interface BodyProps {
 
 function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: BodyProps): ReactElement {
     const navigate = useNavigate()
+    const location = useLocation()
 
     const [expanded, setExpanded] = useState<
     'amount' | 'tags' | 'account' | 'toAccount' | 'comment' | 'date' | 'categories' | null
@@ -249,6 +250,7 @@ function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: Bo
         <TagsEditor
             expanded={expanded === 'tags'}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'tags' : null) }}
+            categories={op.type === 'income' || op.type === 'expense' ? op.categories.map(c => c.name) : []}
             tags={op.tags}
             opType={op.type}
             onTagsChanged={tags => { setOp({ ...op, tags }) }}
@@ -259,14 +261,18 @@ function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: Bo
             comment={op.comment}
             onCommentChange={comment => { setOp({ ...op, comment }) }}
         />
-        <DeleteOpButton onDelete={async (): Promise<void> => {
-            await operationsModel.put([{
-                id: op.id,
-                type: 'deleted'
-            }])
+        {
+            location.pathname.startsWith('/new-op/')
+                ? null
+                : <DeleteOpButton onDelete={async (): Promise<void> => {
+                    await operationsModel.put([{
+                        id: op.id,
+                        type: 'deleted'
+                    }])
 
-            navigate('/operations')
-        }} />
+                    navigate('/operations')
+                }} />
+        }
     </Box>
 }
 
@@ -323,7 +329,7 @@ function propagateAmount<T extends PartialOperation> (
         (op.type === 'expense' || op.type === 'income') &&
         op.categories.length === 1 &&
         op.categories[0].amount !== op.amount &&
-        op.currency === categoriesModel.categories[op.categories[0].name].currency
+        op.currency === categoriesModel.get(op.categories[0].name).currency
     ) {
         op = {
             ...op,
@@ -366,7 +372,7 @@ const BasicInfo = observer(({ op, account, toAccount }: BasicInfoProps): ReactEl
                     .map(c => {
                         return {
                             ...c,
-                            currency: categoriesModel.categories[op.categories[0].name].currency
+                            currency: categoriesModel.get(c.name).currency
                         }
                     })
                     .map(c => <Typography key={c.name} variant='body2'>

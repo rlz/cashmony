@@ -24,7 +24,7 @@ const categoriesModel = CategoriesModel.instance()
 
 function getCat (categories: ExpenseOperation['categories']): Category | null {
     if (categories.length === 0) return null
-    if (categories.length === 1) return categoriesModel.categories[categories[0].name]
+    if (categories.length === 1) return categoriesModel.get(categories[0].name)
 
     throw Error('TODO: more then one category is not supported')
 }
@@ -42,29 +42,29 @@ export const CategoriesEditor = observer((props: Props): ReactElement => {
         </AccordionSummary>
         <AccordionDetails>
             <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">
-                { Object.values(categoriesModel.categories).map(c => {
-                    if (category !== null && c.name === category.name) {
+                { categoriesModel.categoriesSorted.map(c => {
+                    if (category !== null && c === category.name) {
                         return <a
-                            key={c.name}
+                            key={c}
                             onClick={() => {
                                 props.onCategoriesChange([])
                             }}
                         >
-                            <Chip color="primary" size='small' label={c.name}/>
+                            <Chip color="primary" size='small' label={c}/>
                         </a>
                     }
                     return <a
-                        key={c.name}
+                        key={c}
                         onClick={() => {
                             props.onCategoriesChange([
                                 {
-                                    name: c.name,
+                                    name: c,
                                     amount: category === null ? 0 : props.categories[0].amount
                                 }
                             ])
                         }}
                     >
-                        <Chip size='small' label={c.name}/>
+                        <Chip size='small' label={c}/>
                     </a>
                 })}
             </Box>

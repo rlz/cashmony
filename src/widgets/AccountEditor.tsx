@@ -34,22 +34,22 @@ export const AccountEditor = observer((props: Props): ReactElement => {
         </AccordionSummary>
         <AccordionDetails>
             <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">
-                { Array.from(accountsModel.accounts.values()).map(a => {
-                    if (a.name === props.account?.name) {
-                        return <a key={a.name} >
-                            <Chip color="primary" size='small' label={a.name}/>
+                { accountsModel.accountsSorted.map(a => {
+                    if (a === props.account?.name) {
+                        return <a key={a} >
+                            <Chip color="primary" size='small' label={a}/>
                         </a>
                     }
                     return <a
-                        key={a.name}
+                        key={a}
                         onClick={() => {
                             props.onAccountChange({
-                                name: a.name,
+                                name: a,
                                 amount: props.account?.amount ?? 0
                             })
                         }}
                     >
-                        <Chip size='small' label={a.name}/>
+                        <Chip size='small' label={a}/>
                     </a>
                 })}
             </Box>

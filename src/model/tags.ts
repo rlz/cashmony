@@ -1,5 +1,6 @@
 import { autorun, makeAutoObservable, runInAction } from 'mobx'
 import { OperationsModel } from './operations'
+import { compareByStats } from '../helpers/stats'
 
 let tagsModel: TagsModel | null = null
 
@@ -9,6 +10,7 @@ export class TagsModel {
     adjustment: readonly string[] = []
     transfer: readonly string[] = []
     all: readonly string[] = []
+    byCat: ReadonlyMap<string, readonly string[]> = new Map()
 
     private constructor () {
         makeAutoObservable(this)
@@ -16,35 +18,38 @@ export class TagsModel {
         autorun(() => {
             const ops = OperationsModel.instance()
 
-            const tagsStats: {
-                expense: Record<string, number>
-                income: Record<string, number>
-                adjustment: Record<string, number>
-                transfer: Record<string, number>
-                all: Record<string, number>
-            } = {
-                expense: {},
-                income: {},
-                adjustment: {},
-                transfer: {},
-                all: {}
+            const tagsStats = {
+                expense: new Map<string, number>(),
+                income: new Map<string, number>(),
+                adjustment: new Map<string, number>(),
+                transfer: new Map<string, number>(),
+                all: new Map<string, number>()
             }
+            const byCat = new Map<string, Map<string, number>>()
 
-            const agingTags = (tags: Record<string, number>): void => {
-                for (const t in tags) {
-                    tags[t] = tags[t] * 0.99
+            const agingTags = (tags: Map<string, number>): void => {
+                for (const [tag, stat] of tags) {
+                    tags.set(tag, stat * 0.999)
                 }
             }
 
-            const addTags = (tags: readonly string[], toTags: Record<string, number>): void => {
+            const addTags = (tags: readonly string[], toTags: Map<string, number>): void => {
                 agingTags(toTags)
 
                 for (const t of tags) {
-                    if (t in toTags) {
-                        toTags[t] += 1
-                    } else {
-                        toTags[t] = 1
+                    toTags.set(t, (toTags.get(t) ?? 0) + 1)
+                }
+            }
+
+            const addTagsToCat = (tags: readonly string[], categories: string[]): void => {
+                for (const cat of categories) {
+                    let catStats = byCat.get(cat)
+                    if (catStats === undefined) {
+                        catStats = new Map()
+                        byCat.set(cat, catStats)
                     }
+
+                    addTags(tags, catStats)
                 }
             }
 
@@ -55,10 +60,14 @@ export class TagsModel {
 
                 addTags(o.tags, tagsStats[o.type])
                 addTags(o.tags, tagsStats.all)
+
+                if (o.type === 'expense' || o.type === 'income') {
+                    addTagsToCat(o.tags, o.categories.map(c => c.name))
+                }
             }
 
-            const sortTags = (tags: Record<string, number>): string[] => {
-                return Object.entries(tags).sort((t1, t2) => t2[1] - t1[1]).map(t => t[0])
+            const sortTags = (tags: Map<string, number>): string[] => {
+                return [...tags.keys()].sort(compareByStats(tags))
             }
 
             runInAction(() => {
@@ -67,6 +76,7 @@ export class TagsModel {
                 this.income = sortTags(tagsStats.income)
                 this.transfer = sortTags(tagsStats.transfer)
                 this.all = sortTags(tagsStats.all)
+                this.byCat = new Map(Array.from(byCat.entries()).map(([cat, catStats]) => [cat, sortTags(catStats)]))
             })
         })
     }
@@ -79,11 +89,13 @@ export class TagsModel {
     }
 }
 
-export function mergeTags (main: readonly string[], additional: readonly string[]): string[] {
-    const s = new Set<string>(main)
+export function mergeTags (catTags: readonly string[], opTypeTags: readonly string[], allTags: readonly string[]): string[] {
+    const ctSet = new Set<string>(catTags)
+    const ottSet = new Set<string>(opTypeTags)
 
     return [
-        ...main,
-        ...additional.filter(i => !s.has(i))
+        ...catTags,
+        ...opTypeTags.filter(i => !ctSet.has(i)),
+        ...allTags.filter(i => !(ctSet.has(i) || ottSet.has(i)))
     ]
 }
