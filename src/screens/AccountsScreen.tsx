@@ -24,7 +24,7 @@ export const AccountsScreen = observer((): ReactElement => {
             gap={1}
             p={1}
         >
-            { Array.from(accountsModel.accounts.values()).map(account => {
+            { accountsModel.accountsSorted.map(a => accountsModel.get(a)).map(account => {
                 return <Paper
                     key={account.name}
                     sx={{ p: 1 }}
