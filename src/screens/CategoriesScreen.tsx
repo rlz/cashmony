@@ -1,25 +1,25 @@
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { MainScreen } from '../widgets/MainScreen'
-import { Box, Paper, Typography } from '@mui/material'
-import { AppState } from '../model/appState'
+import { Box, Fab, Paper, Typography } from '@mui/material'
 import { formatCurrency } from '../helpers/currencies'
 import { CategoriesModel } from '../model/categories'
+import 'uplot/dist/uPlot.min.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { useNavigate } from 'react-router-dom'
+import { CatMonthStats } from '../model/stats'
+import { Sparkline } from '../widgets/Sparkline'
 
-const appState = AppState.instance()
 const categoriesModel = CategoriesModel.instance()
 
 export const CategoriesScreen = observer((): ReactElement => {
-    const date = appState.startDate
-    const currentAmounts = categoriesModel.getAmounts(date)
-    const dayBeforeMonth = date.set({ day: 1 }).minus({ day: 1 })
-    const dayBeforeMonthAmounts = categoriesModel.getAmounts(dayBeforeMonth)
-    const daysBefore30 = date.minus({ days: 30 })
-    const daysBeforeAmounts30 = categoriesModel.getAmounts(daysBefore30)
-    const daysBefore365 = date.minus({ days: 365 })
-    const daysBeforeAmounts365 = categoriesModel.getAmounts(daysBefore365)
+    const navigate = useNavigate()
 
     return <MainScreen>
+        <Fab color="primary" sx={{ position: 'absolute', bottom: '70px', right: '20px' }}>
+            <FontAwesomeIcon icon={faPlus} />
+        </Fab>
         <Box
             display="flex"
             flexDirection="column"
@@ -27,25 +27,37 @@ export const CategoriesScreen = observer((): ReactElement => {
             p={1}
         >
             { categoriesModel.categoriesSorted.map(c => categoriesModel.get(c)).map(cat => {
-                const thisMonthAmount = (currentAmounts.get(cat.name) ?? 0) - (dayBeforeMonthAmounts.get(cat.name) ?? 0)
-                const daysAmount30 = (currentAmounts.get(cat.name) ?? 0) - (daysBeforeAmounts30.get(cat.name) ?? 0)
-                const daysAmount365 = (currentAmounts.get(cat.name) ?? 0) - (daysBeforeAmounts365.get(cat.name) ?? 0)
+                const stats = CatMonthStats.for(cat.name)
 
-                return <Paper
-                    key={cat.name}
-                    sx={{ p: 1, display: 'flex' }}
-                >
-                    <Typography variant='body1'>
-                        {cat.name}
-                    </Typography>
-                    <Box flex="1 0 0" textAlign="right">
-                        <Typography>
-                            This month: <Amount value={thisMonthAmount} currency={cat.currency}/><br/>
-                            Last 30 days: <Amount value={daysAmount30} currency={cat.currency}/><br/>
-                            Last 365 days: <Amount value={daysAmount365} currency={cat.currency}/>
-                        </Typography>
-                    </Box>
-                </Paper>
+                return <a key={cat.name} onClick={() => { navigate(`/categories/${encodeURIComponent(cat.name)}`) }}>
+                    <Paper sx={{ p: 1 }} >
+                        <Box display="flex" gap={1} mb={1}>
+                            <Box>
+                                <Typography variant='body1'>
+                                    {cat.name}
+                                </Typography>
+                                {
+                                    cat.yearGoal !== undefined
+                                        ? <Typography variant='body2'>
+                                            Goal: <Amount value={cat.yearGoal / 12} currency={cat.currency}/>
+                                        </Typography>
+                                        : null
+                                }
+                            </Box>
+                            <Typography flex="1 0 0" variant='body2' textAlign="right">
+                                This month:<br/>
+                                Last 30 d.:<br/>
+                                M. avg.:
+                            </Typography>
+                            <Typography variant='body2' textAlign="right">
+                                <Amount value={stats.monthAmount} currency={cat.currency}/><br/>
+                                <Amount value={stats.last30Days} currency={cat.currency}/><br/>
+                                <Amount value={stats.monthlyAverage} currency={cat.currency}/>
+                            </Typography>
+                        </Box>
+                        <Sparkline stats={stats} />
+                    </Paper>
+                </a>
             }) }
         </Box>
     </MainScreen>
@@ -55,8 +67,8 @@ function Amount ({ value, currency }: { value: number, currency: string }): Reac
     return <Typography noWrap
         component="span"
         variant="body2"
-        color={value < 0 ? 'error' : (value > 0 ? 'success' : 'info.main')}
+        color='primary.main'
     >
-        {formatCurrency(Math.abs(value), currency)}
+        {formatCurrency(value === 0 ? value : -value, currency)}
     </Typography>
 }

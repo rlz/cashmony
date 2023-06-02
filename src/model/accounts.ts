@@ -3,11 +3,9 @@ import { FinDataDb } from './finDataDb'
 import { type NotDeletedOperation, type Account } from './model'
 import { OperationsModel } from './operations'
 import { utcToday } from '../helpers/dates'
-import { AppState } from './appState'
 import { compareByStats } from '../helpers/stats'
 
 const operationsModel = OperationsModel.instance()
-const appState = AppState.instance()
 
 let accountsModel: AccountsModel | null = null
 
@@ -48,14 +46,14 @@ export class AccountsModel {
 
         autorun(() => {
             if (this.accounts.size === 0) {
-                this.amounts = new Map([[appState.startDate.toISODate() ?? '', new Map()]])
+                this.amounts = new Map([[utcToday().toISODate() ?? '', new Map()]])
                 return
             }
 
             const firstOp = operationsModel.operations.find(o => o.type !== 'deleted') as NotDeletedOperation
 
             if (firstOp === undefined) {
-                this.amounts = new Map([[appState.startDate.toISODate() ?? '', new Map(Array.from(this.accounts.values()).map(account => [account.name, 0]))]])
+                this.amounts = new Map([[utcToday().toISODate() ?? '', new Map(Array.from(this.accounts.values()).map(account => [account.name, 0]))]])
                 return
             }
 

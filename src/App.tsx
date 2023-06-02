@@ -6,6 +6,7 @@ import { PostAuthScreen } from './screens/PostAuthScreen'
 import { AuthScreen } from './screens/AuthScreen'
 import { AccountsScreen } from './screens/AccountsScreen'
 import { CategoriesScreen } from './screens/CategoriesScreen'
+import { CategoryScreen } from './screens/CategoryScreen'
 
 declare global {
     interface Window { routerNavigate: (to: string) => Promise<void> }
@@ -14,24 +15,19 @@ declare global {
 const router = createBrowserRouter([
     {
         path: '/',
-        children: [
-            {
-                index: true,
-                element: <Navigate to="operations"/>
-            },
-            {
-                path: 'operations',
-                element: <OperationsScreen />
-            },
-            {
-                path: 'categories',
-                element: <CategoriesScreen />
-            },
-            {
-                path: 'accounts',
-                element: <AccountsScreen />
-            }
-        ]
+        element: <Navigate to="operations"/>
+    },
+    {
+        path: '/operations',
+        element: <OperationsScreen />
+    },
+    {
+        path: '/categories',
+        element: <CategoriesScreen />
+    },
+    {
+        path: '/accounts',
+        element: <AccountsScreen />
     },
     {
         path: '/post-auth',
@@ -46,16 +42,20 @@ const router = createBrowserRouter([
         element: <OperationScreen />
     },
     {
-        path: 'new-op/expense',
+        path: '/new-op/expense',
         element: <OperationScreen />
     },
     {
-        path: 'new-op/income',
+        path: '/new-op/income',
         element: <OperationScreen />
     },
     {
-        path: 'new-op/transfer',
+        path: '/new-op/transfer',
         element: <OperationScreen />
+    },
+    {
+        path: '/categories/:catName',
+        element: <CategoryScreen/>
     }
 ])
 

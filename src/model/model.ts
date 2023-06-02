@@ -3,6 +3,7 @@ import { type DateTime } from 'luxon'
 export interface Category {
     readonly name: string
     readonly currency: string
+    readonly yearGoal?: number
     readonly hidden: boolean
 }
 

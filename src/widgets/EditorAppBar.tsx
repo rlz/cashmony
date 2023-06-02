@@ -47,17 +47,20 @@ export function EditorAppBar ({ title, navigateOnBack, onBack, onSave }: Props):
                         aria-label="menu"
                         sx={{ ml: 2 }}
                         onClick={() => {
-                            setInProgress(true)
-                            setTimeout(() => {
-                                if (onSave === null) {
-                                    throw Error('Non null onSave expected here')
-                                }
+                            if (onSave === null) {
+                                throw Error('Non null onSave expected here')
+                            }
 
+                            setInProgress(true)
+
+                            setTimeout(() => {
                                 const ret = onSave()
                                 if (ret !== undefined) {
                                     void ret.then(() => {
                                         setInProgress(false)
                                     })
+                                } else {
+                                    setInProgress(false)
                                 }
                             })
                         }}

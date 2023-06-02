@@ -3,11 +3,9 @@ import { FinDataDb } from './finDataDb'
 import { type NotDeletedOperation, type Category } from './model'
 import { OperationsModel } from './operations'
 import { compareByStats } from '../helpers/stats'
-import { AppState } from './appState'
 import { utcToday } from '../helpers/dates'
 import { type DateTime } from 'luxon'
 
-const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 
 let categoriesModel: CategoriesModel | null = null
@@ -50,14 +48,14 @@ export class CategoriesModel {
 
         autorun(() => {
             if (this.categories.size === 0) {
-                this.amounts = new Map([[appState.startDate.toISODate() ?? '', new Map()]])
+                this.amounts = new Map([[utcToday().toISODate() ?? '', new Map()]])
                 return
             }
 
             const firstOp = operationsModel.operations.find(o => o.type !== 'deleted') as NotDeletedOperation
 
             if (firstOp === undefined) {
-                this.amounts = new Map([[appState.startDate.toISODate() ?? '', this.zeroAmounts()]])
+                this.amounts = new Map([[utcToday().toISODate() ?? '', this.zeroAmounts()]])
                 return
             }
 
@@ -132,13 +130,7 @@ export class CategoriesModel {
 
     async put (category: Category): Promise<void> {
         await this.finDataDb.putCategory(category)
-
-        runInAction(() => {
-            this.categories = {
-                ...this.categories,
-                [category.name]: category
-            }
-        })
+        await this.readAll()
     }
 
     private async readAll (): Promise<void> {

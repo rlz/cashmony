@@ -1,9 +1,8 @@
-import React, { useState, type ReactElement, useEffect } from 'react'
+import React, { useState, type ReactElement, useEffect, type PropsWithChildren } from 'react'
 import { Box, Skeleton, Typography, useTheme } from '@mui/material'
 import { OperationsModel } from '../model/operations'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { type ExpenseOperation, type DeletedOperation, type NotDeletedOperation, type IncomeOperation, type TransferOperation, type AdjustmentOperation } from '../model/model'
-import { EditorAppBar } from '../widgets/EditorAppBar'
 import { observer } from 'mobx-react-lite'
 import { TagsEditor } from '../widgets/TagsEditor'
 import { AccountEditor } from '../widgets/AccountEditor'
@@ -19,6 +18,7 @@ import { DateTime } from 'luxon'
 import { utcToday } from '../helpers/dates'
 import { DeleteOpButton } from '../widgets/DeleteOpButton'
 import { CurrenciesModel } from '../model/currencies'
+import { EditorScreen } from '../widgets/EditorScreen'
 
 const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
@@ -31,13 +31,11 @@ type PartialOperation =
     Omit<AdjustmentOperation, 'account'>
 
 export const OperationScreen = observer((): ReactElement => {
-    const theme = useTheme()
     const [op, setOp] = useState<PartialOperation | DeletedOperation | null>(null)
     const [account, setAccount] = useState<NotDeletedOperation['account'] | null>(null)
     const [toAccount, setToAccount] = useState<NotDeletedOperation['account'] | null>(null)
     const location = useLocation()
     const pathParams = useParams()
-    const navigate = useNavigate()
 
     useEffect(() => {
         if (location.pathname.endsWith('expense')) {
@@ -92,67 +90,66 @@ export const OperationScreen = observer((): ReactElement => {
         }
     }, [])
 
+    if (op === null) {
+        return <Wrap op={op} account={account} toAccount={toAccount}><SkeletonBody /></Wrap>
+    }
+
+    if (op.type === 'deleted') {
+        return <Wrap op={op} account={account} toAccount={toAccount}><Typography variant='h5' mt={10} textAlign="center">This operation was deleted</Typography></Wrap>
+    }
+
+    return <Wrap op={op} account={account} toAccount={toAccount}><OpBody op={op} setOp={setOp} account={account} setAccount={setAccount} toAccount={toAccount} setToAccount={setToAccount}/></Wrap>
+})
+
+interface WrapProps extends PropsWithChildren {
+    op: PartialOperation | DeletedOperation | null
+    account: NotDeletedOperation['account'] | null
+    toAccount: NotDeletedOperation['account'] | null
+}
+
+const Wrap = ({ op, account, toAccount, children }: WrapProps): ReactElement => {
+    const navigate = useNavigate()
     const title = op === null
         ? ''
         : op.type[0].toLocaleUpperCase() + op.type.substring(1)
 
-    const wrap = (el: ReactElement): ReactElement => <Box width="100vw" height="100vh" display="flex" flexDirection="column">
-        <EditorAppBar
-            title={title}
-            navigateOnBack='/operations'
-            onSave={
-                op !== null &&
-                op.type !== 'deleted' &&
-                op.amount !== 0 &&
-                account !== null &&
-                account.amount !== 0 &&
-                (op.type !== 'transfer' || (toAccount !== null && toAccount.amount !== 0))
-                    ? async () => {
-                        if (op === null) {
-                            throw Error('Not null op expected here')
-                        }
-
-                        if (account === null) {
-                            throw Error('Not null account expected here')
-                        }
-
-                        if (op.type === 'transfer') {
-                            if (toAccount === null) {
-                                throw Error('Not null toAccount expected here')
-                            }
-
-                            await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account, toAccount }])
-                        } else {
-                            await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account }])
-                        }
-
-                        navigate('/operations')
+    return <EditorScreen
+        title={title}
+        navigateOnBack='/operations'
+        onSave={
+            op !== null &&
+            op.type !== 'deleted' &&
+            op.amount !== 0 &&
+            account !== null &&
+            account.amount !== 0 &&
+            (op.type !== 'transfer' || (toAccount !== null && toAccount.amount !== 0))
+                ? async () => {
+                    if (op === null) {
+                        throw Error('Not null op expected here')
                     }
-                    : (op !== null && op.type !== 'deleted' ? null : undefined)
-            }
-        />
-        <Box
-            display="flex"
-            flexDirection="column"
-            overflow="scroll"
-            flex="1 0 0"
-            bgcolor={theme.palette.background.default}
-            color="text.primary"
-        >
-            {el}
-        </Box>
-    </Box>
 
-    if (op === null) {
-        return wrap(<SkeletonBody />)
-    }
+                    if (account === null) {
+                        throw Error('Not null account expected here')
+                    }
 
-    if (op.type === 'deleted') {
-        return wrap(<Typography variant='h5' mt={10} textAlign="center">This operation was deleted</Typography>)
-    }
+                    if (op.type === 'transfer') {
+                        if (toAccount === null) {
+                            throw Error('Not null toAccount expected here')
+                        }
 
-    return wrap(<OpBody op={op} setOp={setOp} account={account} setAccount={setAccount} toAccount={toAccount} setToAccount={setToAccount}/>)
-})
+                        await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account, toAccount }])
+                    } else {
+                        await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account }])
+                    }
+
+                    navigate('/operations')
+                }
+                : (op !== null && op.type !== 'deleted' ? null : undefined)
+        }
+    >
+        {children}
+    </EditorScreen>
+}
 
 interface BodyProps {
     op: PartialOperation
@@ -182,8 +179,8 @@ function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: Bo
         setToAccount(prToAccount)
     }
 
-    return <Box px={1}>
-        <Box py={2}>
+    return <Box>
+        <Box pt={1} pb={2}>
             <BasicInfo op={op} account={account} toAccount={toAccount}/>
         </Box>
         <AmountEditor
