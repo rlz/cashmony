@@ -36,22 +36,44 @@ export class FinDataDb {
 
     async readAllAccounts (): Promise<Account[]> {
         const db = await this.openDb()
-        return (await db.getAll(ACCOUNTS_STORE_NAME)) as Account[]
+        return (
+            (await db.getAll(ACCOUNTS_STORE_NAME))
+                .map(a => {
+                    return {
+                        ...a,
+                        lastModified: DateTime.fromMillis(a.lastModified ?? 0, { zone: 'utc' })
+                    }
+                })
+        ) as Account[]
     }
 
     async putAccount (account: Account): Promise<void> {
         const db = await this.openDb()
-        await db.put(ACCOUNTS_STORE_NAME, account)
+        await db.put(
+            ACCOUNTS_STORE_NAME,
+            { ...account, lastModified: account.lastModified.toMillis() }
+        )
     }
 
     async readAllCategories (): Promise<Category[]> {
         const db = await this.openDb()
-        return (await db.getAll(CATEGORIES_STORE_NAME)) as Category[]
+        return (
+            (await db.getAll(CATEGORIES_STORE_NAME))
+                .map(c => {
+                    return {
+                        ...c,
+                        lastModified: DateTime.fromMillis(c.lastModified ?? 0, { zone: 'utc' })
+                    }
+                })
+        ) as Category[]
     }
 
     async putCategory (category: Category): Promise<void> {
         const db = await this.openDb()
-        await db.put(CATEGORIES_STORE_NAME, category)
+        await db.put(
+            CATEGORIES_STORE_NAME,
+            { ...category, lastModified: category.lastModified.toMillis() }
+        )
     }
 
     async getOperation (id: string): Promise<Operation> {

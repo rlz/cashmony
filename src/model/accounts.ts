@@ -4,6 +4,7 @@ import { type NotDeletedOperation, type Account } from './model'
 import { OperationsModel } from './operations'
 import { utcToday } from '../helpers/dates'
 import { compareByStats } from '../helpers/stats'
+import { DateTime } from 'luxon'
 
 const operationsModel = OperationsModel.instance()
 
@@ -125,7 +126,9 @@ export class AccountsModel {
             return {
                 name: '-',
                 currency: 'USD',
-                hidden: true
+                hidden: true,
+                lastModified: DateTime.utc(),
+                deleted: true
             }
         }
 
@@ -133,7 +136,7 @@ export class AccountsModel {
     }
 
     async put (account: Account): Promise<void> {
-        await this.finDataDb.putAccount(account)
+        await this.finDataDb.putAccount({ ...account, lastModified: DateTime.utc() })
 
         runInAction(() => {
             this.accounts = {

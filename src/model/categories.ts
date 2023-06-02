@@ -4,7 +4,7 @@ import { type NotDeletedOperation, type Category } from './model'
 import { OperationsModel } from './operations'
 import { compareByStats } from '../helpers/stats'
 import { utcToday } from '../helpers/dates'
-import { type DateTime } from 'luxon'
+import { DateTime } from 'luxon'
 
 const operationsModel = OperationsModel.instance()
 
@@ -117,7 +117,9 @@ export class CategoriesModel {
             return {
                 name: '-',
                 currency: 'USD',
-                hidden: true
+                hidden: true,
+                lastModified: DateTime.utc(),
+                deleted: true
             }
         }
 
@@ -129,7 +131,7 @@ export class CategoriesModel {
     }
 
     async put (category: Category): Promise<void> {
-        await this.finDataDb.putCategory(category)
+        await this.finDataDb.putCategory({ ...category, lastModified: DateTime.utc() })
         await this.readAll()
     }
 

@@ -5,12 +5,16 @@ export interface Category {
     readonly currency: string
     readonly yearGoal?: number
     readonly hidden: boolean
+    readonly deleted?: boolean
+    readonly lastModified: DateTime
 }
 
 export interface Account {
     readonly name: string
     readonly currency: string
     readonly hidden: boolean
+    readonly deleted: boolean
+    readonly lastModified: DateTime
 }
 
 interface BaseTransaction {

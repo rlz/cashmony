@@ -18,13 +18,16 @@ const regExps = [
 ]
 
 export function CurrencyInput (props: Props): ReactElement {
-    const [amountText, setAmountText] = useState(props.amount === 0 ? '' : Math.abs(props.amount).toFixed(2))
+    const [amountText, setAmountText] = useState('')
 
     const mult = props.negative ? -1 : 1
     const a = parseFloat(amountText)
 
     useEffect(() => {
-        if (amountText !== '' && props.amount !== mult * a) {
+        if (
+            (amountText !== '' && props.amount !== mult * a) ||
+            (amountText === '' && props.amount !== 0)
+        ) {
             setAmountText(Math.abs(props.amount).toFixed(2))
         }
     }, [props.amount, mult, a, amountText])
@@ -46,9 +49,15 @@ export function CurrencyInput (props: Props): ReactElement {
             const text = ev.target.value
             for (const re of regExps) {
                 if (re.test(text)) {
-                    setAmountText(ev.target.value)
+                    const amountText = ev.target.value
+                    setAmountText(amountText)
 
-                    const a = parseFloat(ev.target.value)
+                    if (amountText === '') {
+                        props.onAmountChange(0)
+                        break
+                    }
+
+                    const a = parseFloat(amountText)
                     if (!Number.isNaN(a)) {
                         props.onAmountChange(mult * a)
                         break
