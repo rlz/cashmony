@@ -1,6 +1,6 @@
 import React, { type ReactElement, useState } from 'react'
 import { MainAppDrawer } from './MainAppDrawer'
-import { AppBar, IconButton, Toolbar } from '@mui/material'
+import { AppBar, IconButton, Toolbar, Typography } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars } from '@fortawesome/free-solid-svg-icons'
 
@@ -21,6 +21,9 @@ export const MainAppBar = (): ReactElement => {
                 >
                     <FontAwesomeIcon icon={faBars}/>
                 </IconButton>
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    Cashmony
+                </Typography>
             </Toolbar>
         </AppBar>
     </>
