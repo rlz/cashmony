@@ -33,7 +33,7 @@ export const FullScreenModal = (props: Props): ReactElement => {
             textOverflow="scroll"
             flex="1 0 0"
             gap={props.gap}
-            px={1}
+            p={1}
             bgcolor='background.default'
         >
             {props.children}

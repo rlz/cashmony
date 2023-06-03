@@ -11,12 +11,14 @@ import { useNavigate } from 'react-router-dom'
 import { CatMonthStats } from '../model/stats'
 import { Sparkline } from '../widgets/Sparkline'
 import { type Category } from '../model/model'
+import { AddCategory } from '../widgets/AddCategory'
 
 const categoriesModel = CategoriesModel.instance()
 
 export const CategoriesScreen = observer((): ReactElement => {
     const navigate = useNavigate()
     const [showHidden, setShowHidden] = useState(false)
+    const [addCategory, setAddCategory] = useState(false)
 
     const visibleCategories: Category[] = []
     const hiddenCategories: Category[] = []
@@ -31,9 +33,20 @@ export const CategoriesScreen = observer((): ReactElement => {
     }
 
     return <MainScreen>
-        <Fab color="primary" sx={{ position: 'absolute', bottom: '70px', right: '20px' }}>
-            <FontAwesomeIcon icon={faPlus} />
-        </Fab>
+        {
+            addCategory
+                ? <AddCategory
+                    onClose={() => { setAddCategory(false) }}
+                />
+                : <Fab
+                    color="primary"
+                    sx={{ position: 'absolute', bottom: '70px', right: '20px' }}
+                    onClick={() => { setAddCategory(true) }}
+                >
+                    <FontAwesomeIcon icon={faPlus} />
+                </Fab>
+
+        }
         <Box
             display="flex"
             flexDirection="column"
