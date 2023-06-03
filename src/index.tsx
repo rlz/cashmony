@@ -4,7 +4,7 @@ import './index.scss'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 import { ThemeProvider, createTheme } from '@mui/material'
-import { indigo } from '@mui/material/colors'
+import { deepOrange, indigo } from '@mui/material/colors'
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
@@ -15,6 +15,9 @@ const darkTheme = createTheme({
         mode: 'dark',
         primary: {
             main: indigo[400]
+        },
+        secondary: {
+            main: deepOrange[400]
         },
         background: {
             // default: blueGrey[200],
