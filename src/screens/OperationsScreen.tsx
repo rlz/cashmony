@@ -70,7 +70,7 @@ export const OperationsScreen = observer((): ReactElement => {
                 </Box>
             </Box>
         )}
-        <Box minHeight={72}/>
+        <Box minHeight={144}/>
         <Fab />
     </MainScreen>
 })

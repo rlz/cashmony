@@ -97,7 +97,7 @@ export const CategoriesScreen = observer((): ReactElement => {
                     : null
             }
         </Box>
-        <Box minHeight={72}/>
+        <Box minHeight={144}/>
     </MainScreen>
 })
 

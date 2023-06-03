@@ -54,5 +54,6 @@ export const AccountsScreen = observer((): ReactElement => {
                 </Paper>
             }) }
         </Box>
+        <Box minHeight={144}/>
     </MainScreen>
 })

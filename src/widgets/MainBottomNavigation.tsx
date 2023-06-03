@@ -10,6 +10,7 @@ export function MainBottomNavigation (): ReactElement {
     return <BottomNavigation
         showLabels
         value={loc.pathname}
+        sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}
     >
         <BottomNavigationAction
             value="/operations"
