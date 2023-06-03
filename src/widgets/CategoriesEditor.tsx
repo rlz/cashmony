@@ -43,6 +43,12 @@ export const CategoriesEditor = observer((props: Props): ReactElement => {
         <AccordionDetails>
             <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">
                 { categoriesModel.categoriesSorted.map(c => {
+                    const cat = categoriesModel.get(c)
+
+                    if (cat.hidden || cat.deleted === true) {
+                        return undefined
+                    }
+
                     if (category !== null && c === category.name) {
                         return <a
                             key={c}

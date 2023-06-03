@@ -35,6 +35,12 @@ export const AccountEditor = observer((props: Props): ReactElement => {
         <AccordionDetails>
             <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">
                 { accountsModel.accountsSorted.map(a => {
+                    const acc = accountsModel.get(a)
+
+                    if (acc.hidden || acc.deleted === true) {
+                        return undefined
+                    }
+
                     if (a === props.account?.name) {
                         return <a key={a} >
                             <Chip color="primary" size='small' label={a}/>
