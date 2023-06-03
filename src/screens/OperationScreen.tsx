@@ -19,7 +19,7 @@ import { utcToday } from '../helpers/dates'
 import { DeleteOpButton } from '../widgets/DeleteOpButton'
 import { CurrenciesModel } from '../model/currencies'
 import { EditorScreen } from '../widgets/EditorScreen'
-import deepEqual from 'fast-deep-equal'
+import { deepEqual } from '../helpers/deepEqual'
 
 const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()

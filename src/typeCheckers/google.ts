@@ -1,12 +1,14 @@
 import typia from 'typia'
-import { type GoogleOpsDeletedRow, type GoogleOpsExtRow, type GoogleOpsInitRow } from '../google/googleDataSchema'
-import { type RowsType } from '../google/loadOperations'
-import { type PutReplyBody, type ClearReplyBody } from '../google/storeOperations'
+import { type GoogleOperationCategoryRow, type GoogleDeletedOperationRow, type GoogleNonDeletedOperationRow, type GoogleCategoryRow, type GoogleAccountRow } from '../google/googleDataSchema'
+import { type RowsType } from '../google/load'
+import { type PutReplyBody, type ClearReplyBody } from '../google/store'
 
-export const isGoogleOpsInitRow = typia.createIs<GoogleOpsInitRow>()
-export const assertGoogleOpsInitRow = typia.createAssert<GoogleOpsInitRow>()
-export const isGoogleOpsDeletedRow = typia.createIs<GoogleOpsDeletedRow>()
-export const assertGoogleOpsExtRow = typia.createAssert<GoogleOpsExtRow>()
+export const isGoogleNonDeletedOperationRow = typia.createIs<GoogleNonDeletedOperationRow>()
+export const assertGoogleNonDeletedOperationRow = typia.createAssert<GoogleNonDeletedOperationRow>()
+export const isGoogleDeletedOperationRow = typia.createIs<GoogleDeletedOperationRow>()
+export const isGoogleOperationCategoryRow = typia.createIs<GoogleOperationCategoryRow>()
+export const isGoogleAccountRow = typia.createIs<GoogleAccountRow>()
+export const isGoogleCategoryRow = typia.createIs<GoogleCategoryRow>()
 
 export const assertRowsType = typia.createAssert<RowsType>()
 export const assertClearReplyBody = typia.createAssert<ClearReplyBody>()

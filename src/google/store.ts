@@ -1,7 +1,7 @@
 import { isOk, type Google } from './google'
 import makeUrl from './makeUrl'
-import { type Operation } from '../model/model'
-import { opsToGoogle } from './googleDataSchema'
+import { type Account, type Category, type Operation } from '../model/model'
+import { accsToGoogle, catsToGoogle, opsToGoogle } from './googleDataSchema'
 import { assertClearReplyBody, assertPutReplyBody } from '../typeCheckers.g/google'
 
 export interface ClearReplyBody {
@@ -9,13 +9,13 @@ export interface ClearReplyBody {
     spreadsheetId: string
 }
 
-async function clearData (google: Google): Promise<void> {
+async function clearData (google: Google, tabName: string): Promise<void> {
     if (google.finDataSpreadsheetId === null) {
         throw Error(`finDataSpreadsheetId(${google.finDataSpreadsheetId ?? 'null'}) expected here`)
     }
 
     const id = encodeURIComponent(google.finDataSpreadsheetId)
-    const range = 'Operations!A2:J200000'
+    const range = `${tabName}!A2:J200000`
 
     const reply = await google.fetch(
         `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(range)}:clear`,
@@ -27,7 +27,7 @@ async function clearData (google: Google): Promise<void> {
         const replyBody = assertClearReplyBody(reply.body)
 
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        console.log(`Cleared Google Spreadsheet ${replyBody.spreadsheetId} (range: ${replyBody.clearedRange})`)
+        console.log(`Cleared Google Spreadsheet ${replyBody.spreadsheetId}:${tabName} (range: ${replyBody.clearedRange})`)
     } else {
         console.warn('Unauthorized!')
     }
@@ -54,17 +54,15 @@ export interface PutReplyBody {
     updatedRows: number
 }
 
-export async function storeOperations (google: Google, operations: readonly Operation[]): Promise<void> {
-    console.log('Store operation')
+async function storeRows (google: Google, tabName: string, rows: unknown[]): Promise<void> {
+    console.log(`Store ${rows.length} rows in ${google.sheetName}:${tabName}`)
+
     if (google.finDataSpreadsheetId === null) {
         throw Error(`finDataSpreadsheetId(${google.finDataSpreadsheetId ?? 'null'}) expected here`)
     }
 
-    await clearData(google)
-
     const id = encodeURIComponent(google.finDataSpreadsheetId)
-    const range = 'Operations!A2:J200000'
-    const values = opsToGoogle(operations)
+    const range = `${tabName}!A2:J200000`
 
     const reply = await google.fetch(
         makeUrl(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(range)}`, {
@@ -80,7 +78,7 @@ export async function storeOperations (google: Google, operations: readonly Oper
             body: JSON.stringify({
                 range,
                 majorDimension: 'ROWS',
-                values
+                values: rows
             })
         }
     )
@@ -88,8 +86,46 @@ export async function storeOperations (google: Google, operations: readonly Oper
         const replyBody = assertPutReplyBody(reply.body)
 
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        console.log(`Store values in ${replyBody.spreadsheetId} Spreadsheet (range: ${replyBody.updatedRange}, cells: ${replyBody.updatedCells})`)
+        console.log(`Rows stored in ${replyBody.spreadsheetId} Spreadsheet (range: ${replyBody.updatedRange}, cells: ${replyBody.updatedCells})`)
     } else {
         console.warn('Unauthorized!')
     }
+}
+
+export async function storeOperations (google: Google, operations: readonly Operation[]): Promise<void> {
+    console.log('Store operations')
+
+    await clearData(google, google.tabNames.operations)
+    await clearData(google, google.tabNames.operationsCategories)
+
+    const rows = opsToGoogle(operations)
+
+    await storeRows(google, google.tabNames.operations, rows.operations)
+    await storeRows(google, google.tabNames.operationsCategories, rows.categories)
+
+    console.log('End store operations')
+}
+
+export async function storeAccounts (google: Google, accounts: readonly Account[]): Promise<void> {
+    console.log('Store accounts')
+
+    await clearData(google, google.tabNames.accounts)
+
+    const rows = accsToGoogle(accounts)
+
+    await storeRows(google, google.tabNames.accounts, rows)
+
+    console.log('End store accounts')
+}
+
+export async function storeCategories (google: Google, categories: readonly Category[]): Promise<void> {
+    console.log('Store categories')
+
+    await clearData(google, google.tabNames.categories)
+
+    const rows = catsToGoogle(categories)
+
+    await storeRows(google, google.tabNames.categories, rows)
+
+    console.log('End store categories')
 }

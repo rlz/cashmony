@@ -11,36 +11,18 @@ export async function createDataSpreadsheet (google: Google): Promise<void> {
             },
             body: JSON.stringify({
                 properties: {
-                    title: '.FinData'
+                    title: google.sheetName
                 },
                 sheets: [
-                    {
-                        properties: {
-                            title: 'Operations'
-                        },
-                        data: [
-                            {
-                                startRow: 0,
-                                startColumn: 0,
-                                rowData: [
-                                    {
-                                        values: [
-                                            'opId', 'opType', 'lastModified', 'date',
-                                            'amount', 'currency',
-                                            'accOrCat', 'accOrCatAmount',
-                                            'tags', 'comment'
-                                        ].map(i => {
-                                            return {
-                                                userEnteredValue: {
-                                                    stringValue: i
-                                                }
-                                            }
-                                        })
-                                    }
-                                ]
-                            }
-                        ]
-                    }
+                    makeSheet(google.tabNames.operations, [
+                        'opId', 'opType', 'lastModified', 'date',
+                        'amount', 'currency',
+                        'acc', 'accAmount',
+                        'tags', 'comment'
+                    ]),
+                    makeSheet(google.tabNames.operationsCategories, ['opId', 'cat', 'catAmount']),
+                    makeSheet(google.tabNames.accounts, ['name', 'currency', 'lastModified', 'hidden', 'deleted']),
+                    makeSheet(google.tabNames.categories, ['name', 'currency', 'lastModified', 'yearGoal', 'hidden', 'deleted'])
                 ]
             })
         }
@@ -53,5 +35,30 @@ export async function createDataSpreadsheet (google: Google): Promise<void> {
         })
     } else {
         console.warn('Unauthorized')
+    }
+}
+
+function makeSheet (tabName: string, columns: string[]): unknown {
+    return {
+        properties: {
+            title: tabName
+        },
+        data: [
+            {
+                startRow: 0,
+                startColumn: 0,
+                rowData: [
+                    {
+                        values: columns.map(i => {
+                            return {
+                                userEnteredValue: {
+                                    stringValue: i
+                                }
+                            }
+                        })
+                    }
+                ]
+            }
+        ]
     }
 }

@@ -2,12 +2,12 @@ import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, SwipeableDrawer, type SwipeableDrawerProps, TextField } from '@mui/material'
 import React, { type ReactElement } from 'react'
-import { syncDataWithGoogle } from '../model/operations'
 import { runInAction } from 'mobx'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import { utcToday } from '../helpers/dates'
 import { AppState } from '../model/appState'
+import { syncDataWithGoogle } from '../model/sync'
 
 const appState = AppState.instance()
 

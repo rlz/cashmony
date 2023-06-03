@@ -10,8 +10,8 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { CatMonthStats } from '../model/stats'
 import { CurrencyInput } from '../widgets/CurrencyInput'
 import { type Operation, type Category } from '../model/model'
-import deepEqual from 'fast-deep-equal'
 import { OperationsModel } from '../model/operations'
+import { deepEqual } from '../helpers/deepEqual'
 
 const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
