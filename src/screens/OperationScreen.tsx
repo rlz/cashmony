@@ -19,6 +19,7 @@ import { utcToday } from '../helpers/dates'
 import { DeleteOpButton } from '../widgets/DeleteOpButton'
 import { CurrenciesModel } from '../model/currencies'
 import { EditorScreen } from '../widgets/EditorScreen'
+import deepEqual from 'fast-deep-equal'
 
 const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
@@ -32,8 +33,11 @@ type PartialOperation =
 
 export const OperationScreen = observer((): ReactElement => {
     const [op, setOp] = useState<PartialOperation | DeletedOperation | null>(null)
+    const [origOp, setOrigOp] = useState<PartialOperation | DeletedOperation | null>(null)
     const [account, setAccount] = useState<NotDeletedOperation['account'] | null>(null)
+    const [origAccount, setOrigAccount] = useState<NotDeletedOperation['account'] | null>(null)
     const [toAccount, setToAccount] = useState<NotDeletedOperation['account'] | null>(null)
+    const [origToAccount, setOrigToAccount] = useState<NotDeletedOperation['account'] | null>(null)
     const location = useLocation()
     const pathParams = useParams()
 
@@ -77,12 +81,15 @@ export const OperationScreen = observer((): ReactElement => {
             const getData = async (): Promise<void> => {
                 const op = await operationsModel.getOperation(pathParams.opId as string)
                 setOp(op)
+                setOrigOp(op)
                 if (op.type !== 'deleted') {
                     setAccount(op.account)
+                    setOrigAccount(op.account)
                 }
 
                 if (op.type === 'transfer') {
                     setToAccount(op.toAccount)
+                    setOrigToAccount(op.toAccount)
                 }
             }
 
@@ -91,23 +98,48 @@ export const OperationScreen = observer((): ReactElement => {
     }, [])
 
     if (op === null) {
-        return <Wrap op={op} account={account} toAccount={toAccount}><SkeletonBody /></Wrap>
+        return <Wrap
+            op={op} origOp={origOp}
+            account={account} origAccount={origAccount}
+            toAccount={toAccount} origToAccount={origToAccount}
+        ><SkeletonBody /></Wrap>
     }
 
     if (op.type === 'deleted') {
-        return <Wrap op={op} account={account} toAccount={toAccount}><Typography variant='h5' mt={10} textAlign="center">This operation was deleted</Typography></Wrap>
+        return <Wrap
+            op={op} origOp={origOp}
+            account={account} origAccount={origAccount}
+            toAccount={toAccount} origToAccount={origToAccount}
+        >
+            <Typography variant='h5' mt={10} textAlign="center">This operation was deleted</Typography>
+        </Wrap>
     }
 
-    return <Wrap op={op} account={account} toAccount={toAccount}><OpBody op={op} setOp={setOp} account={account} setAccount={setAccount} toAccount={toAccount} setToAccount={setToAccount}/></Wrap>
+    return <Wrap
+        op={op} origOp={origOp}
+        account={account} origAccount={origAccount}
+        toAccount={toAccount} origToAccount={origToAccount}
+    >
+        <OpBody
+            op={op}
+            setOp={setOp}
+            account={account}
+            setAccount={setAccount}
+            toAccount={toAccount}
+            setToAccount={setToAccount}/>
+    </Wrap>
 })
 
 interface WrapProps extends PropsWithChildren {
     op: PartialOperation | DeletedOperation | null
+    origOp: PartialOperation | DeletedOperation | null
     account: NotDeletedOperation['account'] | null
+    origAccount: NotDeletedOperation['account'] | null
     toAccount: NotDeletedOperation['account'] | null
+    origToAccount: NotDeletedOperation['account'] | null
 }
 
-const Wrap = ({ op, account, toAccount, children }: WrapProps): ReactElement => {
+const Wrap = ({ op, origOp, account, origAccount, toAccount, origToAccount, children }: WrapProps): ReactElement => {
     const navigate = useNavigate()
     const title = op === null
         ? ''
@@ -122,7 +154,8 @@ const Wrap = ({ op, account, toAccount, children }: WrapProps): ReactElement => 
             op.amount !== 0 &&
             account !== null &&
             account.amount !== 0 &&
-            (op.type !== 'transfer' || (toAccount !== null && toAccount.amount !== 0))
+            (op.type !== 'transfer' || (toAccount !== null && toAccount.amount !== 0)) &&
+            !(deepEqual(op, origOp) && deepEqual(account, origAccount) && deepEqual(toAccount, origToAccount))
                 ? async () => {
                     if (op === null) {
                         throw Error('Not null op expected here')
