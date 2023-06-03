@@ -92,7 +92,7 @@ export const CategoriesScreen = observer((): ReactElement => {
             {
                 !showHidden && hiddenCategories.length > 0
                     ? <Typography color="primary.main" textAlign="center">
-                        <a onClick={() => { setShowHidden(true) }}>Show hidden ({hiddenCategories.length} cats)</a>
+                        <a onClick={() => { setShowHidden(true) }}>Show {hiddenCategories.length} hidden</a>
                     </Typography>
                     : null
             }
