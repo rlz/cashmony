@@ -17,7 +17,7 @@ const Fab = (): ReactElement => {
     return <>
         <Backdrop open={open} sx={{ backdropFilter: 'grayscale(30%) brightness(300%) blur(2px)' }} />
         <SpeedDial
-            sx={{ position: 'absolute', bottom: 70, right: 16 }}
+            sx={{ position: 'fixed', bottom: 70, right: 16 }}
             icon={<SpeedDialIcon />}
             ariaLabel="add"
             open={open}

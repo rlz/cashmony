@@ -30,7 +30,7 @@ export const AccountsScreen = observer((): ReactElement => {
                 />
                 : <Fab
                     color="primary"
-                    sx={{ position: 'absolute', bottom: '70px', right: '20px' }}
+                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
                     onClick={() => { setAddAccount(true) }}
                 >
                     <FontAwesomeIcon icon={faPlus} />
