@@ -9,6 +9,7 @@ const ACCESS_TOKEN = 'access_token'
 const GOOGLE_CLIENT_ID = '969343913019-635prket9b5rq0skn212ab098u5m22pv.apps.googleusercontent.com'
 const OK = 200
 const UNAUTHENTICATED = 401
+const REDIRECT_URL = process.env.NODE_ENV === 'production' ? 'https://app.cashmony.ru/auth' : 'http://localhost:3000/auth'
 
 let google: Google | null = null
 
@@ -72,7 +73,7 @@ export class Google {
             'https://accounts.google.com/o/oauth2/v2/auth',
             {
                 client_id: GOOGLE_CLIENT_ID,
-                redirect_uri: 'http://localhost:3000/auth',
+                redirect_uri: REDIRECT_URL,
                 response_type: 'token',
                 scope: [
                     'https://www.googleapis.com/auth/drive.file',
