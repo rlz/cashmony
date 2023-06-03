@@ -13,7 +13,7 @@ export interface Account {
     readonly name: string
     readonly currency: string
     readonly hidden: boolean
-    readonly deleted: boolean
+    readonly deleted?: boolean
     readonly lastModified: DateTime
 }
 

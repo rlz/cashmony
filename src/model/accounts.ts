@@ -137,13 +137,7 @@ export class AccountsModel {
 
     async put (account: Account): Promise<void> {
         await this.finDataDb.putAccount({ ...account, lastModified: DateTime.utc() })
-
-        runInAction(() => {
-            this.accounts = {
-                ...this.accounts,
-                [account.name]: account
-            }
-        })
+        await this.readAll()
     }
 
     private async readAll (): Promise<void> {

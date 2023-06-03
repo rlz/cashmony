@@ -1,15 +1,20 @@
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement } from 'react'
+import React, { useState, type ReactElement } from 'react'
 import { AccountsModel } from '../model/accounts'
 import { MainScreen } from '../widgets/MainScreen'
-import { Box, Paper, Typography } from '@mui/material'
+import { Box, Fab, Paper, Typography } from '@mui/material'
 import { AppState } from '../model/appState'
 import { formatCurrency } from '../helpers/currencies'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { AddAccount } from '../widgets/AddAccount'
 
 const accountsModel = AccountsModel.instance()
 const appState = AppState.instance()
 
 export const AccountsScreen = observer((): ReactElement => {
+    const [addAccount, setAddAccount] = useState(false)
+
     const date = appState.startDate
     const amounts = accountsModel.amounts.get(date.toISODate() ?? '')
 
@@ -18,6 +23,20 @@ export const AccountsScreen = observer((): ReactElement => {
     }
 
     return <MainScreen>
+        {
+            addAccount
+                ? <AddAccount
+                    onClose={() => { setAddAccount(false) }}
+                />
+                : <Fab
+                    color="primary"
+                    sx={{ position: 'absolute', bottom: '70px', right: '20px' }}
+                    onClick={() => { setAddAccount(true) }}
+                >
+                    <FontAwesomeIcon icon={faPlus} />
+                </Fab>
+
+        }
         <Box
             display="flex"
             flexDirection="column"
