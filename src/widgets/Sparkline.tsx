@@ -4,6 +4,7 @@ import { useResizeDetector } from 'react-resize-detector'
 import UplotReact from 'uplot-react'
 import { type CatMonthStats } from '../model/stats'
 import uPlot from 'uplot'
+import { utcToday } from '../helpers/dates'
 
 export function Sparkline ({ stats }: { stats: CatMonthStats }): ReactElement {
     const theme = useTheme()
@@ -14,10 +15,16 @@ export function Sparkline ({ stats }: { stats: CatMonthStats }): ReactElement {
         throw Error('bars expected here')
     }
 
+    const today = utcToday()
+    const todayMillies = today.toMillis()
+    const dayOfMonth = today.day
+
     const data: uPlot.AlignedData = [
         stats.allDays.map(d => d.toMillis()),
         stats.amounts.map(a => a === undefined ? undefined : -a),
-        stats.amountsSum.map(a => a === undefined ? undefined : -a)
+        stats.amountsSum.map(a => a === undefined ? undefined : -a),
+        stats.amountsSum.map((a, i, arr) => a === undefined || arr[i + 1] === undefined ? -(stats.monthAmount * (i + 1) / dayOfMonth) : undefined),
+        stats.allDays.map((d, i) => d.toMillis() === todayMillies ? -(stats.amountsSum[i] ?? 0) : undefined)
     ]
 
     const opts: uPlot.Options = {
@@ -62,6 +69,17 @@ export function Sparkline ({ stats }: { stats: CatMonthStats }): ReactElement {
                 points: {
                     show: false
                 }
+            },
+            {
+                stroke: theme.palette.primary.main,
+                scale: 'cumulative',
+                dash: [10, 3],
+                points: {
+                    show: false
+                }
+            },
+            {
+                scale: 'cumulative'
             }
         ]
     }
