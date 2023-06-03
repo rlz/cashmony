@@ -49,7 +49,15 @@ export const CategoryScreen = observer(() => {
     </Typography>
 
     let onSave: (() => Promise<void>) | null = null
-    if (!deepEqual(cat, newCat)) {
+    if (
+        !deepEqual(cat, newCat) &&
+        newCat.name.trim() !== '' &&
+        (
+            newCat.name === cat.name ||
+            !categoriesModel.categories.has(newCat.name) ||
+            categoriesModel.get(newCat.name).deleted === true
+        )
+    ) {
         onSave = async () => {
             await categoriesModel.put(newCat)
 
@@ -84,7 +92,7 @@ export const CategoryScreen = observer(() => {
         title="Category"
         onSave={onSave}>
         <Typography variant='h5' textAlign="center" mt={2}>
-            {newCat.name}
+            {newCat.name.trim() === '' ? '-' : newCat.name}
         </Typography>
         <Typography variant='body2' textAlign="center">
             Goal: {stats.monthlyGoal === null ? '-' : fCur(stats.monthlyGoal)}
@@ -115,6 +123,11 @@ export const CategoryScreen = observer(() => {
             </AccordionSummary>
             <AccordionDetails>
                 <TextField
+                    error={
+                        newCat.name !== cat.name &&
+                        categoriesModel.categories.has(newCat.name) &&
+                        categoriesModel.get(newCat.name).deleted !== true
+                    }
                     label='Name'
                     size="small"
                     fullWidth
