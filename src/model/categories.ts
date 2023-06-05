@@ -5,7 +5,9 @@ import { OperationsModel } from './operations'
 import { compareByStats } from '../helpers/stats'
 import { utcToday } from '../helpers/dates'
 import { DateTime } from 'luxon'
+import { AppState } from './appState'
 
+const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 
 let categoriesModel: CategoriesModel | null = null
@@ -127,11 +129,19 @@ export class CategoriesModel {
     }
 
     getAmounts (date: DateTime): ReadonlyMap<string, number> {
+        if (date > appState.today) {
+            const amounts = this.amounts.get(appState.today.toISODate() ?? '')
+            if (amounts === undefined) {
+                throw Error('Always expected amount here')
+            }
+            return amounts
+        }
+
         return this.amounts.get(date.toISODate() ?? '') ?? this.zeroAmounts()
     }
 
     async put (category: Category): Promise<void> {
-        await this.finDataDb.putCategory({ ...category, lastModified: DateTime.utc() })
+        await this.finDataDb.putCategory(category)
         await this.readAll()
     }
 

@@ -1,31 +1,106 @@
 import { Paper, useTheme } from '@mui/material'
-import React, { type ReactElement } from 'react'
+import React, { useMemo, type ReactElement } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 import UplotReact from 'uplot-react'
-import { type CatMonthStats } from '../model/stats'
+import { type CategoryStats } from '../model/stats'
 import uPlot from 'uplot'
-import { utcToday } from '../helpers/dates'
+import { AppState } from '../model/appState'
+import { observer } from 'mobx-react-lite'
+import { OperationsModel } from '../model/operations'
+import { CategoriesModel } from '../model/categories'
 
-export function Sparkline ({ stats }: { stats: CatMonthStats }): ReactElement {
+const appState = AppState.instance()
+const operationsModel = OperationsModel.instance()
+const categoriesModel = CategoriesModel.instance()
+
+export const Sparkline = observer(({ stats }: { stats: CategoryStats }): ReactElement => {
     const theme = useTheme()
 
-    const bars = uPlot.paths.bars
+    const uPlotGraphs = useMemo(
+        () => {
+            const today = appState.today
+            const allDates = [...appState.timeSpan.allDates({ includeDayBefore: true })]
+            const cumulativeAmountByDates = [0, ...stats.cumulativeAmountByDates()].map(a => a === undefined ? a : -a)
 
-    if (bars === undefined) {
-        throw Error('bars expected here')
-    }
+            const data: uPlot.AlignedData = [
+                allDates.map(d => d.toMillis()),
+                [undefined, ...stats.amountByDate()].map(a => a === undefined || a === 0 ? null : -a),
+                cumulativeAmountByDates
+            ]
 
-    const today = utcToday()
-    const todayMillies = today.toMillis()
-    const dayOfMonth = today.day
+            const bars = uPlot.paths.bars
 
-    const data: uPlot.AlignedData = [
-        stats.allDays.map(d => d.toMillis()),
-        stats.amounts.map(a => a === undefined ? undefined : -a),
-        stats.amountsSum.map(a => a === undefined ? undefined : -a),
-        stats.amountsSum.map((a, i, arr) => a === undefined || arr[i + 1] === undefined ? -(stats.monthAmount * (i + 1) / dayOfMonth) : undefined),
-        stats.allDays.map((d, i) => d.toMillis() === todayMillies ? -(stats.amountsSum[i] ?? 0) : undefined)
-    ]
+            if (bars === undefined) {
+                throw Error('bars expected here')
+            }
+
+            const series: uPlot.Series[] = [
+                {},
+                {
+                    stroke: theme.palette.error.main,
+                    fill: theme.palette.error.main,
+                    scale: 'non-cumulative',
+                    points: {
+                        show: false
+                    },
+                    paths: bars({ size: [0.5], align: -1 })
+                },
+                {
+                    stroke: theme.palette.primary.main,
+                    scale: 'cumulative',
+                    points: {
+                        show: false
+                    }
+                }
+            ]
+
+            if (today >= appState.timeSpan.startDate && today < appState.timeSpan.endDate) {
+                const daysFromStartDate = today.diff(appState.timeSpan.startDate, 'days').days + 1
+                const periodTotal = -stats.periodTotal()
+
+                data.push(
+                    allDates.map((_, i) => i < daysFromStartDate ? undefined : periodTotal * i / daysFromStartDate),
+                    allDates.map((_, i) => i === daysFromStartDate ? periodTotal : undefined)
+                )
+                series.push(
+                    {
+                        stroke: theme.palette.primary.main,
+                        scale: 'cumulative',
+                        dash: [10, 3],
+                        points: {
+                            show: false
+                        }
+                    },
+                    {
+                        scale: 'cumulative'
+                    }
+
+                )
+            }
+
+            const yearGoal = stats.category.yearGoal
+            if (yearGoal !== undefined) {
+                const perDay = -yearGoal / today.daysInYear
+                data.push(allDates.map((_, i) => perDay * i))
+
+                series.push({
+                    stroke: theme.palette.success.main,
+                    scale: 'cumulative',
+                    points: {
+                        show: false
+                    }
+                })
+            }
+
+            return { data, series }
+        },
+        [
+            appState.timeSpanInfo,
+            appState.today,
+            operationsModel.operations,
+            categoriesModel.categories
+        ]
+    )
 
     const opts: uPlot.Options = {
         width: 400,
@@ -50,53 +125,11 @@ export function Sparkline ({ stats }: { stats: CatMonthStats }): ReactElement {
                 show: false
             }
         ],
-        series: [
-            {},
-            {
-                label: 'Amount',
-                stroke: theme.palette.error.main,
-                fill: theme.palette.error.main,
-                scale: 'non-cumulative',
-                points: {
-                    show: false
-                },
-                paths: bars({ size: [0.8], align: -1 })
-                // fill: 'rgba(255, 0, 0, 0.3)'
-            },
-            {
-                stroke: theme.palette.primary.main,
-                scale: 'cumulative',
-                points: {
-                    show: false
-                }
-            },
-            {
-                stroke: theme.palette.primary.main,
-                scale: 'cumulative',
-                dash: [10, 3],
-                points: {
-                    show: false
-                }
-            },
-            {
-                scale: 'cumulative'
-            }
-        ]
+        series: uPlotGraphs.series
     }
 
-    if (stats.category.yearGoal !== undefined) {
-        data.push(stats.allDays.map((_, i) => Math.abs(stats.category.yearGoal ?? 0) / 365 * i))
-        opts.series.push({
-            stroke: theme.palette.success.main,
-            scale: 'cumulative',
-            points: {
-                show: false
-            }
-        })
-    }
-
-    return <Plot data={data} opts={opts}/>
-}
+    return <Plot data={uPlotGraphs.data} opts={opts}/>
+})
 
 function Plot ({ data, opts }: { data: uPlot.AlignedData, opts: uPlot.Options }): ReactElement {
     const { width, height, ref } = useResizeDetector()

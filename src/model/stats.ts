@@ -1,7 +1,7 @@
-import { type DateTime } from 'luxon'
+import { type DurationLikeObject, type DateTime } from 'luxon'
 import { CategoriesModel } from './categories'
-import { type NotDeletedOperation, type Category } from './model'
-import { utcToday } from '../helpers/dates'
+import { type NotDeletedOperation, type Category, type IncomeOperation, type ExpenseOperation, type TransferOperation, type AdjustmentOperation } from './model'
+import { LastPeriodTimeSpan, type HumanTimeSpan } from '../helpers/dates'
 import { OperationsModel } from './operations'
 import { AppState } from './appState'
 
@@ -9,116 +9,189 @@ const appState = AppState.instance()
 const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
 
-export class CatMonthStats {
-    private _allDays: DateTime[] | null = null
-    private _amountsByDay: Array<number | undefined> | null = null
-    private _amountsByDayFromZero: Array<number | undefined> | null = null
+export class Operations<T extends IncomeOperation | ExpenseOperation | TransferOperation | AdjustmentOperation> {
+    private readonly predicate: (op: NotDeletedOperation) => boolean
 
-    startOfMonth: DateTime
-    endOfMonth: DateTime
+    private constructor (predicate: (op: NotDeletedOperation) => boolean) {
+        this.predicate = predicate
+    }
+
+    static all (): Operations<IncomeOperation | ExpenseOperation | TransferOperation | AdjustmentOperation> {
+        return new Operations(() => true)
+    }
+
+    timeSpan (timeSpan: HumanTimeSpan): Operations<T> {
+        const startDate = timeSpan.startDate
+        const endDate = timeSpan.endDate
+
+        return new Operations((op) => this.predicate(op) && op.date >= startDate && op.date <= endDate)
+    }
+
+    forAccounts (...accounts: string[]): Operations<T> {
+        const accountsSet = new Set(accounts)
+        return new Operations(op => this.predicate(op) && accountsSet.has(op.account.name))
+    }
+
+    forCategories (...categories: string[]): Operations<Exclude<T, TransferOperation | AdjustmentOperation>> {
+        const categoriesSet = new Set(categories)
+        return new Operations(
+            op => this.predicate(op) &&
+                (op.type === 'expense' || op.type === 'income') &&
+                op.categories.some(cat => categoriesSet.has(cat.name))
+        )
+    }
+
+    * operations (opts?: { reverse?: boolean }): Generator<T> {
+        const ops = opts?.reverse === true
+            ? [...operationsModel.operations].reverse()
+            : operationsModel.operations
+
+        for (const op of ops) {
+            if (op.type === 'deleted') continue
+
+            if (this.predicate(op)) {
+                yield op as T
+            }
+        }
+    }
+
+    sumCategoryAmount (catName: string): number {
+        let sum = 0
+        for (const op of this.forCategories(catName).operations()) {
+            for (const cat of op.categories) {
+                if (cat.name === catName) {
+                    sum += cat.amount
+                }
+            }
+        }
+        return sum
+    }
+
+    * groupByDate (opts?: { reverse?: boolean }): Generator<T[]> {
+        let operations: T[] = []
+        let currentMillis: number | null = null
+
+        for (const op of this.operations({ reverse: opts?.reverse })) {
+            const opMillis = op.date.toMillis()
+
+            if (currentMillis === null) {
+                currentMillis = opMillis
+            }
+
+            if (opMillis !== currentMillis) {
+                yield operations
+                operations = []
+                currentMillis = opMillis
+            }
+
+            operations.push(op)
+        }
+
+        if (operations.length > 0) {
+            yield operations
+        }
+    }
+}
+
+export class CategoryStats {
+    private readonly _allDays: DateTime[] | null = null
+    private readonly _amountsByDay: Array<number | undefined> | null = null
+    private readonly _amountsByDayFromZero: Array<number | undefined> | null = null
+
     category: Category
 
-    constructor (category: Category, date: DateTime) {
-        this.startOfMonth = date.set({ day: 1 }).minus({ day: 1 })
-        this.endOfMonth = date.set({ day: date.daysInMonth })
+    constructor (category: Category) {
         this.category = category
     }
 
-    get startAmount (): number {
-        const startOfMonth = this.startOfMonth
-        return categoriesModel.getAmounts(startOfMonth).get(this.category.name) ?? 0
+    periodTotal (): number {
+        return Operations.all().timeSpan(appState.timeSpan).sumCategoryAmount(this.category.name)
     }
 
-    get endAmount (): number {
-        const today = utcToday()
+    periodAvg (days: number): number {
+        const today = appState.today
+        const timeSpan = appState.timeSpan
+        const endDate = timeSpan.endDate < today ? timeSpan.endDate : today
+        const timeSpanDays = endDate.diff(timeSpan.startDate, 'days').days + 1
 
-        return categoriesModel.getAmounts(this.endOfMonth <= today ? this.endOfMonth : today).get(this.category.name) ?? 0
+        return this.periodTotal() * days / timeSpanDays
     }
 
-    get monthAmount (): number {
-        return this.endAmount - this.startAmount
-    }
-
-    get monthlyAverage (): number {
-        const today = utcToday()
-        const yearAgo = today.minus({ year: 1 })
-        const firstOp = operationsModel.operations.find(op => (op.type === 'expense' || op.type === 'income') && op.categories.find(c => c.name === this.category.name) !== undefined) as NotDeletedOperation | undefined
-        if (firstOp === undefined) {
-            return 0
-        }
-        const firstOpMonth = firstOp.date.set({ day: 1 }).minus({ day: 1 })
-
-        const startDay = yearAgo < firstOpMonth ? firstOpMonth : yearAgo
-
-        return (
-            (categoriesModel.getAmounts(today).get(this.category.name) ?? 0) -
-            (categoriesModel.getAmounts(startDay).get(this.category.name) ?? 0)
-        ) / today.diff(startDay, 'years').years / 12
-    }
-
-    get last30Days (): number {
-        const today = utcToday()
-        const startDay = today.minus({ day: 30 })
-        return (categoriesModel.getAmounts(today).get(this.category.name) ?? 0) -
-        (categoriesModel.getAmounts(startDay).get(this.category.name) ?? 0)
-    }
-
-    get monthlyGoal (): number | null {
+    goal (days: number): number | null {
         if (this.category.yearGoal === undefined) return null
-
-        return (this.category.yearGoal) / 12
+        return this.category.yearGoal * days / appState.today.daysInYear
     }
 
-    get allDays (): DateTime[] {
-        if (this._allDays === null) {
-            this._allDays = []
-            for (let d = this.startOfMonth; d <= this.endOfMonth; d = d.plus({ day: 1 })) {
-                this._allDays.push(d)
+    lastPeriodAvg (days: number, period: DurationLikeObject): number {
+        const timeSpan = new LastPeriodTimeSpan(period)
+        return Operations
+            .all()
+            .timeSpan(timeSpan)
+            .sumCategoryAmount(this.category.name) * days / timeSpan.totalDays
+    }
+
+    * cumulativeAmountByDates (): Generator<number | undefined> {
+        let cumAmount = 0
+        for (const amount of this.amountByDate()) {
+            if (amount === undefined) {
+                yield undefined
+                continue
             }
-        }
 
-        return this._allDays
+            cumAmount += amount
+            yield cumAmount
+        }
     }
 
-    get amounts (): Array<number | undefined> {
-        if (this._amountsByDay === null) {
-            const today = utcToday()
-            this._amountsByDay = this.allDays.map((d, index, arr) => {
-                if (index === 0) {
-                    return 0
+    * amountByDate (): Generator<number | undefined> {
+        const ops = [...Operations
+            .all()
+            .timeSpan(appState.timeSpan)
+            .forCategories(this.category.name)
+            .operations()
+        ]
+
+        const today = appState.today
+
+        if (ops.length === 0) {
+            return [...appState.timeSpan.allDates()].map(() => 0)
+        }
+
+        let opIndex = 0
+        for (const date of appState.timeSpan.allDates()) {
+            if (date > today) {
+                yield undefined
+                continue
+            }
+
+            if (opIndex === ops.length) {
+                yield 0
+                continue
+            }
+
+            if (ops[opIndex].date > date) {
+                yield 0
+                continue
+            }
+
+            let amount = 0
+            while (opIndex < ops.length && ops[opIndex].date <= date) {
+                for (const c of ops[opIndex].categories) {
+                    if (c.name === this.category.name) {
+                        amount += c.amount
+                    }
                 }
-
-                if (d > today) {
-                    return undefined
-                }
-
-                return (categoriesModel.getAmounts(d).get(this.category.name) ?? 0) -
-                (categoriesModel.getAmounts(arr[index - 1]).get(this.category.name) ?? 0)
-            })
+                opIndex += 1
+            }
+            yield amount
         }
-
-        return this._amountsByDay
     }
 
-    get amountsSum (): Array<number | undefined> {
-        if (this._amountsByDayFromZero === null) {
-            let sum = 0
-
-            this._amountsByDayFromZero = this.amounts.map(a => {
-                if (a === undefined) return undefined
-                sum += a
-                return sum
-            })
-        }
-
-        return this._amountsByDayFromZero
-    }
-
-    static for (cat: Category | string, date?: DateTime): CatMonthStats {
+    static for (cat: Category | string, date?: DateTime): CategoryStats {
         if (typeof cat === 'string') {
             cat = categoriesModel.get(cat)
         }
 
-        return new CatMonthStats(cat, date ?? appState.startDate)
+        return new CategoryStats(cat)
     }
 }

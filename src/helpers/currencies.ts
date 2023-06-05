@@ -9,10 +9,11 @@ export function getCurrencySymbol (currency: string): string {
         .value
 }
 
-export function formatCurrency (amount: number, currency: string): string {
+export function formatCurrency (amount: number, currency: string, compact: boolean = false): string {
     return amount.toLocaleString(undefined, {
         style: 'currency',
         currency,
+        notation: compact ? 'compact' : 'standard',
         currencyDisplay: 'narrowSymbol'
     })
 }

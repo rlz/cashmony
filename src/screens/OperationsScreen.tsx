@@ -1,7 +1,6 @@
-import React, { useState, type ReactElement } from 'react'
+import React, { useState, type ReactElement, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { Avatar, Backdrop, Box, Paper, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography, useTheme } from '@mui/material'
-import { OperationsModel } from '../model/operations'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightLong, faCreditCard, faExclamation, faHandHoldingDollar, faMoneyBillTransfer, faWallet } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
@@ -9,6 +8,12 @@ import { MainScreen } from '../widgets/MainScreen'
 import { type NotDeletedOperation } from '../model/model'
 import { formatCurrency } from '../helpers/currencies'
 import { AccountsModel } from '../model/accounts'
+import { Operations } from '../model/stats'
+import { AppState } from '../model/appState'
+import { OperationsModel } from '../model/operations'
+
+const appState = AppState.instance()
+const operationsModel = OperationsModel.instance()
 
 const Fab = (): ReactElement => {
     const [open, setOpen] = useState(false)
@@ -49,13 +54,17 @@ const Fab = (): ReactElement => {
     </>
 }
 
-const operationsModel = OperationsModel.instance()
-
 export const OperationsScreen = observer((): ReactElement => {
     const theme = useTheme()
+    const displayOps = [...Operations.all().timeSpan(appState.timeSpan).groupByDate({ reverse: true })]
+    const [displayDays, setDisplayDays] = useState(Math.min(displayOps.length, 30))
+
+    useEffect(() => {
+        setDisplayDays(Math.min(displayOps.length, 30))
+    }, [appState.timeSpanInfo, operationsModel.operations])
 
     return <MainScreen>
-        {operationsModel.displayOperations.map(group =>
+        {displayOps.slice(0, displayDays).map(group =>
             <Box key={group[0].date.toISODate()}>
                 <Box px={theme.spacing(1)} pt={theme.spacing(2)}>
                     <Typography
@@ -70,6 +79,14 @@ export const OperationsScreen = observer((): ReactElement => {
                 </Box>
             </Box>
         )}
+        {displayDays < displayOps.length
+            ? <Typography color="text.primary" textAlign="center">
+                <a onClick={() => {
+                    setDisplayDays(Math.min(displayOps.length, displayDays + 10))
+                }}>Show more</a>
+            </Typography>
+            : null
+        }
         <Box minHeight={144}/>
         <Fab />
     </MainScreen>
@@ -111,7 +128,7 @@ const Transaction = observer(({ op }: { op: NotDeletedOperation }): ReactElement
             <Paper elevation={1} sx={{ p: 1 }}>
                 <Box display='flex' gap={theme.spacing(2)}>
                     <IconBox />
-                    <Box flex="1 0 0">{el}</Box>
+                    <Box flex="1 1 0" minWidth={0}>{el}</Box>
                 </Box>
             </Paper>
         </a>
@@ -130,7 +147,7 @@ const Transaction = observer(({ op }: { op: NotDeletedOperation }): ReactElement
                     </Typography>
                 </Box>
             </Box>
-            <Typography variant='body2' fontStyle="italic">
+            <Typography variant='body2' fontStyle="italic" noWrap>
                 {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
             </Typography>
         </>)
@@ -159,7 +176,7 @@ const Transaction = observer(({ op }: { op: NotDeletedOperation }): ReactElement
                 {op.toAccount.name}
                 { formatAccountAmount(op.toAccount.amount, toCurrency) }
             </Typography>
-            <Typography variant='body2' fontStyle="italic">
+            <Typography variant='body2' fontStyle="italic" noWrap>
                 {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
             </Typography>
         </>)
@@ -191,7 +208,7 @@ const Transaction = observer(({ op }: { op: NotDeletedOperation }): ReactElement
                     </Typography>
                 </Box>
             </Box>
-            <Typography variant='body2' fontStyle="italic">
+            <Typography variant='body2' fontStyle="italic" noWrap>
                 {(op.comment ?? '') === '' ? '\u00a0' : op.comment}
             </Typography>
         </>)

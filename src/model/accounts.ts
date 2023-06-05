@@ -5,7 +5,9 @@ import { OperationsModel } from './operations'
 import { utcToday } from '../helpers/dates'
 import { compareByStats } from '../helpers/stats'
 import { DateTime } from 'luxon'
+import { AppState } from './appState'
 
+const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 
 let accountsModel: AccountsModel | null = null
@@ -135,8 +137,20 @@ export class AccountsModel {
         return account
     }
 
+    getAmounts (date: DateTime): ReadonlyMap<string, number> {
+        if (date > appState.today) {
+            const amounts = this.amounts.get(appState.today.toISODate() ?? '')
+            if (amounts === undefined) {
+                throw Error('Always expected amount here')
+            }
+            return amounts
+        }
+
+        return this.amounts.get(date.toISODate() ?? '') ?? this.zeroAmounts()
+    }
+
     async put (account: Account): Promise<void> {
-        await this.finDataDb.putAccount({ ...account, lastModified: DateTime.utc() })
+        await this.finDataDb.putAccount(account)
         await this.readAll()
     }
 
@@ -148,5 +162,9 @@ export class AccountsModel {
         runInAction(() => {
             this.accounts = accounts
         })
+    }
+
+    private zeroAmounts (): Map<string, number> {
+        return new Map([...this.accounts.values()].map(i => [i.name, 0]))
     }
 }

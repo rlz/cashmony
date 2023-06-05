@@ -4,14 +4,15 @@ import { EditorScreen } from '../widgets/EditorScreen'
 import { Accordion, AccordionDetails, AccordionSummary, Box, FormControlLabel, Switch, TextField, Typography } from '@mui/material'
 import { CategoriesModel } from '../model/categories'
 import { useNavigate, useParams } from 'react-router-dom'
-import { formatCurrency } from '../helpers/currencies'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
-import { CatMonthStats } from '../model/stats'
 import { CurrencyInput } from '../widgets/CurrencyInput'
 import { type Operation, type Category } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { deepEqual } from '../helpers/deepEqual'
+import { DateTime } from 'luxon'
+import { CategoryStats } from '../model/stats'
+import { formatCurrency } from '../helpers/currencies'
 
 const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
@@ -38,15 +39,9 @@ export const CategoryScreen = observer(() => {
         return <EmptyScreen />
     }
 
-    const stats = CatMonthStats.for({ ...newCat, name: cat.name })
+    const stats = CategoryStats.for({ ...newCat, name: cat.name })
 
-    const fCur = (amount: number): ReactElement => <Typography
-        component="span"
-        variant='body2'
-        color="primary.main"
-    >
-        {formatCurrency(amount, cat.currency)}
-    </Typography>
+    const cur = (amount: number, compact = false): string => formatCurrency(amount, cat.currency, compact)
 
     let onSave: (() => Promise<void>) | null = null
     if (
@@ -59,7 +54,7 @@ export const CategoryScreen = observer(() => {
         )
     ) {
         onSave = async () => {
-            await categoriesModel.put(newCat)
+            await categoriesModel.put({ ...newCat, lastModified: DateTime.utc() })
 
             if (newCat.name !== cat.name) {
                 const changedOps: Operation[] = []
@@ -70,6 +65,7 @@ export const CategoryScreen = observer(() => {
                     ) {
                         changedOps.push({
                             ...op,
+                            lastModified: DateTime.utc(),
                             categories: op.categories.map(c => {
                                 return {
                                     ...c,
@@ -80,7 +76,7 @@ export const CategoryScreen = observer(() => {
                     }
                 }
                 await operationsModel.put(changedOps)
-                await categoriesModel.put({ ...cat, deleted: true })
+                await categoriesModel.put({ ...cat, deleted: true, lastModified: DateTime.utc() })
             }
 
             navigate('/categories')
@@ -94,23 +90,30 @@ export const CategoryScreen = observer(() => {
         <Typography variant='h5' textAlign="center" mt={2}>
             {newCat.name.trim() === '' ? '-' : newCat.name}
         </Typography>
+        <Typography variant='h5' textAlign="center" color='primary.main' my={1}>
+            {cur(-stats.periodTotal())}
+        </Typography>
         <Typography variant='body2' textAlign="center">
-            Goal: {stats.monthlyGoal === null ? '-' : fCur(stats.monthlyGoal)}
+            Period Pace (30d): {cur(-stats.periodAvg(30))}
         </Typography>
-        <Typography component="div" variant='body2' my={2}>
-            <Box display="flex">
-                <Box flex="1 0 0">
-                    This month:<br/>
-                    Last 30 days:<br/>
-                    Monthly average:
-                </Box>
-                <Box textAlign="right">
-                    {fCur(stats.monthAmount)}<br/>
-                    {fCur(stats.last30Days)}<br/>
-                    {fCur(stats.monthlyAverage)}
-                </Box>
-            </Box>
+        <Typography variant='body1' textAlign="center" mt={1}>
+            Avg. Pace (30d)
         </Typography>
+        <Box display="flex" mb={1}>
+            <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
+                                        1 month<br/>
+                {cur(-stats.lastPeriodAvg(30, { month: 1 }), true)}
+            </Typography>
+            <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
+                                        3 month<br/>
+                {cur(-stats.lastPeriodAvg(30, { months: 3 }), true)}
+            </Typography>
+            <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
+                                        1 year<br/>
+                {cur(-stats.lastPeriodAvg(30, { year: 1 }), true)}
+            </Typography>
+        </Box>
+
         <Accordion
             disableGutters
             expanded={open === 'name'}

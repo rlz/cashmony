@@ -15,8 +15,8 @@ const appState = AppState.instance()
 export const AccountsScreen = observer((): ReactElement => {
     const [addAccount, setAddAccount] = useState(false)
 
-    const date = appState.startDate
-    const amounts = accountsModel.amounts.get(date.toISODate() ?? '')
+    const date = appState.timeSpan.endDate
+    const amounts = accountsModel.getAmounts(date)
 
     if (amounts === undefined) {
         throw Error('amounts expected here')
