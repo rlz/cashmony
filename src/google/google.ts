@@ -76,8 +76,8 @@ export class Google {
                 redirect_uri: REDIRECT_URL,
                 response_type: 'token',
                 scope: [
-                    'https://www.googleapis.com/auth/drive.file',
-                    'https://www.googleapis.com/auth/spreadsheets'
+                    'https://www.googleapis.com/auth/drive.file'
+                    // 'https://www.googleapis.com/auth/spreadsheets'
                 ].join(' ')
             }
         )
