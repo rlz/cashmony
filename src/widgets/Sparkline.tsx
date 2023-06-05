@@ -72,7 +72,12 @@ export const Sparkline = observer(({ stats }: { stats: CategoryStats }): ReactEl
                         }
                     },
                     {
-                        scale: 'cumulative'
+                        scale: 'cumulative',
+                        points: {
+                            show: true,
+                            size: 5,
+                            fill: theme.palette.primary.light
+                        }
                     }
 
                 )
