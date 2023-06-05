@@ -57,6 +57,7 @@ export const CategoriesScreen = observer((): ReactElement => {
                 (showHidden ? [...visibleCategories, ...hiddenCategories] : visibleCategories)
                     .map(cat => {
                         const stats = CategoryStats.for(cat.name)
+                        const goal30 = stats.goal(30)
 
                         const cur = (amount: number, compact = false): string => formatCurrency(amount, cat.currency, compact)
 
@@ -76,7 +77,8 @@ export const CategoriesScreen = observer((): ReactElement => {
                                     </Typography>
                                 </Box>
                                 <Typography variant='body2' textAlign="right">
-                                    Period Pace (30d): {cur(-stats.periodAvg(30))}
+                                    Period Pace (30d): {cur(-stats.periodAvg(30))}<br/>
+                                    Goal (30d): {goal30 !== null ? cur(-goal30) : '-'}
                                 </Typography>
                                 <Typography variant='body1' textAlign="center" mt={1}>
                                     Avg. Pace (30d)

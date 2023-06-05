@@ -83,10 +83,9 @@ export const Sparkline = observer(({ stats }: { stats: CategoryStats }): ReactEl
                 )
             }
 
-            const yearGoal = stats.category.yearGoal
-            if (yearGoal !== undefined) {
-                const perDay = -yearGoal / today.daysInYear
-                data.push(allDates.map((_, i) => perDay * i))
+            const dayGoal = stats.goal(1)
+            if (dayGoal !== null) {
+                data.push(allDates.map((_, i) => -dayGoal * i))
 
                 series.push({
                     stroke: theme.palette.success.main,

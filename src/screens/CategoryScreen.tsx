@@ -83,6 +83,8 @@ export const CategoryScreen = observer(() => {
         }
     }
 
+    const goal30 = stats.goal(30)
+
     return <EditorScreen
         navigateOnBack='/categories'
         title="Category"
@@ -94,7 +96,8 @@ export const CategoryScreen = observer(() => {
             {cur(-stats.periodTotal())}
         </Typography>
         <Typography variant='body2' textAlign="center">
-            Period Pace (30d): {cur(-stats.periodAvg(30))}
+            Period Pace (30d): {cur(-stats.periodAvg(30))}<br/>
+            Goal (30d): {goal30 !== null ? cur(-goal30) : '-'}
         </Typography>
         <Typography variant='body1' textAlign="center" mt={1}>
             Avg. Pace (30d)
