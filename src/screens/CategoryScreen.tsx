@@ -1,9 +1,9 @@
 import { observer } from 'mobx-react-lite'
 import React, { useState, type ReactElement, useEffect } from 'react'
 import { EditorScreen } from '../widgets/EditorScreen'
-import { Accordion, AccordionDetails, AccordionSummary, Box, FormControlLabel, Switch, TextField, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, FormControlLabel, Paper, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { CategoriesModel } from '../model/categories'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { CurrencyInput } from '../widgets/CurrencyInput'
@@ -13,6 +13,7 @@ import { deepEqual } from '../helpers/deepEqual'
 import { DateTime } from 'luxon'
 import { CategoryStats } from '../model/stats'
 import { formatCurrency } from '../helpers/currencies'
+import { AmountBarsCatPlot, TotalCatPlot } from '../widgets/CategoryPlots'
 
 const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
@@ -26,14 +27,13 @@ export const CategoryScreen = observer(() => {
 
     const [cat, setCat] = useState<Category | null>(null)
     const [newCat, setNewCat] = useState<Category | null>(null)
-    const [open, setOpen] = useState<'name' | 'goal' | null>(null)
-    const navigate = useNavigate()
+    const [tab, setTab] = useState(0)
 
     useEffect(() => {
         const category = categoriesModel.get(catName)
         setCat(category)
         setNewCat(category)
-    }, [categoriesModel.categories.size])
+    }, [categoriesModel.categories])
 
     if (cat === null || newCat === null) {
         return <EmptyScreen />
@@ -78,8 +78,6 @@ export const CategoryScreen = observer(() => {
                 await operationsModel.put(changedOps)
                 await categoriesModel.put({ ...cat, deleted: true, lastModified: DateTime.utc() })
             }
-
-            navigate('/categories')
         }
     }
 
@@ -89,34 +87,87 @@ export const CategoryScreen = observer(() => {
         navigateOnBack='/categories'
         title="Category"
         onSave={onSave}>
-        <Typography variant='h5' textAlign="center" mt={2}>
+        <Typography variant='h6' textAlign="center" mt={2}>
             {newCat.name.trim() === '' ? '-' : newCat.name}
         </Typography>
-        <Typography variant='h5' textAlign="center" color='primary.main' my={1}>
-            {cur(-stats.periodTotal())}
+        <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
+            {cur(-stats.amountTotal())}
         </Typography>
         <Typography variant='body2' textAlign="center">
-            Period Pace (30d): {cur(-stats.periodAvg(30))}<br/>
             Goal (30d): {goal30 !== null ? cur(-goal30) : '-'}
         </Typography>
-        <Typography variant='body1' textAlign="center" mt={1}>
-            Avg. Pace (30d)
-        </Typography>
-        <Box display="flex" mb={1}>
-            <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
-                                        1 month<br/>
-                {cur(-stats.lastPeriodAvg(30, { month: 1 }), true)}
-            </Typography>
-            <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
-                                        3 month<br/>
-                {cur(-stats.lastPeriodAvg(30, { months: 3 }), true)}
-            </Typography>
-            <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
-                                        1 year<br/>
-                {cur(-stats.lastPeriodAvg(30, { year: 1 }), true)}
-            </Typography>
-        </Box>
+        <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
+            <Tab label="Stats"/>
+            <Tab label="Modify"/>
+        </Tabs>
+        {
+            tab === 0
+                ? <Stats stats={stats} />
+                : <Editor cat={cat} newCat={newCat} setNewCat={setNewCat}/>
+        }
+    </EditorScreen>
+})
 
+function EmptyScreen (): ReactElement {
+    return <EditorScreen navigateOnBack='/categories' title="Categories"/>
+}
+
+function Stats ({ stats }: { stats: CategoryStats }): ReactElement {
+    const cur = (amount: number, compact = false): string => formatCurrency(amount, stats.category.currency, compact)
+
+    const leftPerDay = stats.daysLeft() > 0 && stats.category.yearGoal !== null
+        ? -(stats.leftPerDay() ?? -0)
+        : -1
+
+    return <Box display="flex" flexDirection="column" gap={1} overflow="scroll">
+        <Typography component="div" variant='body2' mt={1} py={1}>
+            <table className='stats'>
+                <tbody>
+                    <tr>
+                        <th>Period Pace (30d):</th>
+                        <td>{cur(-stats.avgUntilToday(30))}</td>
+                    </tr>
+                    <tr>
+                        <th>Left per day:</th>
+                        <td>{leftPerDay > 0 ? cur(leftPerDay) : '-'}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </Typography>
+        <Paper elevation={2} sx={{ p: 1 }}>
+            <Typography variant='h6' textAlign="center">
+                Avg. Pace (30d)
+            </Typography>
+            <Box display="flex" mb={1}>
+                <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
+                1 month<br/>
+                    {cur(-stats.durationAvg(30, { month: 1 }), true)}
+                </Typography>
+                <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
+                3 month<br/>
+                    {cur(-stats.durationAvg(30, { months: 3 }), true)}
+                </Typography>
+                <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
+                1 year<br/>
+                    {cur(-stats.durationAvg(30, { year: 1 }), true)}
+                </Typography>
+            </Box>
+        </Paper>
+        <AmountBarsCatPlot stats={stats}/>
+        <TotalCatPlot stats={stats}/>
+    </Box>
+}
+
+interface EditorProps {
+    cat: Category
+    newCat: Category
+    setNewCat: (cat: Category) => void
+}
+
+function Editor ({ cat, newCat, setNewCat }: EditorProps): ReactElement {
+    const [open, setOpen] = useState<'name' | 'goal' | null>(null)
+
+    return <Box mt={1}>
         <Accordion
             disableGutters
             expanded={open === 'name'}
@@ -198,9 +249,5 @@ export const CategoryScreen = observer(() => {
             />}
             label="Hidden"
         />
-    </EditorScreen>
-})
-
-function EmptyScreen (): ReactElement {
-    return <EditorScreen navigateOnBack='/categories' title="Categories"/>
+    </Box>
 }

@@ -20,7 +20,7 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         return new Operations(() => true)
     }
 
-    timeSpan (timeSpan: HumanTimeSpan): Operations<T> {
+    forTimeSpan (timeSpan: HumanTimeSpan): Operations<T> {
         const startDate = timeSpan.startDate
         const endDate = timeSpan.endDate
 
@@ -94,27 +94,26 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
 }
 
 export class CategoryStats {
-    private readonly _allDays: DateTime[] | null = null
-    private readonly _amountsByDay: Array<number | undefined> | null = null
-    private readonly _amountsByDayFromZero: Array<number | undefined> | null = null
-
     category: Category
 
     constructor (category: Category) {
         this.category = category
     }
 
-    periodTotal (): number {
-        return Operations.all().timeSpan(appState.timeSpan).sumCategoryAmount(this.category.name)
+    amountTotal (timeSpan?: HumanTimeSpan): number {
+        timeSpan = timeSpan ?? appState.timeSpan
+        return Operations.all().forTimeSpan(timeSpan).sumCategoryAmount(this.category.name)
     }
 
-    periodAvg (days: number): number {
+    avgUntilToday (days: number, timeSpan?: HumanTimeSpan): number {
+        timeSpan = timeSpan ?? appState.timeSpan
+
         const today = appState.today
-        const timeSpan = appState.timeSpan
         const endDate = timeSpan.endDate < today ? timeSpan.endDate : today
+
         const timeSpanDays = endDate.diff(timeSpan.startDate, 'days').days + 1
 
-        return this.periodTotal() * days / timeSpanDays
+        return this.amountTotal(timeSpan) * days / timeSpanDays
     }
 
     goal (days: number): number | null {
@@ -122,15 +121,30 @@ export class CategoryStats {
         return this.category.yearGoal * days / appState.today.daysInYear
     }
 
-    lastPeriodAvg (days: number, period: DurationLikeObject): number {
-        const timeSpan = new LastPeriodTimeSpan(period)
-        return Operations
-            .all()
-            .timeSpan(timeSpan)
-            .sumCategoryAmount(this.category.name) * days / timeSpan.totalDays
+    leftPerDay (): number | null {
+        const total = this.amountTotal()
+        const goal = this.goal(this.daysTotal())
+        if (goal === null) return null
+        return (goal - total) / this.daysLeft()
     }
 
-    * cumulativeAmountByDates (): Generator<number | undefined> {
+    daysLeft (): number {
+        const timeSpan = appState.timeSpan
+        const today = appState.today
+        if (timeSpan.endDate < today) return 0
+
+        return timeSpan.endDate.diff(today, 'days').days
+    }
+
+    daysTotal (): number {
+        return appState.timeSpan.totalDays
+    }
+
+    durationAvg (days: number, duration: DurationLikeObject): number {
+        return this.avgUntilToday(days, new LastPeriodTimeSpan(duration))
+    }
+
+    * totalAmountByDates (): Generator<number | undefined> {
         let cumAmount = 0
         for (const amount of this.amountByDate()) {
             if (amount === undefined) {
@@ -146,7 +160,7 @@ export class CategoryStats {
     * amountByDate (): Generator<number | undefined> {
         const ops = [...Operations
             .all()
-            .timeSpan(appState.timeSpan)
+            .forTimeSpan(appState.timeSpan)
             .forCategories(this.category.name)
             .operations()
         ]

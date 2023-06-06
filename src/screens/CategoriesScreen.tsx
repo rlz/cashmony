@@ -8,10 +8,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
 import { CategoryStats } from '../model/stats'
-import { Sparkline } from '../widgets/Sparkline'
 import { type Category } from '../model/model'
 import { AddCategory } from '../widgets/AddCategory'
 import { formatCurrency } from '../helpers/currencies'
+import './CategoriesScreen.scss'
+import { AmountBarsCatPlot } from '../widgets/CategoryPlots'
 
 const categoriesModel = CategoriesModel.instance()
 
@@ -58,6 +59,9 @@ export const CategoriesScreen = observer((): ReactElement => {
                     .map(cat => {
                         const stats = CategoryStats.for(cat.name)
                         const goal30 = stats.goal(30)
+                        const leftPerDay = stats.daysLeft() > 0 && stats.category.yearGoal !== null
+                            ? -(stats.leftPerDay() ?? -0)
+                            : -1
 
                         const cur = (amount: number, compact = false): string => formatCurrency(amount, cat.currency, compact)
 
@@ -73,31 +77,28 @@ export const CategoriesScreen = observer((): ReactElement => {
                                         flex='1 1 0'
                                         textAlign='right'
                                     >
-                                        {cur(-stats.periodTotal())}
+                                        {cur(-stats.amountTotal())}
                                     </Typography>
                                 </Box>
-                                <Typography variant='body2' textAlign="right">
-                                    Period Pace (30d): {cur(-stats.periodAvg(30))}<br/>
-                                    Goal (30d): {goal30 !== null ? cur(-goal30) : '-'}
+                                <Typography component="div" variant='body2' my={1}>
+                                    <table className="stats">
+                                        <tbody>
+                                            <tr>
+                                                <th>Goal (30d):</th>
+                                                <td>{goal30 !== null ? cur(-goal30) : '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Period Pace (30d):</th>
+                                                <td>{cur(-stats.avgUntilToday(30))}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Left per day:</th>
+                                                <td>{ leftPerDay > 0 ? cur(leftPerDay) : '-' }</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </Typography>
-                                <Typography variant='body1' textAlign="center" mt={1}>
-                                    Avg. Pace (30d)
-                                </Typography>
-                                <Box display="flex" mb={1}>
-                                    <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
-                                        1 month<br/>
-                                        {cur(-stats.lastPeriodAvg(30, { month: 1 }), true)}
-                                    </Typography>
-                                    <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
-                                        3 month<br/>
-                                        {cur(-stats.lastPeriodAvg(30, { months: 3 }), true)}
-                                    </Typography>
-                                    <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
-                                        1 year<br/>
-                                        {cur(-stats.lastPeriodAvg(30, { year: 1 }), true)}
-                                    </Typography>
-                                </Box>
-                                <Sparkline stats={stats} />
+                                <AmountBarsCatPlot sparkline stats={stats} />
                             </Paper>
                         </a>
                     })

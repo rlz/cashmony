@@ -56,7 +56,7 @@ const Fab = (): ReactElement => {
 
 export const OperationsScreen = observer((): ReactElement => {
     const theme = useTheme()
-    const displayOps = [...Operations.all().timeSpan(appState.timeSpan).groupByDate({ reverse: true })]
+    const displayOps = [...Operations.all().forTimeSpan(appState.timeSpan).groupByDate({ reverse: true })]
     const [displayDays, setDisplayDays] = useState(Math.min(displayOps.length, 30))
 
     useEffect(() => {
