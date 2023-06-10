@@ -1,6 +1,6 @@
 import React, { useState, type ReactElement } from 'react'
 import { FullScreenModal } from './FullScreenModal'
-import { Box, Button, IconButton, TextField } from '@mui/material'
+import { Box, Button, IconButton, TextField, Typography } from '@mui/material'
 import { CurrenciesModel } from '../model/currencies'
 import { DateTime } from 'luxon'
 import { getCurrencySymbol } from '../helpers/currencies'
@@ -23,7 +23,7 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
 
     const save = async (): Promise<void> => {
         await accountsModel.put({
-            name,
+            name: name.trim(),
             currency,
             hidden: false,
             lastModified: DateTime.utc()
@@ -38,7 +38,7 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
                     currency,
                     amount: initialAmount,
                     account: {
-                        name,
+                        name: name.trim(),
                         amount: initialAmount
                     },
                     tags: [],
@@ -81,6 +81,7 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
             fullWidth
             variant="contained"
             onClick={() => { void save() }}
+            disabled={name.trim() === '' || accountsModel.accounts.has(name.trim())}
         >Create</Button>
         {curSelOpen
             ? <CurrencySelector
@@ -92,5 +93,9 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
                 }}
             />
             : undefined}
+        <Typography variant='body2' fontStyle='italic' color="error.main">
+            {name.trim() === '' ? 'Input account name' : null}
+            {accountsModel.accounts.has(name.trim()) ? 'Already exists' : null}
+        </Typography>
     </FullScreenModal>
 }
