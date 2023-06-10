@@ -3,7 +3,7 @@ import React, { useState, type ReactElement, useEffect } from 'react'
 import { EditorScreen } from '../widgets/EditorScreen'
 import { Accordion, AccordionDetails, AccordionSummary, Box, FormControlLabel, Paper, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { CategoriesModel } from '../model/categories'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { CurrencyInput } from '../widgets/CurrencyInput'
@@ -28,6 +28,7 @@ export const CategoryScreen = observer(() => {
     const [cat, setCat] = useState<Category | null>(null)
     const [newCat, setNewCat] = useState<Category | null>(null)
     const [tab, setTab] = useState(0)
+    const navigate = useNavigate()
 
     useEffect(() => {
         const category = categoriesModel.get(catName)
@@ -77,6 +78,7 @@ export const CategoryScreen = observer(() => {
                 }
                 await operationsModel.put(changedOps)
                 await categoriesModel.put({ ...cat, deleted: true, lastModified: DateTime.utc() })
+                navigate(`/categories/${encodeURIComponent(newCat.name)}`)
             }
         }
     }
