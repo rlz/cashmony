@@ -7,6 +7,7 @@ import { AuthScreen } from './screens/AuthScreen'
 import { AccountsScreen } from './screens/AccountsScreen'
 import { CategoriesScreen } from './screens/CategoriesScreen'
 import { CategoryScreen } from './screens/CategoryScreen'
+import { AccountScreen } from './screens/AccountScreen'
 
 declare global {
     interface Window { routerNavigate: (to: string) => Promise<void> }
@@ -55,7 +56,11 @@ const router = createBrowserRouter([
     },
     {
         path: '/categories/:catName',
-        element: <CategoryScreen/>
+        element: <CategoryScreen />
+    },
+    {
+        path: '/accounts/:accName',
+        element: <AccountScreen />
     }
 ])
 
