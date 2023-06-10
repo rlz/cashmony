@@ -90,7 +90,7 @@ function AccountPanel ({ account, totalAmount }: AccountPanelProps): ReactElemen
         >
             <Typography component='div' display='flex' mb={1}>
                 <Box>{account.name}</Box>
-                <Box flex="1 1 0" textAlign='right'>
+                <Box flex="1 1 0" textAlign='right' color='primary.main'>
                     {
                         formatCurrency(totalAmount[totalAmount.length - 1], account.currency)
                     }
