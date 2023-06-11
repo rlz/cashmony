@@ -1,0 +1,84 @@
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
+import React, { useState, type ReactElement } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Operations } from '../model/stats'
+import { type NotDeletedOperation } from '../model/model'
+import { OperationsModel } from '../model/operations'
+import { CategoriesModel } from '../model/categories'
+import { DateTime } from 'luxon'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+
+interface Props {
+    name: string
+    open: boolean
+    setOpen: (open: boolean) => void
+}
+
+export function DeleteCategory ({ name, open, setOpen }: Props): ReactElement {
+    const [delInProcess, setDelInProcess] = useState(false)
+    const navigate = useNavigate()
+
+    const opsCount = Operations.all().forCategories(name).count()
+
+    return <Dialog
+        open={open}
+        onClose={() => { setOpen(false) }}
+    >
+        <DialogTitle>Delete category?</DialogTitle>
+        <DialogContent>
+            <DialogContentText>
+                {
+                    opsCount === 0
+                        ? 'Category was never used in operations'
+                        : `Category was used in ${opsCount} operations`
+                }
+            </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+            <Button variant='contained' onClick={() => { setOpen(false) }}>Cancel</Button>
+            <Button
+                variant='contained'
+                color='error'
+                onClick={() => {
+                    setDelInProcess(true)
+                    setTimeout(() => {
+                        const action = async (): Promise<void> => {
+                            try {
+                                await deleteCategory(name)
+                            } finally {
+                                setDelInProcess(true)
+                                navigate('/categories')
+                            }
+                        }
+                        void action()
+                    })
+                }}
+                sx={{ gap: 1 }}
+            >
+                { delInProcess
+                    ? <FontAwesomeIcon icon={faSpinner} pulse />
+                    : null} Delete
+            </Button>
+        </DialogActions>
+    </Dialog>
+}
+
+const operationsModel = OperationsModel.instance()
+const categoriesModel = CategoriesModel.instance()
+
+async function deleteCategory (catName: string): Promise<void> {
+    const ops: NotDeletedOperation[] = [...Operations.all().forCategories(catName).operations()].map(op => {
+        return {
+            ...op,
+            categories: op.categories.filter(c => c.name !== catName)
+        }
+    })
+    await operationsModel.put(ops)
+    const cat = categoriesModel.get(catName)
+    await categoriesModel.put({
+        ...cat,
+        lastModified: DateTime.utc(),
+        deleted: true
+    })
+}

@@ -55,6 +55,15 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         }
     }
 
+    count (): number {
+        let count = 0
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const _ of this.operations()) {
+            count += 1
+        }
+        return count
+    }
+
     sumCategoryAmount (catName: string): number {
         let sum = 0
         for (const op of this.forCategories(catName).operations()) {

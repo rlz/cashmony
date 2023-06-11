@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import React, { useState, type ReactElement, useEffect } from 'react'
 import { EditorScreen } from '../widgets/EditorScreen'
-import { Accordion, AccordionDetails, AccordionSummary, Box, FormControlLabel, Paper, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, FormControlLabel, Paper, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { CategoriesModel } from '../model/categories'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -14,6 +14,7 @@ import { DateTime } from 'luxon'
 import { CategoryStats } from '../model/stats'
 import { formatCurrency } from '../helpers/currencies'
 import { AmountBarsCatPlot, TotalCatPlot } from '../widgets/CategoryPlots'
+import { DeleteCategory } from '../widgets/DeleteCategory'
 
 const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
@@ -168,6 +169,7 @@ interface EditorProps {
 
 function Editor ({ cat, newCat, setNewCat }: EditorProps): ReactElement {
     const [open, setOpen] = useState<'name' | 'goal' | null>(null)
+    const [delOpen, setDelOpen] = useState(false)
 
     return <Box mt={1}>
         <Accordion
@@ -239,17 +241,26 @@ function Editor ({ cat, newCat, setNewCat }: EditorProps): ReactElement {
                 }
             </AccordionDetails>
         </Accordion>
-        <FormControlLabel
-            control={<Switch
-                checked={newCat.hidden}
-                onChange={(_, checked) => {
-                    setNewCat({
-                        ...newCat,
-                        hidden: checked
-                    })
-                }}
-            />}
-            label="Hidden"
-        />
+        <Box my={1}>
+            <FormControlLabel
+                control={<Switch
+                    checked={newCat.hidden}
+                    onChange={(_, checked) => {
+                        setNewCat({
+                            ...newCat,
+                            hidden: checked
+                        })
+                    }}
+                />}
+                label="Hidden"
+            />
+        </Box>
+        <Button
+            variant='contained'
+            color='error'
+            onClick={() => { setDelOpen(true) }}
+            fullWidth
+        >Delete</Button>
+        <DeleteCategory name={cat.name} open={delOpen} setOpen={setDelOpen} />
     </Box>
 }
