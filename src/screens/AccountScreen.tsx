@@ -15,6 +15,7 @@ import { AccountsModel } from '../model/accounts'
 import { AppState } from '../model/appState'
 import { AccPlot } from '../widgets/AccountPlots'
 import { v1 as uuid } from 'uuid'
+import { DeleteAccount } from '../widgets/DeleteAccount'
 
 const appState = AppState.instance()
 const accountsModel = AccountsModel.instance()
@@ -143,6 +144,7 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
     const amount = accountsModel.getAmounts(appState.today).get(acc.name) ?? 0
     const [adjustedAmount, setAdjustedAmount] = useState(amount)
     const [adjInProgress, setAdjInProgress] = useState(false)
+    const [delOpen, setDelOpen] = useState(false)
 
     return <Box mt={1}>
         <Accordion
@@ -229,17 +231,26 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
                 </Button>
             </AccordionActions>
         </Accordion>
-        <FormControlLabel
-            control={<Switch
-                checked={newAcc.hidden}
-                onChange={(_, checked) => {
-                    setNewAcc({
-                        ...newAcc,
-                        hidden: checked
-                    })
-                }}
-            />}
-            label="Hidden"
-        />
+        <Box my={1}>
+            <FormControlLabel
+                control={<Switch
+                    checked={newAcc.hidden}
+                    onChange={(_, checked) => {
+                        setNewAcc({
+                            ...newAcc,
+                            hidden: checked
+                        })
+                    }}
+                />}
+                label="Hidden"
+            />
+        </Box>
+        <Button
+            variant='contained'
+            color='error'
+            onClick={() => { setDelOpen(true) }}
+            fullWidth
+        >Delete</Button>
+        <DeleteAccount name={acc.name} open={delOpen} setOpen={setDelOpen} />
     </Box>
 }

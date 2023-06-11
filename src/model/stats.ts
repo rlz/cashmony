@@ -29,7 +29,14 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
 
     forAccounts (...accounts: string[]): Operations<T> {
         const accountsSet = new Set(accounts)
-        return new Operations(op => this.predicate(op) && accountsSet.has(op.account.name))
+        return new Operations(
+            op =>
+                this.predicate(op) &&
+                (
+                    accountsSet.has(op.account.name) ||
+                    (op.type === 'transfer' && accountsSet.has(op.toAccount.name))
+                )
+        )
     }
 
     forCategories (...categories: string[]): Operations<Exclude<T, TransferOperation | AdjustmentOperation>> {
@@ -71,6 +78,33 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
                 if (cat.name === catName) {
                     sum += cat.amount
                 }
+            }
+        }
+        return sum
+    }
+
+    sumAccountAmount (accName: string): number {
+        let sum = 0
+        for (const op of this.forAccounts(accName).operations()) {
+            if (op.type === 'transfer') {
+                if (op.account.name === accName) {
+                    sum += op.account.amount
+                }
+                if (op.toAccount.name === accName) {
+                    sum += op.toAccount.amount
+                }
+            } else {
+                sum += op.account.amount
+            }
+        }
+        return sum
+    }
+
+    sumOpAmount (currency: string): number {
+        let sum = 0
+        for (const op of this.operations()) {
+            if (op.currency === currency) {
+                sum += op.amount
             }
         }
         return sum
