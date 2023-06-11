@@ -244,6 +244,7 @@ function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: Bo
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : null) }}
             account={account}
             onAccountChange={account => { propagateAndSave(op, account, toAccount) }}
+            hideAccount={op.type === 'transfer' ? toAccount?.name : undefined}
         />
         {
             op.type === 'transfer'
@@ -259,6 +260,7 @@ function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: Bo
                         onAccountChange={toAccount => {
                             propagateAndSave(op, account, toAccount)
                         }}
+                        hideAccount={account?.name}
                     /></>
                 : null
         }

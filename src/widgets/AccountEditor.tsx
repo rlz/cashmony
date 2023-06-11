@@ -17,6 +17,7 @@ interface Props {
     onExpandedChange: (expanded: boolean) => void
     account: NotDeletedOperation['account'] | null
     onAccountChange: (account: NotDeletedOperation['account']) => void
+    hideAccount?: string
 }
 
 const accountsModel = AccountsModel.instance()
@@ -37,7 +38,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                 { accountsModel.accountsSorted.map(a => {
                     const acc = accountsModel.get(a)
 
-                    if (acc.hidden || acc.deleted === true) {
+                    if (acc.hidden || acc.deleted === true || acc.name === props.hideAccount) {
                         return undefined
                     }
 
@@ -64,7 +65,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                 : <Box mt={1}>
                     <CurrencyInput
                         negative={props.negative}
-                        label={`Amount — ${formatExchangeRate(props.opAmount, props.account.amount)}`}
+                        label={`Amount — ${formatExchangeRate(Math.abs(props.opAmount), Math.abs(props.account.amount))}`}
                         amount={props.account.amount}
                         currency={account.currency}
                         onAmountChange={(accountAmount) => {
