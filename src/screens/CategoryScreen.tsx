@@ -112,7 +112,7 @@ export const CategoryScreen = observer(() => {
 })
 
 function EmptyScreen (): ReactElement {
-    return <EditorScreen navigateOnBack='/categories' title="Categories"/>
+    return <EditorScreen navigateOnBack='/categories' title="Category"/>
 }
 
 function Stats ({ stats }: { stats: CategoryStats }): ReactElement {
