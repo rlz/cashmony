@@ -1,5 +1,5 @@
 import { makeAutoObservable, observable, runInAction } from 'mobx'
-import { type Operation, operationComparator } from './model'
+import { type Operation, operationComparator, type NotDeletedOperation } from './model'
 import { FinDataDb } from './finDataDb'
 
 let operationsModel: OperationsModel | null = null
@@ -15,6 +15,14 @@ export class OperationsModel {
         })
 
         void this.readAll()
+    }
+
+    get firstOp (): NotDeletedOperation | undefined {
+        for (const op of this.operations) {
+            if (op.type !== 'deleted') {
+                return op
+            }
+        }
     }
 
     async getOperation (id: string): Promise<Operation> {

@@ -1,4 +1,5 @@
 import { DateTime, type DurationLike } from 'luxon'
+import { type OperationsModel } from '../model/operations'
 
 const GOOGLE_EPOCH = DateTime.utc(1899, 12, 30)
 
@@ -13,7 +14,14 @@ export function toGoogleDateTime (date: DateTime): number {
 
 export function utcToday (): DateTime {
     const now = DateTime.now()
-    return DateTime.utc(now.year, now.month, now.day)
+    return utcDate(now)
+}
+
+export function utcDate (date: Date | DateTime): DateTime {
+    if (date instanceof Date) {
+        date = DateTime.fromJSDate(date)
+    }
+    return DateTime.utc(date.year, date.month, date.day)
 }
 
 export abstract class HumanTimeSpan {
@@ -128,5 +136,23 @@ export class CustomTimeSpan extends HumanTimeSpan {
 
     get endDate (): DateTime {
         return this._end
+    }
+}
+
+export class AllHistoryTimeSpan extends HumanTimeSpan {
+    private readonly _operationsModel: OperationsModel
+
+    constructor (operationsModel: OperationsModel) {
+        super()
+        this._operationsModel = operationsModel
+    }
+
+    get startDate (): DateTime {
+        const firstOp = this._operationsModel.firstOp
+        return firstOp?.date ?? utcToday()
+    }
+
+    get endDate (): DateTime {
+        return utcToday()
     }
 }

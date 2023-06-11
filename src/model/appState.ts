@@ -1,6 +1,9 @@
-import { makeAutoObservable, runInAction } from 'mobx'
-import { CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, ThisMonthTimeSpan, ThisYearTimeSpan, YearTimeSpan, utcToday } from '../helpers/dates'
-import { DateTime, type DurationLikeObject } from 'luxon'
+import { autorun, makeAutoObservable, runInAction } from 'mobx'
+import { CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, ThisMonthTimeSpan, ThisYearTimeSpan, YearTimeSpan, utcToday, AllHistoryTimeSpan } from '../helpers/dates'
+import { DateTime } from 'luxon'
+import { OperationsModel } from './operations'
+
+const operationsModel = OperationsModel.instance()
 
 let appState: AppState | null = null
 
@@ -23,9 +26,20 @@ interface YearTimeSpanInfo {
     readonly year: number
 }
 
-interface LastPeriodTimeSpanInfo {
-    readonly type: 'lastPeriod'
-    readonly duration: DurationLikeObject
+interface LastMonthTimeSpanInfo {
+    readonly type: 'lastMonth'
+}
+
+interface LastQuarterTimeSpanInfo {
+    readonly type: 'lastQuarter'
+}
+
+interface LastYearTimeSpanInfo {
+    readonly type: 'lastYear'
+}
+
+interface AllHistoryTimeSpanInfo {
+    readonly type: 'allHistory'
 }
 
 interface DateInfo {
@@ -40,11 +54,16 @@ interface CustomTimeSpanInfo {
     readonly to: DateInfo
 }
 
-type TimeSpanInfo = ThisMonthTimeSpanInfo | ThisYearTimeSpanInfo | MonthTimeSpanInfo | YearTimeSpanInfo | LastPeriodTimeSpanInfo | CustomTimeSpanInfo
+type TimeSpanInfo = ThisMonthTimeSpanInfo |
+ThisYearTimeSpanInfo | MonthTimeSpanInfo | YearTimeSpanInfo |
+LastMonthTimeSpanInfo | LastQuarterTimeSpanInfo | LastYearTimeSpanInfo |
+AllHistoryTimeSpanInfo | CustomTimeSpanInfo
+
+const TIME_SPAN_INFO = 'AppState.timeSpanInfo'
 
 export class AppState {
     today = utcToday()
-    timeSpanInfo: TimeSpanInfo = { type: 'thisMonth' }
+    timeSpanInfo: TimeSpanInfo = JSON.parse(localStorage.getItem(TIME_SPAN_INFO) ?? '{ "type": "thisMonth" }')
 
     private constructor () {
         makeAutoObservable(this)
@@ -57,6 +76,10 @@ export class AppState {
                 })
             }
         }, 10000)
+
+        autorun(() => {
+            localStorage.setItem(TIME_SPAN_INFO, JSON.stringify(this.timeSpanInfo))
+        })
     }
 
     get timeSpan (): HumanTimeSpan {
@@ -76,8 +99,20 @@ export class AppState {
             return new YearTimeSpan(this.timeSpanInfo.year)
         }
 
-        if (this.timeSpanInfo.type === 'lastPeriod') {
-            return new LastPeriodTimeSpan(this.timeSpanInfo.duration)
+        if (this.timeSpanInfo.type === 'lastMonth') {
+            return new LastPeriodTimeSpan({ month: 1 })
+        }
+
+        if (this.timeSpanInfo.type === 'lastQuarter') {
+            return new LastPeriodTimeSpan({ quarter: 1 })
+        }
+
+        if (this.timeSpanInfo.type === 'lastYear') {
+            return new LastPeriodTimeSpan({ year: 1 })
+        }
+
+        if (this.timeSpanInfo.type === 'allHistory') {
+            return new AllHistoryTimeSpan(operationsModel)
         }
 
         return new CustomTimeSpan(makeDate(this.timeSpanInfo.from), makeDate(this.timeSpanInfo.to))

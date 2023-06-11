@@ -6,6 +6,9 @@ import { DateTime } from 'luxon'
 import React, { type ReactElement } from 'react'
 import Calendar from 'react-calendar'
 import { utcToday } from '../helpers/dates'
+import { AppState } from '../model/appState'
+
+const appState = AppState.instance()
 
 interface Props {
     date: DateTime
@@ -24,22 +27,17 @@ export const DateEditor = (props: Props): ReactElement => {
             <Typography>Date</Typography>
         </AccordionSummary>
         <AccordionDetails>
-            <Typography
-                component="div"
-                color="primary.light"
-                textAlign="center"
-            >
-                { props.expanded
-                    ? <Calendar
-                        value={props.date.toJSDate()}
-                        onClickDay={(date) => {
-                            const utc = DateTime.utc(date.getFullYear(), date.getMonth() + 1, date.getDate())
-                            props.onDateChange(utc)
-                        }}
-                    />
-                    : null
-                }
-            </Typography>
+            { props.expanded
+                ? <Calendar
+                    maxDate={appState.today.toJSDate()}
+                    value={props.date.toJSDate()}
+                    onClickDay={(date) => {
+                        const utc = DateTime.utc(date.getFullYear(), date.getMonth() + 1, date.getDate())
+                        props.onDateChange(utc)
+                    }}
+                />
+                : null
+            }
         </AccordionDetails>
         <AccordionActions>
             <Button onClick={() => {

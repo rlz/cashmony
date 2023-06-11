@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import './index.scss'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
-import { ThemeProvider, createTheme } from '@mui/material'
+import { ThemeProvider, Typography, createTheme } from '@mui/material'
 import { deepOrange, indigo } from '@mui/material/colors'
 
 const root = ReactDOM.createRoot(
@@ -29,7 +29,9 @@ const darkTheme = createTheme({
 root.render(
     <React.StrictMode>
         <ThemeProvider theme={darkTheme}>
-            <App />
+            <Typography component="div">
+                <App />
+            </Typography>
         </ThemeProvider>
     </React.StrictMode>
 )

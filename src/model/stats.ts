@@ -48,6 +48,11 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         )
     }
 
+    hasTags (...tags: string[]): Operations<T> {
+        const tagsSet = new Set(tags)
+        return new Operations(op => this.predicate(op) && op.tags.some(t => tagsSet.has(t)))
+    }
+
     * operations (opts?: { reverse?: boolean }): Generator<T> {
         const ops = opts?.reverse === true
             ? [...operationsModel.operations].reverse()

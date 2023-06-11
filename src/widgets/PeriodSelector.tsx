@@ -1,15 +1,71 @@
-import React, { type ReactElement } from 'react'
+import React, { useState, type ReactElement } from 'react'
 import { AppState } from '../model/appState'
 import { observer } from 'mobx-react-lite'
-import { Box, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import { Box, Paper, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightLong } from '@fortawesome/free-solid-svg-icons'
 import { runInAction } from 'mobx'
+import Calendar from 'react-calendar'
+import { FullScreenModal } from './FullScreenModal'
+import { DateTime } from 'luxon'
+import { utcDate } from '../helpers/dates'
 
 const appState = AppState.instance()
 
 export const PeriodSelector = observer((): ReactElement => {
+    const [showSelector, setShowSelector] = useState<'month' | 'year' | 'custom' | 'lastDays' | 'lastMonth' | null>(null)
+
+    let selector: ReactElement | null = null
+    if (showSelector === 'month') {
+        selector = <MonthSelector
+            onClose={() => { setShowSelector(null) }}
+            onMonthSelected={(year, month) => {
+                runInAction(() => {
+                    appState.timeSpanInfo = {
+                        type: 'month',
+                        year,
+                        month
+                    }
+                })
+            }}
+        />
+    } else if (showSelector === 'year') {
+        selector = <YearSelector
+            onClose={() => { setShowSelector(null) }}
+            onYearSelected={year => {
+                runInAction(() => {
+                    appState.timeSpanInfo = {
+                        type: 'year',
+                        year
+                    }
+                })
+            }}
+        />
+    } else if (showSelector === 'custom') {
+        selector = <CustomSelector
+            onClose={() => { setShowSelector(null) }}
+            onPeriodSelected={(from, to) => {
+                runInAction(() => {
+                    appState.timeSpanInfo = {
+                        type: 'custom',
+                        from: {
+                            year: from.year,
+                            month: from.month,
+                            day: from.day
+                        },
+                        to: {
+                            year: to.year,
+                            month: to.month,
+                            day: to.day
+                        }
+                    }
+                })
+            }}
+        />
+    }
+
     return <Box display="flex" flexDirection="column" gap={1}>
+        {selector}
         <Box>
             <Typography variant='h6' textAlign="center">Period</Typography>
             <Typography variant='body1' textAlign="center">
@@ -34,11 +90,138 @@ export const PeriodSelector = observer((): ReactElement => {
                         })
                     }
                 }}
-                aria-label="Platform"
             >
                 <ToggleButton value="thisMonth">Month</ToggleButton>
                 <ToggleButton value="thisYear">Year</ToggleButton>
             </ToggleButtonGroup>
         </Box>
+        <Box display="flex" gap={1} justifyContent='space-between' alignItems="center">
+            <Typography>Selected:</Typography>
+            <ToggleButtonGroup
+                size='small'
+                color="primary"
+                value={appState.timeSpanInfo.type}
+                exclusive
+                onChange={(_, value: 'month' | 'year' | null) => {
+                    if (value !== null) {
+                        setShowSelector(value)
+                    } else if (appState.timeSpanInfo.type === 'month' || appState.timeSpanInfo.type === 'year') {
+                        setShowSelector(appState.timeSpanInfo.type)
+                    }
+                }}
+            >
+                <ToggleButton value="month">Month</ToggleButton>
+                <ToggleButton value="year">Year</ToggleButton>
+            </ToggleButtonGroup>
+        </Box>
+        <Box display="flex" gap={1} justifyContent='space-between' alignItems="center">
+            <Typography>Last:</Typography>
+            <ToggleButtonGroup
+                size='small'
+                color="primary"
+                value={appState.timeSpanInfo.type}
+                exclusive
+                onChange={(_, value: 'lastMonth' | 'lastQuarter' | 'lastYear' | null) => {
+                    if (value !== null) {
+                        runInAction(() => {
+                            appState.timeSpanInfo = {
+                                type: value
+                            }
+                        })
+                    }
+                }}
+            >
+                <ToggleButton value="lastMonth">Month</ToggleButton>
+                <ToggleButton value="lastQuarter">Quarter</ToggleButton>
+                <ToggleButton value="lastYear">Year</ToggleButton>
+            </ToggleButtonGroup>
+        </Box>
+        <ToggleButtonGroup
+            fullWidth
+            size='small'
+            color="primary"
+            value={appState.timeSpanInfo.type}
+            exclusive
+            onChange={(_, value: 'custom' | 'allHistory' | null) => {
+                if (value === 'allHistory') {
+                    runInAction(() => {
+                        appState.timeSpanInfo = {
+                            type: 'allHistory'
+                        }
+                    })
+                }
+                if (value === 'custom' || appState.timeSpanInfo.type === 'custom') {
+                    setShowSelector('custom')
+                }
+            }}
+        >
+            <ToggleButton value="allHistory">All history</ToggleButton>
+            <ToggleButton value="custom">Custom</ToggleButton>
+        </ToggleButtonGroup>
     </Box>
 })
+
+interface MonthSelectorProps {
+    onClose: () => void
+    onMonthSelected: (year: number, month: number) => void
+}
+
+function MonthSelector (props: MonthSelectorProps): ReactElement {
+    const today = appState.today
+
+    return <FullScreenModal title="Select month" onClose={props.onClose}>
+        <Calendar
+            maxDate={today.toJSDate()}
+            maxDetail='year'
+            onChange={(d) => {
+                if (!(d instanceof Date)) return
+                props.onMonthSelected(d.getFullYear(), d.getMonth() + 1)
+                props.onClose()
+            }}
+        />
+    </FullScreenModal>
+}
+
+interface YearSelectorProps {
+    onClose: () => void
+    onYearSelected: (year: number) => void
+}
+
+function YearSelector (props: YearSelectorProps): ReactElement {
+    const today = appState.today
+
+    return <FullScreenModal title="Select year" onClose={props.onClose}>
+        <Calendar
+            maxDate={today.toJSDate()}
+            maxDetail='decade'
+            onChange={(d) => {
+                if (!(d instanceof Date)) return
+                props.onYearSelected(d.getFullYear())
+                props.onClose()
+            }}
+        />
+    </FullScreenModal>
+}
+
+interface CustomSelectorProps {
+    onClose: () => void
+    onPeriodSelected: (from: DateTime, to: DateTime) => void
+}
+
+function CustomSelector (props: CustomSelectorProps): ReactElement {
+    const today = appState.today
+
+    return <FullScreenModal title="Select period" onClose={props.onClose}>
+        <Paper elevation={1} sx={{ p: 1 }}>
+            <Calendar
+                selectRange
+                maxDate={today.toJSDate()}
+                onChange={(range) => {
+                    if (!(range instanceof Array)) return
+                    props.onPeriodSelected(utcDate(range[0] ?? DateTime.now()), utcDate(range[1] ?? DateTime.now()))
+                    props.onClose()
+                }}
+            />
+        </Paper>
+    </FullScreenModal>
+}
