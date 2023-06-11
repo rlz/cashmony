@@ -48,30 +48,29 @@ div.react-calendar {
 
         .react-calendar__tile--hover,
         .react-calendar__tile--range {
-            background-color: #ba68c8;
-            border-radius: 0;
+            background-color: lighten(#ba68c8, 20%);
         }
 
         .react-calendar__tile--hoverStart,
-        .react-calendar__tile--rangeStart {
+        .react-calendar__tile--rangeStart:not(.react-calendar__tile--hover) {
             border-radius: 4px 0 0 4px;
         }
 
         .react-calendar__tile--hoverEnd,
-        .react-calendar__tile--rangeEnd {
+        .react-calendar__tile--rangeEnd:not(.react-calendar__tile--hover) {
             border-radius: 0 4px 4px 0;
         }
 
         .react-calendar__tile--hoverStart.react-calendar__tile--hoverEnd,
-        .react-calendar__tile--rangeStart.react-calendar__tile--rangeEnd {
+        .react-calendar__tile--rangeStart.react-calendar__tile--rangeEnd:not(.react-calendar__tile--hover) {
             border-radius: 4px;
         }
 
         .react-calendar__tile--hoverStart,
         .react-calendar__tile--hoverEnd,
-        button.react-calendar__tile--active {
-            background-color: #ab47bc;
-            color: white;
+        .react-calendar__tile--rangeStart,
+        .react-calendar__tile--rangeEnd {
+            background-color: lighten(#ab47bc, 20%);
         }
     }
 }
@@ -112,15 +111,16 @@ body.theme-dark {
                 color: rgb(124, 136, 204);
             }
 
-            .react-calendar__tile--hover {
+            .react-calendar__tile--hover,
+            .react-calendar__tile--range {
                 background-color: #ba68c8;
             }
 
             .react-calendar__tile--hoverStart,
             .react-calendar__tile--hoverEnd,
-            button.react-calendar__tile--active {
+            .react-calendar__tile--rangeStart,
+            .react-calendar__tile--rangeEnd {
                 background-color: #ab47bc;
-                color: white;
             }
         }
     }

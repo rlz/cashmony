@@ -6,7 +6,7 @@ interface Props extends PropsWithChildren {
     title: string | null
     gap?: number
     onClose: () => void
-    onSave?: () => void
+    onSave?: (() => void) | null
 }
 
 export const FullScreenModal = (props: Props): ReactElement => {

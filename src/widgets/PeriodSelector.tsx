@@ -210,16 +210,26 @@ interface CustomSelectorProps {
 
 function CustomSelector (props: CustomSelectorProps): ReactElement {
     const today = appState.today
+    const [period, setPeriod] = useState<[DateTime, DateTime] | null>(null)
 
-    return <FullScreenModal title="Select period" onClose={props.onClose}>
+    return <FullScreenModal
+        title="Select period"
+        onClose={props.onClose}
+        onSave={period === null
+            ? null
+            : () => {
+                props.onPeriodSelected(...period)
+                props.onClose()
+            }
+        }
+    >
         <Paper elevation={1} sx={{ p: 1 }}>
             <Calendar
                 selectRange
                 maxDate={today.toJSDate()}
                 onChange={(range) => {
                     if (!(range instanceof Array)) return
-                    props.onPeriodSelected(utcDate(range[0] ?? DateTime.now()), utcDate(range[1] ?? DateTime.now()))
-                    props.onClose()
+                    setPeriod([utcDate(range[0] ?? DateTime.now()), utcDate(range[1] ?? DateTime.now())])
                 }}
             />
         </Paper>
