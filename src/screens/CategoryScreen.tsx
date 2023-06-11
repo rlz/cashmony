@@ -122,7 +122,7 @@ function Stats ({ stats }: { stats: CategoryStats }): ReactElement {
         ? -(stats.leftPerDay() ?? -0)
         : -1
 
-    return <Box display="flex" flexDirection="column" gap={1} overflow="scroll">
+    return <Box display="flex" flexDirection="column" gap={1} overflow="scroll" pb={1}>
         <Typography component="div" variant='body2' mt={1} py={1}>
             <table className='stats'>
                 <tbody>

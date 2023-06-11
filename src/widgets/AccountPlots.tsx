@@ -4,7 +4,6 @@ import React, { type ReactElement } from 'react'
 import { AppState } from '../model/appState'
 import { type UplotOptions, type UplotData, ResizeableUplot } from './ResizeableUplot'
 import uPlot from 'uplot'
-import { formatCurrency } from '../helpers/currencies'
 import { type Account } from '../model/model'
 
 const appState = AppState.instance()
@@ -69,31 +68,13 @@ export const AccPlot = observer(({ title, account, sparkline, perDayAmount, tota
 
     const opts: UplotOptions = {
         height: sparkline === true ? 50 : 250,
-        axes: [
-            {
-                stroke: 'white',
-                show: sparkline !== true,
-                grid: {
-                    show: true,
-                    stroke: '#444',
-                    width: 1
-                }
-            },
-            {
-                stroke: 'white',
-                show: sparkline !== true,
-                values: (_, vals) => vals.map(v => formatCurrency(v, account.currency, true)),
-                grid: {
-                    show: true,
-                    stroke: '#444',
-                    width: 1
-                }
-            }
-        ],
         series
     }
 
     return <ResizeableUplot
+        elevation={sparkline === true ? 0 : 2}
+        showAxes={sparkline !== true}
+        currency={account.currency}
         data={data}
         opts={opts}
         initialWidth={window.innerWidth - 32}

@@ -7,7 +7,6 @@ import { observer } from 'mobx-react-lite'
 import { OperationsModel } from '../model/operations'
 import { CategoriesModel } from '../model/categories'
 import { ResizeableUplot, type UplotData, type UplotOptions } from './ResizeableUplot'
-import { formatCurrency } from '../helpers/currencies'
 
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
@@ -86,31 +85,13 @@ export const AmountBarsCatPlot = observer(({ stats, sparkline }: AmountBarsCatPl
 
     const opts: UplotOptions = {
         height: sparkline === true ? 50 : 150,
-        axes: [
-            {
-                stroke: 'white',
-                show: sparkline !== true,
-                grid: {
-                    show: true,
-                    stroke: '#444',
-                    width: 1
-                }
-            },
-            {
-                stroke: 'white',
-                show: sparkline !== true,
-                values: (_, vals) => vals.map(v => formatCurrency(v, stats.category.currency, true)),
-                grid: {
-                    show: true,
-                    stroke: '#444',
-                    width: 1
-                }
-            }
-        ],
         series: uPlotGraphs.series
     }
 
     return <ResizeableUplot
+        elevation={sparkline === true ? 0 : 2}
+        showAxes={sparkline !== true}
+        currency={stats.category.currency}
         data={uPlotGraphs.data}
         opts={opts}
         initialWidth={window.innerWidth - 32}
@@ -200,29 +181,13 @@ export const TotalCatPlot = observer(({ stats }: { stats: CategoryStats }): Reac
 
     const opts: UplotOptions = {
         height: 250,
-        axes: [
-            {
-                stroke: 'white',
-                grid: {
-                    show: true,
-                    stroke: '#444',
-                    width: 1
-                }
-            },
-            {
-                stroke: 'white',
-                values: (_, vals) => vals.map(v => formatCurrency(v, stats.category.currency, true)),
-                grid: {
-                    show: true,
-                    stroke: '#444',
-                    width: 1
-                }
-            }
-        ],
         series: uPlotGraphs.series
     }
 
     return <ResizeableUplot
+        elevation={2}
+        showAxes={true}
+        currency={stats.category.currency}
         data={uPlotGraphs.data}
         opts={opts}
         initialWidth={window.innerWidth - 32}

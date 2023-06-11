@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { type ReactElement } from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.scss'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
-import { ThemeProvider, Typography, createTheme } from '@mui/material'
+import { CssBaseline, ThemeProvider, Typography, createTheme, useMediaQuery } from '@mui/material'
 import { deepOrange, indigo } from '@mui/material/colors'
+import { AppState } from './model/appState'
+import { observer } from 'mobx-react-lite'
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
@@ -18,23 +20,43 @@ const darkTheme = createTheme({
         },
         secondary: {
             main: deepOrange[400]
-        },
-        background: {
-            // default: blueGrey[200],
-            // paper: blueGrey[900]
         }
     }
 })
 
-root.render(
-    <React.StrictMode>
-        <ThemeProvider theme={darkTheme}>
+const lightTheme = createTheme({
+    palette: {
+        primary: {
+            main: indigo[400]
+        },
+        secondary: {
+            main: deepOrange[400]
+        }
+    }
+})
+
+const appState = AppState.instance()
+
+const RootNode = observer((): ReactElement => {
+    const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
+
+    const theme = appState.theme === 'auto'
+        ? (prefersDarkMode ? 'dark' : 'light')
+        : appState.theme
+
+    document.body.className = 'theme-' + theme
+
+    return <React.StrictMode>
+        <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
+            <CssBaseline />
             <Typography component="div">
                 <App />
             </Typography>
         </ThemeProvider>
     </React.StrictMode>
-)
+})
+
+root.render(<RootNode/>)
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

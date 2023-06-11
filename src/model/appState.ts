@@ -60,9 +60,13 @@ LastMonthTimeSpanInfo | LastQuarterTimeSpanInfo | LastYearTimeSpanInfo |
 AllHistoryTimeSpanInfo | CustomTimeSpanInfo
 
 const TIME_SPAN_INFO = 'AppState.timeSpanInfo'
+const THEME = 'AppState.theme'
+
+type UserThemeType = 'light' | 'dark' | 'auto'
 
 export class AppState {
     today = utcToday()
+    theme: UserThemeType = (localStorage.getItem(THEME) as UserThemeType | null) ?? 'auto'
     timeSpanInfo: TimeSpanInfo = JSON.parse(localStorage.getItem(TIME_SPAN_INFO) ?? '{ "type": "thisMonth" }')
 
     private constructor () {
@@ -79,6 +83,10 @@ export class AppState {
 
         autorun(() => {
             localStorage.setItem(TIME_SPAN_INFO, JSON.stringify(this.timeSpanInfo))
+        })
+
+        autorun(() => {
+            localStorage.setItem(THEME, this.theme)
         })
     }
 
