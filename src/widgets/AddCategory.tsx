@@ -17,7 +17,7 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
 
     const save = async (): Promise<void> => {
         await categoriesModel.put({
-            name,
+            name: name.trim(),
             currency,
             hidden: false,
             lastModified: DateTime.utc()
@@ -39,6 +39,19 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
                 variant="filled"
                 size="small"
                 value={name}
+                error={
+                    name.trim() === '' ||
+                    categoriesModel.categories.has(name.trim())
+                }
+                helperText={
+                    name.trim() === ''
+                        ? 'Empty'
+                        : (
+                            categoriesModel.categories.has(name.trim())
+                                ? 'Already exsists'
+                                : undefined
+                        )
+                }
                 onChange={ev => {
                     setName(ev.target.value)
                 }}
@@ -48,6 +61,10 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
         <Button
             fullWidth
             variant="contained"
+            disabled={
+                name.trim() === '' ||
+                categoriesModel.categories.has(name.trim())
+            }
             onClick={() => { void save() }}
         >Create</Button>
         {curSelOpen
