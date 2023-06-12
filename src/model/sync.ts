@@ -10,15 +10,24 @@ const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
 const categoriesModel = CategoriesModel.instance()
 
-export async function syncDataWithGoogle (): Promise<void> {
+export async function initGoogleSync (): Promise<void> {
     await google.authenticate()
-    await google.searchOrCreateDataSpreadsheet()
-    await syncAccounts()
-    await syncCategories()
-    await syncOperations()
 }
 
-async function syncAccounts (): Promise<void> {
+export interface SyncStats {
+    matched: number
+    latestInGoogle: number
+    latestInLocal: number
+    missedInGoogle: number
+    missedInLocal: number
+}
+
+export interface SyncStatsEx extends SyncStats {
+    deletedInGoogle: number
+    deletedInLocal: number
+}
+
+export async function syncAccounts (): Promise<SyncStats> {
     const googleAccounts = await google.loadAccounts()
     const localAccounts = accountsModel.accounts
 
@@ -52,22 +61,26 @@ async function syncAccounts (): Promise<void> {
         }
     }
 
-    console.log('Accounts Sync Result', {
+    const syncStats = {
         matched,
         latestInGoogle: latestInGoogle.length,
         latestInLocal,
         missedInGoogle: localAccsMap.size,
         missedInLocal: missedInLocal.length
-    })
+    }
+
+    console.log('Accounts Sync Result', syncStats)
 
     await Promise.all([...missedInLocal, ...latestInGoogle].map(async i => { await accountsModel.put(i) }))
 
     if (latestInLocal > 0 || localAccsMap.size > 0) {
         await google.storeAccounts([...accountsModel.accounts.values()])
     }
+
+    return syncStats
 }
 
-async function syncCategories (): Promise<void> {
+export async function syncCategories (): Promise<SyncStats> {
     const googleCategories = await google.loadCategories()
     const localCategories = categoriesModel.categories
 
@@ -101,22 +114,26 @@ async function syncCategories (): Promise<void> {
         }
     }
 
-    console.log('Categories Sync Result', {
+    const syncStats = {
         matched,
         latestInGoogle: latestInGoogle.length,
         latestInLocal,
         missedInGoogle: localCatsMap.size,
         missedInLocal: missedInLocal.length
-    })
+    }
+
+    console.log('Categories Sync Result', syncStats)
 
     await Promise.all([...missedInLocal, ...latestInGoogle].map(async i => { await categoriesModel.put(i) }))
 
     if (latestInLocal > 0 || localCatsMap.size > 0) {
         await google.storeCategories([...categoriesModel.categories.values()])
     }
+
+    return syncStats
 }
 
-async function syncOperations (): Promise<void> {
+export async function syncOperations (): Promise<SyncStatsEx> {
     const googleOps = await google.loadOperations()
     const localOps = operationsModel.operations
 
@@ -156,7 +173,7 @@ async function syncOperations (): Promise<void> {
         }
     }
 
-    console.log('Operations Sync Result', {
+    const syncStats = {
         matched,
         latestInGoogle: latestInGoogle.length,
         latestInLocal,
@@ -164,11 +181,15 @@ async function syncOperations (): Promise<void> {
         missedInLocal: missedInLocal.length,
         deletedInGoogle: deletedInGoogle.length,
         deletedInLocal
-    })
+    }
+
+    console.log('Operations Sync Result', syncStats)
 
     await operationsModel.put([...missedInLocal, ...latestInGoogle, ...deletedInGoogle])
 
     if (latestInLocal > 0 || localOpsMap.size > 0 || deletedInLocal > 0) {
         await google.storeOperations(operationsModel.operations)
     }
+
+    return syncStats
 }

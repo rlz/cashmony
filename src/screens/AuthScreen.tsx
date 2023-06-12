@@ -1,5 +1,7 @@
-import React, { type ReactElement } from 'react'
+import React, { useEffect, type ReactElement, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
+import makeUrl from '../google/makeUrl'
+import { Typography } from '@mui/material'
 
 export function AuthScreen (): ReactElement {
     const urlHash = useLocation().hash.slice(1)
@@ -11,11 +13,26 @@ export function AuthScreen (): ReactElement {
         params[param] = decodeURIComponent(value)
     })
 
-    if ('access_token' in params && 'expires_in' in params && 'scope' in params && 'token_type' in params) {
-        window.opener.routerNavigate(`/post-auth?auth=${encodeURIComponent(params.access_token)}`)
-        window.close()
-        return <>Authenticated</>
-    }
+    const redirect = useMemo(() => {
+        return window.opener.location.pathname as string
+    }, [])
 
-    throw Error(`Can not parse auth URL: ${urlHash}`)
+    useEffect(() => {
+        if ('access_token' in params && 'expires_in' in params && 'scope' in params && 'token_type' in params) {
+            window.opener.routerNavigate(
+                makeUrl('/google-sync', {
+                    auth: params.access_token,
+                    redirect
+                })
+            )
+            window.close()
+            return
+        }
+
+        throw Error(`Can not parse auth URL: ${urlHash}`)
+    }, [])
+
+    return <Typography variant='h5' mt="30vh" textAlign="center">
+        Authenticated
+    </Typography>
 }

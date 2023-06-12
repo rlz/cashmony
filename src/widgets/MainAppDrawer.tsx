@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, SwipeableDrawer, type SwipeableDrawerProps, Box, ToggleButtonGroup, ToggleButton } from '@mui/material'
 import React, { type ReactElement } from 'react'
 import { observer } from 'mobx-react-lite'
-import { syncDataWithGoogle } from '../model/sync'
+import { initGoogleSync } from '../model/sync'
 import { PeriodSelector } from './PeriodSelector'
 import { AppState } from '../model/appState'
 import { runInAction } from 'mobx'
@@ -43,7 +43,7 @@ export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElemen
             </Box>
             <List>
                 <ListItem disablePadding>
-                    <ListItemButton onClick={() => { void syncDataWithGoogle() }}>
+                    <ListItemButton onClick={() => { void initGoogleSync() }}>
                         <ListItemIcon>
                             <FontAwesomeIcon icon={faCloudArrowUp} />
                         </ListItemIcon>

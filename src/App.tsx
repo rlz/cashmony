@@ -2,7 +2,7 @@ import React, { type ReactElement } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { OperationsScreen } from './screens/OperationsScreen'
 import { OperationScreen } from './screens/OperationScreen'
-import { PostAuthScreen } from './screens/PostAuthScreen'
+import { GoogleSyncScreen } from './screens/GoogleSyncScreen'
 import { AuthScreen } from './screens/AuthScreen'
 import { AccountsScreen } from './screens/AccountsScreen'
 import { CategoriesScreen } from './screens/CategoriesScreen'
@@ -31,8 +31,8 @@ const router = createBrowserRouter([
         element: <AccountsScreen />
     },
     {
-        path: '/post-auth',
-        element: <PostAuthScreen />
+        path: '/google-sync',
+        element: <GoogleSyncScreen />
     },
     {
         path: '/auth',
