@@ -25,6 +25,9 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
         onClose()
     }
 
+    const cat = categoriesModel.categories.get(name.trim())
+    const exists = cat !== undefined && cat.deleted !== true
+
     return <FullScreenModal title="Add category" onClose={onClose} gap={1}>
         <Box display="flex" gap={1}>
             <IconButton
@@ -39,18 +42,11 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
                 variant="filled"
                 size="small"
                 value={name}
-                error={
-                    name.trim() === '' ||
-                    categoriesModel.categories.has(name.trim())
-                }
+                error={name.trim() === '' || exists }
                 helperText={
                     name.trim() === ''
                         ? 'Empty'
-                        : (
-                            categoriesModel.categories.has(name.trim())
-                                ? 'Already exsists'
-                                : undefined
-                        )
+                        : (exists ? 'Already exists' : undefined)
                 }
                 onChange={ev => {
                     setName(ev.target.value)
@@ -61,10 +57,7 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
         <Button
             fullWidth
             variant="contained"
-            disabled={
-                name.trim() === '' ||
-                categoriesModel.categories.has(name.trim())
-            }
+            disabled={ name.trim() === '' || exists }
             onClick={() => { void save() }}
         >Create</Button>
         {curSelOpen

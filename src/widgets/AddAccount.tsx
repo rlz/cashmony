@@ -1,6 +1,6 @@
 import React, { useState, type ReactElement } from 'react'
 import { FullScreenModal } from './FullScreenModal'
-import { Box, Button, IconButton, TextField, Typography } from '@mui/material'
+import { Box, Button, IconButton, TextField } from '@mui/material'
 import { CurrenciesModel } from '../model/currencies'
 import { DateTime } from 'luxon'
 import { getCurrencySymbol } from '../helpers/currencies'
@@ -49,6 +49,9 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
         onClose()
     }
 
+    const acc = accountsModel.accounts.get(name)
+    const exists = acc !== undefined && acc.deleted !== true
+
     return <FullScreenModal title="Add account" onClose={onClose} gap={1}>
         <Box display="flex" gap={1}>
             <IconButton
@@ -63,6 +66,12 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
                 variant="filled"
                 size="small"
                 value={name}
+                error={name.trim() === '' || exists}
+                helperText={
+                    name.trim() === ''
+                        ? 'Empty'
+                        : (exists ? 'Already exists' : undefined)
+                }
                 onChange={ev => {
                     setName(ev.target.value)
                 }}
@@ -81,7 +90,7 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
             fullWidth
             variant="contained"
             onClick={() => { void save() }}
-            disabled={name.trim() === '' || accountsModel.accounts.has(name.trim())}
+            disabled={name.trim() === '' || exists}
         >Create</Button>
         {curSelOpen
             ? <CurrencySelector
@@ -93,9 +102,5 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
                 }}
             />
             : undefined}
-        <Typography variant='body2' fontStyle='italic' color="error.main">
-            {name.trim() === '' ? 'Input account name' : null}
-            {accountsModel.accounts.has(name.trim()) ? 'Already exists' : null}
-        </Typography>
     </FullScreenModal>
 }
