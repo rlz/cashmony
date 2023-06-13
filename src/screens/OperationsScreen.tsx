@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { MainScreen } from '../widgets/MainScreen'
 import { Operations } from '../model/stats'
 import { AppState } from '../model/appState'
-import { OpsList } from '../widgets/OpsList'
+import { OpsList } from '../widgets/operations/OpsList'
 
 const appState = AppState.instance()
 

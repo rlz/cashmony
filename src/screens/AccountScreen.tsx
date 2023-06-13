@@ -16,7 +16,7 @@ import { AccPlot } from '../widgets/AccountPlots'
 import { v1 as uuid } from 'uuid'
 import { DeleteAccount } from '../widgets/DeleteAccount'
 import { MainScreen } from '../widgets/MainScreen'
-import { OpsList } from '../widgets/OpsList'
+import { OpsList } from '../widgets/operations/OpsList'
 import { Operations } from '../model/stats'
 
 const appState = AppState.instance()

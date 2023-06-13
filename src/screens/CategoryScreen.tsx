@@ -15,7 +15,7 @@ import { formatCurrency } from '../helpers/currencies'
 import { AmountBarsCatPlot, TotalCatPlot } from '../widgets/CategoryPlots'
 import { DeleteCategory } from '../widgets/DeleteCategory'
 import { MainScreen } from '../widgets/MainScreen'
-import { OpsList } from '../widgets/OpsList'
+import { OpsList } from '../widgets/operations/OpsList'
 import { AppState } from '../model/appState'
 
 const appState = AppState.instance()
