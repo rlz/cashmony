@@ -34,16 +34,19 @@ export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noDrawer }: 
         }
         <AppBar position="static">
             <Toolbar>
-                <IconButton
-                    size="large"
-                    edge="start"
-                    color="inherit"
-                    aria-label="menu"
-                    sx={{ mr: 2 }}
-                    onClick={() => { setDrawerOpen(true) }}
-                >
-                    <FontAwesomeIcon icon={faBars}/>
-                </IconButton>
+                {noDrawer === true
+                    ? null
+                    : <IconButton
+                        size="large"
+                        edge="start"
+                        color="inherit"
+                        aria-label="menu"
+                        sx={{ mr: 2 }}
+                        onClick={() => { setDrawerOpen(true) }}
+                    >
+                        <FontAwesomeIcon icon={faBars}/>
+                    </IconButton>
+                }
                 {
                     onBack === undefined
                         ? null
