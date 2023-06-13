@@ -106,10 +106,9 @@ export const AccountScreen = observer(() => {
         }
 
         if (tab === 2) {
-            return <Box overflow="scroll">
-                <OpsList operations={Operations.all().forTimeSpan(appState.timeSpan).forAccounts(acc.name)}/>
-                <Box minHeight={72}/>
-            </Box>
+            return <OpsList
+                operations={Operations.all().forTimeSpan(appState.timeSpan).forAccounts(acc.name)}
+            />
         }
 
         throw Error('Unimplemented tab')
@@ -130,7 +129,10 @@ export const AccountScreen = observer(() => {
             <Tab label="Modify"/>
             <Tab label="Operations"/>
         </Tabs>
-        {renderTab(tab)}
+        <Box overflow="scroll">
+            {renderTab(tab)}
+            <Box minHeight={72}/>
+        </Box>
     </MainScreen>
 })
 
@@ -145,7 +147,7 @@ interface StatsProps {
 }
 
 function Stats ({ account, perDayAmount, totalAmount }: StatsProps): ReactElement {
-    return <Box display="flex" flexDirection="column" gap={1} mt={1} overflow="scroll">
+    return <Box display="flex" flexDirection="column" gap={1} mt={1}>
         <AccPlot title='Amount' account={account} totalAmount={totalAmount} />
         <AccPlot title='Per day amount' account={account} perDayAmount={perDayAmount}/>
     </Box>

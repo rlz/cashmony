@@ -99,10 +99,9 @@ export const CategoryScreen = observer(() => {
         }
 
         if (tab === 2) {
-            return <Box overflow="scroll">
-                <OpsList operations={Operations.all().forTimeSpan(appState.timeSpan).forCategories(cat.name)}/>
-                <Box minHeight={72}/>
-            </Box>
+            return <OpsList
+                operations={Operations.all().forTimeSpan(appState.timeSpan).forCategories(cat.name)}
+            />
         }
 
         throw Error('Unimplemented tab')
@@ -126,7 +125,10 @@ export const CategoryScreen = observer(() => {
             <Tab label="Modify"/>
             <Tab label="Operations"/>
         </Tabs>
-        { renderTab(tab) }
+        <Box overflow="scroll">
+            { renderTab(tab) }
+            <Box minHeight={72}/>
+        </Box>
     </MainScreen>
 })
 
@@ -141,7 +143,7 @@ function Stats ({ stats }: { stats: CategoryStats }): ReactElement {
         ? -(stats.leftPerDay() ?? -0)
         : -1
 
-    return <Box display="flex" flexDirection="column" gap={1} overflow="scroll" pb={1}>
+    return <Box display="flex" flexDirection="column" gap={1} pb={1}>
         <Typography component="div" variant='body2' mt={1} py={1}>
             <table className='stats'>
                 <tbody>
