@@ -10,12 +10,15 @@ import { type Operation, type Category } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { deepEqual } from '../helpers/deepEqual'
 import { DateTime } from 'luxon'
-import { CategoryStats } from '../model/stats'
+import { CategoryStats, Operations } from '../model/stats'
 import { formatCurrency } from '../helpers/currencies'
 import { AmountBarsCatPlot, TotalCatPlot } from '../widgets/CategoryPlots'
 import { DeleteCategory } from '../widgets/DeleteCategory'
 import { MainScreen } from '../widgets/MainScreen'
+import { OpsList } from '../widgets/OpsList'
+import { AppState } from '../model/appState'
 
+const appState = AppState.instance()
 const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
 
@@ -86,6 +89,25 @@ export const CategoryScreen = observer(() => {
 
     const goal30 = stats.goal(30)
 
+    const renderTab = (tab: number): ReactElement => {
+        if (tab === 0) {
+            return <Stats stats={stats} />
+        }
+
+        if (tab === 1) {
+            return <Editor cat={cat} newCat={newCat} setNewCat={setNewCat}/>
+        }
+
+        if (tab === 2) {
+            return <Box overflow="scroll">
+                <OpsList operations={Operations.all().forTimeSpan(appState.timeSpan).forCategories(cat.name)}/>
+                <Box minHeight={72}/>
+            </Box>
+        }
+
+        throw Error('Unimplemented tab')
+    }
+
     return <MainScreen
         navigateOnBack='/categories'
         title="Category"
@@ -102,12 +124,9 @@ export const CategoryScreen = observer(() => {
         <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
             <Tab label="Stats"/>
             <Tab label="Modify"/>
+            <Tab label="Operations"/>
         </Tabs>
-        {
-            tab === 0
-                ? <Stats stats={stats} />
-                : <Editor cat={cat} newCat={newCat} setNewCat={setNewCat}/>
-        }
+        { renderTab(tab) }
     </MainScreen>
 })
 

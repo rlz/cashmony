@@ -16,6 +16,8 @@ import { AccPlot } from '../widgets/AccountPlots'
 import { v1 as uuid } from 'uuid'
 import { DeleteAccount } from '../widgets/DeleteAccount'
 import { MainScreen } from '../widgets/MainScreen'
+import { OpsList } from '../widgets/OpsList'
+import { Operations } from '../model/stats'
 
 const appState = AppState.instance()
 const accountsModel = AccountsModel.instance()
@@ -94,6 +96,25 @@ export const AccountScreen = observer(() => {
         }
     }
 
+    const renderTab = (tab: number): ReactElement => {
+        if (tab === 0) {
+            return <Stats account={acc} perDayAmount={perDayAmount} totalAmount={totalAmount} />
+        }
+
+        if (tab === 1) {
+            return <Editor acc={acc} newAcc={newAcc} setNewAcc={setNewAcc}/>
+        }
+
+        if (tab === 2) {
+            return <Box overflow="scroll">
+                <OpsList operations={Operations.all().forTimeSpan(appState.timeSpan).forAccounts(acc.name)}/>
+                <Box minHeight={72}/>
+            </Box>
+        }
+
+        throw Error('Unimplemented tab')
+    }
+
     return <MainScreen
         navigateOnBack='/accounts'
         title="Account"
@@ -107,12 +128,9 @@ export const AccountScreen = observer(() => {
         <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
             <Tab label="Stats"/>
             <Tab label="Modify"/>
+            <Tab label="Operations"/>
         </Tabs>
-        {
-            tab === 0
-                ? <Stats account={acc} perDayAmount={perDayAmount} totalAmount={totalAmount} />
-                : <Editor acc={acc} newAcc={newAcc} setNewAcc={setNewAcc}/>
-        }
+        {renderTab(tab)}
     </MainScreen>
 })
 
