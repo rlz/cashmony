@@ -82,13 +82,19 @@ interface StatsProps {
 }
 
 function Stats ({ title, extended, stats }: StatsProps): ReactElement {
+    const primary = (value: number): ReactElement => {
+        return <Typography component="span" color={value === 0 ? undefined : 'info.main'}>
+            {value}
+        </Typography>
+    }
+
     return <>
         <Typography variant='h6' mt={1}>{title}</Typography>
         <Box display="flex">
             <Box>Matched</Box>
             <Box flex="1 1 0" textAlign="right">
                 {stats !== null
-                    ? stats.matched
+                    ? primary(stats.matched)
                     : <FontAwesomeIcon icon={faSpinner} pulse/>
                 }
             </Box>
@@ -99,7 +105,7 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
                 {stats !== null
                     ? <>
                         <FontAwesomeIcon icon={faArrowUpLong}/>
-                        {' '}{stats.latestInLocal}
+                        {' '}{primary(stats.latestInLocal)}
                     </>
                     : null
                 }
@@ -108,7 +114,7 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
                 {stats !== null
                     ? <>
                         <FontAwesomeIcon icon={faArrowDownLong}/>
-                        {' '}{stats.latestInGoogle}
+                        {' '}{primary(stats.latestInGoogle)}
                     </>
                     : <FontAwesomeIcon icon={faSpinner} pulse/>
                 }
@@ -120,7 +126,7 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
                 {stats !== null
                     ? <>
                         <FontAwesomeIcon icon={faArrowUpLong}/>
-                        {' '}{stats.missedInGoogle}
+                        {' '}{primary(stats.missedInGoogle)}
                     </>
                     : null
                 }
@@ -129,7 +135,7 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
                 {stats !== null
                     ? <>
                         <FontAwesomeIcon icon={faArrowDownLong}/>
-                        {' '}{stats.missedInLocal}
+                        {' '}{primary(stats.missedInLocal)}
                     </>
                     : <FontAwesomeIcon icon={faSpinner} pulse/>
                 }
@@ -143,7 +149,7 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
                         {stats !== null && 'deletedInGoogle' in stats
                             ? <>
                                 <FontAwesomeIcon icon={faArrowUpLong}/>
-                                {' '}{stats.deletedInLocal}
+                                {' '}{primary(stats.deletedInLocal)}
                             </>
                             : null
                         }
@@ -152,7 +158,7 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
                         {stats !== null && 'deletedInGoogle' in stats
                             ? <>
                                 <FontAwesomeIcon icon={faArrowDownLong}/>
-                                {' '}{stats.deletedInGoogle}
+                                {' '}{primary(stats.deletedInGoogle)}
                             </>
                             : <FontAwesomeIcon icon={faSpinner} pulse/>
                         }
