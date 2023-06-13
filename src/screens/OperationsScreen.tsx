@@ -66,7 +66,7 @@ export const OperationsScreen = observer((): ReactElement => {
     return <MainScreen>
         {displayOps.slice(0, displayDays).map(group =>
             <Box key={group[0].date.toISODate()}>
-                <Box px={theme.spacing(1)} pt={theme.spacing(2)}>
+                <Box pt={2}>
                     <Typography
                         variant='body2'
                         color={theme.palette.getContrastText(theme.palette.background.default)}
@@ -74,7 +74,7 @@ export const OperationsScreen = observer((): ReactElement => {
                         {group[0].date.toLocaleString({ dateStyle: 'full' })}
                     </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: theme.spacing(1), padding: theme.spacing(1) }}>
+                <Box display='flex' flexDirection='column' gap={1}>
                     {group.map(t => <Transaction key={t.id} op={t}/>)}
                 </Box>
             </Box>

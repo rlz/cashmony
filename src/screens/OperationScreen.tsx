@@ -18,8 +18,8 @@ import { DateTime } from 'luxon'
 import { utcToday } from '../helpers/dates'
 import { DeleteOpButton } from '../widgets/DeleteOpButton'
 import { CurrenciesModel } from '../model/currencies'
-import { EditorScreen } from '../widgets/EditorScreen'
 import { deepEqual } from '../helpers/deepEqual'
+import { MainScreen } from '../widgets/MainScreen'
 
 const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
@@ -145,7 +145,7 @@ const Wrap = ({ op, origOp, account, origAccount, toAccount, origToAccount, chil
         ? ''
         : op.type[0].toLocaleUpperCase() + op.type.substring(1)
 
-    return <EditorScreen
+    return <MainScreen
         title={title}
         navigateOnBack='/operations'
         onSave={
@@ -181,7 +181,7 @@ const Wrap = ({ op, origOp, account, origAccount, toAccount, origToAccount, chil
         }
     >
         {children}
-    </EditorScreen>
+    </MainScreen>
 }
 
 interface BodyProps {

@@ -1,6 +1,5 @@
 import { observer } from 'mobx-react-lite'
 import React, { useState, type ReactElement, useEffect, useMemo } from 'react'
-import { EditorScreen } from '../widgets/EditorScreen'
 import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Box, Button, FormControlLabel, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -16,6 +15,7 @@ import { AppState } from '../model/appState'
 import { AccPlot } from '../widgets/AccountPlots'
 import { v1 as uuid } from 'uuid'
 import { DeleteAccount } from '../widgets/DeleteAccount'
+import { MainScreen } from '../widgets/MainScreen'
 
 const appState = AppState.instance()
 const accountsModel = AccountsModel.instance()
@@ -94,7 +94,7 @@ export const AccountScreen = observer(() => {
         }
     }
 
-    return <EditorScreen
+    return <MainScreen
         navigateOnBack='/accounts'
         title="Account"
         onSave={onSave}>
@@ -113,11 +113,11 @@ export const AccountScreen = observer(() => {
                 ? <Stats account={acc} perDayAmount={perDayAmount} totalAmount={totalAmount} />
                 : <Editor acc={acc} newAcc={newAcc} setNewAcc={setNewAcc}/>
         }
-    </EditorScreen>
+    </MainScreen>
 })
 
 function EmptyScreen (): ReactElement {
-    return <EditorScreen navigateOnBack='/categories' title="Categories"/>
+    return <MainScreen navigateOnBack='/categories' title="Categories"/>
 }
 
 interface StatsProps {

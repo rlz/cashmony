@@ -1,6 +1,5 @@
 import { observer } from 'mobx-react-lite'
 import React, { useState, type ReactElement, useEffect } from 'react'
-import { EditorScreen } from '../widgets/EditorScreen'
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, FormControlLabel, Paper, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { CategoriesModel } from '../model/categories'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -15,6 +14,7 @@ import { CategoryStats } from '../model/stats'
 import { formatCurrency } from '../helpers/currencies'
 import { AmountBarsCatPlot, TotalCatPlot } from '../widgets/CategoryPlots'
 import { DeleteCategory } from '../widgets/DeleteCategory'
+import { MainScreen } from '../widgets/MainScreen'
 
 const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
@@ -86,7 +86,7 @@ export const CategoryScreen = observer(() => {
 
     const goal30 = stats.goal(30)
 
-    return <EditorScreen
+    return <MainScreen
         navigateOnBack='/categories'
         title="Category"
         onSave={onSave}>
@@ -108,11 +108,11 @@ export const CategoryScreen = observer(() => {
                 ? <Stats stats={stats} />
                 : <Editor cat={cat} newCat={newCat} setNewCat={setNewCat}/>
         }
-    </EditorScreen>
+    </MainScreen>
 })
 
 function EmptyScreen (): ReactElement {
-    return <EditorScreen navigateOnBack='/categories' title="Category"/>
+    return <MainScreen navigateOnBack='/categories' title="Category"/>
 }
 
 function Stats ({ stats }: { stats: CategoryStats }): ReactElement {

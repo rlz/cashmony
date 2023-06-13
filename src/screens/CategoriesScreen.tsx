@@ -52,7 +52,6 @@ export const CategoriesScreen = observer((): ReactElement => {
             display="flex"
             flexDirection="column"
             gap={1}
-            p={1}
         >
             {
                 (showHidden ? [...visibleCategories, ...hiddenCategories] : visibleCategories)

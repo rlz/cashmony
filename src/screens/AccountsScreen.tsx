@@ -51,7 +51,6 @@ export const AccountsScreen = observer((): ReactElement => {
             display="flex"
             flexDirection="column"
             gap={1}
-            p={1}
         >
             { visibleAccounts.map(account => <AccountPanel
                 key={account.name}

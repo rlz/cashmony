@@ -1,9 +1,9 @@
 import React, { type ReactElement, type PropsWithChildren } from 'react'
 import { Box, Portal } from '@mui/material'
-import { EditorAppBar } from '../widgets/EditorAppBar'
+import { MainAppBar } from './MainAppBar'
 
 interface Props extends PropsWithChildren {
-    title: string | null
+    title?: string
     gap?: number
     onClose: () => void
     onSave?: (() => void) | null
@@ -23,7 +23,8 @@ export const FullScreenModal = (props: Props): ReactElement => {
             bgcolor="background.default"
             color="text.primary"
         >
-            <EditorAppBar
+            <MainAppBar
+                noDrawer
                 title={props.title}
                 onBack={props.onClose}
                 onSave={props.onSave}
