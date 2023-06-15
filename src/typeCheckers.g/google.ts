@@ -6,15 +6,15 @@ export const isGoogleNonDeletedOperationRow = (input: any): input is GoogleNonDe
     return Array.isArray(input) && (8 <= input.length && 10 >= input.length && "string" === typeof input[0] && ("adjustment" === input[1] || "transfer" === input[1] || "income" === input[1] || "expense" === input[1]) && "number" === typeof input[2] && "number" === typeof input[3] && "number" === typeof input[4] && "string" === typeof input[5] && "string" === typeof input[6] && "number" === typeof input[7] && (undefined === input[8] || "string" === typeof input[8]) && (undefined === input[9] || "string" === typeof input[9]));
 };
 export const assertGoogleNonDeletedOperationRow = (input: any): GoogleNonDeletedOperationRow => {
-    const $guard = (typia.createAssert as any).guard;
     const __is = (input: any): input is GoogleNonDeletedOperationRow => {
         return Array.isArray(input) && (8 <= input.length && 10 >= input.length && "string" === typeof input[0] && ("adjustment" === input[1] || "transfer" === input[1] || "income" === input[1] || "expense" === input[1]) && "number" === typeof input[2] && "number" === typeof input[3] && "number" === typeof input[4] && "string" === typeof input[5] && "string" === typeof input[6] && "number" === typeof input[7] && (undefined === input[8] || "string" === typeof input[8]) && (undefined === input[9] || "string" === typeof input[9]));
     };
     if (false === __is(input))
         ((input: any, _path: string, _exceptionable: boolean = true): input is GoogleNonDeletedOperationRow => {
+            const $guard = (typia.createAssert as any).guard;
             return (Array.isArray(input) || $guard(true, {
                 path: _path + "",
-                expected: "[string, (\"adjustment\" | \"expense\" | \"income\" | \"transfer\"), number, number, number, string, string, number, (string | undefined), (string | undefined)]",
+                expected: "GoogleNonDeletedOperationRow",
                 value: input
             })) && ((8 <= input.length && 10 >= input.length || $guard(true, {
                 path: _path + "",
@@ -60,7 +60,11 @@ export const assertGoogleNonDeletedOperationRow = (input: any): GoogleNonDeleted
                 path: _path + "[9]",
                 expected: "(string | undefined)",
                 value: input[9]
-            })));
+            }))) || $guard(true, {
+                path: _path + "",
+                expected: "GoogleNonDeletedOperationRow",
+                value: input
+            });
         })(input, "$input", true);
     return input;
 };
@@ -77,33 +81,37 @@ export const isGoogleCategoryRow = (input: any): input is GoogleCategoryRow => {
     return Array.isArray(input) && (5 <= input.length && 6 >= input.length && "string" === typeof input[0] && "string" === typeof input[1] && "number" === typeof input[2] && ("" === input[3] || "number" === typeof input[3]) && ("yes" === input[4] || "no" === input[4]) && (undefined === input[5] || "yes" === input[5] || "no" === input[5]));
 };
 export const assertRowsType = (input: any): RowsType => {
-    const $guard = (typia.createAssert as any).guard;
     const __is = (input: any): input is RowsType => {
         const $io0 = (input: any): boolean => undefined === input.values || Array.isArray(input.values);
         return "object" === typeof input && null !== input && false === Array.isArray(input) && $io0(input);
     };
     if (false === __is(input))
         ((input: any, _path: string, _exceptionable: boolean = true): input is RowsType => {
+            const $guard = (typia.createAssert as any).guard;
             const $ao0 = (input: any, _path: string, _exceptionable: boolean = true): boolean => undefined === input.values || Array.isArray(input.values) || $guard(_exceptionable, {
                 path: _path + ".values",
-                expected: "(Array<any> | undefined)",
+                expected: "(Array<unknown> | undefined)",
                 value: input.values
             });
             return ("object" === typeof input && null !== input && false === Array.isArray(input) || $guard(true, {
                 path: _path + "",
                 expected: "RowsType",
                 value: input
-            })) && $ao0(input, _path + "", true);
+            })) && $ao0(input, _path + "", true) || $guard(true, {
+                path: _path + "",
+                expected: "RowsType",
+                value: input
+            });
         })(input, "$input", true);
     return input;
 };
 export const assertClearReplyBody = (input: any): ClearReplyBody => {
-    const $guard = (typia.createAssert as any).guard;
     const __is = (input: any): input is ClearReplyBody => {
-        return "object" === typeof input && null !== input && ("string" === typeof input.clearedRange && "string" === typeof input.spreadsheetId);
+        return "object" === typeof input && null !== input && ("string" === typeof (input as any).clearedRange && "string" === typeof (input as any).spreadsheetId);
     };
     if (false === __is(input))
         ((input: any, _path: string, _exceptionable: boolean = true): input is ClearReplyBody => {
+            const $guard = (typia.createAssert as any).guard;
             const $ao0 = (input: any, _path: string, _exceptionable: boolean = true): boolean => ("string" === typeof input.clearedRange || $guard(_exceptionable, {
                 path: _path + ".clearedRange",
                 expected: "string",
@@ -117,18 +125,22 @@ export const assertClearReplyBody = (input: any): ClearReplyBody => {
                 path: _path + "",
                 expected: "ClearReplyBody",
                 value: input
-            })) && $ao0(input, _path + "", true);
+            })) && $ao0(input, _path + "", true) || $guard(true, {
+                path: _path + "",
+                expected: "ClearReplyBody",
+                value: input
+            });
         })(input, "$input", true);
     return input;
 };
 export const assertPutReplyBody = (input: any): PutReplyBody => {
-    const $guard = (typia.createAssert as any).guard;
     const __is = (input: any): input is PutReplyBody => {
         const $io0 = (input: any): boolean => "string" === typeof input.spreadsheetId && ("number" === typeof input.updatedCells && parseInt(input.updatedCells) === input.updatedCells && 0 <= input.updatedCells) && ("number" === typeof input.updatedColumns && parseInt(input.updatedColumns) === input.updatedColumns && 0 <= input.updatedColumns) && "string" === typeof input.updatedRange && ("number" === typeof input.updatedRows && parseInt(input.updatedRows) === input.updatedRows && 0 <= input.updatedRows);
         return "object" === typeof input && null !== input && $io0(input);
     };
     if (false === __is(input))
         ((input: any, _path: string, _exceptionable: boolean = true): input is PutReplyBody => {
+            const $guard = (typia.createAssert as any).guard;
             const $ao0 = (input: any, _path: string, _exceptionable: boolean = true): boolean => ("string" === typeof input.spreadsheetId || $guard(_exceptionable, {
                 path: _path + ".spreadsheetId",
                 expected: "string",
@@ -178,7 +190,11 @@ export const assertPutReplyBody = (input: any): PutReplyBody => {
                 path: _path + "",
                 expected: "PutReplyBody",
                 value: input
-            })) && $ao0(input, _path + "", true);
+            })) && $ao0(input, _path + "", true) || $guard(true, {
+                path: _path + "",
+                expected: "PutReplyBody",
+                value: input
+            });
         })(input, "$input", true);
     return input;
 };
