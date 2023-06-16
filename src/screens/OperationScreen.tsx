@@ -305,6 +305,7 @@ function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: Bo
                     navigate('/operations')
                 }} />
         }
+        <Box minHeight={72}/>
     </Box>
 }
 
