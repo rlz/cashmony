@@ -237,7 +237,7 @@ function Editor ({ cat, newCat, setNewCat }: EditorProps): ReactElement {
                             onChange={(_, checked) => {
                                 setNewCat({
                                     ...newCat,
-                                    yearGoal: checked ? 0 : undefined
+                                    yearGoal: checked === true ? 0 : undefined
                                 })
                             }}
                         />
