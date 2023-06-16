@@ -7,6 +7,7 @@ import { CssBaseline, ThemeProvider, Typography, createTheme, useMediaQuery } fr
 import { deepOrange, indigo } from '@mui/material/colors'
 import { AppState } from './model/appState'
 import { observer } from 'mobx-react-lite'
+import { match } from 'ts-pattern'
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
@@ -40,14 +41,15 @@ const appState = AppState.instance()
 const RootNode = observer((): ReactElement => {
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
 
-    const theme = appState.theme === 'auto'
-        ? (prefersDarkMode ? 'dark' : 'light')
-        : appState.theme
+    const theme = match([appState.theme, prefersDarkMode])
+        .with(['auto', true], () => 'dark')
+        .with(['auto', false], () => 'light')
+        .otherwise(() => appState.theme)
 
     document.body.className = 'theme-' + theme
 
     return <React.StrictMode>
-        <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
+        <ThemeProvider theme={match(theme).with('light', () => lightTheme).otherwise(() => darkTheme)}>
             <CssBaseline />
             <Typography component="div">
                 <App />

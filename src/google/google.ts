@@ -4,12 +4,15 @@ import { createDataSpreadsheet } from './createDataSpreadsheet'
 import { loadAccounts, loadCategories, loadOperations } from './load'
 import { type Category, type Account, type Operation } from '../model/model'
 import { storeAccounts, storeCategories, storeOperations } from './store'
+import { match } from 'ts-pattern'
 
 const ACCESS_TOKEN = 'access_token'
 const GOOGLE_CLIENT_ID = '969343913019-635prket9b5rq0skn212ab098u5m22pv.apps.googleusercontent.com'
 const OK = 200
 const UNAUTHENTICATED = 401
-const REDIRECT_URL = process.env.NODE_ENV === 'production' ? 'https://app.cashmony.ru/auth' : 'http://localhost:3000/auth'
+const REDIRECT_URL = match(process.env.NODE_ENV)
+    .with('production', () => 'https://app.cashmony.ru/auth')
+    .otherwise(() => 'http://localhost:3000/auth')
 
 let google: Google | null = null
 
