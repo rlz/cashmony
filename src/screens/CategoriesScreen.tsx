@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite'
-import React, { useState, type ReactElement } from 'react'
+import React, { useState, useMemo, type ReactElement } from 'react'
 import { MainScreen } from '../widgets/MainScreen'
 import { Box, Fab, Paper, Typography } from '@mui/material'
 import { CategoriesModel } from '../model/categories'
@@ -7,14 +7,18 @@ import 'uplot/dist/uPlot.min.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
-import { CategoryStats } from '../model/stats'
+import { ExpensesStats, Operations } from '../model/stats'
 import { type Category } from '../model/model'
 import { AddCategory } from '../widgets/AddCategory'
 import { formatCurrency } from '../helpers/currencies'
 import './CategoriesScreen.scss'
 import { AmountBarsCatPlot } from '../widgets/CategoryPlots'
+import { AppState } from '../model/appState'
+import { OperationsModel } from '../model/operations'
 
+const appState = AppState.instance()
 const categoriesModel = CategoriesModel.instance()
+const operationsModel = OperationsModel.instance()
 
 export const CategoriesScreen = observer((): ReactElement => {
     const navigate = useNavigate()
@@ -32,6 +36,15 @@ export const CategoriesScreen = observer((): ReactElement => {
         }
         visibleCategories.push(c)
     }
+
+    const total = useMemo(
+        () => Operations.all().forTimeSpan().sumExpenses(appState.masterCurrency),
+        [
+            appState.timeSpanInfo,
+            appState.masterCurrency,
+            operationsModel.operations
+        ]
+    )
 
     return <MainScreen>
         {
@@ -53,12 +66,15 @@ export const CategoriesScreen = observer((): ReactElement => {
             flexDirection="column"
             gap={1}
         >
+            <Paper sx={{ p: 1 }}>
+                Total: {formatCurrency(total, appState.masterCurrency)}
+            </Paper>
             {
                 (showHidden ? [...visibleCategories, ...hiddenCategories] : visibleCategories)
                     .map(cat => {
-                        const stats = CategoryStats.for(cat.name)
+                        const stats = ExpensesStats.forCat(cat.name)
                         const goal30 = stats.goal(30)
-                        const leftPerDay = stats.daysLeft() > 0 && stats.category.yearGoal !== null
+                        const leftPerDay = appState.daysLeft > 0 && cat.yearGoal !== null
                             ? -(stats.leftPerDay() ?? -0)
                             : -1
 
@@ -97,7 +113,7 @@ export const CategoriesScreen = observer((): ReactElement => {
                                         </tbody>
                                     </table>
                                 </Typography>
-                                <AmountBarsCatPlot sparkline stats={stats} />
+                                <AmountBarsCatPlot currency={cat.currency} sparkline stats={stats} />
                             </Paper>
                         </a>
                     })

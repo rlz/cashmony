@@ -10,24 +10,21 @@ import { type Operation, type Category } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { deepEqual } from '../helpers/deepEqual'
 import { DateTime } from 'luxon'
-import { CategoryStats, Operations } from '../model/stats'
+import { ExpensesStats, Operations } from '../model/stats'
 import { formatCurrency } from '../helpers/currencies'
 import { AmountBarsCatPlot, TotalCatPlot } from '../widgets/CategoryPlots'
 import { DeleteCategory } from '../widgets/DeleteCategory'
 import { MainScreen } from '../widgets/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
 import { AppState } from '../model/appState'
+import { nonNull } from '../helpers/smallTools'
 
 const appState = AppState.instance()
 const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
 
 export const CategoryScreen = observer(() => {
-    const catName = useParams().catName
-
-    if (catName === undefined) {
-        throw Error('catName expected here')
-    }
+    const catName = nonNull(useParams().catName, 'catName expected here')
 
     const [cat, setCat] = useState<Category | null>(null)
     const [newCat, setNewCat] = useState<Category | null>(null)
@@ -44,7 +41,7 @@ export const CategoryScreen = observer(() => {
         return <EmptyScreen />
     }
 
-    const stats = CategoryStats.for({ ...newCat, name: cat.name })
+    const stats = ExpensesStats.forCat({ ...newCat, name: cat.name })
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, cat.currency, compact)
 
@@ -91,7 +88,7 @@ export const CategoryScreen = observer(() => {
 
     const renderTab = (tab: number): ReactElement => {
         if (tab === 0) {
-            return <Stats stats={stats} />
+            return <Stats currency={cat.currency} stats={stats} />
         }
 
         if (tab === 1) {
@@ -136,10 +133,10 @@ function EmptyScreen (): ReactElement {
     return <MainScreen navigateOnBack='/categories' title="Category"/>
 }
 
-function Stats ({ stats }: { stats: CategoryStats }): ReactElement {
-    const cur = (amount: number, compact = false): string => formatCurrency(amount, stats.category.currency, compact)
+function Stats ({ currency, stats }: { currency: string, stats: ExpensesStats }): ReactElement {
+    const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
 
-    const leftPerDay = stats.daysLeft() > 0 && stats.category.yearGoal !== null
+    const leftPerDay = appState.daysLeft > 0 && stats.yearGoal !== null
         ? -(stats.leftPerDay() ?? -0)
         : -1
 
@@ -177,8 +174,8 @@ function Stats ({ stats }: { stats: CategoryStats }): ReactElement {
                 </Typography>
             </Box>
         </Paper>
-        <AmountBarsCatPlot stats={stats}/>
-        <TotalCatPlot stats={stats}/>
+        <AmountBarsCatPlot currency={currency} stats={stats}/>
+        <TotalCatPlot currency={currency} stats={stats}/>
     </Box>
 }
 
@@ -237,7 +234,7 @@ function Editor ({ cat, newCat, setNewCat }: EditorProps): ReactElement {
                             onChange={(_, checked) => {
                                 setNewCat({
                                     ...newCat,
-                                    yearGoal: checked === true ? 0 : undefined
+                                    yearGoal: checked ? 0 : undefined
                                 })
                             }}
                         />

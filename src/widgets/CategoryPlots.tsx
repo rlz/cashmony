@@ -1,29 +1,30 @@
 import { useTheme } from '@mui/material'
 import React, { useMemo, type ReactElement } from 'react'
-import { type CategoryStats } from '../model/stats'
 import uPlot from 'uplot'
 import { AppState } from '../model/appState'
 import { observer } from 'mobx-react-lite'
 import { OperationsModel } from '../model/operations'
 import { CategoriesModel } from '../model/categories'
 import { ResizeableUplot, type UplotData, type UplotOptions } from './ResizeableUplot'
+import { type ExpensesStats } from '../model/stats'
 
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 const categoriesModel = CategoriesModel.instance()
 
 interface AmountBarsCatPlotProps {
-    stats: CategoryStats
+    currency: string
+    stats: ExpensesStats
     sparkline?: boolean
 }
 
-export const AmountBarsCatPlot = observer(({ stats, sparkline }: AmountBarsCatPlotProps): ReactElement => {
+export const AmountBarsCatPlot = observer(({ currency, stats, sparkline }: AmountBarsCatPlotProps): ReactElement => {
     const theme = useTheme()
 
     const uPlotGraphs = useMemo(
         () => {
             const allDates = [...appState.timeSpan.allDates({ includeDayBefore: true })]
-            const amountByDate = [undefined, ...stats.amountByDate()]
+            const amountByDate = [undefined, ...stats.expensesByDate(currency)]
             const perDay = -stats.avgUntilToday(1)
 
             const data: UplotData = [
@@ -59,8 +60,8 @@ export const AmountBarsCatPlot = observer(({ stats, sparkline }: AmountBarsCatPl
                 }
             ]
 
-            const daysLeft = stats.daysLeft()
-            if (daysLeft > 0 && stats.category.yearGoal !== undefined) {
+            const daysLeft = appState.daysLeft
+            if (daysLeft > 0 && stats.yearGoal !== null) {
                 const leftPerDay = Math.max(-(stats.leftPerDay() ?? 0), 0)
                 data.push(
                     amountByDate.map((_, i, a) => a[i + 1] === undefined ? leftPerDay : null)
@@ -75,7 +76,7 @@ export const AmountBarsCatPlot = observer(({ stats, sparkline }: AmountBarsCatPl
             return { data, series }
         },
         [
-            stats.category.name,
+            stats.operations,
             appState.timeSpanInfo,
             appState.today,
             operationsModel.operations,
@@ -91,7 +92,7 @@ export const AmountBarsCatPlot = observer(({ stats, sparkline }: AmountBarsCatPl
     return <ResizeableUplot
         elevation={sparkline === true ? 0 : 2}
         showAxes={sparkline !== true}
-        currency={stats.category.currency}
+        currency={currency}
         data={uPlotGraphs.data}
         opts={opts}
         initialWidth={window.innerWidth - 32}
@@ -100,13 +101,18 @@ export const AmountBarsCatPlot = observer(({ stats, sparkline }: AmountBarsCatPl
     />
 })
 
-export const TotalCatPlot = observer(({ stats }: { stats: CategoryStats }): ReactElement => {
+interface TotalCatPlotProps {
+    currency: string
+    stats: ExpensesStats
+}
+
+export const TotalCatPlot = observer(({ currency, stats }: TotalCatPlotProps): ReactElement => {
     const theme = useTheme()
 
     const uPlotGraphs = useMemo(
         () => {
             const allDates = [...appState.timeSpan.allDates({ includeDayBefore: true })]
-            const cumulativeAmountByDates = [0, ...stats.totalAmountByDates()].map(a => a === undefined ? a : -a)
+            const cumulativeAmountByDates = [0, ...stats.totalAmountByDates(currency)].map(a => a === undefined ? a : -a)
 
             const data: UplotData = [
                 allDates.map(d => d.toMillis() / 1000),
@@ -123,8 +129,8 @@ export const TotalCatPlot = observer(({ stats }: { stats: CategoryStats }): Reac
                 }
             ]
 
-            if (stats.daysLeft() > 0) {
-                const daysPass = stats.daysTotal() - stats.daysLeft()
+            if (appState.daysLeft > 0) {
+                const daysPass = appState.timeSpan.totalDays - appState.daysLeft
                 const periodTotal = -stats.amountTotal()
 
                 data.push(
@@ -171,7 +177,7 @@ export const TotalCatPlot = observer(({ stats }: { stats: CategoryStats }): Reac
             return { data, series }
         },
         [
-            stats.category.name,
+            stats.operations,
             appState.timeSpanInfo,
             appState.today,
             operationsModel.operations,
@@ -187,7 +193,7 @@ export const TotalCatPlot = observer(({ stats }: { stats: CategoryStats }): Reac
     return <ResizeableUplot
         elevation={2}
         showAxes={true}
-        currency={stats.category.currency}
+        currency={currency}
         data={uPlotGraphs.data}
         opts={opts}
         initialWidth={window.innerWidth - 32}

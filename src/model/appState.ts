@@ -61,6 +61,7 @@ AllHistoryTimeSpanInfo | CustomTimeSpanInfo
 
 const TIME_SPAN_INFO = 'AppState.timeSpanInfo'
 const THEME = 'AppState.theme'
+const MASTER_CURRENCY = 'AppState.masterCurrency'
 
 type UserThemeType = 'light' | 'dark' | 'auto'
 
@@ -68,6 +69,7 @@ export class AppState {
     today = utcToday()
     theme: UserThemeType = (localStorage.getItem(THEME) as UserThemeType | null) ?? 'auto'
     timeSpanInfo: TimeSpanInfo = JSON.parse(localStorage.getItem(TIME_SPAN_INFO) ?? '{ "type": "thisMonth" }')
+    masterCurrency: string = localStorage.getItem(MASTER_CURRENCY) ?? 'USD'
 
     private constructor () {
         makeAutoObservable(this)
@@ -87,6 +89,10 @@ export class AppState {
 
         autorun(() => {
             localStorage.setItem(THEME, this.theme)
+        })
+
+        autorun(() => {
+            localStorage.setItem(MASTER_CURRENCY, this.masterCurrency)
         })
     }
 
@@ -124,6 +130,14 @@ export class AppState {
         }
 
         return new CustomTimeSpan(makeDate(this.timeSpanInfo.from), makeDate(this.timeSpanInfo.to))
+    }
+
+    get daysLeft (): number {
+        const timeSpan = this.timeSpan
+        const today = this.today
+        if (timeSpan.endDate < today) return 0
+
+        return timeSpan.endDate.diff(today, 'days').days
     }
 
     static instance (): AppState {

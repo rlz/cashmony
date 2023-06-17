@@ -1,11 +1,14 @@
-import { type DurationLikeObject, type DateTime } from 'luxon'
+import { type DurationLikeObject } from 'luxon'
 import { CategoriesModel } from './categories'
-import { type NotDeletedOperation, type Category, type IncomeOperation, type ExpenseOperation, type TransferOperation, type AdjustmentOperation } from './model'
+import { type NotDeletedOperation, type IncomeOperation, type ExpenseOperation, type TransferOperation, type AdjustmentOperation, type Category } from './model'
 import { LastPeriodTimeSpan, type HumanTimeSpan } from '../helpers/dates'
 import { OperationsModel } from './operations'
 import { AppState } from './appState'
+import { CurrenciesModel } from './currencies'
+import { P, match } from 'ts-pattern'
 
 const appState = AppState.instance()
+const currenciesModel = CurrenciesModel.instance()
 const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
 
@@ -20,11 +23,24 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         return new Operations(() => true)
     }
 
-    forTimeSpan (timeSpan: HumanTimeSpan): Operations<T> {
+    forTimeSpan (timeSpan?: HumanTimeSpan): Operations<T> {
+        if (timeSpan === undefined) {
+            timeSpan = appState.timeSpan
+        }
+
         const startDate = timeSpan.startDate
         const endDate = timeSpan.endDate
 
         return new Operations((op) => this.predicate(op) && op.date >= startDate && op.date <= endDate)
+    }
+
+    onlyExpenses (): Operations<IncomeOperation | ExpenseOperation> {
+        return new Operations(
+            op => this.predicate(op) && (
+                op.type === 'expense' ||
+                (op.type === 'income' && op.categories.length > 0)
+            )
+        )
     }
 
     forAccounts (...accounts: string[]): Operations<T> {
@@ -39,6 +55,18 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         )
     }
 
+    excludeAccounts (...accounts: string[]): Operations<T> {
+        const accountsSet = new Set(accounts)
+        return new Operations(
+            op =>
+                this.predicate(op) &&
+                (
+                    !accountsSet.has(op.account.name) &&
+                    (op.type !== 'transfer' || !accountsSet.has(op.toAccount.name))
+                )
+        )
+    }
+
     forCategories (...categories: string[]): Operations<Exclude<T, TransferOperation | AdjustmentOperation>> {
         const categoriesSet = new Set(categories)
         return new Operations(
@@ -48,9 +76,23 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         )
     }
 
+    excludeCategories (...categories: string[]): Operations<Exclude<T, TransferOperation | AdjustmentOperation>> {
+        const categoriesSet = new Set(categories)
+        return new Operations(
+            op => this.predicate(op) &&
+                (op.type === 'expense' || op.type === 'income') &&
+                !op.categories.some(cat => categoriesSet.has(cat.name))
+        )
+    }
+
     hasTags (...tags: string[]): Operations<T> {
         const tagsSet = new Set(tags)
         return new Operations(op => this.predicate(op) && op.tags.some(t => tagsSet.has(t)))
+    }
+
+    excludeTags (...tags: string[]): Operations<T> {
+        const tagsSet = new Set(tags)
+        return new Operations(op => this.predicate(op) && !op.tags.some(t => tagsSet.has(t)))
     }
 
     * operations (opts?: { reverse?: boolean }): Generator<T> {
@@ -76,40 +118,17 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         return count
     }
 
-    sumCategoryAmount (catName: string): number {
+    sumExpenses (toCurrency: string): number {
         let sum = 0
-        for (const op of this.forCategories(catName).operations()) {
+        for (const op of this.onlyExpenses().operations()) {
+            if (op.categories.length === 0) {
+                sum += op.amount * currenciesModel.getRate(op.date, op.currency, toCurrency)
+                continue
+            }
+
             for (const cat of op.categories) {
-                if (cat.name === catName) {
-                    sum += cat.amount
-                }
-            }
-        }
-        return sum
-    }
-
-    sumAccountAmount (accName: string): number {
-        let sum = 0
-        for (const op of this.forAccounts(accName).operations()) {
-            if (op.type === 'transfer') {
-                if (op.account.name === accName) {
-                    sum += op.account.amount
-                }
-                if (op.toAccount.name === accName) {
-                    sum += op.toAccount.amount
-                }
-            } else {
-                sum += op.account.amount
-            }
-        }
-        return sum
-    }
-
-    sumOpAmount (currency: string): number {
-        let sum = 0
-        for (const op of this.operations()) {
-            if (op.currency === currency) {
-                sum += op.amount
+                const currency = categoriesModel.get(cat.name).currency
+                sum += cat.amount * currenciesModel.getRate(op.date, currency, toCurrency)
             }
         }
         return sum
@@ -141,16 +160,19 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
     }
 }
 
-export class CategoryStats {
-    category: Category
+export class ExpensesStats {
+    operations: Operations<IncomeOperation | ExpenseOperation>
+    yearGoal: number | null
 
-    constructor (category: Category) {
-        this.category = category
+    constructor (operations: Operations<NotDeletedOperation>, yearGoal: number | null) {
+        this.operations = operations.onlyExpenses()
+        this.yearGoal = yearGoal
     }
 
-    amountTotal (timeSpan?: HumanTimeSpan): number {
-        timeSpan = timeSpan ?? appState.timeSpan
-        return Operations.all().forTimeSpan(timeSpan).sumCategoryAmount(this.category.name)
+    amountTotal (timeSpan?: HumanTimeSpan, currency?: string): number {
+        return this.operations
+            .forTimeSpan(timeSpan ?? appState.timeSpan)
+            .sumExpenses(currency ?? appState.masterCurrency)
     }
 
     avgUntilToday (days: number, timeSpan?: HumanTimeSpan): number {
@@ -165,36 +187,24 @@ export class CategoryStats {
     }
 
     goal (days: number): number | null {
-        if (this.category.yearGoal === undefined) return null
-        return this.category.yearGoal * days / appState.today.daysInYear
+        if (this.yearGoal === null) return null
+        return this.yearGoal * days / appState.today.daysInYear
     }
 
     leftPerDay (): number | null {
         const total = this.amountTotal()
-        const goal = this.goal(this.daysTotal())
+        const goal = this.goal(appState.timeSpan.totalDays)
         if (goal === null) return null
-        return (goal - total) / this.daysLeft()
-    }
-
-    daysLeft (): number {
-        const timeSpan = appState.timeSpan
-        const today = appState.today
-        if (timeSpan.endDate < today) return 0
-
-        return timeSpan.endDate.diff(today, 'days').days
-    }
-
-    daysTotal (): number {
-        return appState.timeSpan.totalDays
+        return (goal - total) / appState.daysLeft
     }
 
     durationAvg (days: number, duration: DurationLikeObject): number {
         return this.avgUntilToday(days, new LastPeriodTimeSpan(duration))
     }
 
-    * totalAmountByDates (): Generator<number | undefined> {
+    * totalAmountByDates (toCurrency: string): Generator<number | undefined> {
         let cumAmount = 0
-        for (const amount of this.amountByDate()) {
+        for (const amount of this.expensesByDate(toCurrency)) {
             if (amount === undefined) {
                 yield undefined
                 continue
@@ -205,12 +215,11 @@ export class CategoryStats {
         }
     }
 
-    * amountByDate (): Generator<number | undefined> {
-        const ops = [...Operations
-            .all()
-            .forTimeSpan(appState.timeSpan)
-            .forCategories(this.category.name)
-            .operations()
+    * expensesByDate (toCurrency: string): Generator<number | undefined> {
+        const ops = [
+            ...this.operations
+                .forTimeSpan(appState.timeSpan)
+                .operations()
         ]
 
         const today = appState.today
@@ -238,22 +247,30 @@ export class CategoryStats {
 
             let amount = 0
             while (opIndex < ops.length && ops[opIndex].date <= date) {
-                for (const c of ops[opIndex].categories) {
-                    if (c.name === this.category.name) {
-                        amount += c.amount
+                const op = ops[opIndex]
+
+                if (op.categories.length === 0) {
+                    amount += op.amount * currenciesModel.getRate(op.date, op.currency, toCurrency)
+                } else {
+                    for (const c of op.categories) {
+                        const catCurrency = categoriesModel.get(c.name).currency
+                        amount += c.amount * currenciesModel.getRate(op.date, catCurrency, toCurrency)
                     }
                 }
+
                 opIndex += 1
             }
             yield amount
         }
     }
 
-    static for (cat: Category | string, date?: DateTime): CategoryStats {
-        if (typeof cat === 'string') {
-            cat = categoriesModel.get(cat)
-        }
-
-        return new CategoryStats(cat)
+    static forCat (catOrCatName: string | Category): ExpensesStats {
+        const cat = match(catOrCatName)
+            .with(P.string, v => categoriesModel.get(v))
+            .otherwise(v => v)
+        return new ExpensesStats(
+            Operations.all().forCategories(cat.name),
+            cat.yearGoal ?? null
+        )
     }
 }

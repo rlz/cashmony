@@ -6,6 +6,7 @@ import { FullScreenModal } from '../widgets/FullScreenModal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDownLong, faArrowUpLong, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { Box, Typography } from '@mui/material'
+import { runAsync } from '../helpers/smallTools'
 
 const google = Google.instance()
 
@@ -22,7 +23,12 @@ export function GoogleSyncScreen (): ReactElement {
     const searchParams = new URLSearchParams(location.search)
 
     useEffect(() => {
-        const action = async (): Promise<void> => {
+        setSpreadsheet(false)
+        setAccStats(null)
+        setCatStats(null)
+        setOpsStats(null)
+
+        runAsync(async (): Promise<void> => {
             if (syncInProgress) return
             syncInProgress = true
             try {
@@ -45,13 +51,7 @@ export function GoogleSyncScreen (): ReactElement {
             } finally {
                 syncInProgress = false
             }
-        }
-
-        setSpreadsheet(false)
-        setAccStats(null)
-        setCatStats(null)
-        setOpsStats(null)
-        setTimeout(() => { void action() }, 0)
+        })
     }, [])
 
     return <FullScreenModal

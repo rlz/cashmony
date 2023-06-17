@@ -1,11 +1,12 @@
 import { type IDBPDatabase, openDB } from 'idb'
-import { type Category, type Account, type NotDeletedOperation, type Operation } from './model'
+import { type Category, type Account, type NotDeletedOperation, type Operation, type CurrencyRatesCache, ratesMonth } from './model'
 import { DateTime } from 'luxon'
 
 const OPERATIONS_STORE_NAME = 'operations'
 const OPERATIONS_DATE_INDEX_NAME = 'date'
 const CATEGORIES_STORE_NAME = 'categories'
 const ACCOUNTS_STORE_NAME = 'accounts'
+const RATES_STORE_NAME = 'rates'
 
 let FIN_DATA_DB: FinDataDb | null = null
 
@@ -19,13 +20,42 @@ export class FinDataDb {
     }
 
     private async openDb (): Promise<IDBPDatabase> {
-        return await openDB('FinData', 1, {
-            upgrade: (database) => {
-                const opStore = database.createObjectStore(OPERATIONS_STORE_NAME, { keyPath: 'id' })
-                opStore.createIndex(OPERATIONS_DATE_INDEX_NAME, 'date', {})
-                database.createObjectStore(CATEGORIES_STORE_NAME, { keyPath: 'name' })
-                database.createObjectStore(ACCOUNTS_STORE_NAME, { keyPath: 'name' })
+        return await openDB('FinData', 2, {
+            upgrade: (database, oldVersion, newVersion) => {
+                if (oldVersion < 1) {
+                    const opStore = database.createObjectStore(OPERATIONS_STORE_NAME, { keyPath: 'id' })
+                    opStore.createIndex(OPERATIONS_DATE_INDEX_NAME, 'date', {})
+                    database.createObjectStore(CATEGORIES_STORE_NAME, { keyPath: 'name' })
+                    database.createObjectStore(ACCOUNTS_STORE_NAME, { keyPath: 'name' })
+                }
+                if (oldVersion < 2) {
+                    database.createObjectStore(RATES_STORE_NAME, { keyPath: 'key' })
+                }
             }
+        })
+    }
+
+    async getRates (month: DateTime, currency: string): Promise<CurrencyRatesCache | null> {
+        const db = await this.openDb()
+
+        const cache = await db.get(RATES_STORE_NAME, ratesKey(month, currency))
+
+        if (cache === undefined) return null
+
+        return {
+            ...cache,
+            loadDate: DateTime.fromISO(cache.loadDate)
+        }
+    }
+
+    async putRates (rates: CurrencyRatesCache): Promise<void> {
+        const month = ratesMonth(rates)
+
+        const db = await this.openDb()
+        await db.put(RATES_STORE_NAME, {
+            ...rates,
+            key: ratesKey(month, rates.currency),
+            loadDate: rates.loadDate.toISO()
         })
     }
 
@@ -131,4 +161,8 @@ function storeToOp (o: any): Operation {
     }
 
     return storeToOpNoDeleted(o)
+}
+
+function ratesKey (month: DateTime, currency: string): string {
+    return `${month.toFormat('yyyy-MM')}-${currency}`
 }

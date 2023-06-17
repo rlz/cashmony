@@ -1,0 +1,25 @@
+import { type ReactElement } from 'react'
+
+export function doWith<T, R> (val: T, action: (val: T) => R): R {
+    return action(val)
+}
+
+export function nonNull<T> (val: T, error: string): Exclude<T, null | undefined> {
+    if (val === null || val === undefined) {
+        throw Error(error)
+    }
+
+    return val as Exclude<T, null | undefined>
+}
+
+export function runAsync (action: () => Promise<void>): void {
+    setTimeout(() => {
+        void action()
+    })
+}
+
+export function showIf (condition: boolean | null | undefined, element: ReactElement): ReactElement | undefined {
+    if (condition === true) {
+        return element
+    }
+}
