@@ -2,15 +2,9 @@ import { DateTime } from 'luxon'
 import { mkdirSync, writeFileSync } from 'fs'
 import z from 'zod'
 import makeUrl from '../src/google/makeUrl'
+import { CURRENCIES } from '../src/helpers/currenciesList'
 
-const currencies = [
-    'AUD', 'BRL', 'CAD', 'CHF', 'CNY',
-    'CZK', 'DKK', 'EUR', 'GBP', 'HKD',
-    'HUF', 'INR', 'ISK', 'JPY', 'KRW',
-    'MXN', 'MYR', 'NOK', 'NZD', 'PLN',
-    'RUB', 'SEK', 'SGD', 'THB', 'ZAR'
-]
-
+const currencies = Object.keys(CURRENCIES).filter(i => i !== 'USD')
 const startDate = DateTime.utc(2000, 1, 1)
 const endDate = DateTime.utc().minus({ day: 1 })
 
