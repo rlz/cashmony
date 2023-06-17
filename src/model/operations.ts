@@ -2,11 +2,10 @@ import { makeAutoObservable, observable, runInAction } from 'mobx'
 import { type Operation, operationComparator, type NotDeletedOperation } from './model'
 import { FinDataDb } from './finDataDb'
 
+const finDataDb = FinDataDb.instance()
 let operationsModel: OperationsModel | null = null
 
 export class OperationsModel {
-    private readonly finDataDb = FinDataDb.instance()
-
     operations: readonly Operation[] = []
 
     private constructor () {
@@ -26,7 +25,7 @@ export class OperationsModel {
     }
 
     async getOperation (id: string): Promise<Operation> {
-        return await this.finDataDb.getOperation(id)
+        return await finDataDb.getOperation(id)
     }
 
     static instance (): OperationsModel {
@@ -42,12 +41,12 @@ export class OperationsModel {
             return
         }
 
-        await this.finDataDb.putOperations(ops)
+        await finDataDb.putOperations(ops)
         await this.readAll()
     }
 
     private async readAll (): Promise<void> {
-        const newOperations = await this.finDataDb.readAllOperations()
+        const newOperations = await finDataDb.readAllOperations()
         newOperations.sort(operationComparator)
 
         runInAction(() => {
