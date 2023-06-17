@@ -5,7 +5,7 @@ import { compareByStats } from '../helpers/stats'
 import { AppState } from './appState'
 import { FinDataDb } from './finDataDb'
 import { DateTime, type DurationLike } from 'luxon'
-import { doWith, nonNull, runAsync } from '../helpers/smallTools'
+import { nonNull, run, runAsync } from '../helpers/smallTools'
 import { type CurrencyRates, type CurrencyRatesCache, ratesMonth, CURRENCY_RATES_SCHEMA } from './model'
 import { match } from 'ts-pattern'
 
@@ -20,6 +20,7 @@ export class CurrenciesModel {
     currencies: readonly string[] = Object.values(CURRENCIES).map(c => c.code).sort(compareByStats(emptyStats))
     rates: Record<string, readonly number[]> = {}
     firstDate = appState.timeSpan.endDate
+    hasRates = false
 
     private constructor () {
         makeAutoObservable(this, {
@@ -45,9 +46,14 @@ export class CurrenciesModel {
         })
 
         autorun(() => {
+            runInAction(() => {
+                this.hasRates = false
+            })
+
             const masterCurrency = appState.masterCurrency
             const needRates = new Set<string>()
-            const firstDate = doWith(operationsModel.firstOp, (op) => {
+            const firstDate = run(() => {
+                const op = operationsModel.firstOp
                 if (op === undefined) {
                     return appState.timeSpan.endDate
                 }
@@ -107,6 +113,7 @@ export class CurrenciesModel {
                 runInAction(() => {
                     this.firstDate = firstDate
                     this.rates = ratesRecord
+                    this.hasRates = true
                 })
             })
         })

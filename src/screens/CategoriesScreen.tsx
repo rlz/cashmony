@@ -15,7 +15,7 @@ import './CategoriesScreen.scss'
 import { ExpensesBarsPlot } from '../widgets/ExpensesPlots'
 import { AppState } from '../model/appState'
 import { P, match } from 'ts-pattern'
-import { doWith, showIf } from '../helpers/smallTools'
+import { run, showIf } from '../helpers/smallTools'
 
 const appState = AppState.instance()
 const categoriesModel = CategoriesModel.instance()
@@ -81,9 +81,9 @@ export const CategoriesScreen = observer((): ReactElement => {
                     : null
             }
             {
-                doWith(
-                    new ExpensesStats(Operations.all().onlyUncategorized(), null),
-                    stats => showIf(
+                run(() => {
+                    const stats = new ExpensesStats(Operations.all().onlyUncategorized(), null)
+                    return showIf(
                         stats.operations.count() > 0,
                         <CategoryCard
                             name={null}
@@ -92,7 +92,7 @@ export const CategoriesScreen = observer((): ReactElement => {
                             noLink
                         />
                     )
-                )
+                })
             }
         </Box>
         <Box minHeight={144}/>

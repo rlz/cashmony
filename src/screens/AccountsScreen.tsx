@@ -11,15 +11,32 @@ import { AddAccount } from '../widgets/AddAccount'
 import { type Account } from '../model/model'
 import { useNavigate } from 'react-router-dom'
 import { AccPlot } from '../widgets/AccountPlots'
+import { run } from '../helpers/smallTools'
+import { CurrenciesModel } from '../model/currencies'
 
-const accountsModel = AccountsModel.instance()
 const appState = AppState.instance()
+const currenciesModel = CurrenciesModel.instance()
+const accountsModel = AccountsModel.instance()
 
 export const AccountsScreen = observer((): ReactElement => {
     const [addAccount, setAddAccount] = useState(false)
     const [showHidden, setShowHidden] = useState(false)
 
     const totalAmounts = [...appState.timeSpan.allDates({ includeDayBefore: true })].map(d => accountsModel.getAmounts(d))
+
+    const total = run((): number => {
+        if (!currenciesModel.hasRates) return 0
+
+        let result = 0
+        for (const [accName, amount] of totalAmounts[totalAmounts.length - 1]) {
+            result += amount * currenciesModel.getRate(
+                appState.timeSpan.endDate,
+                accountsModel.get(accName).currency,
+                appState.masterCurrency
+            )
+        }
+        return result
+    })
 
     const visibleAccounts: Account[] = []
     const hiddenAccounts: Account[] = []
@@ -47,6 +64,12 @@ export const AccountsScreen = observer((): ReactElement => {
                 </Fab>
 
         }
+        <Typography component="div" variant='h6' textAlign="center" my={1}>
+            Total
+            <Typography variant='body1' color="primary.main">
+                {formatCurrency(total, appState.masterCurrency)}
+            </Typography>
+        </Typography>
         <Box
             display="flex"
             flexDirection="column"

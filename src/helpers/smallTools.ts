@@ -1,9 +1,5 @@
 import { type ReactElement } from 'react'
 
-export function doWith<T, R> (val: T, action: (val: T) => R): R {
-    return action(val)
-}
-
 export function nonNull<T> (val: T, error: string): Exclude<T, null | undefined> {
     if (val === null || val === undefined) {
         throw Error(error)
@@ -22,4 +18,8 @@ export function showIf (condition: boolean | null | undefined, element: ReactEle
     if (condition === true) {
         return element
     }
+}
+
+export function run<T> (action: () => T): T {
+    return action()
 }
