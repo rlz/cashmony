@@ -34,6 +34,14 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         return new Operations((op) => this.predicate(op) && op.date >= startDate && op.date <= endDate)
     }
 
+    onlyUncategorized (): Operations<IncomeOperation | ExpenseOperation> {
+        return new Operations(
+            op => this.predicate(op) &&
+            (op.type === 'expense' || op.type === 'income') &&
+            op.categories.length === 0
+        )
+    }
+
     onlyExpenses (): Operations<IncomeOperation | ExpenseOperation> {
         return new Operations(
             op => this.predicate(op) && (
@@ -169,21 +177,19 @@ export class ExpensesStats {
         this.yearGoal = yearGoal
     }
 
-    amountTotal (timeSpan?: HumanTimeSpan, currency?: string): number {
+    amountTotal (timeSpan: HumanTimeSpan, currency: string): number {
         return this.operations
-            .forTimeSpan(timeSpan ?? appState.timeSpan)
-            .sumExpenses(currency ?? appState.masterCurrency)
+            .forTimeSpan(timeSpan)
+            .sumExpenses(currency)
     }
 
-    avgUntilToday (days: number, timeSpan?: HumanTimeSpan): number {
-        timeSpan = timeSpan ?? appState.timeSpan
-
+    avgUntilToday (days: number, timeSpan: HumanTimeSpan, currency: string): number {
         const today = appState.today
         const endDate = timeSpan.endDate < today ? timeSpan.endDate : today
 
         const timeSpanDays = endDate.diff(timeSpan.startDate, 'days').days + 1
 
-        return this.amountTotal(timeSpan) * days / timeSpanDays
+        return this.amountTotal(timeSpan, currency) * days / timeSpanDays
     }
 
     goal (days: number): number | null {
@@ -191,18 +197,18 @@ export class ExpensesStats {
         return this.yearGoal * days / appState.today.daysInYear
     }
 
-    leftPerDay (): number | null {
-        const total = this.amountTotal()
+    leftPerDay (timeSpan: HumanTimeSpan, currency: string): number | null {
+        const total = this.amountTotal(timeSpan, currency)
         const goal = this.goal(appState.timeSpan.totalDays)
         if (goal === null) return null
         return (goal - total) / appState.daysLeft
     }
 
-    durationAvg (days: number, duration: DurationLikeObject): number {
-        return this.avgUntilToday(days, new LastPeriodTimeSpan(duration))
+    durationAvg (days: number, duration: DurationLikeObject, currency: string): number {
+        return this.avgUntilToday(days, new LastPeriodTimeSpan(duration), currency)
     }
 
-    * totalAmountByDates (toCurrency: string): Generator<number | undefined> {
+    * totalExpensesByDates (toCurrency: string): Generator<number | undefined> {
         let cumAmount = 0
         for (const amount of this.expensesByDate(toCurrency)) {
             if (amount === undefined) {

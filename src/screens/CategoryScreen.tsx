@@ -12,7 +12,7 @@ import { deepEqual } from '../helpers/deepEqual'
 import { DateTime } from 'luxon'
 import { ExpensesStats, Operations } from '../model/stats'
 import { formatCurrency } from '../helpers/currencies'
-import { AmountBarsCatPlot, TotalCatPlot } from '../widgets/CategoryPlots'
+import { ExpensesBarsPlot, ExpensesTotalPlot } from '../widgets/ExpensesPlots'
 import { DeleteCategory } from '../widgets/DeleteCategory'
 import { MainScreen } from '../widgets/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
@@ -112,7 +112,7 @@ export const CategoryScreen = observer(() => {
             {newCat.name.trim() === '' ? '-' : newCat.name}
         </Typography>
         <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
-            {cur(-stats.amountTotal())}
+            {cur(-stats.amountTotal(appState.timeSpan, cat.currency))}
         </Typography>
         <Typography variant='body2' textAlign="center">
             Goal (30d): {goal30 !== null ? cur(-goal30) : '-'}
@@ -136,8 +136,10 @@ function EmptyScreen (): ReactElement {
 function Stats ({ currency, stats }: { currency: string, stats: ExpensesStats }): ReactElement {
     const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
 
+    const timeSpan = appState.timeSpan
+
     const leftPerDay = appState.daysLeft > 0 && stats.yearGoal !== null
-        ? -(stats.leftPerDay() ?? -0)
+        ? -(stats.leftPerDay(timeSpan, currency) ?? -0)
         : -1
 
     return <Box display="flex" flexDirection="column" gap={1} pb={1}>
@@ -146,7 +148,7 @@ function Stats ({ currency, stats }: { currency: string, stats: ExpensesStats })
                 <tbody>
                     <tr>
                         <th>Period Pace (30d):</th>
-                        <td>{cur(-stats.avgUntilToday(30))}</td>
+                        <td>{cur(-stats.avgUntilToday(30, timeSpan, currency))}</td>
                     </tr>
                     <tr>
                         <th>Left per day:</th>
@@ -162,20 +164,20 @@ function Stats ({ currency, stats }: { currency: string, stats: ExpensesStats })
             <Box display="flex" mb={1}>
                 <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
                 1 month<br/>
-                    {cur(-stats.durationAvg(30, { month: 1 }), true)}
+                    {cur(-stats.durationAvg(30, { month: 1 }, currency), true)}
                 </Typography>
                 <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
                 3 month<br/>
-                    {cur(-stats.durationAvg(30, { months: 3 }), true)}
+                    {cur(-stats.durationAvg(30, { months: 3 }, currency), true)}
                 </Typography>
                 <Typography variant='body2' textAlign="center" flex="1 1 0" noWrap minWidth={0}>
                 1 year<br/>
-                    {cur(-stats.durationAvg(30, { year: 1 }), true)}
+                    {cur(-stats.durationAvg(30, { year: 1 }, currency), true)}
                 </Typography>
             </Box>
         </Paper>
-        <AmountBarsCatPlot currency={currency} stats={stats}/>
-        <TotalCatPlot currency={currency} stats={stats}/>
+        <ExpensesBarsPlot currency={currency} stats={stats}/>
+        <ExpensesTotalPlot currency={currency} stats={stats}/>
     </Box>
 }
 

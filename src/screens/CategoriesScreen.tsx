@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite'
-import React, { useState, useMemo, type ReactElement } from 'react'
+import React, { useState, type ReactElement } from 'react'
 import { MainScreen } from '../widgets/MainScreen'
 import { Box, Fab, Paper, Typography } from '@mui/material'
 import { CategoriesModel } from '../model/categories'
@@ -12,16 +12,15 @@ import { type Category } from '../model/model'
 import { AddCategory } from '../widgets/AddCategory'
 import { formatCurrency } from '../helpers/currencies'
 import './CategoriesScreen.scss'
-import { AmountBarsCatPlot } from '../widgets/CategoryPlots'
+import { ExpensesBarsPlot } from '../widgets/ExpensesPlots'
 import { AppState } from '../model/appState'
-import { OperationsModel } from '../model/operations'
+import { P, match } from 'ts-pattern'
+import { doWith, showIf } from '../helpers/smallTools'
 
 const appState = AppState.instance()
 const categoriesModel = CategoriesModel.instance()
-const operationsModel = OperationsModel.instance()
 
 export const CategoriesScreen = observer((): ReactElement => {
-    const navigate = useNavigate()
     const [showHidden, setShowHidden] = useState(false)
     const [addCategory, setAddCategory] = useState(false)
 
@@ -37,85 +36,41 @@ export const CategoriesScreen = observer((): ReactElement => {
         visibleCategories.push(c)
     }
 
-    const total = useMemo(
-        () => Operations.all().forTimeSpan().sumExpenses(appState.masterCurrency),
-        [
-            appState.timeSpanInfo,
-            appState.masterCurrency,
-            operationsModel.operations
-        ]
-    )
-
     return <MainScreen>
         {
-            addCategory
-                ? <AddCategory
-                    onClose={() => { setAddCategory(false) }}
-                />
-                : <Fab
-                    color="primary"
-                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                    onClick={() => { setAddCategory(true) }}
-                >
-                    <FontAwesomeIcon icon={faPlus} />
-                </Fab>
-
+            match(addCategory)
+                .with(
+                    true, () => <AddCategory
+                        onClose={() => { setAddCategory(false) }}
+                    />
+                )
+                .otherwise(
+                    () => <Fab
+                        color="primary"
+                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                        onClick={() => { setAddCategory(true) }}
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                    </Fab>
+                )
         }
         <Box
             display="flex"
             flexDirection="column"
             gap={1}
         >
-            <Paper sx={{ p: 1 }}>
-                Total: {formatCurrency(total, appState.masterCurrency)}
-            </Paper>
+            <CategoryCard
+                name='Total'
+                stats={new ExpensesStats(Operations.all(), null)}
+                currency={appState.masterCurrency}
+                noLink
+            />
             {
                 (showHidden ? [...visibleCategories, ...hiddenCategories] : visibleCategories)
                     .map(cat => {
                         const stats = ExpensesStats.forCat(cat.name)
-                        const goal30 = stats.goal(30)
-                        const leftPerDay = appState.daysLeft > 0 && cat.yearGoal !== null
-                            ? -(stats.leftPerDay() ?? -0)
-                            : -1
 
-                        const cur = (amount: number, compact = false): string => formatCurrency(amount, cat.currency, compact)
-
-                        return <a key={cat.name} onClick={() => { navigate(`/categories/${encodeURIComponent(cat.name)}`) }}>
-                            <Paper sx={{ p: 1 }} >
-                                <Box display="flex" gap={1}>
-                                    <Typography variant='body1'>
-                                        {cat.name}
-                                    </Typography>
-                                    <Typography
-                                        variant='body1'
-                                        color='primary.main'
-                                        flex='1 1 0'
-                                        textAlign='right'
-                                    >
-                                        {cur(-stats.amountTotal())}
-                                    </Typography>
-                                </Box>
-                                <Typography component="div" variant='body2' my={1}>
-                                    <table className="stats">
-                                        <tbody>
-                                            <tr>
-                                                <th>Goal (30d):</th>
-                                                <td>{goal30 !== null ? cur(-goal30) : '-'}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Period Pace (30d):</th>
-                                                <td>{cur(-stats.avgUntilToday(30))}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Left per day:</th>
-                                                <td>{ leftPerDay > 0 ? cur(leftPerDay) : '-' }</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </Typography>
-                                <AmountBarsCatPlot currency={cat.currency} sparkline stats={stats} />
-                            </Paper>
-                        </a>
+                        return <CategoryCard key={cat.name} name={cat.name} currency={cat.currency} stats={stats}/>
                     })
             }
             {
@@ -125,7 +80,85 @@ export const CategoriesScreen = observer((): ReactElement => {
                     </Typography>
                     : null
             }
+            {
+                doWith(
+                    new ExpensesStats(Operations.all().onlyUncategorized(), null),
+                    stats => showIf(
+                        stats.operations.count() > 0,
+                        <CategoryCard
+                            name={null}
+                            stats={stats}
+                            currency={appState.masterCurrency}
+                            noLink
+                        />
+                    )
+                )
+            }
         </Box>
         <Box minHeight={144}/>
     </MainScreen>
+})
+
+interface CategoryCardProps {
+    name: string | null
+    noLink?: boolean
+    currency: string
+    stats: ExpensesStats
+}
+
+const CategoryCard = observer((props: CategoryCardProps): ReactElement => {
+    const navigate = useNavigate()
+
+    const goal30 = props.stats.goal(30)
+    const leftPerDay = match(props.stats.leftPerDay(appState.timeSpan, props.currency))
+        .with(null, () => 0)
+        .with(P.number.negative(), v => -v)
+        .otherwise(() => 0)
+
+    const cur = (amount: number, compact = false): string => formatCurrency(amount, props.currency, compact)
+
+    const body = (): ReactElement => <Paper sx={{ p: 1 }}>
+        <Box display="flex" gap={1}>
+            <Typography variant='body1'>
+                {
+                    match(props.name)
+                        .with(null, () => <Typography fontStyle='italic'>Uncategorized</Typography>)
+                        .otherwise(v => v)
+                }
+            </Typography>
+            <Typography
+                variant='body1'
+                color='primary.main'
+                flex='1 1 0'
+                textAlign='right'
+            >
+                {cur(-props.stats.amountTotal(appState.timeSpan, props.currency))}
+            </Typography>
+        </Box>
+        <Typography component="div" variant='body2' my={1}>
+            <table className="stats">
+                <tbody>
+                    <tr>
+                        <th>Goal (30d):</th>
+                        <td>{goal30 !== null ? cur(-goal30) : '-'}</td>
+                    </tr>
+                    <tr>
+                        <th>Period Pace (30d):</th>
+                        <td>{cur(-props.stats.avgUntilToday(30, appState.timeSpan, props.currency))}</td>
+                    </tr>
+                    <tr>
+                        <th>Left per day:</th>
+                        <td>{ leftPerDay > 0 ? cur(leftPerDay) : '-' }</td>
+                    </tr>
+                </tbody>
+            </table>
+        </Typography>
+        <ExpensesBarsPlot currency={props.currency} sparkline stats={props.stats} />
+    </Paper>
+
+    return match(props.noLink)
+        .with(true, body)
+        .otherwise(() => <a onClick={() => { navigate(`/categories/${encodeURIComponent(props.name ?? '_')}`) }}>
+            {body()}
+        </a>)
 })

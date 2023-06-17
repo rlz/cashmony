@@ -21,7 +21,7 @@
         "react-dom": "^18.2.0",
         "react-resize-detector": "^9.1.0",
         "react-router-dom": "^6.11.1",
-        "ts-pattern": "^4.3.0",
+        "ts-pattern": "^5.0.1",
         "typia": "^4.0.9",
         "uplot": "^1.6.24",
         "uplot-react": "^1.1.4",
