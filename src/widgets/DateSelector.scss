@@ -71,6 +71,7 @@ div.react-calendar {
         .react-calendar__tile--rangeStart,
         .react-calendar__tile--rangeEnd {
             background-color: lighten(#ab47bc, 20%);
+            color: black;
         }
     }
 }
@@ -121,6 +122,7 @@ body.theme-dark {
             .react-calendar__tile--rangeStart,
             .react-calendar__tile--rangeEnd {
                 background-color: #ab47bc;
+                color: white;
             }
         }
     }
