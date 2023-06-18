@@ -23,6 +23,15 @@ export const ExpensesBarsPlot = observer(({ currency, stats, sparkline }: Amount
     const series = useMemo(
         () => {
             const allDates = [...appState.timeSpan.allDates({ includeDayBefore: true })]
+                .map(d => d.toMillis() / 1000)
+
+            if (operationsModel.operations.length === 0 || categoriesModel.categories.size === 0) {
+                return {
+                    xvalues: allDates,
+                    series: []
+                }
+            }
+
             const expensesByDate = [undefined, ...stats.expensesByDate(currency)]
             const perDay = -stats.avgUntilToday(1, appState.timeSpan, currency)
 
@@ -55,7 +64,7 @@ export const ExpensesBarsPlot = observer(({ currency, stats, sparkline }: Amount
             }
 
             return {
-                xvalues: allDates.map(d => d.toMillis() / 1000),
+                xvalues: allDates,
                 series
             }
         },
@@ -92,6 +101,14 @@ export const ExpensesTotalPlot = observer(({ currency, stats }: TotalCatPlotProp
     const series = useMemo(
         () => {
             const allDates = [...appState.timeSpan.allDates({ includeDayBefore: true })]
+
+            if (operationsModel.operations.length === 0 || categoriesModel.categories.size === 0) {
+                return {
+                    xvalues: allDates.map(d => d.toMillis() / 1000),
+                    series: []
+                }
+            }
+
             const totalExpensesByDates = [0, ...stats.totalExpensesByDates(currency)].map(a => a === undefined ? a : -a)
 
             const series: PlotSeries[] = [{

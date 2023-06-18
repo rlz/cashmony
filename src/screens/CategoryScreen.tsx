@@ -17,7 +17,9 @@ import { DeleteCategory } from '../widgets/DeleteCategory'
 import { MainScreen } from '../widgets/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
 import { AppState } from '../model/appState'
-import { nonNull } from '../helpers/smallTools'
+import { nonNull, run, showIf } from '../helpers/smallTools'
+import { match } from 'ts-pattern'
+import { runInAction } from 'mobx'
 
 const appState = AppState.instance()
 const categoriesModel = CategoriesModel.instance()
@@ -31,32 +33,74 @@ export const CategoryScreen = observer(() => {
     const [tab, setTab] = useState(0)
     const navigate = useNavigate()
 
-    useEffect(() => {
-        const category = categoriesModel.get(catName)
-        setCat(category)
-        setNewCat(category)
-    }, [categoriesModel.categories])
+    useEffect(
+        () => {
+            if (catName === '_' || catName === '_total') {
+                const category: Category = {
+                    name: match(catName)
+                        .with('_', () => 'Uncategorized')
+                        .with('_total', () => 'Total')
+                        .exhaustive(),
+                    currency: appState.masterCurrency,
+                    hidden: false,
+                    lastModified: DateTime.utc(),
+                    yearGoal: match(catName)
+                        .with('_', () => appState.uncategorizedGoal ?? undefined)
+                        .with('_total', () => appState.totalGoal ?? undefined)
+                        .exhaustive()
+                }
+                setCat(category)
+                setNewCat(category)
+                return
+            }
+            const category = categoriesModel.get(catName)
+            setCat(category)
+            setNewCat(category)
+        },
+        [
+            categoriesModel.categories,
+            appState.masterCurrency,
+            appState.totalGoal,
+            appState.uncategorizedGoal
+        ]
+    )
 
     if (cat === null || newCat === null) {
         return <EmptyScreen />
     }
 
-    const stats = ExpensesStats.forCat({ ...newCat, name: cat.name })
+    const stats = match(catName)
+        .with('_total', () => new ExpensesStats(Operations.all(), appState.totalGoal))
+        .with('_', () => new ExpensesStats(Operations.all().onlyUncategorized(), appState.uncategorizedGoal))
+        .otherwise(() => ExpensesStats.forCat({ ...newCat, name: cat.name }))
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, cat.currency, compact)
 
-    let onSave: (() => Promise<void>) | null = null
-    if (
-        !deepEqual(cat, newCat) &&
-        newCat.name.trim() !== '' &&
-        (
-            newCat.name === cat.name ||
-            !categoriesModel.categories.has(newCat.name) ||
-            categoriesModel.get(newCat.name).deleted === true
-        )
-    ) {
-        onSave = async () => {
-            await categoriesModel.put({ ...newCat, lastModified: DateTime.utc() })
+    const onSave = run(() => {
+        if (
+            deepEqual(cat, newCat) ||
+            newCat.name.trim() === '' ||
+            (
+                newCat.name !== cat.name &&
+                categoriesModel.categories.has(newCat.name) &&
+                categoriesModel.get(newCat.name).deleted !== true
+            )
+        ) {
+            return null
+        }
+
+        return async () => {
+            if (catName === '_') {
+                runInAction(() => {
+                    appState.uncategorizedGoal = newCat.yearGoal ?? null
+                })
+            } else if (catName === '_total') {
+                runInAction(() => {
+                    appState.totalGoal = newCat.yearGoal ?? null
+                })
+            } else {
+                await categoriesModel.put({ ...newCat, lastModified: DateTime.utc() })
+            }
 
             if (newCat.name !== cat.name) {
                 const changedOps: Operation[] = []
@@ -82,32 +126,15 @@ export const CategoryScreen = observer(() => {
                 navigate(`/categories/${encodeURIComponent(newCat.name)}`)
             }
         }
-    }
+    })
 
     const goal30 = stats.goal(30)
-
-    const renderTab = (tab: number): ReactElement => {
-        if (tab === 0) {
-            return <Stats currency={cat.currency} stats={stats} />
-        }
-
-        if (tab === 1) {
-            return <Editor cat={cat} newCat={newCat} setNewCat={setNewCat}/>
-        }
-
-        if (tab === 2) {
-            return <OpsList
-                operations={Operations.all().forTimeSpan(appState.timeSpan).forCategories(cat.name)}
-            />
-        }
-
-        throw Error('Unimplemented tab')
-    }
 
     return <MainScreen
         navigateOnBack='/categories'
         title="Category"
-        onSave={onSave}>
+        onSave={onSave}
+    >
         <Typography variant='h6' textAlign="center" mt={2}>
             {newCat.name.trim() === '' ? '-' : newCat.name}
         </Typography>
@@ -123,7 +150,20 @@ export const CategoryScreen = observer(() => {
             <Tab label="Operations"/>
         </Tabs>
         <Box overflow="scroll">
-            { renderTab(tab) }
+            {
+                match(tab)
+                    .with(0, () => <Stats currency={cat.currency} stats={stats} />)
+                    .with(1, () => <Editor
+                        full={catName !== '_total' && catName !== '_'}
+                        cat={cat}
+                        newCat={newCat}
+                        setNewCat={setNewCat}
+                    />)
+                    .with(2, () => <OpsList
+                        operations={stats.operations.forTimeSpan(appState.timeSpan)}
+                    />)
+                    .otherwise(() => { throw Error('Unimplenented tab') })
+            }
             <Box minHeight={72}/>
         </Box>
     </MainScreen>
@@ -182,42 +222,48 @@ function Stats ({ currency, stats }: { currency: string, stats: ExpensesStats })
 }
 
 interface EditorProps {
+    full: boolean
     cat: Category
     newCat: Category
     setNewCat: (cat: Category) => void
 }
 
-function Editor ({ cat, newCat, setNewCat }: EditorProps): ReactElement {
+function Editor ({ full, cat, newCat, setNewCat }: EditorProps): ReactElement {
     const [open, setOpen] = useState<'name' | 'goal' | null>(null)
     const [delOpen, setDelOpen] = useState(false)
 
     return <Box mt={1}>
-        <Accordion
-            disableGutters
-            expanded={open === 'name'}
-            onChange={(_, expanded) => {
-                setOpen(expanded ? 'name' : null)
-            }}
-        >
-            <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-                <Typography>Name</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-                <TextField
-                    error={
-                        newCat.name !== cat.name &&
+        {
+            showIf(
+                full,
+                <Accordion
+                    disableGutters
+                    expanded={open === 'name'}
+                    onChange={(_, expanded) => {
+                        setOpen(expanded ? 'name' : null)
+                    }}
+                >
+                    <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
+                        <Typography>Name</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <TextField
+                            error={
+                                newCat.name !== cat.name &&
                         categoriesModel.categories.has(newCat.name) &&
                         categoriesModel.get(newCat.name).deleted !== true
-                    }
-                    label='Name'
-                    size="small"
-                    fullWidth
-                    variant="filled"
-                    value={newCat.name}
-                    onChange={ev => { setNewCat({ ...newCat, name: ev.target.value }) }}
-                />
-            </AccordionDetails>
-        </Accordion>
+                            }
+                            label='Name'
+                            size="small"
+                            fullWidth
+                            variant="filled"
+                            value={newCat.name}
+                            onChange={ev => { setNewCat({ ...newCat, name: ev.target.value }) }}
+                        />
+                    </AccordionDetails>
+                </Accordion>
+            )
+        }
         <Accordion
             disableGutters
             expanded={open === 'goal'}
@@ -261,26 +307,33 @@ function Editor ({ cat, newCat, setNewCat }: EditorProps): ReactElement {
                 }
             </AccordionDetails>
         </Accordion>
-        <Box my={1}>
-            <FormControlLabel
-                control={<Switch
-                    checked={newCat.hidden}
-                    onChange={(_, checked) => {
-                        setNewCat({
-                            ...newCat,
-                            hidden: checked
-                        })
-                    }}
-                />}
-                label="Hidden"
-            />
-        </Box>
-        <Button
-            variant='contained'
-            color='error'
-            onClick={() => { setDelOpen(true) }}
-            fullWidth
-        >Delete</Button>
-        <DeleteCategory name={cat.name} open={delOpen} setOpen={setDelOpen} />
+        {
+            showIf(
+                full,
+                <>
+                    <Box my={1}>
+                        <FormControlLabel
+                            control={<Switch
+                                checked={newCat.hidden}
+                                onChange={(_, checked) => {
+                                    setNewCat({
+                                        ...newCat,
+                                        hidden: checked
+                                    })
+                                }}
+                            />}
+                            label="Hidden"
+                        />
+                    </Box>
+                    <Button
+                        variant='contained'
+                        color='error'
+                        onClick={() => { setDelOpen(true) }}
+                        fullWidth
+                    >Delete</Button>
+                    <DeleteCategory name={cat.name} open={delOpen} setOpen={setDelOpen} />
+                </>
+            )
+        }
     </Box>
 }

@@ -60,10 +60,9 @@ export const CategoriesScreen = observer((): ReactElement => {
             gap={1}
         >
             <CategoryCard
-                name='Total'
+                name='_total'
                 stats={new ExpensesStats(Operations.all(), null)}
                 currency={appState.masterCurrency}
-                noLink
             />
             {
                 (showHidden ? [...visibleCategories, ...hiddenCategories] : visibleCategories)
@@ -89,7 +88,6 @@ export const CategoriesScreen = observer((): ReactElement => {
                             name={null}
                             stats={stats}
                             currency={appState.masterCurrency}
-                            noLink
                         />
                     )
                 })
@@ -101,7 +99,6 @@ export const CategoriesScreen = observer((): ReactElement => {
 
 interface CategoryCardProps {
     name: string | null
-    noLink?: boolean
     currency: string
     stats: ExpensesStats
 }
@@ -117,48 +114,45 @@ const CategoryCard = observer((props: CategoryCardProps): ReactElement => {
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, props.currency, compact)
 
-    const body = (): ReactElement => <Paper sx={{ p: 1 }}>
-        <Box display="flex" gap={1}>
-            <Typography variant='body1'>
-                {
-                    match(props.name)
-                        .with(null, () => <Typography fontStyle='italic'>Uncategorized</Typography>)
-                        .otherwise(v => v)
-                }
+    return <a onClick={() => { navigate(`/categories/${encodeURIComponent(props.name ?? '_')}`) }}>
+        <Paper sx={{ p: 1 }}>
+            <Box display="flex" gap={1}>
+                <Typography component="div" variant='body1'>
+                    {
+                        match(props.name)
+                            .with('_total', () => <Typography fontWeight='bold'>Total</Typography>)
+                            .with(null, () => <Typography fontStyle='italic'>Uncategorized</Typography>)
+                            .otherwise(v => v)
+                    }
+                </Typography>
+                <Typography
+                    variant='body1'
+                    color='primary.main'
+                    flex='1 1 0'
+                    textAlign='right'
+                >
+                    {cur(-props.stats.amountTotal(appState.timeSpan, props.currency))}
+                </Typography>
+            </Box>
+            <Typography component="div" variant='body2' my={1}>
+                <table className="stats">
+                    <tbody>
+                        <tr>
+                            <th>Goal (30d):</th>
+                            <td>{goal30 !== null ? cur(-goal30) : '-'}</td>
+                        </tr>
+                        <tr>
+                            <th>Period Pace (30d):</th>
+                            <td>{cur(-props.stats.avgUntilToday(30, appState.timeSpan, props.currency))}</td>
+                        </tr>
+                        <tr>
+                            <th>Left per day:</th>
+                            <td>{ leftPerDay > 0 ? cur(leftPerDay) : '-' }</td>
+                        </tr>
+                    </tbody>
+                </table>
             </Typography>
-            <Typography
-                variant='body1'
-                color='primary.main'
-                flex='1 1 0'
-                textAlign='right'
-            >
-                {cur(-props.stats.amountTotal(appState.timeSpan, props.currency))}
-            </Typography>
-        </Box>
-        <Typography component="div" variant='body2' my={1}>
-            <table className="stats">
-                <tbody>
-                    <tr>
-                        <th>Goal (30d):</th>
-                        <td>{goal30 !== null ? cur(-goal30) : '-'}</td>
-                    </tr>
-                    <tr>
-                        <th>Period Pace (30d):</th>
-                        <td>{cur(-props.stats.avgUntilToday(30, appState.timeSpan, props.currency))}</td>
-                    </tr>
-                    <tr>
-                        <th>Left per day:</th>
-                        <td>{ leftPerDay > 0 ? cur(leftPerDay) : '-' }</td>
-                    </tr>
-                </tbody>
-            </table>
-        </Typography>
-        <ExpensesBarsPlot currency={props.currency} sparkline stats={props.stats} />
-    </Paper>
-
-    return match(props.noLink)
-        .with(true, body)
-        .otherwise(() => <a onClick={() => { navigate(`/categories/${encodeURIComponent(props.name ?? '_')}`) }}>
-            {body()}
-        </a>)
+            <ExpensesBarsPlot currency={props.currency} sparkline stats={props.stats} />
+        </Paper>
+    </a>
 })

@@ -2,6 +2,7 @@ import { autorun, makeAutoObservable, runInAction } from 'mobx'
 import { CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, ThisMonthTimeSpan, ThisYearTimeSpan, YearTimeSpan, utcToday, AllHistoryTimeSpan } from '../helpers/dates'
 import { DateTime } from 'luxon'
 import { OperationsModel } from './operations'
+import { run } from '../helpers/smallTools'
 
 const operationsModel = OperationsModel.instance()
 
@@ -62,6 +63,8 @@ AllHistoryTimeSpanInfo | CustomTimeSpanInfo
 const TIME_SPAN_INFO = 'AppState.timeSpanInfo'
 const THEME = 'AppState.theme'
 const MASTER_CURRENCY = 'AppState.masterCurrency'
+const TOTAL_GOAL = 'AppState.totalGoal'
+const UNCATEGORIZED_GOAL = 'AppState.uncategorizedGoal'
 
 type UserThemeType = 'light' | 'dark' | 'auto'
 
@@ -70,6 +73,21 @@ export class AppState {
     theme: UserThemeType = (localStorage.getItem(THEME) as UserThemeType | null) ?? 'auto'
     timeSpanInfo: TimeSpanInfo = JSON.parse(localStorage.getItem(TIME_SPAN_INFO) ?? '{ "type": "thisMonth" }')
     masterCurrency: string = localStorage.getItem(MASTER_CURRENCY) ?? 'USD'
+    totalGoal: number | null = run(() => {
+        const val = localStorage.getItem(TOTAL_GOAL)
+        if (val === null) {
+            return null
+        }
+        return parseFloat(val)
+    })
+
+    uncategorizedGoal: number | null = run(() => {
+        const val = localStorage.getItem(UNCATEGORIZED_GOAL)
+        if (val === null) {
+            return null
+        }
+        return parseFloat(val)
+    })
 
     private constructor () {
         makeAutoObservable(this)
@@ -93,6 +111,22 @@ export class AppState {
 
         autorun(() => {
             localStorage.setItem(MASTER_CURRENCY, this.masterCurrency)
+        })
+
+        autorun(() => {
+            if (this.totalGoal === null) {
+                localStorage.removeItem(TOTAL_GOAL)
+            } else {
+                localStorage.setItem(TOTAL_GOAL, this.totalGoal.toString())
+            }
+        })
+
+        autorun(() => {
+            if (this.uncategorizedGoal === null) {
+                localStorage.removeItem(UNCATEGORIZED_GOAL)
+            } else {
+                localStorage.setItem(UNCATEGORIZED_GOAL, this.uncategorizedGoal.toString())
+            }
         })
     }
 
