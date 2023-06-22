@@ -19,7 +19,7 @@ export function DeleteCategory ({ name, open, setOpen }: Props): ReactElement {
     const [delInProcess, setDelInProcess] = useState(false)
     const navigate = useNavigate()
 
-    const opsCount = Operations.all().forCategories(name).count()
+    const opsCount = Operations.all().keepTypes('expense', 'income').keepCategories(name).count()
 
     return <Dialog
         open={open}
@@ -68,7 +68,17 @@ const operationsModel = OperationsModel.instance()
 const categoriesModel = CategoriesModel.instance()
 
 async function deleteCategory (catName: string): Promise<void> {
-    const ops: NotDeletedOperation[] = [...Operations.all().forCategories(catName).operations()].map(op => {
+    const ops: NotDeletedOperation[] = [
+        ...Operations
+            .all()
+            .keepTypes('expense', 'income')
+            .keepCategories(catName)
+            .operations()
+    ].map(op => {
+        if (op.type !== 'income' && op.type !== 'expense') {
+            throw Error('Expect only income and expenses here')
+        }
+
         return {
             ...op,
             categories: op.categories.filter(c => c.name !== catName)

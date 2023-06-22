@@ -5,8 +5,8 @@ import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Button
 import { DateTime } from 'luxon'
 import React, { type ReactElement } from 'react'
 import Calendar from 'react-calendar'
-import { utcToday } from '../helpers/dates'
-import { AppState } from '../model/appState'
+import { utcToday } from '../../../helpers/dates'
+import { AppState } from '../../../model/appState'
 
 const appState = AppState.instance()
 

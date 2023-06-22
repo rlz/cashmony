@@ -1,12 +1,14 @@
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Accordion, AccordionDetails, AccordionSummary, Box, Chip, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material'
 import React, { type ReactElement } from 'react'
-import { type NotDeletedOperation } from '../model/model'
-import { AccountsModel } from '../model/accounts'
+import { type NotDeletedOperation } from '../../../model/model'
+import { AccountsModel } from '../../../model/accounts'
 import { observer } from 'mobx-react-lite'
-import { formatExchangeRate } from '../helpers/currencies'
-import { CurrencyInput } from './CurrencyInput'
+import { formatExchangeRate } from '../../../helpers/currencies'
+import { CurrencyInput } from '../../CurrencyInput'
+import { AccountsSelect } from '../../select/AccountsSelect'
+import { match } from 'ts-pattern'
 
 interface Props {
     title: string
@@ -34,32 +36,18 @@ export const AccountEditor = observer((props: Props): ReactElement => {
             <Typography>{props.title}</Typography>
         </AccordionSummary>
         <AccordionDetails>
-            <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">
-                { accountsModel.accountsSorted.map(a => {
-                    const acc = accountsModel.get(a)
-
-                    if (acc.hidden || acc.deleted === true || acc.name === props.hideAccount) {
-                        return undefined
-                    }
-
-                    if (a === props.account?.name) {
-                        return <a key={a} >
-                            <Chip color="primary" size='small' label={a}/>
-                        </a>
-                    }
-                    return <a
-                        key={a}
-                        onClick={() => {
-                            props.onAccountChange({
-                                name: a,
-                                amount: props.account?.amount ?? 0
-                            })
-                        }}
-                    >
-                        <Chip size='small' label={a}/>
-                    </a>
-                })}
-            </Box>
+            <AccountsSelect
+                selected={match(props.account).with(null, () => []).otherwise(v => [v.name])}
+                onSelectedChange={selected => {
+                    props.onAccountChange({
+                        name: selected[0],
+                        amount: props.account?.amount ?? 0
+                    })
+                }}
+                selectMany={false}
+                selectZero={false}
+                showHidden={false}
+            />
             {props.account === null || account === null || account === undefined || props.opCurrency === account.currency
                 ? null
                 : <Box mt={1}>

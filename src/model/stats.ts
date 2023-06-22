@@ -1,29 +1,70 @@
 import { type DurationLikeObject } from 'luxon'
 import { CategoriesModel } from './categories'
-import { type NotDeletedOperation, type IncomeOperation, type ExpenseOperation, type TransferOperation, type AdjustmentOperation, type Category } from './model'
+import { type NotDeletedOperation, type Category } from './model'
 import { LastPeriodTimeSpan, type HumanTimeSpan } from '../helpers/dates'
 import { OperationsModel } from './operations'
 import { AppState } from './appState'
 import { CurrenciesModel } from './currencies'
 import { P, match } from 'ts-pattern'
+import { type Filter } from './filter'
 
 const appState = AppState.instance()
 const currenciesModel = CurrenciesModel.instance()
 const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
 
-export class Operations<T extends IncomeOperation | ExpenseOperation | TransferOperation | AdjustmentOperation> {
+export class Operations {
     private readonly predicate: (op: NotDeletedOperation) => boolean
 
     private constructor (predicate: (op: NotDeletedOperation) => boolean) {
         this.predicate = predicate
     }
 
-    static all (): Operations<IncomeOperation | ExpenseOperation | TransferOperation | AdjustmentOperation> {
+    static all (): Operations {
         return new Operations(() => true)
     }
 
-    forTimeSpan (timeSpan?: HumanTimeSpan): Operations<T> {
+    static forFilter (filter: Filter): Operations {
+        let ops = Operations.all()
+
+        if (filter.search !== null) {
+            ops = ops.filterComment(filter.search)
+        }
+
+        if (filter.opTypeMode === 'selected') {
+            ops = ops.keepTypes(...filter.opType)
+        } else if (filter.opTypeMode === 'exclude') {
+            ops = ops.excludeTypes(...filter.opType)
+        }
+
+        if (filter.accountsMode === 'selected') {
+            ops = ops.keepAccounts(...filter.accounts)
+        } else if (filter.accountsMode === 'exclude') {
+            ops = ops.excludeAccounts(...filter.accounts)
+        }
+
+        if (filter.categoriesMode === 'selected') {
+            if (filter.categories.find(c => c === '') === undefined) {
+                ops = ops.skipUncategorized()
+            }
+            ops = ops.keepCategories(...filter.categories)
+        } else if (filter.categoriesMode === 'exclude') {
+            if (filter.categories.find(c => c === '') !== undefined) {
+                ops = ops.skipUncategorized()
+            }
+            ops = ops.excludeCategories(...filter.categories)
+        }
+
+        if (filter.tagsMode === 'selected') {
+            ops = ops.keepTags(...filter.tags)
+        } else if (filter.tagsMode === 'exclude') {
+            ops = ops.excludeTags(...filter.tags)
+        }
+
+        return ops
+    }
+
+    forTimeSpan (timeSpan?: HumanTimeSpan): Operations {
         if (timeSpan === undefined) {
             timeSpan = appState.timeSpan
         }
@@ -34,7 +75,7 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         return new Operations((op) => this.predicate(op) && op.date >= startDate && op.date <= endDate)
     }
 
-    onlyUncategorized (): Operations<IncomeOperation | ExpenseOperation> {
+    onlyUncategorized (): Operations {
         return new Operations(
             op => this.predicate(op) &&
             (op.type === 'expense' || op.type === 'income') &&
@@ -42,7 +83,24 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         )
     }
 
-    onlyExpenses (): Operations<IncomeOperation | ExpenseOperation> {
+    skipUncategorized (): Operations {
+        return new Operations(
+            op => this.predicate(op) &&
+            (
+                (op.type !== 'expense' && op.type !== 'income') ||
+                op.categories.length > 0
+            )
+        )
+    }
+
+    filterComment (substring: string): Operations {
+        return new Operations(
+            op => this.predicate(op) &&
+            op.comment?.includes(substring) === true
+        )
+    }
+
+    onlyExpenses (): Operations {
         return new Operations(
             op => this.predicate(op) && (
                 op.type === 'expense' ||
@@ -51,7 +109,21 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         )
     }
 
-    forAccounts (...accounts: string[]): Operations<T> {
+    keepTypes (...types: Array<NotDeletedOperation['type']>): Operations {
+        const typesSet = new Set<typeof types[number]>(types)
+        return new Operations(
+            op => this.predicate(op) && typesSet.has(op.type)
+        )
+    }
+
+    excludeTypes (...types: Array<NotDeletedOperation['type']>): Operations {
+        const typesSet = new Set<typeof types[number]>(types)
+        return new Operations(
+            op => this.predicate(op) && !typesSet.has(op.type)
+        )
+    }
+
+    keepAccounts (...accounts: string[]): Operations {
         const accountsSet = new Set(accounts)
         return new Operations(
             op =>
@@ -63,7 +135,7 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         )
     }
 
-    excludeAccounts (...accounts: string[]): Operations<T> {
+    excludeAccounts (...accounts: string[]): Operations {
         const accountsSet = new Set(accounts)
         return new Operations(
             op =>
@@ -75,35 +147,40 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         )
     }
 
-    forCategories (...categories: string[]): Operations<Exclude<T, TransferOperation | AdjustmentOperation>> {
+    keepCategories (...categories: string[]): Operations {
         const categoriesSet = new Set(categories)
         return new Operations(
             op => this.predicate(op) &&
-                (op.type === 'expense' || op.type === 'income') &&
-                op.categories.some(cat => categoriesSet.has(cat.name))
+            (
+                (op.type !== 'expense' && op.type !== 'income') ||
+                op.categories.some(cat => categoriesSet.has(cat.name)) ||
+                op.categories.length === 0
+            )
         )
     }
 
-    excludeCategories (...categories: string[]): Operations<Exclude<T, TransferOperation | AdjustmentOperation>> {
+    excludeCategories (...categories: string[]): Operations {
         const categoriesSet = new Set(categories)
         return new Operations(
             op => this.predicate(op) &&
-                (op.type === 'expense' || op.type === 'income') &&
+            (
+                (op.type !== 'expense' && op.type !== 'income') ||
                 !op.categories.some(cat => categoriesSet.has(cat.name))
+            )
         )
     }
 
-    hasTags (...tags: string[]): Operations<T> {
+    keepTags (...tags: string[]): Operations {
         const tagsSet = new Set(tags)
         return new Operations(op => this.predicate(op) && op.tags.some(t => tagsSet.has(t)))
     }
 
-    excludeTags (...tags: string[]): Operations<T> {
+    excludeTags (...tags: string[]): Operations {
         const tagsSet = new Set(tags)
         return new Operations(op => this.predicate(op) && !op.tags.some(t => tagsSet.has(t)))
     }
 
-    * operations (opts?: { reverse?: boolean }): Generator<T> {
+    * operations (opts?: { reverse?: boolean }): Generator<NotDeletedOperation> {
         const ops = opts?.reverse === true
             ? [...operationsModel.operations].reverse()
             : operationsModel.operations
@@ -112,7 +189,7 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
             if (op.type === 'deleted') continue
 
             if (this.predicate(op)) {
-                yield op as T
+                yield op
             }
         }
     }
@@ -129,6 +206,10 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
     sumExpenses (toCurrency: string): number {
         let sum = 0
         for (const op of this.onlyExpenses().operations()) {
+            if (op.type !== 'expense' && op.type !== 'income') {
+                continue
+            }
+
             if (op.categories.length === 0) {
                 sum += op.amount * currenciesModel.getRate(op.date, op.currency, toCurrency)
                 continue
@@ -142,8 +223,8 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
         return sum
     }
 
-    * groupByDate (opts?: { reverse?: boolean }): Generator<T[]> {
-        let operations: T[] = []
+    * groupByDate (opts?: { reverse?: boolean }): Generator<NotDeletedOperation[]> {
+        let operations: NotDeletedOperation[] = []
         let currentMillis: number | null = null
 
         for (const op of this.operations({ reverse: opts?.reverse })) {
@@ -169,10 +250,10 @@ export class Operations<T extends IncomeOperation | ExpenseOperation | TransferO
 }
 
 export class ExpensesStats {
-    operations: Operations<IncomeOperation | ExpenseOperation>
+    operations: Operations
     yearGoal: number | null
 
-    constructor (operations: Operations<NotDeletedOperation>, yearGoal: number | null) {
+    constructor (operations: Operations, yearGoal: number | null) {
         this.operations = operations.onlyExpenses()
         this.yearGoal = yearGoal
     }
@@ -255,6 +336,10 @@ export class ExpensesStats {
             while (opIndex < ops.length && ops[opIndex].date <= date) {
                 const op = ops[opIndex]
 
+                if (op.type !== 'expense' && op.type !== 'income') {
+                    continue
+                }
+
                 if (op.categories.length === 0) {
                     amount += op.amount * currenciesModel.getRate(op.date, op.currency, toCurrency)
                 } else {
@@ -275,7 +360,10 @@ export class ExpensesStats {
             .with(P.string, v => categoriesModel.get(v))
             .otherwise(v => v)
         return new ExpensesStats(
-            Operations.all().forCategories(cat.name),
+            Operations
+                .all()
+                .keepTypes('expense', 'income')
+                .keepCategories(cat.name),
             cat.yearGoal ?? null
         )
     }

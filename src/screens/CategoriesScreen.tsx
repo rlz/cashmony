@@ -61,13 +61,13 @@ export const CategoriesScreen = observer((): ReactElement => {
         >
             <CategoryCard
                 name='_total'
-                stats={new ExpensesStats(Operations.all(), null)}
+                stats={new ExpensesStats(Operations.forFilter(appState.filter), null)}
                 currency={appState.masterCurrency}
             />
             {
                 (showHidden ? [...visibleCategories, ...hiddenCategories] : visibleCategories)
                     .map(cat => {
-                        const stats = ExpensesStats.forCat(cat.name)
+                        const stats = new ExpensesStats(Operations.forFilter(appState.filter).keepCategories(cat.name), cat.yearGoal ?? null)
 
                         return <CategoryCard key={cat.name} name={cat.name} currency={cat.currency} stats={stats}/>
                     })
@@ -81,7 +81,7 @@ export const CategoriesScreen = observer((): ReactElement => {
             }
             {
                 run(() => {
-                    const stats = new ExpensesStats(Operations.all().onlyUncategorized(), null)
+                    const stats = new ExpensesStats(Operations.forFilter(appState.filter).onlyUncategorized(), null)
                     return showIf(
                         stats.operations.count() > 0,
                         <CategoryCard
@@ -131,7 +131,7 @@ const CategoryCard = observer((props: CategoryCardProps): ReactElement => {
                     flex='1 1 0'
                     textAlign='right'
                 >
-                    {cur(-props.stats.amountTotal(appState.timeSpan, props.currency))}
+                    {cur(match(props.stats.amountTotal(appState.timeSpan, props.currency)).with(0, v => v).otherwise(v => -v))}
                 </Typography>
             </Box>
             <Typography component="div" variant='body2' my={1}>

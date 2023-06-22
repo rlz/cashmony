@@ -20,6 +20,12 @@ export function showIf (condition: boolean | null | undefined, element: ReactEle
     }
 }
 
+export function showIfLazy (condition: boolean | null | undefined, elementFactory: () => ReactElement): ReactElement | undefined {
+    if (condition === true) {
+        return elementFactory()
+    }
+}
+
 export function run<T> (action: () => T): T {
     return action()
 }

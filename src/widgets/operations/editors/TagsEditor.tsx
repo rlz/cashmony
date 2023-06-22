@@ -1,9 +1,9 @@
 import React, { useState, type ReactElement } from 'react'
-import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Box, Button, Chip, TextField, Typography } from '@mui/material'
+import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Button, TextField, Typography } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
-import { TagsModel, mergeTags } from '../model/tags'
-import { type Operation } from '../model/model'
+import { type Operation } from '../../../model/model'
+import { TagsSelect } from '../../select/TagsSelect'
 
 interface Props {
     expanded: boolean
@@ -14,17 +14,9 @@ interface Props {
     onTagsChanged: (newTags: readonly string[]) => void
 }
 
-const tagsModel = TagsModel.instance()
-
 export function TagsEditor (props: Props): ReactElement {
     const [newTag, setNewTag] = useState('')
     const [newTags, setNewTags] = useState<readonly string[]>([])
-
-    const mergedTags = mergeTags(
-        props.categories.reduce<readonly string[]>((tags, cat) => [...tags, ...tagsModel.byCat.get(cat) ?? []], []),
-        tagsModel[props.opType],
-        tagsModel.all
-    )
 
     return <Accordion
         disableGutters
@@ -35,28 +27,13 @@ export function TagsEditor (props: Props): ReactElement {
             <Typography>Tags</Typography>
         </AccordionSummary>
         <AccordionDetails>
-            <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll">
-                {[...newTags, ...mergedTags].map(t => {
-                    if (props.tags.includes(t)) {
-                        return <a
-                            key={t}
-                            onClick={() => {
-                                props.onTagsChanged(props.tags.filter(i => i !== t))
-                            }}
-                        >
-                            <Chip color="primary" size='small' label={t}/>
-                        </a>
-                    }
-                    return <a
-                        key={t}
-                        onClick={() => {
-                            props.onTagsChanged([...props.tags, t])
-                        }}
-                    >
-                        <Chip size='small' label={t}/>
-                    </a>
-                })}
-            </Box>
+            <TagsSelect
+                opType={props.opType}
+                categories={props.categories}
+                addedTags={newTags}
+                selected={props.tags}
+                onSelectedChange={props.onTagsChanged}
+            />
         </AccordionDetails>
         <AccordionActions sx={{ gap: 1, alignItems: 'stretch' }}>
             <TextField

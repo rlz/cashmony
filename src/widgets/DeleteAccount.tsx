@@ -19,7 +19,7 @@ export function DeleteAccount ({ name, open, setOpen }: Props): ReactElement {
     const [delInProcess, setDelInProcess] = useState(false)
     const navigate = useNavigate()
 
-    const opsCount = Operations.all().forAccounts(name).count()
+    const opsCount = Operations.all().keepAccounts(name).count()
 
     return <Dialog
         open={open}
@@ -68,7 +68,7 @@ const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
 
 async function deleteAccount (accName: string): Promise<void> {
-    const ops: DeletedOperation[] = [...Operations.all().forAccounts(accName).operations()].map(op => {
+    const ops: DeletedOperation[] = [...Operations.all().keepAccounts(accName).operations()].map(op => {
         return {
             id: op.id,
             type: 'deleted'

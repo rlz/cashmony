@@ -52,7 +52,7 @@ const Fab = (): ReactElement => {
 
 export const OperationsScreen = observer((): ReactElement => {
     return <MainScreen>
-        <OpsList operations={Operations.all().forTimeSpan(appState.timeSpan)}/>
+        <OpsList operations={Operations.forFilter(appState.filter).forTimeSpan(appState.timeSpan)}/>
         <Box minHeight={144}/>
         <Fab />
     </MainScreen>

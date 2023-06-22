@@ -3,6 +3,7 @@ import { CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, 
 import { DateTime } from 'luxon'
 import { OperationsModel } from './operations'
 import { run } from '../helpers/smallTools'
+import { type Filter } from './filter'
 
 const operationsModel = OperationsModel.instance()
 
@@ -60,21 +61,22 @@ ThisYearTimeSpanInfo | MonthTimeSpanInfo | YearTimeSpanInfo |
 LastMonthTimeSpanInfo | LastQuarterTimeSpanInfo | LastYearTimeSpanInfo |
 AllHistoryTimeSpanInfo | CustomTimeSpanInfo
 
-const TIME_SPAN_INFO = 'AppState.timeSpanInfo'
-const THEME = 'AppState.theme'
-const MASTER_CURRENCY = 'AppState.masterCurrency'
-const TOTAL_GOAL = 'AppState.totalGoal'
-const UNCATEGORIZED_GOAL = 'AppState.uncategorizedGoal'
+const TIME_SPAN_INFO_LS_KEY = 'AppState.timeSpanInfo'
+const THEME_LS_KEY = 'AppState.theme'
+const MASTER_CURRENCY_LS_KEY = 'AppState.masterCurrency'
+const TOTAL_GOAL_LS_KEY = 'AppState.totalGoal'
+const UNCATEGORIZED_GOAL_LS_KEY = 'AppState.uncategorizedGoal'
+const FILTER_LS_KEY = 'AppState.filter'
 
 type UserThemeType = 'light' | 'dark' | 'auto'
 
 export class AppState {
     today = utcToday()
-    theme: UserThemeType = (localStorage.getItem(THEME) as UserThemeType | null) ?? 'auto'
-    timeSpanInfo: TimeSpanInfo = JSON.parse(localStorage.getItem(TIME_SPAN_INFO) ?? '{ "type": "thisMonth" }')
-    masterCurrency: string = localStorage.getItem(MASTER_CURRENCY) ?? 'USD'
+    theme: UserThemeType = (localStorage.getItem(THEME_LS_KEY) as UserThemeType | null) ?? 'auto'
+    timeSpanInfo: TimeSpanInfo = JSON.parse(localStorage.getItem(TIME_SPAN_INFO_LS_KEY) ?? '{ "type": "thisMonth" }')
+    masterCurrency: string = localStorage.getItem(MASTER_CURRENCY_LS_KEY) ?? 'USD'
     totalGoal: number | null = run(() => {
-        const val = localStorage.getItem(TOTAL_GOAL)
+        const val = localStorage.getItem(TOTAL_GOAL_LS_KEY)
         if (val === null) {
             return null
         }
@@ -82,11 +84,29 @@ export class AppState {
     })
 
     uncategorizedGoal: number | null = run(() => {
-        const val = localStorage.getItem(UNCATEGORIZED_GOAL)
+        const val = localStorage.getItem(UNCATEGORIZED_GOAL_LS_KEY)
         if (val === null) {
             return null
         }
         return parseFloat(val)
+    })
+
+    filter: Filter = run((): Filter => {
+        const val = localStorage.getItem(FILTER_LS_KEY)
+        if (val === null) {
+            return {
+                search: null,
+                opTypeMode: 'selected',
+                opType: ['adjustment', 'expense', 'income', 'transfer'],
+                categoriesMode: 'all',
+                categories: [],
+                accountsMode: 'all',
+                accounts: [],
+                tagsMode: 'all',
+                tags: []
+            }
+        }
+        return JSON.parse(val) as Filter
     })
 
     private constructor () {
@@ -102,31 +122,35 @@ export class AppState {
         }, 10000)
 
         autorun(() => {
-            localStorage.setItem(TIME_SPAN_INFO, JSON.stringify(this.timeSpanInfo))
+            localStorage.setItem(TIME_SPAN_INFO_LS_KEY, JSON.stringify(this.timeSpanInfo))
         })
 
         autorun(() => {
-            localStorage.setItem(THEME, this.theme)
+            localStorage.setItem(THEME_LS_KEY, this.theme)
         })
 
         autorun(() => {
-            localStorage.setItem(MASTER_CURRENCY, this.masterCurrency)
+            localStorage.setItem(MASTER_CURRENCY_LS_KEY, this.masterCurrency)
         })
 
         autorun(() => {
             if (this.totalGoal === null) {
-                localStorage.removeItem(TOTAL_GOAL)
+                localStorage.removeItem(TOTAL_GOAL_LS_KEY)
             } else {
-                localStorage.setItem(TOTAL_GOAL, this.totalGoal.toString())
+                localStorage.setItem(TOTAL_GOAL_LS_KEY, this.totalGoal.toString())
             }
         })
 
         autorun(() => {
             if (this.uncategorizedGoal === null) {
-                localStorage.removeItem(UNCATEGORIZED_GOAL)
+                localStorage.removeItem(UNCATEGORIZED_GOAL_LS_KEY)
             } else {
-                localStorage.setItem(UNCATEGORIZED_GOAL, this.uncategorizedGoal.toString())
+                localStorage.setItem(UNCATEGORIZED_GOAL_LS_KEY, this.uncategorizedGoal.toString())
             }
+        })
+
+        autorun(() => {
+            localStorage.setItem(FILTER_LS_KEY, JSON.stringify(this.filter))
         })
     }
 

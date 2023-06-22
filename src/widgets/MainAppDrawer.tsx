@@ -1,4 +1,4 @@
-import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
+import { faCloudArrowUp, faFilter } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, SwipeableDrawer, type SwipeableDrawerProps, Box, ToggleButtonGroup, ToggleButton } from '@mui/material'
 import React, { useState, type ReactElement } from 'react'
@@ -10,11 +10,13 @@ import { runInAction } from 'mobx'
 import { showIf } from '../helpers/smallTools'
 import { CurrencySelector } from './CurrencySelector'
 import { getCurrencySymbol } from '../helpers/currencies'
+import { FilterEditor } from './filterEditor'
 
 const appState = AppState.instance()
 
 export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElement => {
     const [showCurSelector, setShowCurSelector] = useState(false)
+    const [showFilterEditor, setShowFilterEditor] = useState(false)
 
     return <SwipeableDrawer
         open={props.open}
@@ -29,6 +31,20 @@ export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElemen
                     currency={appState.masterCurrency}
                     onClose={() => { setShowCurSelector(false) }}
                     onCurrencySelected={c => { runInAction(() => { appState.masterCurrency = c }) }}
+                />
+            )
+        }
+        {
+            showIf(
+                showFilterEditor,
+                <FilterEditor
+                    filter={appState.filter}
+                    onClose={() => { setShowFilterEditor(false) }}
+                    onFilterChanged={filter => {
+                        runInAction(() => {
+                            appState.filter = filter
+                        })
+                    }}
                 />
             )
         }
@@ -57,6 +73,14 @@ export const MainAppDrawer = observer((props: SwipeableDrawerProps): ReactElemen
                 </ToggleButtonGroup>
             </Box>
             <List>
+                <ListItem disablePadding>
+                    <ListItemButton onClick={() => { setShowFilterEditor(true) }}>
+                        <ListItemIcon>
+                            <FontAwesomeIcon icon={faFilter} />
+                        </ListItemIcon>
+                        <ListItemText primary="Filter operations" />
+                    </ListItemButton>
+                </ListItem>
                 <ListItem disablePadding>
                     <ListItemButton onClick={() => { setShowCurSelector(true) }}>
                         <ListItemIcon>
