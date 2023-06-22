@@ -42,7 +42,7 @@ export function TagsEditor (props: Props): ReactElement {
                 size='small'
                 label="New tag"
                 value={newTag}
-                onChange={(ev) => { setNewTag(ev.target.value) }}
+                onChange={(ev) => { setNewTag(ev.target.value.trim()) }}
             />
             <Button onClick={() => {
                 setNewTag('')

@@ -167,7 +167,6 @@ export async function syncOperations (): Promise<SyncStatsEx> {
         } else if (localOp.type === 'deleted') {
             deletedInLocal += 1
         } else if (localOp.lastModified.toMillis() >= googleOp.lastModified.toMillis()) {
-            console.log('latestInLocal', localOp, googleOp)
             latestInLocal += 1
         } else {
             latestInGoogle.push(googleOp)
