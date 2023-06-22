@@ -10,7 +10,7 @@ import { runInAction } from 'mobx'
 import { showIf } from '../helpers/smallTools'
 import { CurrencySelector } from './CurrencySelector'
 import { getCurrencySymbol } from '../helpers/currencies'
-import { FilterEditor } from './filterEditor'
+import { FilterEditor } from './FilterEditor'
 
 const appState = AppState.instance()
 
