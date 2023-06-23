@@ -114,6 +114,8 @@ export class FinDataDb {
         return (
             (await db.getAll(CATEGORIES_STORE_NAME))
                 .map(c => {
+                    delete c.currency
+                    delete c.yearGoal
                     return {
                         ...c,
                         lastModified: DateTime.fromMillis(c.lastModified ?? 0, { zone: 'utc' })
