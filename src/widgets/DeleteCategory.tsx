@@ -19,7 +19,12 @@ export function DeleteCategory ({ name, open, setOpen }: Props): ReactElement {
     const [delInProcess, setDelInProcess] = useState(false)
     const navigate = useNavigate()
 
-    const opsCount = Operations.all().keepTypes('expense', 'income').keepCategories(name).count()
+    const opsCount = Operations
+        .all()
+        .keepTypes('expense', 'income')
+        .keepCategories(name)
+        .skipUncategorized()
+        .count()
 
     return <Dialog
         open={open}

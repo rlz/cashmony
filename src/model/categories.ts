@@ -118,9 +118,8 @@ export class CategoriesModel {
             console.warn(`Category not found: ${catName}`)
             return {
                 name: '-',
-                currency: 'USD',
                 hidden: true,
-                lastModified: DateTime.utc(),
+                lastModified: DateTime.utc(1, 1, 1),
                 deleted: true
             }
         }

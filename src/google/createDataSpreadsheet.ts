@@ -22,7 +22,7 @@ export async function createDataSpreadsheet (google: Google): Promise<void> {
                     ]),
                     makeSheet(google.tabNames.operationsCategories, ['opId', 'cat', 'catAmount']),
                     makeSheet(google.tabNames.accounts, ['name', 'currency', 'lastModified', 'hidden', 'deleted']),
-                    makeSheet(google.tabNames.categories, ['name', 'currency', 'lastModified', 'yearGoal', 'hidden', 'deleted'])
+                    makeSheet(google.tabNames.categories, ['name', 'currency - deprecated', 'lastModified', 'yearGoalUsd', 'hidden', 'deleted'])
                 ]
             })
         }

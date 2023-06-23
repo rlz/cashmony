@@ -1,6 +1,7 @@
 import { type IDBPDatabase, openDB } from 'idb'
 import { type Category, type Account, type NotDeletedOperation, type Operation, type CurrencyRatesCache, ratesMonth } from './model'
 import { DateTime } from 'luxon'
+import { runAsync } from '../helpers/smallTools'
 
 const OPERATIONS_STORE_NAME = 'operations'
 const OPERATIONS_DATE_INDEX_NAME = 'date'
@@ -20,7 +21,7 @@ export class FinDataDb {
     }
 
     private async openDb (): Promise<IDBPDatabase> {
-        return await openDB('FinData', 2, {
+        return await openDB('FinData', 3, {
             upgrade: (database, oldVersion, newVersion) => {
                 if (oldVersion < 1) {
                     const opStore = database.createObjectStore(OPERATIONS_STORE_NAME, { keyPath: 'id' })
@@ -30,6 +31,29 @@ export class FinDataDb {
                 }
                 if (oldVersion < 2) {
                     database.createObjectStore(RATES_STORE_NAME, { keyPath: 'key' })
+                }
+                if (oldVersion < 3) {
+                    runAsync(async () => {
+                        const db = FinDataDb.instance()
+                        const toUpdate: Operation[] = []
+                        for (const op of await db.readAllOperations()) {
+                            if (op.type !== 'expense' && op.type !== 'income') {
+                                continue
+                            }
+                            if (op.categories.length === 1) {
+                                toUpdate.push({
+                                    ...op,
+                                    lastModified: DateTime.utc(),
+                                    categories: [{
+                                        ...op.categories[0],
+                                        amount: op.amount
+                                    }]
+                                })
+                            }
+                        }
+                        await db.putOperations(toUpdate)
+                        location.reload()
+                    })
                 }
             }
         })

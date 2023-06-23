@@ -14,7 +14,7 @@ const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 
 interface Props {
-    operations: Operations<NotDeletedOperation>
+    operations: Operations
 }
 
 export const OpsList = observer((props: Props): ReactElement => {

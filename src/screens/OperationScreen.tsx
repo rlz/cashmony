@@ -11,7 +11,6 @@ import { AccountsModel } from '../model/accounts'
 import { CommentEditor } from '../widgets/operations/editors/CommentEditor'
 import { DateEditor } from '../widgets/operations/editors/DateEditor'
 import { CategoriesEditor } from '../widgets/operations/editors/CategoriesEditor'
-import { CategoriesModel } from '../model/categories'
 import { formatCurrency } from '../helpers/currencies'
 import { v1 as uuid } from 'uuid'
 import { DateTime } from 'luxon'
@@ -20,10 +19,11 @@ import { DeleteOpButton } from '../widgets/operations/DeleteOpButton'
 import { CurrenciesModel } from '../model/currencies'
 import { deepEqual } from '../helpers/deepEqual'
 import { MainScreen } from '../widgets/MainScreen'
+import { AppState } from '../model/appState'
 
+const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
-const categoriesModel = CategoriesModel.instance()
 const currenciesModel = CurrenciesModel.instance()
 
 type PartialOperation =
@@ -361,8 +361,7 @@ function propagateAmount<T extends PartialOperation> (
     if (
         (op.type === 'expense' || op.type === 'income') &&
         op.categories.length === 1 &&
-        op.categories[0].amount !== op.amount &&
-        op.currency === categoriesModel.get(op.categories[0].name).currency
+        op.categories[0].amount !== op.amount
     ) {
         op = {
             ...op,
@@ -402,14 +401,12 @@ const BasicInfo = observer(({ op, account, toAccount }: BasicInfoProps): ReactEl
         } else {
             categoryInfo = <>{
                 op.categories
-                    .map(c => {
-                        return {
-                            ...c,
-                            currency: categoriesModel.get(c.name).currency
-                        }
-                    })
                     .map(c => <Typography key={c.name} variant='body2'>
-                        Cat.: {c.name} ({formatCurrency(c.amount, c.currency)})
+                        Cat.: {c.name} ({
+                            formatCurrency(
+                                c.amount * currenciesModel.getRate(op.date, op.currency, appState.masterCurrency),
+                                appState.masterCurrency
+                            )})
                     </Typography>)
             }</>
         }

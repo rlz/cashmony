@@ -75,7 +75,7 @@ export class AppState {
     theme: UserThemeType = (localStorage.getItem(THEME_LS_KEY) as UserThemeType | null) ?? 'auto'
     timeSpanInfo: TimeSpanInfo = JSON.parse(localStorage.getItem(TIME_SPAN_INFO_LS_KEY) ?? '{ "type": "thisMonth" }')
     masterCurrency: string = localStorage.getItem(MASTER_CURRENCY_LS_KEY) ?? 'USD'
-    totalGoal: number | null = run(() => {
+    totalGoalUsd: number | null = run(() => {
         const val = localStorage.getItem(TOTAL_GOAL_LS_KEY)
         if (val === null) {
             return null
@@ -83,7 +83,7 @@ export class AppState {
         return parseFloat(val)
     })
 
-    uncategorizedGoal: number | null = run(() => {
+    uncategorizedGoalUsd: number | null = run(() => {
         const val = localStorage.getItem(UNCATEGORIZED_GOAL_LS_KEY)
         if (val === null) {
             return null
@@ -134,18 +134,18 @@ export class AppState {
         })
 
         autorun(() => {
-            if (this.totalGoal === null) {
+            if (this.totalGoalUsd === null) {
                 localStorage.removeItem(TOTAL_GOAL_LS_KEY)
             } else {
-                localStorage.setItem(TOTAL_GOAL_LS_KEY, this.totalGoal.toString())
+                localStorage.setItem(TOTAL_GOAL_LS_KEY, this.totalGoalUsd.toString())
             }
         })
 
         autorun(() => {
-            if (this.uncategorizedGoal === null) {
+            if (this.uncategorizedGoalUsd === null) {
                 localStorage.removeItem(UNCATEGORIZED_GOAL_LS_KEY)
             } else {
-                localStorage.setItem(UNCATEGORIZED_GOAL_LS_KEY, this.uncategorizedGoal.toString())
+                localStorage.setItem(UNCATEGORIZED_GOAL_LS_KEY, this.uncategorizedGoalUsd.toString())
             }
         })
 

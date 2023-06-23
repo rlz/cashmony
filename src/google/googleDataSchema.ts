@@ -32,7 +32,7 @@ export type GoogleCategoryRow = [
     string, // name
     string, // currency
     number, // lastModified
-    number | '', // yearGoal
+    number | '', // yearGoalUsd
     'yes' | 'no', // hidden
     ('yes' | 'no')? // deleted
 ]
@@ -208,9 +208,9 @@ export function catsToGoogle (categories: readonly Category[]): GoogleCategoryRo
     return categories.map(c => {
         return [
             c.name,
-            c.currency,
+            '', // currency was here
             toGoogleDateTime(c.lastModified),
-            c.yearGoal === undefined ? '' : c.yearGoal,
+            c.yearGoalUsd === undefined ? '' : c.yearGoalUsd,
             c.hidden ? 'yes' : 'no',
             c.deleted === true ? 'yes' : (c.deleted === false ? 'no' : undefined)
         ]
@@ -226,9 +226,8 @@ export function catsFromGoogle (rows: unknown[]): Category[] {
 
         return {
             name: row[0],
-            currency: row[1],
             lastModified: fromGoogleDateTime(row[2]),
-            yearGoal: row[3] === '' ? undefined : row[3],
+            yearGoalUsd: row[3] === '' ? undefined : row[3],
             hidden: row[4] === 'yes',
             deleted: row[5] === 'yes' ? true : (row[5] === 'no' ? false : undefined)
         }

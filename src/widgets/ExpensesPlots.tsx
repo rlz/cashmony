@@ -6,8 +6,11 @@ import { OperationsModel } from '../model/operations'
 import { CategoriesModel } from '../model/categories'
 import { type ExpensesStats } from '../model/stats'
 import { Plot, type PlotSeries } from './Plot'
+import { utcToday } from '../helpers/dates'
+import { CurrenciesModel } from '../model/currencies'
 
 const appState = AppState.instance()
+const currenciesModel = CurrenciesModel.instance()
 const operationsModel = OperationsModel.instance()
 const categoriesModel = CategoriesModel.instance()
 
@@ -54,7 +57,7 @@ export const ExpensesBarsPlot = observer(({ currency, stats, sparkline }: Amount
             ]
 
             const daysLeft = appState.daysLeft
-            if (daysLeft > 0 && stats.yearGoal !== null) {
+            if (daysLeft > 0 && stats.yearGoalUsd !== null) {
                 const leftPerDay = Math.max(-(stats.leftPerDay(appState.timeSpan, currency) ?? 0), 0)
                 series.push({
                     type: 'dash',
@@ -128,9 +131,10 @@ export const ExpensesTotalPlot = observer(({ currency, stats }: TotalCatPlotProp
                 })
             }
 
-            const dayGoal = stats.goal(1)
-            if (dayGoal !== null) {
+            const dayGoalUsd = stats.goalUsd(1)
+            if (dayGoalUsd !== null) {
                 const today = appState.today
+                const dayGoal = dayGoalUsd * currenciesModel.getFromUsdRate(utcToday(), currency)
 
                 series.push(
                     {

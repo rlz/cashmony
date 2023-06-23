@@ -16,8 +16,11 @@ import { ExpensesBarsPlot } from '../widgets/ExpensesPlots'
 import { AppState } from '../model/appState'
 import { P, match } from 'ts-pattern'
 import { run, showIf } from '../helpers/smallTools'
+import { CurrenciesModel } from '../model/currencies'
+import { utcToday } from '../helpers/dates'
 
 const appState = AppState.instance()
+const currenciesModel = CurrenciesModel.instance()
 const categoriesModel = CategoriesModel.instance()
 
 export const CategoriesScreen = observer((): ReactElement => {
@@ -62,14 +65,13 @@ export const CategoriesScreen = observer((): ReactElement => {
             <CategoryCard
                 name='_total'
                 stats={new ExpensesStats(Operations.forFilter(appState.filter), null)}
-                currency={appState.masterCurrency}
             />
             {
                 (showHidden ? [...visibleCategories, ...hiddenCategories] : visibleCategories)
                     .map(cat => {
-                        const stats = new ExpensesStats(Operations.forFilter(appState.filter).keepCategories(cat.name), cat.yearGoal ?? null)
+                        const stats = new ExpensesStats(Operations.forFilter(appState.filter).keepCategories(cat.name), cat.yearGoalUsd ?? null)
 
-                        return <CategoryCard key={cat.name} name={cat.name} currency={cat.currency} stats={stats}/>
+                        return <CategoryCard key={cat.name} name={cat.name} stats={stats}/>
                     })
             }
             {
@@ -87,7 +89,6 @@ export const CategoriesScreen = observer((): ReactElement => {
                         <CategoryCard
                             name={null}
                             stats={stats}
-                            currency={appState.masterCurrency}
                         />
                     )
                 })
@@ -99,20 +100,21 @@ export const CategoriesScreen = observer((): ReactElement => {
 
 interface CategoryCardProps {
     name: string | null
-    currency: string
     stats: ExpensesStats
 }
 
 const CategoryCard = observer((props: CategoryCardProps): ReactElement => {
     const navigate = useNavigate()
 
-    const goal30 = props.stats.goal(30)
-    const leftPerDay = match(props.stats.leftPerDay(appState.timeSpan, props.currency))
+    const currency = appState.masterCurrency
+
+    const goalUsd30 = props.stats.goalUsd(30)
+    const leftPerDay = match(props.stats.leftPerDay(appState.timeSpan, currency))
         .with(null, () => 0)
         .with(P.number.negative(), v => -v)
         .otherwise(() => 0)
 
-    const cur = (amount: number, compact = false): string => formatCurrency(amount, props.currency, compact)
+    const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
 
     return <a onClick={() => { navigate(`/categories/${encodeURIComponent(props.name ?? '_')}`) }}>
         <Paper sx={{ p: 1 }}>
@@ -131,7 +133,7 @@ const CategoryCard = observer((props: CategoryCardProps): ReactElement => {
                     flex='1 1 0'
                     textAlign='right'
                 >
-                    {cur(match(props.stats.amountTotal(appState.timeSpan, props.currency)).with(0, v => v).otherwise(v => -v))}
+                    {cur(match(props.stats.amountTotal(appState.timeSpan, currency)).with(0, v => v).otherwise(v => -v))}
                 </Typography>
             </Box>
             <Typography component="div" variant='body2' my={1}>
@@ -139,11 +141,11 @@ const CategoryCard = observer((props: CategoryCardProps): ReactElement => {
                     <tbody>
                         <tr>
                             <th>Goal (30d):</th>
-                            <td>{goal30 !== null ? cur(-goal30) : '-'}</td>
+                            <td>{goalUsd30 !== null ? cur(-goalUsd30 * currenciesModel.getFromUsdRate(utcToday(), currency)) : '-'}</td>
                         </tr>
                         <tr>
                             <th>Period Pace (30d):</th>
-                            <td>{cur(-props.stats.avgUntilToday(30, appState.timeSpan, props.currency))}</td>
+                            <td>{cur(-props.stats.avgUntilToday(30, appState.timeSpan, currency))}</td>
                         </tr>
                         <tr>
                             <th>Left per day:</th>
@@ -152,7 +154,7 @@ const CategoryCard = observer((props: CategoryCardProps): ReactElement => {
                     </tbody>
                 </table>
             </Typography>
-            <ExpensesBarsPlot currency={props.currency} sparkline stats={props.stats} />
+            <ExpensesBarsPlot currency={currency} sparkline stats={props.stats} />
         </Paper>
     </a>
 })

@@ -3,8 +3,7 @@ import { z } from 'zod'
 
 export interface Category {
     readonly name: string
-    readonly currency: string
-    readonly yearGoal?: number
+    readonly yearGoalUsd?: number
     readonly hidden: boolean
     readonly deleted?: boolean
     readonly lastModified: DateTime

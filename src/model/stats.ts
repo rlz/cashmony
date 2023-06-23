@@ -1,7 +1,7 @@
 import { type DurationLikeObject } from 'luxon'
 import { CategoriesModel } from './categories'
 import { type NotDeletedOperation, type Category } from './model'
-import { LastPeriodTimeSpan, type HumanTimeSpan } from '../helpers/dates'
+import { LastPeriodTimeSpan, type HumanTimeSpan, utcToday } from '../helpers/dates'
 import { OperationsModel } from './operations'
 import { AppState } from './appState'
 import { CurrenciesModel } from './currencies'
@@ -216,8 +216,7 @@ export class Operations {
             }
 
             for (const cat of op.categories) {
-                const currency = categoriesModel.get(cat.name).currency
-                sum += cat.amount * currenciesModel.getRate(op.date, currency, toCurrency)
+                sum += cat.amount * currenciesModel.getRate(op.date, op.currency, toCurrency)
             }
         }
         return sum
@@ -251,11 +250,11 @@ export class Operations {
 
 export class ExpensesStats {
     operations: Operations
-    yearGoal: number | null
+    yearGoalUsd: number | null
 
-    constructor (operations: Operations, yearGoal: number | null) {
+    constructor (operations: Operations, yearGoalUsd: number | null) {
         this.operations = operations.onlyExpenses()
-        this.yearGoal = yearGoal
+        this.yearGoalUsd = yearGoalUsd
     }
 
     amountTotal (timeSpan: HumanTimeSpan, currency: string): number {
@@ -273,16 +272,16 @@ export class ExpensesStats {
         return this.amountTotal(timeSpan, currency) * days / timeSpanDays
     }
 
-    goal (days: number): number | null {
-        if (this.yearGoal === null) return null
-        return this.yearGoal * days / appState.today.daysInYear
+    goalUsd (days: number): number | null {
+        if (this.yearGoalUsd === null) return null
+        return this.yearGoalUsd * days / appState.today.daysInYear
     }
 
     leftPerDay (timeSpan: HumanTimeSpan, currency: string): number | null {
         const total = this.amountTotal(timeSpan, currency)
-        const goal = this.goal(appState.timeSpan.totalDays)
-        if (goal === null) return null
-        return (goal - total) / appState.daysLeft
+        const goalUsd = this.goalUsd(appState.timeSpan.totalDays)
+        if (goalUsd === null) return null
+        return (goalUsd * currenciesModel.getFromUsdRate(utcToday(), currency) - total) / appState.daysLeft
     }
 
     durationAvg (days: number, duration: DurationLikeObject, currency: string): number {
@@ -344,8 +343,7 @@ export class ExpensesStats {
                     amount += op.amount * currenciesModel.getRate(op.date, op.currency, toCurrency)
                 } else {
                     for (const c of op.categories) {
-                        const catCurrency = categoriesModel.get(c.name).currency
-                        amount += c.amount * currenciesModel.getRate(op.date, catCurrency, toCurrency)
+                        amount += c.amount * currenciesModel.getRate(op.date, op.currency, toCurrency)
                     }
                 }
 
@@ -364,7 +362,7 @@ export class ExpensesStats {
                 .all()
                 .keepTypes('expense', 'income')
                 .keepCategories(cat.name),
-            cat.yearGoal ?? null
+            cat.yearGoalUsd ?? null
         )
     }
 }

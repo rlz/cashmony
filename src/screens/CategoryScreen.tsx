@@ -20,13 +20,17 @@ import { AppState } from '../model/appState'
 import { nonNull, run, showIf } from '../helpers/smallTools'
 import { match } from 'ts-pattern'
 import { runInAction } from 'mobx'
+import { CurrenciesModel } from '../model/currencies'
+import { utcToday } from '../helpers/dates'
 
 const appState = AppState.instance()
+const currenciesModel = CurrenciesModel.instance()
 const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
 
 export const CategoryScreen = observer(() => {
     const catName = nonNull(useParams().catName, 'catName expected here')
+    const currency = appState.masterCurrency
 
     const [cat, setCat] = useState<Category | null>(null)
     const [newCat, setNewCat] = useState<Category | null>(null)
@@ -41,12 +45,11 @@ export const CategoryScreen = observer(() => {
                         .with('_', () => 'Uncategorized')
                         .with('_total', () => 'Total')
                         .exhaustive(),
-                    currency: appState.masterCurrency,
                     hidden: false,
                     lastModified: DateTime.utc(),
-                    yearGoal: match(catName)
-                        .with('_', () => appState.uncategorizedGoal ?? undefined)
-                        .with('_total', () => appState.totalGoal ?? undefined)
+                    yearGoalUsd: match(catName)
+                        .with('_', () => appState.uncategorizedGoalUsd ?? undefined)
+                        .with('_total', () => appState.totalGoalUsd ?? undefined)
                         .exhaustive()
                 }
                 setCat(category)
@@ -60,8 +63,8 @@ export const CategoryScreen = observer(() => {
         [
             categoriesModel.categories,
             appState.masterCurrency,
-            appState.totalGoal,
-            appState.uncategorizedGoal
+            appState.totalGoalUsd,
+            appState.uncategorizedGoalUsd
         ]
     )
 
@@ -70,11 +73,11 @@ export const CategoryScreen = observer(() => {
     }
 
     const stats = match(catName)
-        .with('_total', () => new ExpensesStats(Operations.all(), appState.totalGoal))
-        .with('_', () => new ExpensesStats(Operations.all().onlyUncategorized(), appState.uncategorizedGoal))
+        .with('_total', () => new ExpensesStats(Operations.all(), appState.totalGoalUsd))
+        .with('_', () => new ExpensesStats(Operations.all().onlyUncategorized(), appState.uncategorizedGoalUsd))
         .otherwise(() => ExpensesStats.forCat({ ...newCat, name: cat.name }))
 
-    const cur = (amount: number, compact = false): string => formatCurrency(amount, cat.currency, compact)
+    const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
 
     const onSave = run(() => {
         if (
@@ -92,11 +95,11 @@ export const CategoryScreen = observer(() => {
         return async () => {
             if (catName === '_') {
                 runInAction(() => {
-                    appState.uncategorizedGoal = newCat.yearGoal ?? null
+                    appState.uncategorizedGoalUsd = newCat.yearGoalUsd ?? null
                 })
             } else if (catName === '_total') {
                 runInAction(() => {
-                    appState.totalGoal = newCat.yearGoal ?? null
+                    appState.totalGoalUsd = newCat.yearGoalUsd ?? null
                 })
             } else {
                 await categoriesModel.put({ ...newCat, lastModified: DateTime.utc() })
@@ -128,7 +131,7 @@ export const CategoryScreen = observer(() => {
         }
     })
 
-    const goal30 = stats.goal(30)
+    const goalUsd30 = stats.goalUsd(30)
 
     return <MainScreen
         navigateOnBack='/categories'
@@ -139,10 +142,10 @@ export const CategoryScreen = observer(() => {
             {newCat.name.trim() === '' ? '-' : newCat.name}
         </Typography>
         <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
-            {cur(-stats.amountTotal(appState.timeSpan, cat.currency))}
+            {cur(-stats.amountTotal(appState.timeSpan, currency))}
         </Typography>
         <Typography variant='body2' textAlign="center">
-            Goal (30d): {goal30 !== null ? cur(-goal30) : '-'}
+            Goal (30d): {goalUsd30 !== null ? cur(-goalUsd30 * currenciesModel.getFromUsdRate(utcToday(), currency)) : '-'}
         </Typography>
         <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
             <Tab label="Stats"/>
@@ -152,7 +155,7 @@ export const CategoryScreen = observer(() => {
         <Box overflow="scroll">
             {
                 match(tab)
-                    .with(0, () => <Stats currency={cat.currency} stats={stats} />)
+                    .with(0, () => <Stats currency={currency} stats={stats} />)
                     .with(1, () => <Editor
                         full={catName !== '_total' && catName !== '_'}
                         cat={cat}
@@ -178,7 +181,7 @@ function Stats ({ currency, stats }: { currency: string, stats: ExpensesStats })
 
     const timeSpan = appState.timeSpan
 
-    const leftPerDay = appState.daysLeft > 0 && stats.yearGoal !== null
+    const leftPerDay = appState.daysLeft > 0 && stats.yearGoalUsd !== null
         ? -(stats.leftPerDay(timeSpan, currency) ?? -0)
         : -1
 
@@ -228,9 +231,13 @@ interface EditorProps {
     setNewCat: (cat: Category) => void
 }
 
-function Editor ({ full, cat, newCat, setNewCat }: EditorProps): ReactElement {
+const Editor = observer(({ full, cat, newCat, setNewCat }: EditorProps): ReactElement => {
+    const currency = appState.masterCurrency
+    const fromUsdRate = currenciesModel.getFromUsdRate(utcToday(), currency)
+
     const [open, setOpen] = useState<'name' | 'goal' | null>(null)
     const [delOpen, setDelOpen] = useState(false)
+    const [goal, setGoal] = useState((newCat.yearGoalUsd ?? 0) * fromUsdRate / 12)
 
     return <Box mt={1}>
         {
@@ -278,11 +285,11 @@ function Editor ({ full, cat, newCat, setNewCat }: EditorProps): ReactElement {
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={newCat.yearGoal !== undefined}
+                            checked={newCat.yearGoalUsd !== undefined}
                             onChange={(_, checked) => {
                                 setNewCat({
                                     ...newCat,
-                                    yearGoal: checked ? 0 : undefined
+                                    yearGoalUsd: checked ? 0 : undefined
                                 })
                             }}
                         />
@@ -290,16 +297,17 @@ function Editor ({ full, cat, newCat, setNewCat }: EditorProps): ReactElement {
                     label="Set goal"
                 />
                 {
-                    newCat.yearGoal !== undefined
+                    newCat.yearGoalUsd !== undefined
                         ? <CurrencyInput
                             label='Amount'
-                            currency={newCat.currency}
+                            currency={currency}
                             negative={true}
-                            amount={(newCat.yearGoal ?? 0) / 12}
+                            amount={goal}
                             onAmountChange={amount => {
+                                setGoal(amount)
                                 setNewCat({
                                     ...newCat,
-                                    yearGoal: amount * 12
+                                    yearGoalUsd: amount * 12 / fromUsdRate
                                 })
                             }}
                         />
@@ -336,4 +344,4 @@ function Editor ({ full, cat, newCat, setNewCat }: EditorProps): ReactElement {
             )
         }
     </Box>
-}
+})
