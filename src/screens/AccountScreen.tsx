@@ -107,7 +107,7 @@ export const AccountScreen = observer(() => {
 
         if (tab === 2) {
             return <OpsList
-                operations={Operations.all().forTimeSpan(appState.timeSpan).keepAccounts(acc.name)}
+                operations={Operations.forFilter(appState.filter).forTimeSpan(appState.timeSpan).keepAccounts(acc.name)}
             />
         }
 

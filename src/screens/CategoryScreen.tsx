@@ -73,9 +73,11 @@ export const CategoryScreen = observer(() => {
     }
 
     const stats = match(catName)
-        .with('_total', () => new ExpensesStats(Operations.all(), appState.totalGoalUsd))
-        .with('_', () => new ExpensesStats(Operations.all().onlyUncategorized(), appState.uncategorizedGoalUsd))
-        .otherwise(() => ExpensesStats.forCat({ ...newCat, name: cat.name }))
+        .with('_total', () => new ExpensesStats(Operations.forFilter(appState.filter), appState.totalGoalUsd))
+        .with('_', () => new ExpensesStats(Operations.forFilter(appState.filter).onlyUncategorized(), appState.uncategorizedGoalUsd))
+        .otherwise(() => new ExpensesStats(
+            Operations.forFilter(appState.filter).keepTypes('expense', 'income').keepCategories(cat.name), newCat.yearGoalUsd ?? null)
+        )
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
 
