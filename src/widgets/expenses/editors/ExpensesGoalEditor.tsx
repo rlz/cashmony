@@ -76,8 +76,8 @@ export function ExpensesGoalEditor ({ origName, goal, onChange }: Props): ReactE
         <FormControlLabel
             label="Regular expenses"
             control={<Switch
-                checked={goal.regularExpenses}
-                onChange={(_, v) => { onChange({ ...goal, regularExpenses: v }) }}
+                checked={goal.isRegular}
+                onChange={(_, v) => { onChange({ ...goal, isRegular: v }) }}
             />}
         />
         {

@@ -1,7 +1,7 @@
 import React, { useEffect, type ReactElement, useState } from 'react'
 import { Google } from '../google/google'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { type SyncStats, syncAccounts, syncCategories, syncOperations, type SyncStatsEx } from '../model/sync'
+import { type SyncStats, syncAccounts, syncCategories, syncOperations, type SyncStatsEx, syncGoals } from '../model/sync'
 import { FullScreenModal } from '../widgets/FullScreenModal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDownLong, faArrowUpLong, faSpinner } from '@fortawesome/free-solid-svg-icons'
@@ -18,6 +18,7 @@ export function GoogleSyncScreen (): ReactElement {
     const [spreadsheet, setSpreadsheet] = useState(false)
     const [accStats, setAccStats] = useState<SyncStats | null>(null)
     const [catStats, setCatStats] = useState<SyncStats | null>(null)
+    const [goalsStats, setGoalsStats] = useState<SyncStats | null>(null)
     const [opsStats, setOpsStats] = useState<SyncStatsEx | null>(null)
 
     const searchParams = new URLSearchParams(location.search)
@@ -26,6 +27,7 @@ export function GoogleSyncScreen (): ReactElement {
         setSpreadsheet(false)
         setAccStats(null)
         setCatStats(null)
+        setGoalsStats(null)
         setOpsStats(null)
 
         runAsync(async (): Promise<void> => {
@@ -42,12 +44,17 @@ export function GoogleSyncScreen (): ReactElement {
                 await google.searchOrCreateDataSpreadsheet()
                 setSpreadsheet(true)
 
-                const [accStats, catStats] = await Promise.all([syncAccounts(), syncCategories()])
+                const [accStats, catStats, goalsStats, opsStats] = await Promise.all([
+                    syncAccounts(),
+                    syncCategories(),
+                    syncGoals(),
+                    syncOperations()
+                ])
 
                 setAccStats(accStats)
                 setCatStats(catStats)
-
-                setOpsStats(await syncOperations())
+                setGoalsStats(goalsStats)
+                setOpsStats(opsStats)
             } finally {
                 syncInProgress = false
             }
@@ -70,6 +77,7 @@ export function GoogleSyncScreen (): ReactElement {
         <Typography component="div" variant='body2'>
             <Stats title='Accounts' stats={accStats}/>
             <Stats title='Categories' stats={catStats}/>
+            <Stats title='Goals' stats={goalsStats}/>
             <Stats title='Operations' stats={opsStats} extended/>
         </Typography>
     </FullScreenModal>

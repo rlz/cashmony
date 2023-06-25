@@ -1,10 +1,11 @@
 import './google.scss'
 import makeUrl from './makeUrl'
 import { createDataSpreadsheet } from './createDataSpreadsheet'
-import { loadAccounts, loadCategories, loadOperations } from './load'
-import { type Category, type Account, type Operation } from '../model/model'
-import { storeAccounts, storeCategories, storeOperations } from './store'
+import { loadAccounts, loadCategories, loadGoals, loadOperations } from './load'
+import { type Category, type Account, type Operation, type ExpensesGoal } from '../model/model'
+import { storeAccounts, storeCategories, storeGoals, storeOperations } from './store'
 import { match } from 'ts-pattern'
+import { updateDataSpreadsheet } from './updateDataSpreadsheet'
 
 const ACCESS_TOKEN = 'access_token'
 const GOOGLE_CLIENT_ID = '969343913019-635prket9b5rq0skn212ab098u5m22pv.apps.googleusercontent.com'
@@ -20,13 +21,27 @@ export class Google {
     private authPromiseResolve: (() => void) | null = null
     private accessToken = localStorage.getItem(ACCESS_TOKEN)
     finDataSpreadsheetId: string | null = null
-    readonly sheetName = 'CashmonyData'
+    readonly spreadsheetName = 'CashmonyData'
     readonly tabNames = {
         operations: 'Operations',
         operationsCategories: 'Operations — Categories',
         accounts: 'Accounts',
-        categories: 'Categories'
+        categories: 'Categories',
+        goals: 'Goals'
     }
+
+    readonly sheetsDefs: ReadonlyMap<string, GoogleSheetProperties> = new Map([
+        makeSheet(this.tabNames.operations, [
+            'opId', 'opType', 'lastModified', 'date',
+            'amount', 'currency',
+            'acc', 'accAmount',
+            'tags', 'comment'
+        ]),
+        makeSheet(this.tabNames.operationsCategories, ['opId', 'cat', 'catAmount']),
+        makeSheet(this.tabNames.accounts, ['name', 'currency', 'lastModified', 'hidden', 'deleted']),
+        makeSheet(this.tabNames.categories, ['name', '' /* currency */, 'lastModified', 'yearGoalUsd', 'hidden', 'deleted']),
+        makeSheet(this.tabNames.goals, ['name', 'lastModified', 'deleted', 'isRegular', 'filter', 'perDayGoal.value', 'perDayGoal.currency'])
+    ].map(i => [i.properties.title, i]))
 
     static instance (): Google {
         if (google === null) {
@@ -109,16 +124,17 @@ export class Google {
             makeUrl('https://www.googleapis.com/drive/v3/files', {
                 corpora: 'user',
                 includeItemsFromAllDrives: 'false',
-                q: `mimeType = "application/vnd.google-apps.spreadsheet" and name = "${this.sheetName}"`
+                q: `mimeType = "application/vnd.google-apps.spreadsheet" and name = "${this.spreadsheetName}"`
             })
         )
         if (isOk(reply)) {
             const json = reply.body as { files: GoogleDriveFiles[] }
-            const files = json.files.filter(f => f.name === this.sheetName)
+            const files = json.files.filter(f => f.name === this.spreadsheetName)
 
             if (files.length > 0) {
                 this.finDataSpreadsheetId = files[0].id
                 console.log(`Data spreadsheet found (${this.finDataSpreadsheetId})`)
+                await updateDataSpreadsheet(this)
             } else {
                 await createDataSpreadsheet(this)
             }
@@ -133,6 +149,8 @@ export class Google {
     storeAccounts = async (accounts: Account[]): Promise<void> => { await storeAccounts(this, accounts) }
     loadCategories = async (): Promise<Category[]> => await loadCategories(this)
     storeCategories = async (categories: Category[]): Promise<void> => { await storeCategories(this, categories) }
+    loadGoals = async (): Promise<ExpensesGoal[]> => await loadGoals(this)
+    storeGoals = async (goals: ExpensesGoal[]): Promise<void> => { await storeGoals(this, goals) }
 }
 
 export interface GoogleReply {
@@ -159,4 +177,44 @@ interface GoogleDriveFiles {
     readonly mimeType: string
     readonly id: string
     readonly name: string
+}
+
+export interface GoogleSheetProperties {
+    properties: { title: string }
+    data: [{
+        startRow: 0
+        startColumn: 0
+        rowData: [{
+            values: Array<{
+                userEnteredValue: {
+                    stringValue: string
+                }
+            }>
+        }]
+    }]
+}
+
+function makeSheet (tabName: string, columns: string[]): GoogleSheetProperties {
+    return {
+        properties: {
+            title: tabName
+        },
+        data: [
+            {
+                startRow: 0,
+                startColumn: 0,
+                rowData: [
+                    {
+                        values: columns.map(i => {
+                            return {
+                                userEnteredValue: {
+                                    stringValue: i
+                                }
+                            }
+                        })
+                    }
+                ]
+            }
+        ]
+    }
 }

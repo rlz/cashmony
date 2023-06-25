@@ -1,22 +1,28 @@
-import { type NotDeletedOperation } from './model'
+import { z } from 'zod'
 
-type FilterMode = 'all' | 'selected' | 'exclude'
+const filterModeSchema = z.union([
+    z.literal('all'),
+    z.literal('selected'),
+    z.literal('exclude')
+])
 
-export interface Filter {
-    search: string | null
+export const filterSchema = z.object({
+    search: z.nullable(z.string()),
 
-    opTypeMode: FilterMode
-    opType: Array<NotDeletedOperation['type']>
+    opTypeMode: filterModeSchema,
+    opType: z.array(z.union([z.literal('expense'), z.literal('income'), z.literal('adjustment'), z.literal('transfer')])),
 
-    categoriesMode: FilterMode
-    categories: readonly string[]
+    categoriesMode: filterModeSchema,
+    categories: z.array(z.string()),
 
-    accountsMode: FilterMode
-    accounts: readonly string[]
+    tagsMode: filterModeSchema,
+    tags: z.array(z.string()),
 
-    tagsMode: FilterMode
-    tags: readonly string[]
-}
+    accountsMode: filterModeSchema,
+    accounts: z.array(z.string())
+})
+
+export type Filter = z.infer<typeof filterSchema>
 
 export const DEFAULT_FILTER: Filter = {
     search: null,

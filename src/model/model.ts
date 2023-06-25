@@ -28,7 +28,7 @@ export interface ExpensesGoal {
     readonly filter: Filter
     readonly perDayAmount: number
     readonly currency: string
-    readonly regularExpenses: boolean
+    readonly isRegular: boolean
     readonly deleted?: boolean
     readonly lastModified: DateTime
 }

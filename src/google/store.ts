@@ -1,7 +1,7 @@
 import { isOk, type Google } from './google'
 import makeUrl from './makeUrl'
-import { type Account, type Category, type Operation } from '../model/model'
-import { accsToGoogle, catsToGoogle, opsToGoogle } from './googleDataSchema'
+import { type ExpensesGoal, type Account, type Category, type Operation } from '../model/model'
+import { accsToGoogle, catsToGoogle, goalsToGoogle, opsToGoogle } from './googleDataSchema'
 import { assertClearReplyBody, assertPutReplyBody } from '../typeCheckers.g/google'
 
 export interface ClearReplyBody {
@@ -54,15 +54,15 @@ export interface PutReplyBody {
     updatedRows: number
 }
 
-async function storeRows (google: Google, tabName: string, rows: unknown[]): Promise<void> {
-    console.log(`Store ${rows.length} rows in ${google.sheetName}:${tabName}`)
+export async function storeRows (google: Google, tabName: string, range: string, rows: unknown[][]): Promise<void> {
+    console.log(`Store ${rows.length} rows in ${google.spreadsheetName}:${tabName}`)
 
     if (google.finDataSpreadsheetId === null) {
         throw Error(`finDataSpreadsheetId(${google.finDataSpreadsheetId ?? 'null'}) expected here`)
     }
 
     const id = encodeURIComponent(google.finDataSpreadsheetId)
-    const range = `${tabName}!A2:J200000`
+    range = `${tabName}!${range}`
 
     const reply = await google.fetch(
         makeUrl(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(range)}`, {
@@ -100,8 +100,8 @@ export async function storeOperations (google: Google, operations: readonly Oper
 
     const rows = opsToGoogle(operations)
 
-    await storeRows(google, google.tabNames.operations, rows.operations)
-    await storeRows(google, google.tabNames.operationsCategories, rows.categories)
+    await storeRows(google, google.tabNames.operations, 'A2:Z200000', rows.operations)
+    await storeRows(google, google.tabNames.operationsCategories, 'A2:Z200000', rows.categories)
 
     console.log('End store operations')
 }
@@ -113,7 +113,7 @@ export async function storeAccounts (google: Google, accounts: readonly Account[
 
     const rows = accsToGoogle(accounts)
 
-    await storeRows(google, google.tabNames.accounts, rows)
+    await storeRows(google, google.tabNames.accounts, 'A2:Z200000', rows)
 
     console.log('End store accounts')
 }
@@ -125,7 +125,19 @@ export async function storeCategories (google: Google, categories: readonly Cate
 
     const rows = catsToGoogle(categories)
 
-    await storeRows(google, google.tabNames.categories, rows)
+    await storeRows(google, google.tabNames.categories, 'A2:Z200000', rows)
 
     console.log('End store categories')
+}
+
+export async function storeGoals (google: Google, goals: readonly ExpensesGoal[]): Promise<void> {
+    console.log('Store goals')
+
+    await clearData(google, google.tabNames.goals)
+
+    const rows = goalsToGoogle(goals)
+
+    await storeRows(google, google.tabNames.goals, 'A2:Z200000', rows)
+
+    console.log('End store goals')
 }

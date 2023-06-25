@@ -1,14 +1,17 @@
 import { Google } from '../google/google'
 import { deepEqual } from '../helpers/deepEqual'
+import { nonNull } from '../helpers/smallTools'
 import { AccountsModel } from './accounts'
 import { CategoriesModel } from './categories'
-import { type Category, type Account, type Operation } from './model'
+import { GoalsModel } from './goals'
+import { type Category, type Account, type Operation, type ExpensesGoal } from './model'
 import { OperationsModel } from './operations'
 
 const google = Google.instance()
 const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
 const categoriesModel = CategoriesModel.instance()
+const goalsModel = GoalsModel.instance()
 
 export async function initGoogleSync (): Promise<void> {
     await google.authenticate()
@@ -130,6 +133,60 @@ export async function syncCategories (): Promise<SyncStats> {
 
     if (latestInLocal > 0 || localCatsMap.size > 0) {
         await google.storeCategories([...categoriesModel.categories.values()])
+    }
+
+    return syncStats
+}
+
+export async function syncGoals (): Promise<SyncStats> {
+    const googleGoals = await google.loadGoals()
+    const localGoals = nonNull(goalsModel.goals, 'goalsModel.goals expected here')
+
+    const googleGoalsMap = new Map<string, ExpensesGoal>()
+    googleGoals.forEach(i => googleGoalsMap.set(i.name, i))
+
+    const localGoalsMap = new Map<string, ExpensesGoal>()
+    localGoals.forEach(i => localGoalsMap.set(i.name, i))
+
+    let matched = 0
+    const latestInGoogle: ExpensesGoal[] = []
+    let latestInLocal = 0
+    const missedInLocal: ExpensesGoal[] = []
+
+    for (const googleGoal of googleGoals) {
+        const localGoal = localGoalsMap.get(googleGoal.name)
+
+        if (localGoal === undefined) {
+            missedInLocal.push(googleGoal)
+            continue
+        }
+
+        localGoalsMap.delete(googleGoal.name)
+
+        if (deepEqual(googleGoal, localGoal) || (localGoal.deleted === true && googleGoal.deleted === true)) {
+            matched += 1
+        } else if (localGoal.lastModified.toMillis() >= googleGoal.lastModified.toMillis()) {
+            latestInLocal += 1
+            console.debug('Latest in local', { localGoal, googleGoal })
+        } else {
+            latestInGoogle.push(googleGoal)
+        }
+    }
+
+    const syncStats = {
+        matched,
+        latestInGoogle: latestInGoogle.length,
+        latestInLocal,
+        missedInGoogle: localGoalsMap.size,
+        missedInLocal: missedInLocal.length
+    }
+
+    console.log('Goals Sync Result', syncStats)
+
+    await Promise.all([...missedInLocal, ...latestInGoogle].map(async i => { await goalsModel.put(i) }))
+
+    if (latestInLocal > 0 || localGoalsMap.size > 0) {
+        await google.storeGoals([...localGoals])
     }
 
     return syncStats

@@ -1,7 +1,7 @@
 import { isOk, type Google } from './google'
 import makeUrl from './makeUrl'
-import { accsFromGoogle, catsFromGoogle, opsFromGoogle } from './googleDataSchema'
-import { type Account, type Category, type Operation } from '../model/model'
+import { accsFromGoogle, catsFromGoogle, goalsFromGoogle, opsFromGoogle } from './googleDataSchema'
+import { type ExpensesGoal, type Account, type Category, type Operation } from '../model/model'
 import { assertRowsType } from '../typeCheckers.g/google'
 
 export interface RowsType {
@@ -9,7 +9,7 @@ export interface RowsType {
 }
 
 async function loadRows (google: Google, tabName: string): Promise<unknown[]> {
-    console.log(`Loading ${google.sheetName}:${tabName}`)
+    console.log(`Loading ${google.spreadsheetName}:${tabName}`)
 
     if (google.finDataSpreadsheetId === null) {
         throw Error(`finDataSpreadsheetId(${google.finDataSpreadsheetId ?? 'null'}) expected here`)
@@ -68,4 +68,15 @@ export async function loadCategories (google: Google): Promise<Category[]> {
     console.log(`${categories.length} categories loaded`)
 
     return categories
+}
+
+export async function loadGoals (google: Google): Promise<ExpensesGoal[]> {
+    console.log('Loading goals from Google Spreadsheet')
+    const rows = await loadRows(google, google.tabNames.goals)
+
+    const goals = goalsFromGoogle(rows)
+
+    console.log(`${goals.length} goals loaded`)
+
+    return goals
 }

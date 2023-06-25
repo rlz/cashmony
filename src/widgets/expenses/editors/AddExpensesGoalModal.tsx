@@ -8,17 +8,18 @@ import { CurrenciesModel } from '../../../model/currencies'
 import { run } from '../../../helpers/smallTools'
 import { ExpensesGoalEditor } from './ExpensesGoalEditor'
 import { observer } from 'mobx-react-lite'
+import { type ExpensesGoal } from '../../../model/model'
 
 export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void }): ReactElement => {
     const currenciesModel = CurrenciesModel.instance()
 
-    const [goal, setGoal] = useState({
+    const [goal, setGoal] = useState<ExpensesGoal>({
         name: '',
         lastModified: DateTime.utc(),
         filter: DEFAULT_FILTER,
         perDayAmount: 0,
         currency: currenciesModel.currencies[0],
-        regularExpenses: false
+        isRegular: false
     })
 
     const goalsModel = GoalsModel.instance()

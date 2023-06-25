@@ -1,6 +1,9 @@
-import { type Account, type Category, type Operation } from '../model/model'
+import { type ExpensesGoal, type Account, type Category, type Operation } from '../model/model'
 import { fromGoogleDateTime, toGoogleDateTime } from '../helpers/dates'
 import { assertGoogleNonDeletedOperationRow, isGoogleAccountRow, isGoogleCategoryRow, isGoogleDeletedOperationRow, isGoogleNonDeletedOperationRow, isGoogleOperationCategoryRow } from '../typeCheckers.g/google'
+import { z } from 'zod'
+import { match } from 'ts-pattern'
+import { filterSchema } from '../model/filter'
 
 export type GoogleNonDeletedOperationRow = [
     string, // opId
@@ -36,6 +39,18 @@ export type GoogleCategoryRow = [
     'yes' | 'no', // hidden
     ('yes' | 'no')? // deleted
 ]
+
+const googleGoalRowSchema = z.tuple([
+    z.string(), // name
+    z.number(), // lastModified
+    z.union([z.literal('yes'), z.literal('no'), z.literal('')]), // deleted
+    z.union([z.literal('yes'), z.literal('no')]), // isRegular
+    z.string(), // filter
+    z.number(), // perDayGoal.value
+    z.string() // perDayGoal.currency
+])
+
+type GoogleGoalRow = z.infer<typeof googleGoalRowSchema>
 
 export type GoogleAccountRow = [
     string, // name
@@ -230,6 +245,37 @@ export function catsFromGoogle (rows: unknown[]): Category[] {
             yearGoalUsd: row[3] === '' ? undefined : row[3],
             hidden: row[4] === 'yes',
             deleted: row[5] === 'yes' ? true : (row[5] === 'no' ? false : undefined)
+        }
+    })
+}
+
+export function goalsToGoogle (goals: readonly ExpensesGoal[]): GoogleGoalRow[] {
+    return goals.map(i => {
+        return [
+            i.name,
+            toGoogleDateTime(i.lastModified),
+            i.deleted === true ? 'yes' : (i.deleted === false ? 'no' : ''),
+            i.isRegular ? 'yes' : 'no',
+            JSON.stringify(i.filter),
+            i.perDayAmount,
+            i.currency
+        ]
+    })
+}
+
+export function goalsFromGoogle (rows: unknown[]): ExpensesGoal[] {
+    return rows.map(row => {
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+        const parsed = googleGoalRowSchema.parse(row)
+
+        return {
+            name: parsed[0],
+            lastModified: fromGoogleDateTime(parsed[1]),
+            deleted: match(parsed[2]).with('yes', () => true).with('no', () => false).otherwise(() => undefined),
+            isRegular: match(parsed[3]).with('yes', () => true).otherwise(() => false),
+            filter: filterSchema.parse(JSON.parse(parsed[4])),
+            perDayAmount: parsed[5],
+            currency: parsed[6]
         }
     })
 }

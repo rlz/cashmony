@@ -11,19 +11,9 @@ export async function createDataSpreadsheet (google: Google): Promise<void> {
             },
             body: JSON.stringify({
                 properties: {
-                    title: google.sheetName
+                    title: google.spreadsheetName
                 },
-                sheets: [
-                    makeSheet(google.tabNames.operations, [
-                        'opId', 'opType', 'lastModified', 'date',
-                        'amount', 'currency',
-                        'acc', 'accAmount',
-                        'tags', 'comment'
-                    ]),
-                    makeSheet(google.tabNames.operationsCategories, ['opId', 'cat', 'catAmount']),
-                    makeSheet(google.tabNames.accounts, ['name', 'currency', 'lastModified', 'hidden', 'deleted']),
-                    makeSheet(google.tabNames.categories, ['name', 'currency - deprecated', 'lastModified', 'yearGoalUsd', 'hidden', 'deleted'])
-                ]
+                sheets: [...google.sheetsDefs.values()]
             })
         }
     )
@@ -35,30 +25,5 @@ export async function createDataSpreadsheet (google: Google): Promise<void> {
         })
     } else {
         console.warn('Unauthorized')
-    }
-}
-
-function makeSheet (tabName: string, columns: string[]): unknown {
-    return {
-        properties: {
-            title: tabName
-        },
-        data: [
-            {
-                startRow: 0,
-                startColumn: 0,
-                rowData: [
-                    {
-                        values: columns.map(i => {
-                            return {
-                                userEnteredValue: {
-                                    stringValue: i
-                                }
-                            }
-                        })
-                    }
-                ]
-            }
-        ]
     }
 }
