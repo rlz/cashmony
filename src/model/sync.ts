@@ -52,10 +52,11 @@ export async function syncAccounts (): Promise<SyncStats> {
 
         localAccsMap.delete(googleAcc.name)
 
-        if (deepEqual(googleAcc, localAcc)) {
+        if (deepEqual(googleAcc, localAcc) || (localAcc.deleted === true && googleAcc.deleted === true)) {
             matched += 1
         } else if (localAcc.lastModified.toMillis() >= googleAcc.lastModified.toMillis()) {
             latestInLocal += 1
+            console.debug('Latest in local', { localAcc, googleAcc })
         } else {
             latestInGoogle.push(googleAcc)
         }
@@ -105,10 +106,11 @@ export async function syncCategories (): Promise<SyncStats> {
 
         localCatsMap.delete(googleCat.name)
 
-        if (deepEqual(googleCat, localCat)) {
+        if (deepEqual(googleCat, localCat) || (localCat.deleted === true && googleCat.deleted === true)) {
             matched += 1
         } else if (localCat.lastModified.toMillis() >= googleCat.lastModified.toMillis()) {
             latestInLocal += 1
+            console.debug('Latest in local', { localCat, googleCat })
         } else {
             latestInGoogle.push(googleCat)
         }
