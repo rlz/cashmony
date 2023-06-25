@@ -15,9 +15,9 @@ import { AppState } from '../model/appState'
 import { AccPlot } from '../widgets/AccountPlots'
 import { v1 as uuid } from 'uuid'
 import { DeleteAccount } from '../widgets/DeleteAccount'
-import { MainScreen } from '../widgets/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
 import { Operations } from '../model/stats'
+import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 const appState = AppState.instance()
 const accountsModel = AccountsModel.instance()

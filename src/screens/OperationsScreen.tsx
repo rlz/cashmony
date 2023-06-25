@@ -4,10 +4,10 @@ import { Backdrop, Box, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/m
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCreditCard, faHandHoldingDollar, faMoneyBillTransfer } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
-import { MainScreen } from '../widgets/MainScreen'
 import { Operations } from '../model/stats'
 import { AppState } from '../model/appState'
 import { OpsList } from '../widgets/operations/OpsList'
+import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 const appState = AppState.instance()
 

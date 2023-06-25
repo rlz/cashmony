@@ -39,9 +39,8 @@ export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noDrawer }: 
                     : <IconButton
                         size="large"
                         edge="start"
-                        color="inherit"
-                        aria-label="menu"
-                        sx={{ mr: 2 }}
+                        color='inherit'
+                        sx={{ mr: 1 }}
                         onClick={() => { setDrawerOpen(true) }}
                     >
                         <FontAwesomeIcon icon={faBars}/>
@@ -53,9 +52,8 @@ export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noDrawer }: 
                         : <IconButton
                             size="large"
                             edge="start"
-                            color="inherit"
-                            aria-label="menu"
-                            sx={{ mr: 2 }}
+                            color='inherit'
+                            sx={{ mr: 1 }}
                             onClick={onBack}
                         >
                             <FontAwesomeIcon icon={faCircleChevronLeft}/>
@@ -71,9 +69,8 @@ export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noDrawer }: 
                             disabled={onSave === null}
                             size="large"
                             edge="end"
-                            color="inherit"
-                            aria-label="menu"
-                            sx={{ ml: 2 }}
+                            color='inherit'
+                            sx={{ ml: 1 }}
                             onClick={() => {
                                 if (onSave === null) {
                                     throw Error('Non null onSave expected here')

@@ -18,8 +18,8 @@ import { utcToday } from '../helpers/dates'
 import { DeleteOpButton } from '../widgets/operations/DeleteOpButton'
 import { CurrenciesModel } from '../model/currencies'
 import { deepEqual } from '../helpers/deepEqual'
-import { MainScreen } from '../widgets/MainScreen'
 import { AppState } from '../model/appState'
+import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()

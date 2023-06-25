@@ -1,7 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import React, { useState, type ReactElement } from 'react'
 import { AccountsModel } from '../model/accounts'
-import { MainScreen } from '../widgets/MainScreen'
 import { Box, Fab, Paper, Typography } from '@mui/material'
 import { AppState } from '../model/appState'
 import { formatCurrency } from '../helpers/currencies'
@@ -13,6 +12,7 @@ import { useNavigate } from 'react-router-dom'
 import { AccPlot } from '../widgets/AccountPlots'
 import { run } from '../helpers/smallTools'
 import { CurrenciesModel } from '../model/currencies'
+import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 const appState = AppState.instance()
 const currenciesModel = CurrenciesModel.instance()

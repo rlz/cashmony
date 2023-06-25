@@ -1,6 +1,6 @@
 import React, { type ReactElement, type PropsWithChildren } from 'react'
 import { Box, Portal } from '@mui/material'
-import { MainAppBar } from './MainAppBar'
+import { MainAppBar } from './mainScreen/MainAppBar'
 
 interface Props extends PropsWithChildren {
     title?: string

@@ -1,6 +1,5 @@
 import { observer } from 'mobx-react-lite'
 import React, { useState, type ReactElement } from 'react'
-import { MainScreen } from '../widgets/MainScreen'
 import { Box, Fab, Paper, Typography } from '@mui/material'
 import { CategoriesModel } from '../model/categories'
 import 'uplot/dist/uPlot.min.css'
@@ -18,6 +17,7 @@ import { P, match } from 'ts-pattern'
 import { run, showIf } from '../helpers/smallTools'
 import { CurrenciesModel } from '../model/currencies'
 import { utcToday } from '../helpers/dates'
+import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 const appState = AppState.instance()
 const currenciesModel = CurrenciesModel.instance()

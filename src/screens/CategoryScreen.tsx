@@ -14,7 +14,6 @@ import { ExpensesStats, Operations } from '../model/stats'
 import { formatCurrency } from '../helpers/currencies'
 import { ExpensesBarsPlot, ExpensesTotalPlot } from '../widgets/ExpensesPlots'
 import { DeleteCategory } from '../widgets/DeleteCategory'
-import { MainScreen } from '../widgets/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
 import { AppState } from '../model/appState'
 import { nonNull, run, showIf } from '../helpers/smallTools'
@@ -22,6 +21,7 @@ import { match } from 'ts-pattern'
 import { runInAction } from 'mobx'
 import { CurrenciesModel } from '../model/currencies'
 import { utcToday } from '../helpers/dates'
+import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 const appState = AppState.instance()
 const currenciesModel = CurrenciesModel.instance()
