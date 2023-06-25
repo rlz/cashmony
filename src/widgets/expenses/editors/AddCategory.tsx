@@ -1,6 +1,6 @@
 import React, { useState, type ReactElement } from 'react'
-import { FullScreenModal } from './FullScreenModal'
-import { CategoriesModel } from '../model/categories'
+import { FullScreenModal } from '../../FullScreenModal'
+import { CategoriesModel } from '../../../model/categories'
 import { Button, TextField } from '@mui/material'
 import { DateTime } from 'luxon'
 

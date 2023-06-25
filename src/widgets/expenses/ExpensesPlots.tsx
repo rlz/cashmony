@@ -1,13 +1,13 @@
 import { useTheme } from '@mui/material'
 import React, { useMemo, type ReactElement } from 'react'
-import { AppState } from '../model/appState'
+import { AppState } from '../../model/appState'
 import { observer } from 'mobx-react-lite'
-import { OperationsModel } from '../model/operations'
-import { CategoriesModel } from '../model/categories'
-import { type ExpensesStats } from '../model/stats'
-import { Plot, type PlotSeries } from './Plot'
-import { utcToday } from '../helpers/dates'
-import { CurrenciesModel } from '../model/currencies'
+import { OperationsModel } from '../../model/operations'
+import { CategoriesModel } from '../../model/categories'
+import { type ExpensesStats } from '../../model/stats'
+import { Plot, type PlotSeries } from '../Plot'
+import { utcToday } from '../../helpers/dates'
+import { CurrenciesModel } from '../../model/currencies'
 
 const appState = AppState.instance()
 const currenciesModel = CurrenciesModel.instance()
@@ -57,8 +57,8 @@ export const ExpensesBarsPlot = observer(({ currency, stats, sparkline }: Amount
             ]
 
             const daysLeft = appState.daysLeft
-            if (daysLeft > 0 && stats.yearGoalUsd !== null) {
-                const leftPerDay = Math.max(-(stats.leftPerDay(appState.timeSpan, currency) ?? 0), 0)
+            if (daysLeft > 0 && stats.perDayGoal !== null) {
+                const leftPerDay = Math.max(-(stats.leftPerDay(appState.timeSpan, currency)?.value ?? 0), 0)
                 series.push({
                     type: 'dash',
                     color: theme.palette.info.main,
@@ -131,21 +131,21 @@ export const ExpensesTotalPlot = observer(({ currency, stats }: TotalCatPlotProp
                 })
             }
 
-            const dayGoalUsd = stats.goalUsd(1)
-            if (dayGoalUsd !== null) {
+            const dayGoal = stats.goal(1)
+            if (dayGoal !== null) {
                 const today = appState.today
-                const dayGoal = dayGoalUsd * currenciesModel.getFromUsdRate(utcToday(), currency)
+                const dayGoalInDestCur = dayGoal.value * currenciesModel.getRate(utcToday(), dayGoal.currency, currency)
 
                 series.push(
                     {
                         type: 'line',
                         color: theme.palette.info.main,
-                        points: allDates.map((d, i) => d <= today ? -dayGoal * i : null)
+                        points: allDates.map((d, i) => d <= today ? -dayGoalInDestCur * i : null)
                     },
                     {
                         type: 'dash',
                         color: theme.palette.info.main,
-                        points: allDates.map((d, i) => d >= today ? -dayGoal * i : null)
+                        points: allDates.map((d, i) => d >= today ? -dayGoalInDestCur * i : null)
                     }
                 )
             }

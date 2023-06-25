@@ -8,6 +8,8 @@ import { AccountsScreen } from './screens/AccountsScreen'
 import { CategoriesScreen } from './screens/CategoriesScreen'
 import { CategoryScreen } from './screens/CategoryScreen'
 import { AccountScreen } from './screens/AccountScreen'
+import { ExpensesGoalsScreen } from './screens/ExpensesGoalsScreen'
+import { ExpensesGoalScreen } from './screens/ExpensesGoalScreen'
 
 declare global {
     interface Window { routerNavigate: (to: string) => Promise<void> }
@@ -29,6 +31,10 @@ const router = createBrowserRouter([
     {
         path: '/accounts',
         element: <AccountsScreen />
+    },
+    {
+        path: '/goals',
+        element: <ExpensesGoalsScreen />
     },
     {
         path: '/google-sync',
@@ -61,6 +67,10 @@ const router = createBrowserRouter([
     {
         path: '/accounts/:accName',
         element: <AccountScreen />
+    },
+    {
+        path: '/goals/:goalName',
+        element: <ExpensesGoalScreen/>
     }
 ])
 

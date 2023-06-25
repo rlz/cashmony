@@ -1,5 +1,5 @@
 import { type IDBPDatabase, openDB } from 'idb'
-import { type Category, type Account, type NotDeletedOperation, type Operation, type CurrencyRatesCache, ratesMonth } from './model'
+import { type Category, type Account, type NotDeletedOperation, type Operation, type CurrencyRatesCache, ratesMonth, type ExpensesGoal } from './model'
 import { DateTime } from 'luxon'
 import { runAsync } from '../helpers/smallTools'
 
@@ -8,6 +8,7 @@ const OPERATIONS_DATE_INDEX_NAME = 'date'
 const CATEGORIES_STORE_NAME = 'categories'
 const ACCOUNTS_STORE_NAME = 'accounts'
 const RATES_STORE_NAME = 'rates'
+const GOALS_STORE_NAME = 'goals'
 
 let FIN_DATA_DB: FinDataDb | null = null
 
@@ -21,7 +22,7 @@ export class FinDataDb {
     }
 
     private async openDb (): Promise<IDBPDatabase> {
-        return await openDB('FinData', 3, {
+        return await openDB('FinData', 4, {
             upgrade: (database, oldVersion, newVersion) => {
                 if (oldVersion < 1) {
                     const opStore = database.createObjectStore(OPERATIONS_STORE_NAME, { keyPath: 'id' })
@@ -54,6 +55,9 @@ export class FinDataDb {
                         await db.putOperations(toUpdate)
                         location.reload()
                     })
+                }
+                if (oldVersion < 4) {
+                    database.createObjectStore(GOALS_STORE_NAME, { keyPath: 'name' })
                 }
             }
         })
@@ -158,6 +162,27 @@ export class FinDataDb {
         const db = await this.openDb()
 
         await db.clear(OPERATIONS_STORE_NAME)
+    }
+
+    async readAllExpensesGoals (): Promise<ExpensesGoal[]> {
+        const db = await this.openDb()
+        return (
+            (await db.getAll(GOALS_STORE_NAME))
+                .map(i => {
+                    return {
+                        ...i,
+                        lastModified: DateTime.fromMillis(i.lastModified ?? 0, { zone: 'utc' })
+                    }
+                })
+        ) as ExpensesGoal[]
+    }
+
+    async putExpensesGoal (goal: ExpensesGoal): Promise<void> {
+        const db = await this.openDb()
+        await db.put(
+            GOALS_STORE_NAME,
+            { ...goal, lastModified: goal.lastModified.toMillis() }
+        )
     }
 }
 

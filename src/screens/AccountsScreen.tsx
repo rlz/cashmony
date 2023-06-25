@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import React, { useState, type ReactElement } from 'react'
 import { AccountsModel } from '../model/accounts'
-import { Box, Fab, Paper, Typography } from '@mui/material'
+import { Box, Fab, Paper, Skeleton, Typography } from '@mui/material'
 import { AppState } from '../model/appState'
 import { formatCurrency } from '../helpers/currencies'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -13,20 +13,21 @@ import { AccPlot } from '../widgets/AccountPlots'
 import { run } from '../helpers/smallTools'
 import { CurrenciesModel } from '../model/currencies'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
-
-const appState = AppState.instance()
-const currenciesModel = CurrenciesModel.instance()
-const accountsModel = AccountsModel.instance()
+import { DivBody1 } from '../widgets/Typography'
 
 export const AccountsScreen = observer((): ReactElement => {
     const [addAccount, setAddAccount] = useState(false)
     const [showHidden, setShowHidden] = useState(false)
 
+    const appState = AppState.instance()
+    const currenciesModel = CurrenciesModel.instance()
+    const accountsModel = AccountsModel.instance()
+
+    if (currenciesModel.rates === null) return <AccountsScreenSkeleton />
+
     const totalAmounts = [...appState.timeSpan.allDates({ includeDayBefore: true })].map(d => accountsModel.getAmounts(d))
 
     const total = run((): number => {
-        if (!currenciesModel.hasRates) return 0
-
         let result = 0
         for (const [accName, amount] of totalAmounts[totalAmounts.length - 1]) {
             result += amount * currenciesModel.getRate(
@@ -75,7 +76,7 @@ export const AccountsScreen = observer((): ReactElement => {
             flexDirection="column"
             gap={1}
         >
-            { visibleAccounts.map(account => <AccountPanel
+            { visibleAccounts.map(account => <AccountCard
                 key={account.name}
                 account={account}
                 totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
@@ -83,7 +84,7 @@ export const AccountsScreen = observer((): ReactElement => {
         </Box>
         { hiddenAccounts.length > 0
             ? (showHidden
-                ? hiddenAccounts.map(account => <AccountPanel
+                ? hiddenAccounts.map(account => <AccountCard
                     key={account.name}
                     account={account}
                     totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
@@ -97,27 +98,44 @@ export const AccountsScreen = observer((): ReactElement => {
     </MainScreen>
 })
 
+function AccountsScreenSkeleton (): ReactElement {
+    return <MainScreen>
+        <Typography component="div" variant='h6' textAlign="center" my={1}>
+            <Skeleton sx={{ maxWidth: 85, mx: 'auto' }}/>
+            <Typography variant='body1' color="primary.main">
+                <Skeleton sx={{ maxWidth: 65, mx: 'auto' }}/>
+            </Typography>
+        </Typography>
+        <Box
+            display="flex"
+            flexDirection="column"
+            gap={1}
+        >
+            {[1, 1, 1].map((_, i) => <AccountCardSkeleton key={i}/>)}
+        </Box>
+    </MainScreen>
+}
+
 interface AccountPanelProps {
     account: Account
     totalAmount: number[]
 }
 
-function AccountPanel ({ account, totalAmount }: AccountPanelProps): ReactElement {
+function AccountCard ({ account, totalAmount }: AccountPanelProps): ReactElement {
     const navigate = useNavigate()
 
     return <a onClick={() => { navigate(`/accounts/${encodeURIComponent(account.name)}`) }}>
         <Paper
-            key={account.name}
             sx={{ p: 1 }}
         >
-            <Typography component='div' display='flex' mb={1}>
-                <Box>{account.name}</Box>
-                <Box flex="1 1 0" textAlign='right' color='primary.main'>
+            <Box display='flex' mb={1}>
+                <DivBody1>{account.name}</DivBody1>
+                <DivBody1 flex="1 1 0" textAlign='right' color='primary.main'>
                     {
                         formatCurrency(totalAmount[totalAmount.length - 1], account.currency)
                     }
-                </Box>
-            </Typography>
+                </DivBody1>
+            </Box>
             <AccPlot
                 sparkline
                 account={account}
@@ -126,4 +144,16 @@ function AccountPanel ({ account, totalAmount }: AccountPanelProps): ReactElemen
             />
         </Paper>
     </a>
+}
+
+function AccountCardSkeleton (): ReactElement {
+    return <Paper sx={{ p: 1 }}>
+        <Box display='flex' mb={1}>
+            <DivBody1 flex="1 1 0"><Skeleton sx={{ maxWidth: 85 }}/></DivBody1>
+            <DivBody1 textAlign='right' color='primary.main'>
+                <Skeleton sx={{ minWidth: 55 }} />
+            </DivBody1>
+        </Box>
+        <Skeleton variant='rectangular' height={50}/>
+    </Paper>
 }

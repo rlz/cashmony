@@ -1,6 +1,6 @@
 import { type DurationLikeObject } from 'luxon'
 import { CategoriesModel } from './categories'
-import { type NotDeletedOperation, type Category } from './model'
+import { type NotDeletedOperation, type Category, type Amount } from './model'
 import { LastPeriodTimeSpan, type HumanTimeSpan, utcToday } from '../helpers/dates'
 import { OperationsModel } from './operations'
 import { AppState } from './appState'
@@ -250,11 +250,11 @@ export class Operations {
 
 export class ExpensesStats {
     operations: Operations
-    yearGoalUsd: number | null
+    perDayGoal: Amount | null
 
-    constructor (operations: Operations, yearGoalUsd: number | null) {
+    constructor (operations: Operations, perDayGoal: Amount | null) {
         this.operations = operations.onlyExpenses()
-        this.yearGoalUsd = yearGoalUsd
+        this.perDayGoal = perDayGoal
     }
 
     amountTotal (timeSpan: HumanTimeSpan, currency: string): number {
@@ -272,16 +272,19 @@ export class ExpensesStats {
         return this.amountTotal(timeSpan, currency) * days / timeSpanDays
     }
 
-    goalUsd (days: number): number | null {
-        if (this.yearGoalUsd === null) return null
-        return this.yearGoalUsd * days / appState.today.daysInYear
+    goal (days: number): Amount | null {
+        if (this.perDayGoal === null) return null
+        return { value: this.perDayGoal.value * days, currency: this.perDayGoal.currency }
     }
 
-    leftPerDay (timeSpan: HumanTimeSpan, currency: string): number | null {
+    leftPerDay (timeSpan: HumanTimeSpan, currency: string): Amount | null {
         const total = this.amountTotal(timeSpan, currency)
-        const goalUsd = this.goalUsd(appState.timeSpan.totalDays)
-        if (goalUsd === null) return null
-        return (goalUsd * currenciesModel.getFromUsdRate(utcToday(), currency) - total) / appState.daysLeft
+        const goal = this.goal(appState.timeSpan.totalDays)
+        if (goal === null) return null
+        return {
+            value: (goal.value * currenciesModel.getRate(utcToday(), goal.currency, currency) - total) / appState.daysLeft,
+            currency
+        }
     }
 
     durationAvg (days: number, duration: DurationLikeObject, currency: string): number {
@@ -362,7 +365,7 @@ export class ExpensesStats {
                 .all()
                 .keepTypes('expense', 'income')
                 .keepCategories(cat.name),
-            cat.yearGoalUsd ?? null
+            match(cat.yearGoalUsd).with(undefined, () => null).otherwise(v => { return { value: v / 365, currency: 'USD' } })
         )
     }
 }

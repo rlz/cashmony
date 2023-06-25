@@ -17,3 +17,15 @@ export interface Filter {
     tagsMode: FilterMode
     tags: readonly string[]
 }
+
+export const DEFAULT_FILTER: Filter = {
+    search: null,
+    opTypeMode: 'selected',
+    opType: ['expense', 'income', 'transfer', 'adjustment'],
+    categoriesMode: 'all',
+    categories: [],
+    accountsMode: 'all',
+    accounts: [],
+    tagsMode: 'all',
+    tags: []
+}

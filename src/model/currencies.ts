@@ -18,9 +18,8 @@ const emptyStats: ReadonlyMap<string, number> = new Map()
 
 export class CurrenciesModel {
     currencies: readonly string[] = Object.values(CURRENCIES).map(c => c.code).sort(compareByStats(emptyStats))
-    rates: Record<string, readonly number[]> = {}
+    rates: Record<string, readonly number[]> | null = null
     firstDate = appState.timeSpan.endDate
-    hasRates = false
 
     private constructor () {
         makeAutoObservable(this, {
@@ -47,7 +46,7 @@ export class CurrenciesModel {
 
         autorun(() => {
             runInAction(() => {
-                this.hasRates = false
+                this.rates = null
             })
 
             const masterCurrency = appState.masterCurrency
@@ -113,13 +112,16 @@ export class CurrenciesModel {
                 runInAction(() => {
                     this.firstDate = firstDate
                     this.rates = ratesRecord
-                    this.hasRates = true
                 })
             })
         })
     }
 
     getFromUsdRate (date: DateTime, toCurrency: string): number {
+        if (this.rates === null) {
+            throw Error('Rates not loaded')
+        }
+
         if (toCurrency === 'USD') return 1
         if (date < this.firstDate) {
             // throw Error(`Rate before firstDate requested (firstDate = ${this.firstDate.toISODate() ?? ''}, date = ${date.toISODate() ?? ''})`)

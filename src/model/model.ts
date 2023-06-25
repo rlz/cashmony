@@ -1,5 +1,11 @@
 import { DateTime } from 'luxon'
 import { z } from 'zod'
+import { type Filter } from './filter'
+
+export interface Amount {
+    value: number
+    currency: string
+}
 
 export interface Category {
     readonly name: string
@@ -13,6 +19,16 @@ export interface Account {
     readonly name: string
     readonly currency: string
     readonly hidden: boolean
+    readonly deleted?: boolean
+    readonly lastModified: DateTime
+}
+
+export interface ExpensesGoal {
+    readonly name: string
+    readonly filter: Filter
+    readonly perDayAmount: number
+    readonly currency: string
+    readonly regularExpenses: boolean
     readonly deleted?: boolean
     readonly lastModified: DateTime
 }
