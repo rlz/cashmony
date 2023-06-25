@@ -22,7 +22,6 @@ export const MainScreen = (props: Props): ReactElement => {
             display="flex"
             flexDirection="column"
             overflow="scroll"
-            p={1}
             flex="1 0 0"
             bgcolor={theme.palette.background.default}
         >

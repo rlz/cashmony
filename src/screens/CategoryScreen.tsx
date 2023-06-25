@@ -149,35 +149,39 @@ export const CategoryScreen = observer((): ReactElement => {
         title="Category"
         onSave={onSave}
     >
-        <Typography variant='h6' textAlign="center" mt={2}>
-            {newCat.name.trim() === '' ? '-' : newCat.name}
-        </Typography>
-        <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
-            {cur(-stats.amountTotal(appState.timeSpan, currency))}
-        </Typography>
-        <Typography variant='body2' textAlign="center">
+        <Box p={1}>
+            <Typography variant='h6' textAlign="center" mt={1}>
+                {newCat.name.trim() === '' ? '-' : newCat.name}
+            </Typography>
+            <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
+                {cur(-stats.amountTotal(appState.timeSpan, currency))}
+            </Typography>
+            <Typography variant='body2' textAlign="center">
             Goal (30d): {goal !== null ? cur(-goal.value * currenciesModel.getRate(utcToday(), goal.currency, currency)) : '-'}
-        </Typography>
-        <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
-            <Tab label="Stats"/>
-            <Tab label="Modify"/>
-            <Tab label="Operations"/>
-        </Tabs>
+            </Typography>
+            <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
+                <Tab label="Stats"/>
+                <Tab label="Modify"/>
+                <Tab label="Operations"/>
+            </Tabs>
+        </Box>
         <Box overflow="scroll">
-            {
-                match(tab)
-                    .with(0, () => <ExpensesStatsWidget currency={currency} stats={stats} />)
-                    .with(1, () => <CategoryEditor
-                        origCatName={cat.name}
-                        cat={newCat}
-                        onChange={setNewCat}
-                    />)
-                    .with(2, () => <OpsList
-                        operations={stats.operations.forTimeSpan(appState.timeSpan)}
-                    />)
-                    .otherwise(() => { throw Error('Unimplenented tab') })
-            }
-            <Box minHeight={72}/>
+            <Box px={1}>
+                {
+                    match(tab)
+                        .with(0, () => <ExpensesStatsWidget currency={currency} stats={stats} />)
+                        .with(1, () => <CategoryEditor
+                            origCatName={cat.name}
+                            cat={newCat}
+                            onChange={setNewCat}
+                        />)
+                        .with(2, () => <OpsList
+                            operations={stats.operations.forTimeSpan(appState.timeSpan)}
+                        />)
+                        .otherwise(() => { throw Error('Unimplenented tab') })
+                }
+                <Box minHeight={72}/>
+            </Box>
         </Box>
     </MainScreen>
 })

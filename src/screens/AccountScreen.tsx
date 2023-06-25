@@ -117,21 +117,26 @@ export const AccountScreen = observer(() => {
     return <MainScreen
         navigateOnBack='/accounts'
         title="Account"
-        onSave={onSave}>
-        <Typography variant='h6' textAlign="center" mt={2}>
-            {newAcc.name.trim() === '' ? '-' : newAcc.name}
-        </Typography>
-        <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
-            {cur(totalAmount[totalAmount.length - 1])}
-        </Typography>
-        <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
-            <Tab label="Stats"/>
-            <Tab label="Modify"/>
-            <Tab label="Operations"/>
-        </Tabs>
+        onSave={onSave}
+    >
+        <Box p={1}>
+            <Typography variant='h6' textAlign="center" mt={1}>
+                {newAcc.name.trim() === '' ? '-' : newAcc.name}
+            </Typography>
+            <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
+                {cur(totalAmount[totalAmount.length - 1])}
+            </Typography>
+            <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
+                <Tab label="Stats"/>
+                <Tab label="Modify"/>
+                <Tab label="Operations"/>
+            </Tabs>
+        </Box>
         <Box overflow="scroll">
-            {renderTab(tab)}
-            <Box minHeight={72}/>
+            <Box px={1}>
+                {renderTab(tab)}
+                <Box minHeight={72}/>
+            </Box>
         </Box>
     </MainScreen>
 })

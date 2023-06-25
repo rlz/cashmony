@@ -180,7 +180,9 @@ const Wrap = ({ op, origOp, account, origAccount, toAccount, origToAccount, chil
                 : (op !== null && op.type !== 'deleted' ? null : undefined)
         }
     >
-        {children}
+        <Box p={1}>
+            {children}
+        </Box>
     </MainScreen>
 }
 

@@ -53,33 +53,35 @@ export const CategoriesScreen = observer((): ReactElement => {
                     </Fab>
                 )
         }
-        <ExpensesCard
-            url="/categories/_total"
-            name={<Bold>Total</Bold>}
-            stats={new ExpensesStats(Operations.forFilter(appState.filter), null)}
-            sx={{ mb: 1 }}
-        />
-        <ExpensesList items={showHidden ? [...visibleCategories, ...hiddenCategories] : visibleCategories}/>
-        {
-            run(() => {
-                const stats = new ExpensesStats(Operations.forFilter(appState.filter).onlyUncategorized(), null)
-                return showIf(
-                    stats.operations.count() > 0,
-                    <ExpensesCard
-                        url='/categories/_'
-                        name={<Italic>Uncategorized</Italic>}
-                        stats={stats}
-                    />
-                )
-            })
-        }
-        {
-            !showHidden && hiddenCategories.length > 0
-                ? <Typography color="primary.main" textAlign="center">
-                    <a onClick={() => { setShowHidden(true) }}>Show {hiddenCategories.length} hidden</a>
-                </Typography>
-                : null
-        }
-        <Box minHeight={144}/>
+        <Box p={1}>
+            <ExpensesCard
+                url="/categories/_total"
+                name={<Bold>Total</Bold>}
+                stats={new ExpensesStats(Operations.forFilter(appState.filter), null)}
+                sx={{ mb: 1 }}
+            />
+            <ExpensesList items={showHidden ? [...visibleCategories, ...hiddenCategories] : visibleCategories}/>
+            {
+                run(() => {
+                    const stats = new ExpensesStats(Operations.forFilter(appState.filter).onlyUncategorized(), null)
+                    return showIf(
+                        stats.operations.count() > 0,
+                        <ExpensesCard
+                            url='/categories/_'
+                            name={<Italic>Uncategorized</Italic>}
+                            stats={stats}
+                        />
+                    )
+                })
+            }
+            {
+                !showHidden && hiddenCategories.length > 0
+                    ? <Typography color="primary.main" textAlign="center">
+                        <a onClick={() => { setShowHidden(true) }}>Show {hiddenCategories.length} hidden</a>
+                    </Typography>
+                    : null
+            }
+            <Box minHeight={144}/>
+        </Box>
     </MainScreen>
 })

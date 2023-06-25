@@ -98,49 +98,53 @@ export const ExpensesGoalScreen = observer((): ReactElement => {
         title="Expenses goal"
         onSave={onSave}
     >
-        <Typography variant='h6' textAlign="center" mt={2}>
-            {newGoal.name.trim() === '' ? '-' : newGoal.name}
-        </Typography>
-        <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
-            {cur(-stats.amountTotal(appState.timeSpan, newGoal.currency))}
-        </Typography>
-        <Typography variant='body2' textAlign="center">
+        <Box p={1}>
+            <Typography variant='h6' textAlign="center" mt={1}>
+                {newGoal.name.trim() === '' ? '-' : newGoal.name}
+            </Typography>
+            <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
+                {cur(-stats.amountTotal(appState.timeSpan, newGoal.currency))}
+            </Typography>
+            <Typography variant='body2' textAlign="center">
             Goal (30d): {goal30 !== null ? cur(-goal30.value) : '-'}
-        </Typography>
-        <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
-            <Tab label="Stats"/>
-            <Tab label="Modify"/>
-            <Tab label="Operations"/>
-        </Tabs>
+            </Typography>
+            <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
+                <Tab label="Stats"/>
+                <Tab label="Modify"/>
+                <Tab label="Operations"/>
+            </Tabs>
+        </Box>
         <Box overflow="scroll">
-            {
-                match(tab)
-                    .with(0, () => <ExpensesStatsWidget currency={newGoal.currency} stats={stats} />)
-                    .with(1, () => {
-                        return <>
-                            <ExpensesGoalEditor origName={goal.name} goal={newGoal} onChange={setNewGoal} />
-                            <Button
-                                variant='contained'
-                                fullWidth
-                                color='error'
-                                sx={{ mt: 5 }}
-                                onClick={() => {
-                                    runAsync(async () => {
-                                        await goalsModel.put({ ...goal, deleted: true })
-                                        navigate('/goals')
-                                    })
-                                }}
-                            >
+            <Box px={1}>
+                {
+                    match(tab)
+                        .with(0, () => <ExpensesStatsWidget currency={newGoal.currency} stats={stats} />)
+                        .with(1, () => {
+                            return <>
+                                <ExpensesGoalEditor origName={goal.name} goal={newGoal} onChange={setNewGoal} />
+                                <Button
+                                    variant='contained'
+                                    fullWidth
+                                    color='error'
+                                    sx={{ mt: 5 }}
+                                    onClick={() => {
+                                        runAsync(async () => {
+                                            await goalsModel.put({ ...goal, deleted: true })
+                                            navigate('/goals')
+                                        })
+                                    }}
+                                >
                                 Delete
-                            </Button>
-                        </>
-                    })
-                    .with(2, () => <OpsList
-                        operations={stats.operations.forTimeSpan(appState.timeSpan)}
-                    />)
-                    .otherwise(() => { throw Error('Unimplenented tab') })
-            }
-            <Box minHeight={72}/>
+                                </Button>
+                            </>
+                        })
+                        .with(2, () => <OpsList
+                            operations={stats.operations.forTimeSpan(appState.timeSpan)}
+                        />)
+                        .otherwise(() => { throw Error('Unimplenented tab') })
+                }
+                <Box minHeight={72}/>
+            </Box>
         </Box>
     </MainScreen>
 })

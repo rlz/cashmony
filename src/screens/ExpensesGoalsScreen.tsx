@@ -38,8 +38,10 @@ export const ExpensesGoalsScreen = observer((): ReactElement => {
                     </Fab>
                 )
         }
-        <ExpensesList items={goalsModel.goals.filter(i => i.deleted !== true)}/>
-        <Box minHeight={144}/>
+        <Box p={1}>
+            <ExpensesList items={goalsModel.goals.filter(i => i.deleted !== true)}/>
+            <Box minHeight={144}/>
+        </Box>
     </MainScreen>
 })
 

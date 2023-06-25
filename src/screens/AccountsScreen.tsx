@@ -65,36 +65,38 @@ export const AccountsScreen = observer((): ReactElement => {
                 </Fab>
 
         }
-        <Typography component="div" variant='h6' textAlign="center" my={1}>
+        <Box p={1}>
+            <Typography component="div" variant='h6' textAlign="center" my={1}>
             Total
-            <Typography variant='body1' color="primary.main">
-                {formatCurrency(total, appState.masterCurrency)}
+                <Typography variant='body1' color="primary.main">
+                    {formatCurrency(total, appState.masterCurrency)}
+                </Typography>
             </Typography>
-        </Typography>
-        <Box
-            display="flex"
-            flexDirection="column"
-            gap={1}
-        >
-            { visibleAccounts.map(account => <AccountCard
-                key={account.name}
-                account={account}
-                totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
-            />) }
-        </Box>
-        { hiddenAccounts.length > 0
-            ? (showHidden
-                ? hiddenAccounts.map(account => <AccountCard
+            <Box
+                display="flex"
+                flexDirection="column"
+                gap={1}
+            >
+                { visibleAccounts.map(account => <AccountCard
                     key={account.name}
                     account={account}
                     totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
-                />)
-                : <Typography color="primary.main" textAlign="center">
-                    <a onClick={() => { setShowHidden(true) }}>Show {hiddenAccounts.length} hidden</a>
-                </Typography>)
-            : null
-        }
-        <Box minHeight={144}/>
+                />) }
+            </Box>
+            { hiddenAccounts.length > 0
+                ? (showHidden
+                    ? hiddenAccounts.map(account => <AccountCard
+                        key={account.name}
+                        account={account}
+                        totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
+                    />)
+                    : <Typography color="primary.main" textAlign="center">
+                        <a onClick={() => { setShowHidden(true) }}>Show {hiddenAccounts.length} hidden</a>
+                    </Typography>)
+                : null
+            }
+            <Box minHeight={144}/>
+        </Box>
     </MainScreen>
 })
 
