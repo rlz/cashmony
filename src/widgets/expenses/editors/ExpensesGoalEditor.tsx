@@ -35,7 +35,6 @@ export function ExpensesGoalEditor ({ origName, goal, onChange }: Props): ReactE
 
     return <Column mt={1} gap={1}>
         <TextField
-            autoFocus
             label="Name"
             variant="filled"
             size="small"
