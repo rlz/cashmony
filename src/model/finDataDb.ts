@@ -2,6 +2,7 @@ import { type IDBPDatabase, openDB } from 'idb'
 import { type Category, type Account, type NotDeletedOperation, type Operation, type CurrencyRatesCache, ratesMonth, type ExpensesGoal } from './model'
 import { DateTime } from 'luxon'
 import { runAsync } from '../helpers/smallTools'
+import { P, match } from 'ts-pattern'
 
 const OPERATIONS_STORE_NAME = 'operations'
 const OPERATIONS_DATE_INDEX_NAME = 'date'
@@ -115,25 +116,12 @@ export class FinDataDb {
 
     async readAllCategories (): Promise<Category[]> {
         const db = await this.openDb()
-        return (
-            (await db.getAll(CATEGORIES_STORE_NAME))
-                .map(c => {
-                    delete c.currency
-                    delete c.yearGoal
-                    return {
-                        ...c,
-                        lastModified: DateTime.fromMillis(c.lastModified ?? 0, { zone: 'utc' })
-                    }
-                })
-        ) as Category[]
+        return (await db.getAll(CATEGORIES_STORE_NAME)).map(c => catFromIdb(c))
     }
 
     async putCategory (category: Category): Promise<void> {
         const db = await this.openDb()
-        await db.put(
-            CATEGORIES_STORE_NAME,
-            { ...category, lastModified: category.lastModified.toMillis() }
-        )
+        await db.put(CATEGORIES_STORE_NAME, catToIdb(category))
     }
 
     async getOperation (id: string): Promise<Operation> {
@@ -216,4 +204,43 @@ function storeToOp (o: any): Operation {
 
 function ratesKey (month: DateTime, currency: string): string {
     return `${month.toFormat('yyyy-MM')}-${currency}`
+}
+
+interface IdbCategory {
+    readonly name: string
+    readonly lastModified: number
+    readonly deleted?: boolean
+    readonly perDayAmount?: number
+    readonly currency?: string
+
+    // deprecated
+    readonly yearGoal?: number
+    readonly yearGoalUsd?: number
+    readonly hidden?: boolean
+}
+
+function catToIdb (category: Category): IdbCategory {
+    return {
+        name: category.name,
+        lastModified: category.lastModified.toMillis(),
+        deleted: category.deleted,
+        perDayAmount: category.perDayAmount,
+        currency: category.currency
+    }
+}
+
+function catFromIdb (category: IdbCategory): Category {
+    const perDayAmount = match<IdbCategory, [number | undefined, string | undefined]>(category)
+        .with({ perDayAmount: P.number, currency: P.string }, v => [v.perDayAmount, v.currency])
+        .with({ yearGoalUsd: P.number }, v => [-v.yearGoalUsd / 365, 'USD'])
+        .with({ yearGoal: P.number, currency: P.string }, v => [-v.yearGoal / 365, v.currency])
+        .otherwise(() => [undefined, undefined])
+
+    return {
+        name: category.name,
+        lastModified: DateTime.fromMillis(category.lastModified, { zone: 'utc' }),
+        perDayAmount: perDayAmount[0],
+        currency: perDayAmount[1],
+        deleted: category.deleted
+    }
 }

@@ -122,7 +122,6 @@ function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
                     }}
                     selectMany={true}
                     selectZero={true}
-                    showHidden={true}
                     showUncategorized={true}
                 />)
         }

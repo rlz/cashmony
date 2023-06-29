@@ -1,6 +1,6 @@
 import { type ExpensesGoal, type Account, type Category, type Operation } from '../model/model'
 import { fromGoogleDateTime, toGoogleDateTime } from '../helpers/dates'
-import { assertGoogleNonDeletedOperationRow, isGoogleAccountRow, isGoogleCategoryRow, isGoogleDeletedOperationRow, isGoogleNonDeletedOperationRow, isGoogleOperationCategoryRow } from '../typeCheckers.g/google'
+import { assertGoogleNonDeletedOperationRow, isGoogleAccountRow, isGoogleDeletedOperationRow, isGoogleNonDeletedOperationRow, isGoogleOperationCategoryRow } from '../typeCheckers.g/google'
 import { z } from 'zod'
 import { match } from 'ts-pattern'
 import { filterSchema } from '../model/filter'
@@ -31,14 +31,35 @@ export type GoogleOperationCategoryRow = [
     number // categoryAmount
 ]
 
-export type GoogleCategoryRow = [
-    string, // name
-    string, // currency
-    number, // lastModified
-    number | '', // yearGoalUsd
-    'yes' | 'no', // hidden
-    ('yes' | 'no')? // deleted
-]
+const GoogleCategoryRowSchemaV1 = z.union([
+    z.tuple([
+        z.string(), // name
+        z.string(), // currency
+        z.number(), // lastModified
+        z.union([z.number(), z.literal('')]), // yearGoalUsd — not used
+        z.union([z.literal('yes'), z.literal('no')]) // hidden — not used
+    ]),
+    z.tuple([
+        z.string(), // name
+        z.string(), // currency
+        z.number(), // lastModified
+        z.union([z.number(), z.literal('')]), // yearGoalUsd — not used
+        z.union([z.literal('yes'), z.literal('no')]), // hidden
+        z.union([z.literal('yes'), z.literal('no')]) // deleted
+    ])
+])
+
+const GoogleCategoryRowSchemaV2 = z.tuple([
+    z.string(), // name
+    z.string(), // currency
+    z.number(), // lastModified
+    z.literal(''), // yearGoalUsd — not used
+    z.literal(''), // hidden - not used
+    z.union([z.literal('yes'), z.literal('no'), z.literal('')]), // deleted
+    z.union([z.number(), z.literal('-')]) // perDayGoal
+])
+
+type GoogleCategoryRowV2 = z.infer<typeof GoogleCategoryRowSchemaV2>
 
 const googleGoalRowSchema = z.tuple([
     z.string(), // name
@@ -219,33 +240,44 @@ export function opsFromGoogle (googleRows: { operations: unknown[], categories: 
     return result
 }
 
-export function catsToGoogle (categories: readonly Category[]): GoogleCategoryRow[] {
+export function catsToGoogle (categories: readonly Category[]): GoogleCategoryRowV2[] {
     return categories.map(c => {
         return [
             c.name,
-            '', // currency was here
+            c.currency ?? '-',
             toGoogleDateTime(c.lastModified),
-            c.yearGoalUsd === undefined ? '' : c.yearGoalUsd,
-            c.hidden ? 'yes' : 'no',
-            c.deleted === true ? 'yes' : (c.deleted === false ? 'no' : undefined)
+            '',
+            '',
+            c.deleted === true ? 'yes' : (c.deleted === false ? 'no' : ''),
+            c.perDayAmount ?? '-'
         ]
     })
 }
 
 export function catsFromGoogle (rows: unknown[]): Category[] {
-    return rows.map(row => {
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-        if (!isGoogleCategoryRow(row)) {
-            throw Error(`Unexpected data in row (Category): ${JSON.stringify(row)}`)
+    return rows.map((row): Category => {
+        const r1 = GoogleCategoryRowSchemaV1.safeParse(row)
+        if (r1.success) {
+            return {
+                name: r1.data[0],
+                currency: r1.data[1] === '-' ? undefined : r1.data[1],
+                lastModified: fromGoogleDateTime(r1.data[2]),
+                deleted: r1.data[5] === 'yes' ? true : (r1.data[5] === 'no' ? false : undefined)
+            }
         }
 
-        return {
-            name: row[0],
-            lastModified: fromGoogleDateTime(row[2]),
-            yearGoalUsd: row[3] === '' ? undefined : row[3],
-            hidden: row[4] === 'yes',
-            deleted: row[5] === 'yes' ? true : (row[5] === 'no' ? false : undefined)
+        const r2 = GoogleCategoryRowSchemaV2.safeParse(row)
+        if (r2.success) {
+            return {
+                name: r2.data[0],
+                currency: r2.data[1] === '-' ? undefined : r2.data[1],
+                lastModified: fromGoogleDateTime(r2.data[2]),
+                deleted: r2.data[5] === 'yes' ? true : (r2.data[5] === 'no' ? false : undefined),
+                perDayAmount: r2.data[6] === '-' ? undefined : r2.data[6]
+            }
         }
+
+        throw Error(`Unexpected data in row (Category): ${JSON.stringify(row)}`)
     })
 }
 

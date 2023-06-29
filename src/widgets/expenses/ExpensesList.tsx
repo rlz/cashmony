@@ -1,7 +1,7 @@
 import React, { type ReactElement } from 'react'
 import { type Category, type ExpensesGoal } from '../../model/model'
 import { Box } from '@mui/material'
-import { P, match } from 'ts-pattern'
+import { match } from 'ts-pattern'
 import { ExpensesStats, Operations } from '../../model/stats'
 import { AppState } from '../../model/appState'
 import { CurrenciesModel } from '../../model/currencies'
@@ -35,7 +35,7 @@ export const ExpensesList = observer(({ items }: ExpensesListProps): ReactElemen
                         ))
                         .otherwise(v => new ExpensesStats(
                             Operations.forFilter(appState.filter).keepCategories(cat.name),
-                            match(v).with({ yearGoalUsd: P.number }, v => { return { value: v.yearGoalUsd / 365, currency: 'USD' } }).otherwise(() => null)
+                            v.perDayAmount !== undefined ? { value: -v.perDayAmount, currency: v.currency ?? '' } : null
                         ))
                     return <ExpensesCard url={url} key={cat.name} name={cat.name} stats={stats}/>
                 })

@@ -27,7 +27,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
         return <ExpensesCardSkeleton />
     }
 
-    const currency = appState.masterCurrency
+    const currency = props.stats.perDayGoal?.currency ?? appState.masterCurrency
 
     const goal30 = props.stats.goal(30)
     const leftPerDay = match(props.stats.leftPerDay(appState.timeSpan, currency))

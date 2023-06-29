@@ -28,12 +28,13 @@ export const CategoryScreen = observer((): ReactElement => {
     const operationsModel = OperationsModel.instance()
 
     const catName = nonNull(useParams().catName, 'catName expected here')
-    const currency = appState.masterCurrency
 
     const [cat, setCat] = useState<Category | null>(null)
     const [newCat, setNewCat] = useState<Category | null>(null)
     const [tab, setTab] = useState(0)
     const navigate = useNavigate()
+
+    const currency = newCat?.currency ?? appState.masterCurrency
 
     useEffect(
         () => {
@@ -43,12 +44,15 @@ export const CategoryScreen = observer((): ReactElement => {
                         .with('_', () => 'Uncategorized')
                         .with('_total', () => 'Total')
                         .exhaustive(),
-                    hidden: false,
                     lastModified: DateTime.utc(),
-                    yearGoalUsd: match(catName)
-                        .with('_', () => appState.uncategorizedGoalUsd ?? undefined)
-                        .with('_total', () => appState.totalGoalUsd ?? undefined)
-                        .exhaustive()
+                    perDayAmount: run(() => {
+                        const v = match(catName)
+                            .with('_', () => appState.uncategorizedGoalUsd ?? undefined)
+                            .with('_total', () => appState.totalGoalUsd ?? undefined)
+                            .exhaustive()
+                        return v !== undefined ? -v / 365 : 0
+                    }),
+                    currency: 'USD'
                 }
                 setCat(category)
                 setNewCat(category)
@@ -85,7 +89,7 @@ export const CategoryScreen = observer((): ReactElement => {
         ))
         .otherwise(() => new ExpensesStats(
             Operations.forFilter(appState.filter).keepTypes('expense', 'income').keepCategories(cat.name),
-            match(newCat.yearGoalUsd).with(undefined, () => null).otherwise(v => { return { value: v / 365, currency: 'USD' } })
+            match(newCat.perDayAmount).with(undefined, () => null).otherwise(v => { return { value: -v, currency: newCat.currency ?? '' } })
         ))
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
@@ -106,11 +110,11 @@ export const CategoryScreen = observer((): ReactElement => {
         return async () => {
             if (catName === '_') {
                 runInAction(() => {
-                    appState.uncategorizedGoalUsd = newCat.yearGoalUsd ?? null
+                    appState.uncategorizedGoalUsd = newCat.perDayAmount === undefined ? null : -newCat.perDayAmount * 365
                 })
             } else if (catName === '_total') {
                 runInAction(() => {
-                    appState.totalGoalUsd = newCat.yearGoalUsd ?? null
+                    appState.totalGoalUsd = newCat.perDayAmount === undefined ? null : -newCat.perDayAmount * 365
                 })
             } else {
                 await categoriesModel.put({ ...newCat, lastModified: DateTime.utc() })

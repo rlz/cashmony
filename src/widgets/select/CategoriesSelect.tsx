@@ -9,10 +9,9 @@ const categoriesModel = CategoriesModel.instance()
 
 interface Props {
     selected: readonly string[]
-    onSelectedChange: (selected: readonly string[]) => void
+    onSelectedChange: (selected: string[]) => void
     selectMany: boolean
     selectZero: boolean
-    showHidden: boolean
     showUncategorized?: boolean
     sx?: SxProps
 }
@@ -29,7 +28,7 @@ export const CategoriesSelect = observer((props: Props) => {
 
     categories.push(...categoriesModel.categoriesSorted.filter(catName => {
         const cat = categoriesModel.get(catName)
-        return cat.deleted !== true && (!cat.hidden || props.showHidden)
+        return cat.deleted !== true
     }))
 
     return <ItemsSelect

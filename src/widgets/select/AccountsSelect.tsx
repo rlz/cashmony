@@ -8,7 +8,7 @@ const accountsModel = AccountsModel.instance()
 
 interface Props {
     selected: readonly string[]
-    onSelectedChange: (selected: readonly string[]) => void
+    onSelectedChange: (selected: string[]) => void
     selectMany: boolean
     selectZero: boolean
     showHidden: boolean

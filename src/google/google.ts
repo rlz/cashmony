@@ -39,7 +39,7 @@ export class Google {
         ]),
         makeSheet(this.tabNames.operationsCategories, ['opId', 'cat', 'catAmount']),
         makeSheet(this.tabNames.accounts, ['name', 'currency', 'lastModified', 'hidden', 'deleted']),
-        makeSheet(this.tabNames.categories, ['name', '' /* currency */, 'lastModified', 'yearGoalUsd', 'hidden', 'deleted']),
+        makeSheet(this.tabNames.categories, ['name', 'currency', 'lastModified', '' /* yearGoalUSD */, '' /* hidden */, 'deleted', 'perDayAmount']),
         makeSheet(this.tabNames.goals, ['name', 'lastModified', 'deleted', 'isRegular', 'filter', 'perDayGoal.value', 'perDayGoal.currency'])
     ].map(i => [i.properties.title, i]))
 

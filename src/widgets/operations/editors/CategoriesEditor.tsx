@@ -46,7 +46,6 @@ export const CategoriesEditor = observer((props: Props): ReactElement => {
                 }}
                 selectMany={false}
                 selectZero={true}
-                showHidden={false}
             />
         </AccordionDetails>
     </Accordion>

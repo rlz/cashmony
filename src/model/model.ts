@@ -9,10 +9,10 @@ export interface Amount {
 
 export interface Category {
     readonly name: string
-    readonly yearGoalUsd?: number
-    readonly hidden: boolean
-    readonly deleted?: boolean
     readonly lastModified: DateTime
+    readonly perDayAmount?: number
+    readonly currency?: string
+    readonly deleted?: boolean
 }
 
 export interface Account {
@@ -23,14 +23,11 @@ export interface Account {
     readonly lastModified: DateTime
 }
 
-export interface ExpensesGoal {
-    readonly name: string
-    readonly filter: Filter
+export interface ExpensesGoal extends Category {
     readonly perDayAmount: number
     readonly currency: string
     readonly isRegular: boolean
-    readonly deleted?: boolean
-    readonly lastModified: DateTime
+    readonly filter: Filter
 }
 
 interface BaseTransaction {

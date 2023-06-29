@@ -12,7 +12,7 @@ interface Props {
     categories: readonly string[]
     addedTags: readonly string[]
     selected: readonly string[]
-    onSelectedChange: (selected: readonly string[]) => void
+    onSelectedChange: (selected: string[]) => void
     sx?: SxProps
 }
 

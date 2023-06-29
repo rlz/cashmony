@@ -1,16 +1,13 @@
 import { type DurationLikeObject } from 'luxon'
-import { CategoriesModel } from './categories'
-import { type NotDeletedOperation, type Category, type Amount } from './model'
+import { type NotDeletedOperation, type Amount } from './model'
 import { LastPeriodTimeSpan, type HumanTimeSpan, utcToday } from '../helpers/dates'
 import { OperationsModel } from './operations'
 import { AppState } from './appState'
 import { CurrenciesModel } from './currencies'
-import { P, match } from 'ts-pattern'
 import { type Filter } from './filter'
 
 const appState = AppState.instance()
 const currenciesModel = CurrenciesModel.instance()
-const categoriesModel = CategoriesModel.instance()
 const operationsModel = OperationsModel.instance()
 
 export class Operations {
@@ -354,18 +351,5 @@ export class ExpensesStats {
             }
             yield amount
         }
-    }
-
-    static forCat (catOrCatName: string | Category): ExpensesStats {
-        const cat = match(catOrCatName)
-            .with(P.string, v => categoriesModel.get(v))
-            .otherwise(v => v)
-        return new ExpensesStats(
-            Operations
-                .all()
-                .keepTypes('expense', 'income')
-                .keepCategories(cat.name),
-            match(cat.yearGoalUsd).with(undefined, () => null).otherwise(v => { return { value: v / 365, currency: 'USD' } })
-        )
     }
 }

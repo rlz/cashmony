@@ -8,7 +8,7 @@ export type ItemsType = ReadonlyArray<string | { value: string, label: string | 
 interface Props {
     items: ItemsType
     selected: readonly string[]
-    onSelectedChange: (selected: readonly string[]) => void
+    onSelectedChange: (selected: string[]) => void
     selectMany: boolean
     selectZero: boolean
     sx?: SxProps

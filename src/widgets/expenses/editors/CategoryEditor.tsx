@@ -1,16 +1,17 @@
 import React, { type ReactElement, useState } from 'react'
 import { type Category } from '../../../model/model'
 import { observer } from 'mobx-react-lite'
-import { AppState } from '../../../model/appState'
 import { CurrenciesModel } from '../../../model/currencies'
 import { CategoriesModel } from '../../../model/categories'
-import { utcToday } from '../../../helpers/dates'
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, FormControlLabel, Switch, TextField, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, FormControlLabel, IconButton, Switch, TextField, Typography } from '@mui/material'
 import { showIf } from '../../../helpers/smallTools'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { CurrencyInput } from '../../CurrencyInput'
 import { DeleteCategory } from '../../DeleteCategory'
+import { Row } from '../../Containers'
+import { getCurrencySymbol } from '../../../helpers/currencies'
+import { CurrencySelector } from '../../CurrencySelector'
 
 interface EditorProps {
     origCatName: string
@@ -20,16 +21,13 @@ interface EditorProps {
 
 export const CategoryEditor = observer(({ origCatName, cat: newCat, onChange: setNewCat }: EditorProps): ReactElement => {
     const virtual = origCatName === '_total' || origCatName === '_'
-    const appState = AppState.instance()
     const currenciesModel = CurrenciesModel.instance()
     const categoriesModel = CategoriesModel.instance()
 
-    const currency = appState.masterCurrency
-    const fromUsdRate = currenciesModel.getFromUsdRate(utcToday(), currency)
-
     const [open, setOpen] = useState<'name' | 'goal' | null>(null)
     const [delOpen, setDelOpen] = useState(false)
-    const [goal, setGoal] = useState((newCat.yearGoalUsd ?? 0) * fromUsdRate / 12)
+    const [goal, setGoal] = useState(newCat.perDayAmount ?? 0)
+    const [currencySelector, setCurrencySelector] = useState(false)
 
     return <Box mt={1}>
         {
@@ -77,32 +75,42 @@ export const CategoryEditor = observer(({ origCatName, cat: newCat, onChange: se
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={newCat.yearGoalUsd !== undefined}
+                            checked={newCat.perDayAmount !== undefined}
                             onChange={(_, checked) => {
                                 setNewCat({
                                     ...newCat,
-                                    yearGoalUsd: checked ? 0 : undefined
+                                    perDayAmount: checked ? 0 : undefined,
+                                    currency: checked ? currenciesModel.currencies[0] : undefined
                                 })
                             }}
                         />
                     }
-                    label="Set goal"
+                    label="Set daily goal"
                 />
                 {
-                    newCat.yearGoalUsd !== undefined
-                        ? <CurrencyInput
-                            label='Amount'
-                            currency={currency}
-                            negative={true}
-                            amount={goal}
-                            onAmountChange={amount => {
-                                setGoal(amount)
-                                setNewCat({
-                                    ...newCat,
-                                    yearGoalUsd: amount * 12 / fromUsdRate
-                                })
-                            }}
-                        />
+                    newCat.perDayAmount !== undefined
+                        ? <Row gap={1}>
+                            <IconButton
+                                color='primary'
+                                sx={{ width: 48 }}
+                                onClick={() => { setCurrencySelector(true) }}
+                            >
+                                {getCurrencySymbol(newCat.currency ?? '')}
+                            </IconButton>
+                            <CurrencyInput
+                                label='Amount'
+                                currency={newCat.currency ?? ''}
+                                negative={false}
+                                amount={goal}
+                                onAmountChange={amount => {
+                                    setGoal(amount)
+                                    setNewCat({
+                                        ...newCat,
+                                        perDayAmount: amount
+                                    })
+                                }}
+                            />
+                        </Row>
                         : null
                 }
             </AccordionDetails>
@@ -111,28 +119,30 @@ export const CategoryEditor = observer(({ origCatName, cat: newCat, onChange: se
             showIf(
                 !virtual,
                 <>
-                    <Box my={1}>
-                        <FormControlLabel
-                            control={<Switch
-                                checked={newCat.hidden}
-                                onChange={(_, checked) => {
-                                    setNewCat({
-                                        ...newCat,
-                                        hidden: checked
-                                    })
-                                }}
-                            />}
-                            label="Hidden"
-                        />
-                    </Box>
                     <Button
                         variant='contained'
                         color='error'
                         onClick={() => { setDelOpen(true) }}
                         fullWidth
+                        sx={{ mt: 1 }}
                     >Delete</Button>
                     <DeleteCategory name={origCatName} open={delOpen} setOpen={setDelOpen} />
                 </>
+            )
+        }
+        {
+            showIf(
+                currencySelector,
+                <CurrencySelector
+                    currency={newCat.currency ?? ''}
+                    onClose={() => { setCurrencySelector(false) }}
+                    onCurrencySelected={c => {
+                        setNewCat({
+                            ...newCat,
+                            currency: c
+                        })
+                    }}
+                />
             )
         }
     </Box>

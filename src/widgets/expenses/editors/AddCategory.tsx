@@ -12,7 +12,6 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
     const save = async (): Promise<void> => {
         await categoriesModel.put({
             name: name.trim(),
-            hidden: false,
             lastModified: DateTime.utc()
         })
         onClose()

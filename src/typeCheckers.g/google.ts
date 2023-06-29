@@ -1,5 +1,5 @@
 import typia from 'typia';
-import { type GoogleOperationCategoryRow, type GoogleDeletedOperationRow, type GoogleNonDeletedOperationRow, type GoogleCategoryRow, type GoogleAccountRow } from "../google/googleDataSchema";
+import { type GoogleOperationCategoryRow, type GoogleDeletedOperationRow, type GoogleNonDeletedOperationRow, type GoogleAccountRow } from "../google/googleDataSchema";
 import { type RowsType } from "../google/load";
 import { type PutReplyBody, type ClearReplyBody } from "../google/store";
 export const isGoogleNonDeletedOperationRow = (input: any): input is GoogleNonDeletedOperationRow => {
@@ -76,9 +76,6 @@ export const isGoogleOperationCategoryRow = (input: any): input is GoogleOperati
 };
 export const isGoogleAccountRow = (input: any): input is GoogleAccountRow => {
     return Array.isArray(input) && (4 <= input.length && 5 >= input.length && "string" === typeof input[0] && "string" === typeof input[1] && "number" === typeof input[2] && ("yes" === input[3] || "no" === input[3]) && (undefined === input[4] || "yes" === input[4] || "no" === input[4]));
-};
-export const isGoogleCategoryRow = (input: any): input is GoogleCategoryRow => {
-    return Array.isArray(input) && (5 <= input.length && 6 >= input.length && "string" === typeof input[0] && "string" === typeof input[1] && "number" === typeof input[2] && ("" === input[3] || "number" === typeof input[3]) && ("yes" === input[4] || "no" === input[4]) && (undefined === input[5] || "yes" === input[5] || "no" === input[5]));
 };
 export const assertRowsType = (input: any): RowsType => {
     const __is = (input: any): input is RowsType => {

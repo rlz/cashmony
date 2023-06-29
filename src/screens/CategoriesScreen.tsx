@@ -1,11 +1,10 @@
 import { observer } from 'mobx-react-lite'
 import React, { useState, type ReactElement } from 'react'
-import { Box, Fab, Typography } from '@mui/material'
+import { Box, Fab } from '@mui/material'
 import { CategoriesModel } from '../model/categories'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { ExpensesStats, Operations } from '../model/stats'
-import { type Category } from '../model/model'
 import { AddCategory } from '../widgets/expenses/editors/AddCategory'
 import './CategoriesScreen.scss'
 import { AppState } from '../model/appState'
@@ -20,20 +19,12 @@ export const CategoriesScreen = observer((): ReactElement => {
     const appState = AppState.instance()
     const categoriesModel = CategoriesModel.instance()
 
-    const [showHidden, setShowHidden] = useState(false)
     const [addCategory, setAddCategory] = useState(false)
 
-    const visibleCategories: Category[] = []
-    const hiddenCategories: Category[] = []
-
-    for (const c of categoriesModel.categoriesSorted.map(c => categoriesModel.get(c))) {
-        if (c.deleted === true) continue
-        if (c.hidden) {
-            hiddenCategories.push(c)
-            continue
-        }
-        visibleCategories.push(c)
-    }
+    const cats = categoriesModel
+        .categoriesSorted
+        .map(c => categoriesModel.get(c))
+        .filter(c => c.deleted !== true)
 
     return <MainScreen>
         {
@@ -60,7 +51,7 @@ export const CategoriesScreen = observer((): ReactElement => {
                 stats={new ExpensesStats(Operations.forFilter(appState.filter), null)}
                 sx={{ mb: 1 }}
             />
-            <ExpensesList items={showHidden ? [...visibleCategories, ...hiddenCategories] : visibleCategories}/>
+            <ExpensesList items={cats}/>
             {
                 run(() => {
                     const stats = new ExpensesStats(Operations.forFilter(appState.filter).onlyUncategorized(), null)
@@ -73,13 +64,6 @@ export const CategoriesScreen = observer((): ReactElement => {
                         />
                     )
                 })
-            }
-            {
-                !showHidden && hiddenCategories.length > 0
-                    ? <Typography color="primary.main" textAlign="center">
-                        <a onClick={() => { setShowHidden(true) }}>Show {hiddenCategories.length} hidden</a>
-                    </Typography>
-                    : null
             }
             <Box minHeight={144}/>
         </Box>
