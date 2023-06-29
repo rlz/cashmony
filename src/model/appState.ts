@@ -195,7 +195,7 @@ export class AppState {
         const today = this.today
         if (timeSpan.endDate < today) return 0
 
-        return timeSpan.endDate.diff(today, 'days').days
+        return timeSpan.endDate.diff(today, 'days').days + 1
     }
 
     static instance (): AppState {
