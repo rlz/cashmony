@@ -8,10 +8,15 @@ import { DateTime, type DurationLike } from 'luxon'
 import { nonNull, run, runAsync } from '../helpers/smallTools'
 import { type CurrencyRates, type CurrencyRatesCache, ratesMonth, CURRENCY_RATES_SCHEMA } from './model'
 import { match } from 'ts-pattern'
+import { GoalsModel } from './goals'
+import { CategoriesModel } from './categories'
+import { Operations } from './stats'
 
 const finDataDb = FinDataDb.instance()
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
+const categoriesModel = CategoriesModel.instance()
+const goalsModel = GoalsModel.instance()
 
 let currenciesModel: CurrenciesModel | null = null
 const emptyStats: ReadonlyMap<string, number> = new Map()
@@ -59,20 +64,38 @@ export class CurrenciesModel {
                 return op.date
             })
 
-            for (const op of operationsModel.operations) {
-                if (op.type === 'deleted') {
+            const calcNeedRates = (ops: Operations, currency: string): void => {
+                for (const op of ops.operations()) {
+                    if (op.currency !== currency) {
+                        if (op.currency !== 'USD') {
+                            needRates.add(`${op.date.toFormat('yyyy/MM')}/${op.currency}`)
+                        }
+
+                        if (currency !== 'USD') {
+                            needRates.add(`${op.date.toFormat('yyyy/MM')}/${masterCurrency}`)
+                        }
+                    }
+                }
+            }
+
+            calcNeedRates(Operations.all(), masterCurrency)
+
+            for (const cat of categoriesModel.categories.values()) {
+                if (cat.deleted === true || cat.currency === undefined) {
                     continue
                 }
 
-                if (op.currency !== masterCurrency) {
-                    if (op.currency !== 'USD') {
-                        needRates.add(`${op.date.toFormat('yyyy/MM')}/${op.currency}`)
-                    }
+                const ops = Operations.all().keepTypes('expense', 'income').keepCategories(cat.name).skipUncategorized()
+                calcNeedRates(ops, cat.currency)
+            }
 
-                    if (masterCurrency !== 'USD') {
-                        needRates.add(`${op.date.toFormat('yyyy/MM')}/${masterCurrency}`)
-                    }
+            for (const goal of goalsModel.goals ?? []) {
+                if (goal.deleted === true) {
+                    continue
                 }
+
+                const ops = Operations.forFilter(goal.filter).keepTypes('expense', 'income')
+                calcNeedRates(ops, goal.currency)
             }
 
             runAsync(async () => {
