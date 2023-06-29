@@ -25,16 +25,16 @@ export function MainBottomNavigation (): ReactElement {
             onClick={() => { nav('/categories') }}
         />
         <BottomNavigationAction
-            value="/accounts"
-            label="Accounts"
-            icon={<FontAwesomeIcon size="lg" icon={faWallet} />}
-            onClick={() => { nav('/accounts') }}
-        />
-        <BottomNavigationAction
             value="/goals"
             label="Goals"
             icon={<FontAwesomeIcon size="lg" icon={faBullseye} />}
             onClick={() => { nav('/goals') }}
+        />
+        <BottomNavigationAction
+            value="/accounts"
+            label="Accounts"
+            icon={<FontAwesomeIcon size="lg" icon={faWallet} />}
+            onClick={() => { nav('/accounts') }}
         />
     </BottomNavigation>
 }
