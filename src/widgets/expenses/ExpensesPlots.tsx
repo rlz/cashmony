@@ -121,7 +121,7 @@ export const ExpensesTotalPlot = observer(({ currency, stats }: TotalCatPlotProp
             }]
 
             if (appState.daysLeft > 0) {
-                const daysPass = appState.timeSpan.totalDays - appState.daysLeft
+                const daysPass = appState.timeSpan.totalDays - appState.daysLeft + 1
                 const periodTotal = -stats.amountTotal(appState.timeSpan, currency)
 
                 series.push({
