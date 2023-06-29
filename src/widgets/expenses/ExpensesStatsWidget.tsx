@@ -4,8 +4,9 @@ import { AppState } from '../../model/appState'
 import { type ExpensesStats } from '../../model/stats'
 import { formatCurrency } from '../../helpers/currencies'
 import { Box, Paper, Typography } from '@mui/material'
-import { DivBody2 } from '../Typography'
+import { DivBody2, Italic } from '../Typography'
 import { ExpensesBarsPlot, ExpensesTotalPlot } from './ExpensesPlots'
+import { P, match } from 'ts-pattern'
 
 interface Props {
     currency: string
@@ -20,7 +21,7 @@ export const ExpensesStatsWidget = observer(({ currency, stats }: Props): ReactE
 
     const leftPerDay = appState.daysLeft > 0 && stats.perDayGoal !== null
         ? -(stats.leftPerDay(timeSpan, currency)?.value ?? -0)
-        : -1
+        : null
 
     return <Box display="flex" flexDirection="column" gap={1} pb={1}>
         <DivBody2 mt={1} py={1}>
@@ -32,7 +33,14 @@ export const ExpensesStatsWidget = observer(({ currency, stats }: Props): ReactE
                     </tr>
                     <tr>
                         <th>Left per day:</th>
-                        <td>{leftPerDay > 0 ? cur(leftPerDay) : '-'}</td>
+                        <td>
+                            {
+                                match(leftPerDay)
+                                    .with(null, () => '-')
+                                    .with(P.number.gt(0), v => cur(v))
+                                    .otherwise(() => <Italic color={'warning.main'}>overspend</Italic>)
+                            }
+                        </td>
                     </tr>
                 </tbody>
             </table>

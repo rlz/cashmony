@@ -6,7 +6,7 @@ import { AppState } from '../../model/appState'
 import { P, match } from 'ts-pattern'
 import { formatCurrency } from '../../helpers/currencies'
 import { Box, Paper, Skeleton, type SxProps } from '@mui/material'
-import { DivBody2, SpanBody1 } from '../Typography'
+import { DivBody2, Italic, SpanBody1 } from '../Typography'
 import { ExpensesBarsPlot } from './ExpensesPlots'
 import { utcToday } from '../../helpers/dates'
 import { CurrenciesModel } from '../../model/currencies'
@@ -31,7 +31,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
 
     const goal30 = props.stats.goal(30)
     const leftPerDay = match(props.stats.leftPerDay(appState.timeSpan, currency))
-        .with(null, () => 0)
+        .with(null, () => null)
         .with({ value: P.select() }, v => -v)
         .otherwise(() => 0)
 
@@ -63,7 +63,14 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                             </tr>
                             <tr>
                                 <th>Left per day:</th>
-                                <td>{ leftPerDay > 0 ? cur(leftPerDay) : '-' }</td>
+                                <td>
+                                    {
+                                        match(leftPerDay)
+                                            .with(null, () => '-')
+                                            .with(P.number.gt(0), v => cur(v))
+                                            .otherwise(() => <Italic color={'warning.main'}>overspend</Italic>)
+                                    }
+                                </td>
                             </tr>
                         </tbody>
                     </table>
