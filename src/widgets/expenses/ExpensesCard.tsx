@@ -24,7 +24,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
     const appState = AppState.instance()
     const currenciesModel = CurrenciesModel.instance()
     if (currenciesModel.rates === null) {
-        return <ExpensesCardSkeleton />
+        return <ExpensesCardSkeleton sx={props.sx}/>
     }
 
     const currency = props.stats.perDayGoal?.currency ?? appState.masterCurrency

@@ -77,24 +77,26 @@ export const AccountsScreen = observer((): ReactElement => {
                 flexDirection="column"
                 gap={1}
             >
-                { visibleAccounts.map(account => <AccountCard
-                    key={account.name}
-                    account={account}
-                    totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
-                />) }
-            </Box>
-            { hiddenAccounts.length > 0
-                ? (showHidden
-                    ? hiddenAccounts.map(account => <AccountCard
+                {
+                    visibleAccounts.map(account => <AccountCard
                         key={account.name}
                         account={account}
                         totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
                     />)
-                    : <Typography color="primary.main" textAlign="center">
-                        <a onClick={() => { setShowHidden(true) }}>Show {hiddenAccounts.length} hidden</a>
-                    </Typography>)
-                : null
-            }
+                }
+                { hiddenAccounts.length > 0
+                    ? (showHidden
+                        ? hiddenAccounts.map(account => <AccountCard
+                            key={account.name}
+                            account={account}
+                            totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
+                        />)
+                        : <Typography color="primary.main" textAlign="center">
+                            <a onClick={() => { setShowHidden(true) }}>Show {hiddenAccounts.length} hidden</a>
+                        </Typography>)
+                    : null
+                }
+            </Box>
             <Box minHeight={144}/>
         </Box>
     </MainScreen>
