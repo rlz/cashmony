@@ -14,9 +14,9 @@ let accountsModel: AccountsModel | null = null
 
 export class AccountsModel {
     private readonly finDataDb = FinDataDb.instance()
-    accounts: ReadonlyMap<string, Account> = new Map()
-    accountsSorted: readonly string[] = []
-    amounts: ReadonlyMap<string, ReadonlyMap<string, number>> = new Map()
+    accounts: ReadonlyMap<string, Account> | null = null
+    accountsSorted: readonly string[] | null = null
+    amounts: ReadonlyMap<string, ReadonlyMap<string, number>> | null = null
 
     private constructor () {
         makeAutoObservable(this, {
@@ -26,9 +26,11 @@ export class AccountsModel {
         })
 
         autorun(() => {
-            if (this.accounts.size === 0) {
+            if (this.accounts === null) {
                 return
             }
+
+            const accounts = [...toJS(this.accounts).keys()]
 
             const stats = new Map<string, number>()
 
@@ -43,13 +45,12 @@ export class AccountsModel {
             }
 
             runInAction(() => {
-                this.accountsSorted = [...toJS(this.accounts).keys()].sort(compareByStats(stats))
+                this.accountsSorted = accounts.sort(compareByStats(stats))
             })
         })
 
         autorun(() => {
-            if (this.accounts.size === 0) {
-                this.amounts = new Map([[utcToday().toISODate() ?? '', new Map()]])
+            if (this.accounts === null) {
                 return
             }
 
@@ -78,8 +79,6 @@ export class AccountsModel {
                         break
                     }
 
-                    // console.log('Processing op', currentOp)
-
                     const amount = currentAmounts.get(currentOp.account.name)
 
                     if (amount === undefined) {
@@ -101,7 +100,6 @@ export class AccountsModel {
                     currentOpIndex++
                 }
                 amounts.set(date.toISODate() ?? '', new Map(currentAmounts))
-                // console.log(date.toISO(), Object.fromEntries(currentAmounts))
             }
 
             runInAction(() => {
@@ -121,6 +119,10 @@ export class AccountsModel {
     }
 
     get (accountName: string): Account {
+        if (this.accounts === null) {
+            throw Error('Accounts have not been loaded')
+        }
+
         const account = this.accounts.get(accountName)
 
         if (account === undefined) {
@@ -138,6 +140,10 @@ export class AccountsModel {
     }
 
     getAmounts (date: DateTime): ReadonlyMap<string, number> {
+        if (this.amounts === null) {
+            throw Error('Amounts have not been calculated')
+        }
+
         if (date > appState.today) {
             const amounts = this.amounts.get(appState.today.toISODate() ?? '')
             if (amounts === undefined) {
@@ -165,6 +171,6 @@ export class AccountsModel {
     }
 
     private zeroAmounts (): Map<string, number> {
-        return new Map([...this.accounts.values()].map(i => [i.name, 0]))
+        return new Map([...this.accounts?.values() ?? []].map(i => [i.name, 0]))
     }
 }

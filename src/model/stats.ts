@@ -200,21 +200,14 @@ export class Operations {
         return count
     }
 
-    sumExpenses (toCurrency: string): number {
+    sumOpExpenses (toCurrency: string): number {
         let sum = 0
         for (const op of this.onlyExpenses().operations()) {
             if (op.type !== 'expense' && op.type !== 'income') {
                 continue
             }
 
-            if (op.categories.length === 0) {
-                sum += op.amount * currenciesModel.getRate(op.date, op.currency, toCurrency)
-                continue
-            }
-
-            for (const cat of op.categories) {
-                sum += cat.amount * currenciesModel.getRate(op.date, op.currency, toCurrency)
-            }
+            sum += op.amount * currenciesModel.getRate(op.date, op.currency, toCurrency)
         }
         return sum
     }
@@ -257,7 +250,7 @@ export class ExpensesStats {
     amountTotal (timeSpan: HumanTimeSpan, currency: string): number {
         return this.operations
             .forTimeSpan(timeSpan)
-            .sumExpenses(currency)
+            .sumOpExpenses(currency)
     }
 
     avgUntilToday (days: number, timeSpan: HumanTimeSpan, currency: string): number {

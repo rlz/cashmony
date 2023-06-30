@@ -31,6 +31,10 @@ export interface SyncStatsEx extends SyncStats {
 }
 
 export async function syncAccounts (): Promise<SyncStats> {
+    if (accountsModel.accounts === null) {
+        throw Error('Accounts not loaded')
+    }
+
     const googleAccounts = await google.loadAccounts()
     const localAccounts = accountsModel.accounts
 

@@ -55,6 +55,15 @@ export class CurrenciesModel {
             })
 
             const masterCurrency = appState.masterCurrency
+            if (
+                operationsModel.operations === null ||
+                categoriesModel.categories === null ||
+                categoriesModel.categoriesSorted === null ||
+                goalsModel.goals === null
+            ) {
+                return
+            }
+
             const needRates = new Set<string>()
             const firstDate = run(() => {
                 const op = operationsModel.firstOp

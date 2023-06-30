@@ -23,7 +23,12 @@ export const AccountsScreen = observer((): ReactElement => {
     const currenciesModel = CurrenciesModel.instance()
     const accountsModel = AccountsModel.instance()
 
-    if (currenciesModel.rates === null) return <AccountsScreenSkeleton />
+    if (
+        currenciesModel.rates === null ||
+        accountsModel.accounts === null ||
+        accountsModel.accountsSorted === null ||
+        accountsModel.amounts === null
+    ) return <AccountsScreenSkeleton />
 
     const totalAmounts = [...appState.timeSpan.allDates({ includeDayBefore: true })].map(d => accountsModel.getAmounts(d))
 

@@ -49,7 +49,7 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
         onClose()
     }
 
-    const acc = accountsModel.accounts.get(name)
+    const acc = accountsModel.accounts?.get(name)
     const exists = acc !== undefined && acc.deleted !== true
 
     return <FullScreenModal title="Add account" onClose={onClose} gap={1}>

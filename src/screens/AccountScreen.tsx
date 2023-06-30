@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import React, { useState, type ReactElement, useEffect, useMemo } from 'react'
-import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Box, Button, FormControlLabel, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
+import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Box, Button, FormControlLabel, Skeleton, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faSpinner } from '@fortawesome/free-solid-svg-icons'
@@ -18,6 +18,7 @@ import { DeleteAccount } from '../widgets/DeleteAccount'
 import { OpsList } from '../widgets/operations/OpsList'
 import { Operations } from '../model/stats'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
+import { Column } from '../widgets/Containers'
 
 const appState = AppState.instance()
 const accountsModel = AccountsModel.instance()
@@ -36,12 +37,20 @@ export const AccountScreen = observer(() => {
     const navigate = useNavigate()
 
     useEffect(() => {
+        if (accountsModel.accounts === null) {
+            return
+        }
+
         const account = accountsModel.get(accName)
         setAcc(account)
         setNewAcc(account)
     }, [accountsModel.accounts])
 
     const [perDayAmount, totalAmount] = useMemo(() => {
+        if (accountsModel.amounts === null) {
+            return [[], []]
+        }
+
         const timeSpan = appState.timeSpan
 
         const allDates = [...timeSpan.allDates({ includeDayBefore: true })]
@@ -53,8 +62,13 @@ export const AccountScreen = observer(() => {
         return [perDayAmount, totalAmount]
     }, [accountsModel.amounts, appState.timeSpanInfo])
 
-    if (acc === null || newAcc === null) {
-        return <EmptyScreen />
+    if (
+        acc === null ||
+        newAcc === null ||
+        accountsModel.accounts === null ||
+        accountsModel.amounts === null
+    ) {
+        return <AccountScreenSkeleton />
     }
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, acc.currency, compact)
@@ -141,8 +155,25 @@ export const AccountScreen = observer(() => {
     </MainScreen>
 })
 
-function EmptyScreen (): ReactElement {
-    return <MainScreen navigateOnBack='/categories' title="Categories"/>
+function AccountScreenSkeleton (): ReactElement {
+    return <MainScreen navigateOnBack='/accounts' title="Account">
+        <Typography variant='h6' mt={2}>
+            <Skeleton width={75} sx={{ mx: 'auto' }} />
+        </Typography>
+        <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
+            <Skeleton width={95} sx={{ mx: 'auto' }} />
+        </Typography>
+        <Tabs value={0} variant='fullWidth'>
+            <Tab label={<Skeleton width={45} />}/>
+            <Tab label={<Skeleton width={65}/>}/>
+            <Tab label={<Skeleton width={35}/>}/>
+        </Tabs>
+        <Column gap={1} mt={1}>
+            <Skeleton variant='rounded' height={185}/>
+            <Skeleton variant='rounded' height={200}/>
+            <Skeleton variant='rounded' height={180}/>
+        </Column>
+    </MainScreen>
 }
 
 interface StatsProps {
@@ -186,7 +217,7 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
                 <TextField
                     error={
                         newAcc.name !== acc.name &&
-                        accountsModel.accounts.has(newAcc.name) &&
+                        accountsModel.accounts?.has(newAcc.name) === true &&
                         accountsModel.get(newAcc.name).deleted !== true
                     }
                     label='Name'
