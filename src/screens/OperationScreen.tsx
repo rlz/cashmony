@@ -97,7 +97,12 @@ export const OperationScreen = observer((): ReactElement => {
         }
     }, [])
 
-    if (op === null) {
+    if (
+        op === null ||
+        accountsModel.accounts === null ||
+        accountsModel.amounts === null ||
+        currenciesModel.rates === null
+    ) {
         return <Wrap
             op={op} origOp={origOp}
             account={account} origAccount={origAccount}
