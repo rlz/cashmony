@@ -41,7 +41,7 @@ export const AmountEditor = observer((props: Props): ReactElement => {
                     <CurrencyInput
                         autoFocus
                         label='Amount'
-                        negative={props.negative}
+                        mult={props.negative ? -1 : 1}
                         amount={props.amount}
                         currency={props.currency}
                         onAmountChange={props.onAmountChange}

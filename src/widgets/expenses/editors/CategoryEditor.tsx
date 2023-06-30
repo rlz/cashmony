@@ -3,15 +3,13 @@ import { type Category } from '../../../model/model'
 import { observer } from 'mobx-react-lite'
 import { CurrenciesModel } from '../../../model/currencies'
 import { CategoriesModel } from '../../../model/categories'
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, FormControlLabel, IconButton, Switch, TextField, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, FormControlLabel, Switch, TextField, Typography } from '@mui/material'
 import { showIf } from '../../../helpers/smallTools'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
-import { CurrencyInput } from '../../CurrencyInput'
 import { DeleteCategory } from '../../DeleteCategory'
-import { Row } from '../../Containers'
-import { getCurrencySymbol } from '../../../helpers/currencies'
 import { CurrencySelector } from '../../CurrencySelector'
+import { GoalInput } from './GoalInput'
 
 interface EditorProps {
     origCatName: string
@@ -26,7 +24,6 @@ export const CategoryEditor = observer(({ origCatName, cat: newCat, onChange: se
 
     const [open, setOpen] = useState<'name' | 'goal' | null>(null)
     const [delOpen, setDelOpen] = useState(false)
-    const [goal, setGoal] = useState(newCat.perDayAmount ?? 0)
     const [currencySelector, setCurrencySelector] = useState(false)
 
     return <Box mt={1}>
@@ -89,28 +86,16 @@ export const CategoryEditor = observer(({ origCatName, cat: newCat, onChange: se
                 />
                 {
                     newCat.perDayAmount !== undefined
-                        ? <Row gap={1}>
-                            <IconButton
-                                color='primary'
-                                sx={{ width: 48 }}
-                                onClick={() => { setCurrencySelector(true) }}
-                            >
-                                {getCurrencySymbol(newCat.currency ?? '')}
-                            </IconButton>
-                            <CurrencyInput
-                                label='Amount'
-                                currency={newCat.currency ?? ''}
-                                negative={false}
-                                amount={goal}
-                                onAmountChange={amount => {
-                                    setGoal(amount)
-                                    setNewCat({
-                                        ...newCat,
-                                        perDayAmount: amount
-                                    })
-                                }}
-                            />
-                        </Row>
+                        ? <GoalInput
+                            perDayAmount={newCat.perDayAmount}
+                            onPerDayAmountChange={perDayAmount => {
+                                setNewCat({ ...newCat, perDayAmount })
+                            }}
+                            currency={newCat.currency ?? ''}
+                            onCurrencyChange={currency => {
+                                setNewCat({ ...newCat, currency })
+                            }}
+                        />
                         : null
                 }
             </AccordionDetails>

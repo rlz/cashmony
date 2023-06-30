@@ -242,7 +242,6 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
             <AccordionDetails>
                 <CurrencyInput
                     label='Amount'
-                    negative={false}
                     currency={newAcc.currency}
                     amount={adjustedAmount}
                     onAmountChange={amount => { setAdjustedAmount(amount) }}

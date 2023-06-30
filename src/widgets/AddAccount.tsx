@@ -80,7 +80,6 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
         </Box>
         <CurrencyInput
             allowZero
-            negative={false}
             label='Initial amount'
             currency={currency}
             amount={initialAmount}

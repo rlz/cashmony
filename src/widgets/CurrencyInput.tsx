@@ -5,7 +5,7 @@ import { getCurrencySymbol } from '../helpers/currencies'
 interface Props {
     autoFocus?: boolean
     allowZero?: boolean
-    negative: boolean
+    mult?: number
     label: string
     amount: number
     currency: string
@@ -21,7 +21,7 @@ const regExps = [
 export function CurrencyInput (props: Props): ReactElement {
     const [amountText, setAmountText] = useState('')
 
-    const mult = props.negative ? -1 : 1
+    const mult = props.mult ?? 1
     const a = parseFloat(amountText)
 
     useEffect(() => {
@@ -35,7 +35,7 @@ export function CurrencyInput (props: Props): ReactElement {
             (amountText !== '' && props.amount !== mult * a) ||
             (amountText === '' && props.amount !== 0)
         ) {
-            setAmountText(Math.abs(props.amount).toFixed(2))
+            setAmountText((props.amount / mult).toFixed(2))
         }
     }, [props.amount, mult, a, amountText])
 
