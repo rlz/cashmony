@@ -143,6 +143,8 @@ export const OperationScreen = observer((): ReactElement => {
                 navigate(`/operations/${op.id}`)
             } else {
                 setOrigOp(op)
+                setOrigAccount(account)
+                setOrigToAccount(toAccount)
             }
         }
         : null
@@ -190,6 +192,10 @@ export const OperationScreen = observer((): ReactElement => {
                 } else {
                     setOp(o)
                     setOrigOp(o)
+                    setAccount(null)
+                    setOrigAccount(null)
+                    setToAccount(null)
+                    setOrigToAccount(null)
                 }
             }}
             op={op}
