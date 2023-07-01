@@ -6,6 +6,7 @@ import { observer } from 'mobx-react-lite'
 import { getCurrencySymbol } from '../../../helpers/currencies'
 import { CurrencyInput } from '../../CurrencyInput'
 import { CurrencySelector } from '../../CurrencySelector'
+import { showIf } from '../../../helpers/smallTools'
 
 interface Props {
     amount: number
@@ -30,23 +31,29 @@ export const AmountEditor = observer((props: Props): ReactElement => {
                 <Typography>Amount</Typography>
             </AccordionSummary>
             <AccordionDetails>
-                <Box display="flex" gap={1}>
-                    <IconButton
-                        color='primary'
-                        sx={{ width: 48 }}
-                        onClick={() => { setCurSelOpen(true) }}
-                    >
-                        {getCurrencySymbol(props.currency)}
-                    </IconButton>
-                    <CurrencyInput
-                        autoFocus
-                        label='Amount'
-                        mult={props.negative ? -1 : 1}
-                        amount={props.amount}
-                        currency={props.currency}
-                        onAmountChange={props.onAmountChange}
-                    />
-                </Box>
+                {
+                    showIf(
+                        props.expanded,
+                        <Box display="flex" gap={1}>
+                            <IconButton
+                                color='primary'
+                                sx={{ width: 48 }}
+                                onClick={() => { setCurSelOpen(true) }}
+                            >
+                                {getCurrencySymbol(props.currency)}
+                            </IconButton>
+                            <CurrencyInput
+                                autoFocus
+                                label='Amount'
+                                mult={props.negative ? -1 : 1}
+                                amount={props.amount}
+                                currency={props.currency}
+                                onAmountChange={props.onAmountChange}
+                            />
+                        </Box>
+
+                    )
+                }
             </AccordionDetails>
         </Accordion>
         { curSelOpen

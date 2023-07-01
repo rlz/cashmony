@@ -20,6 +20,11 @@ import { CurrenciesModel } from '../model/currencies'
 import { deepEqual } from '../helpers/deepEqual'
 import { AppState } from '../model/appState'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
+import { useWidth, widthOneOf } from '../helpers/useWidth'
+import { Panel, PanelGroup } from 'react-resizable-panels'
+import { OpsList } from '../widgets/operations/OpsList'
+import { ResizeHandle } from '../widgets/generic/resizeHandle'
+import { PBody2 } from '../widgets/Typography'
 
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
@@ -40,8 +45,16 @@ export const OperationScreen = observer((): ReactElement => {
     const [origToAccount, setOrigToAccount] = useState<NotDeletedOperation['account'] | null>(null)
     const location = useLocation()
     const pathParams = useParams()
+    const showOps = !widthOneOf(useWidth(), ['xs', 'sm'])
 
     useEffect(() => {
+        setOp(null)
+        setOrigOp(null)
+        setAccount(null)
+        setOrigAccount(null)
+        setToAccount(null)
+        setOrigToAccount(null)
+
         if (location.pathname.endsWith('expense')) {
             setOp({
                 id: uuid(),
@@ -95,7 +108,7 @@ export const OperationScreen = observer((): ReactElement => {
 
             void getData()
         }
-    }, [])
+    }, [location])
 
     if (
         op === null ||
@@ -104,6 +117,7 @@ export const OperationScreen = observer((): ReactElement => {
         currenciesModel.rates === null
     ) {
         return <Wrap
+            showOps={showOps}
             op={op} origOp={origOp}
             account={account} origAccount={origAccount}
             toAccount={toAccount} origToAccount={origToAccount}
@@ -112,6 +126,7 @@ export const OperationScreen = observer((): ReactElement => {
 
     if (op.type === 'deleted') {
         return <Wrap
+            showOps={showOps}
             op={op} origOp={origOp}
             account={account} origAccount={origAccount}
             toAccount={toAccount} origToAccount={origToAccount}
@@ -121,6 +136,7 @@ export const OperationScreen = observer((): ReactElement => {
     }
 
     return <Wrap
+        showOps={showOps}
         op={op} origOp={origOp}
         account={account} origAccount={origAccount}
         toAccount={toAccount} origToAccount={origToAccount}
@@ -136,6 +152,7 @@ export const OperationScreen = observer((): ReactElement => {
 })
 
 interface WrapProps extends PropsWithChildren {
+    showOps: boolean
     op: PartialOperation | DeletedOperation | null
     origOp: PartialOperation | DeletedOperation | null
     account: NotDeletedOperation['account'] | null
@@ -144,7 +161,10 @@ interface WrapProps extends PropsWithChildren {
     origToAccount: NotDeletedOperation['account'] | null
 }
 
-const Wrap = ({ op, origOp, account, origAccount, toAccount, origToAccount, children }: WrapProps): ReactElement => {
+const OPS_LIST_SX = { p: 1, overflow: 'auto', height: '100%' }
+
+const Wrap = observer(({ showOps, op, origOp, account, origAccount, toAccount, origToAccount, children }: WrapProps): ReactElement => {
+    const location = useLocation()
     const navigate = useNavigate()
     const title = op === null
         ? ''
@@ -185,11 +205,28 @@ const Wrap = ({ op, origOp, account, origAccount, toAccount, origToAccount, chil
                 : (op !== null && op.type !== 'deleted' ? null : undefined)
         }
     >
-        <Box p={1}>
-            {children}
-        </Box>
+        {
+            showOps
+                ? <PanelGroup direction="horizontal">
+                    <Panel>
+                        <OpsList
+                            sx={OPS_LIST_SX} /* no re-render here */
+                            noFab={location.pathname.startsWith('/new-op/')}
+                        />
+                    </Panel>
+                    <ResizeHandle/>
+                    <Panel>
+                        <Box p={1} overflow='auto' height='100%'>
+                            {children}
+                        </Box>
+                    </Panel>
+                </PanelGroup>
+                : <Box p={1}>
+                    {children}
+                </Box>
+        }
     </MainScreen>
-}
+})
 
 interface BodyProps {
     op: PartialOperation
@@ -206,7 +243,11 @@ function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: Bo
 
     const [expanded, setExpanded] = useState<
     'amount' | 'tags' | 'account' | 'toAccount' | 'comment' | 'date' | 'categories' | null
-    >(op.amount === 0 ? 'amount' : null)
+    >(null)
+
+    useEffect(() => {
+        setExpanded(location.pathname.startsWith('/new-op/') ? 'amount' : null)
+    }, [location])
 
     const propagateAndSave = (
         op: PartialOperation,
@@ -321,19 +362,26 @@ function SkeletonBody (): ReactElement {
 
     return <Box px={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
         <Box py={2}>
-            <Skeleton width={90} sx={{ margin: '0 auto' }} />
-            <Skeleton width={180} height={48} sx={{ margin: '0 auto' }} />
-            <Skeleton width={190} sx={{ mt: 1 }} />
-            <Skeleton width={170} />
-            <Skeleton width={230} sx={{ mt: 1 }} />
-            <Skeleton width={270} />
+            <PBody2>
+                <Skeleton width={90} sx={{ margin: '0 auto' }} />
+            </PBody2>
+            <Typography variant='h4'>
+                <Skeleton width={180} sx={{ margin: '0 auto' }} />
+            </Typography>
+            <PBody2 mt={1}>
+                <Skeleton width={190} />
+                <Skeleton width={170} />
+                <Skeleton width={230} sx={{ mt: 1 }} />
+                <Skeleton width={270} />
+            </PBody2>
         </Box>
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
-        <Skeleton variant='rounded' sx={{ height: 32, marginBottom: 1 }} />
+        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant='rounded' sx={{ height: 36, mt: 2 }} />
     </Box>
 }
 
