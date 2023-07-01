@@ -48,9 +48,9 @@ export const CategoryEditor = observer(({ origCatName, cat: newCat, onChange: se
                                 categoriesModel.get(newCat.name).deleted !== true
                             }
                             label='Name'
-                            size="small"
+                            size='small'
                             fullWidth
-                            variant="filled"
+                            variant='filled'
                             value={newCat.name}
                             onChange={ev => { setNewCat({ ...newCat, name: ev.target.value }) }}
                         />
@@ -82,7 +82,7 @@ export const CategoryEditor = observer(({ origCatName, cat: newCat, onChange: se
                             }}
                         />
                     }
-                    label="Set daily goal"
+                    label='Set daily goal'
                 />
                 {
                     newCat.perDayAmount !== undefined

@@ -36,7 +36,7 @@ export const CategoriesScreen = observer((): ReactElement => {
                 )
                 .otherwise(
                     () => <Fab
-                        color="primary"
+                        color='primary'
                         sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
                         onClick={() => { setAddCategory(true) }}
                     >
@@ -46,7 +46,7 @@ export const CategoriesScreen = observer((): ReactElement => {
         }
         <Box p={1}>
             <ExpensesCard
-                url="/categories/_total"
+                url='/categories/_total'
                 name={<Bold>Total</Bold>}
                 stats={new ExpensesStats(Operations.forFilter(appState.filter), null)}
                 sx={{ mb: 1 }}

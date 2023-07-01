@@ -20,11 +20,11 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
     const cat = categoriesModel.categories.get(name.trim())
     const exists = cat !== undefined && cat.deleted !== true
 
-    return <FullScreenModal title="Add category" onClose={onClose} gap={1}>
+    return <FullScreenModal title='Add category' onClose={onClose} gap={1}>
         <TextField
-            label="Name"
-            variant="filled"
-            size="small"
+            label='Name'
+            variant='filled'
+            size='small'
             value={name}
             error={name.trim() === '' || exists }
             helperText={
@@ -39,7 +39,7 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
         />
         <Button
             fullWidth
-            variant="contained"
+            variant='contained'
             disabled={ name.trim() === '' || exists }
             onClick={() => { void save() }}
         >Create</Button>

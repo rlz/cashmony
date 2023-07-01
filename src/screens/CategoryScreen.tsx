@@ -150,26 +150,26 @@ export const CategoryScreen = observer((): ReactElement => {
 
     return <MainScreen
         navigateOnBack='/categories'
-        title="Category"
+        title='Category'
         onSave={onSave}
     >
         <Box p={1}>
-            <Typography variant='h6' textAlign="center" mt={1}>
+            <Typography variant='h6' textAlign='center' mt={1}>
                 {newCat.name.trim() === '' ? '-' : newCat.name}
             </Typography>
-            <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
+            <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
                 {cur(-stats.amountTotal(appState.timeSpan, currency))}
             </Typography>
-            <Typography variant='body2' textAlign="center">
+            <Typography variant='body2' textAlign='center'>
             Goal (30d): {goal !== null ? cur(-goal.value * currenciesModel.getRate(utcToday(), goal.currency, currency)) : '-'}
             </Typography>
             <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
-                <Tab label="Stats"/>
-                <Tab label="Modify"/>
-                <Tab label="Operations"/>
+                <Tab label='Stats'/>
+                <Tab label='Modify'/>
+                <Tab label='Operations'/>
             </Tabs>
         </Box>
-        <Box overflow="scroll">
+        <Box overflow='scroll'>
             <Box px={1}>
                 {
                     match(tab)

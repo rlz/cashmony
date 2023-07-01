@@ -38,9 +38,9 @@ export function TagsEditor (props: Props): ReactElement {
         <AccordionActions sx={{ gap: 1, alignItems: 'stretch' }}>
             <TextField
                 fullWidth
-                variant="filled"
+                variant='filled'
                 size='small'
-                label="New tag"
+                label='New tag'
                 value={newTag}
                 onChange={(ev) => { setNewTag(ev.target.value.trim()) }}
             />

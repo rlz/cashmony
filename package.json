@@ -57,7 +57,8 @@
         ],
         "ignorePatterns": [
             "**/*.g/**",
-            "dist/**"
+            "dist/**",
+            "node_modules/**"
         ],
         "rules": {
             "indent": [
@@ -68,6 +69,7 @@
                 "error",
                 4
             ],
+            "jsx-quotes": ["error", "prefer-single"],
             "@typescript-eslint/no-unused-vars": "warn",
             "@typescript-eslint/consistent-type-imports": "warn"
         }

@@ -17,12 +17,12 @@ interface Props {
 export function ItemsSelect (props: Props): ReactElement {
     const selected = new Set(props.selected)
 
-    return <Box display="flex" flexWrap="wrap" gap={1} maxHeight="128px" overflow="scroll" sx={props.sx}>
+    return <Box display='flex' flexWrap='wrap' gap={1} maxHeight='128px' overflow='scroll' sx={props.sx}>
         { props.items.map(i => {
             const v = match(i).with(P.string, v => v).otherwise(v => v.value)
             const label = match(i).with(P.string, v => v).otherwise(v => v.label)
             if (selected.has(v)) {
-                const chip = <Chip key={v} color="primary" size='small' label={label}/>
+                const chip = <Chip key={v} color='primary' size='small' label={label}/>
 
                 if (props.selectZero || (props.selectMany && selected.size > 1)) {
                     return <a

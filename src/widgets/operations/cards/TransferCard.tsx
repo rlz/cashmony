@@ -14,7 +14,7 @@ export function TransferCard ({ operation }: Props): ReactElement {
         opId={operation.id}
         color='info'
         icon={<FontAwesomeIcon icon={faMoneyBillTransfer}/>}
-        categoryName="Transfer"
+        categoryName='Transfer'
         categoryGrey
         amount={operation.amount}
         accountName={null}
@@ -23,7 +23,7 @@ export function TransferCard ({ operation }: Props): ReactElement {
         comment={operation.comment}
         transferElement={<Typography
             variant='body2'
-            component="div"
+            component='div'
         >
             {operation.account.name}
             {' '}<FontAwesomeIcon icon={faArrowRightLong} />{' '}

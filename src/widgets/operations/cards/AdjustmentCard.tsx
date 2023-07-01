@@ -13,7 +13,7 @@ export function AdjustmentCard ({ operation }: Props): ReactElement {
         opId={operation.id}
         color='warning'
         icon={<FontAwesomeIcon icon={faExclamation}/>}
-        categoryName="Adjustment"
+        categoryName='Adjustment'
         categoryGrey
         amount={operation.amount}
         accountName={operation.account.name}

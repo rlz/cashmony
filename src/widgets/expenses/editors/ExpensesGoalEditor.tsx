@@ -32,9 +32,9 @@ export function ExpensesGoalEditor ({ origName, goal, onChange }: Props): ReactE
 
     return <Column mt={1} gap={1}>
         <TextField
-            label="Name"
-            variant="filled"
-            size="small"
+            label='Name'
+            variant='filled'
+            size='small'
             value={goal.name}
             error={goal.name.trim() === '' || nameCollision }
             helperText={
@@ -54,7 +54,7 @@ export function ExpensesGoalEditor ({ origName, goal, onChange }: Props): ReactE
             sx={{ gap: 1 }}
         ><FontAwesomeIcon icon={faFilter}/>Filter</Button>
         <FormControlLabel
-            label="Regular expenses"
+            label='Regular expenses'
             control={<Switch
                 checked={goal.isRegular}
                 onChange={(_, v) => { onChange({ ...goal, isRegular: v }) }}

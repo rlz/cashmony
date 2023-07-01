@@ -64,21 +64,21 @@ export const PeriodSelector = observer((): ReactElement => {
         />
     }
 
-    return <Box display="flex" flexDirection="column" gap={1}>
+    return <Box display='flex' flexDirection='column' gap={1}>
         {selector}
         <Box>
-            <Typography variant='h6' textAlign="center">Period</Typography>
-            <Typography variant='body1' textAlign="center">
+            <Typography variant='h6' textAlign='center'>Period</Typography>
+            <Typography variant='body1' textAlign='center'>
                 {appState.timeSpan.startDate.toISODate()}
                 {' '}<FontAwesomeIcon icon={faArrowRightLong}/>{' '}
                 {appState.timeSpan.endDate.toISODate()}
             </Typography>
         </Box>
-        <Box display="flex" gap={1} justifyContent='space-between' alignItems="center">
+        <Box display='flex' gap={1} justifyContent='space-between' alignItems='center'>
             <Typography>Current:</Typography>
             <ToggleButtonGroup
                 size='small'
-                color="primary"
+                color='primary'
                 value={appState.timeSpanInfo.type}
                 exclusive
                 onChange={(_, value: 'thisMonth' | 'thisYear' | null) => {
@@ -91,15 +91,15 @@ export const PeriodSelector = observer((): ReactElement => {
                     }
                 }}
             >
-                <ToggleButton value="thisMonth">Month</ToggleButton>
-                <ToggleButton value="thisYear">Year</ToggleButton>
+                <ToggleButton value='thisMonth'>Month</ToggleButton>
+                <ToggleButton value='thisYear'>Year</ToggleButton>
             </ToggleButtonGroup>
         </Box>
-        <Box display="flex" gap={1} justifyContent='space-between' alignItems="center">
+        <Box display='flex' gap={1} justifyContent='space-between' alignItems='center'>
             <Typography>Selected:</Typography>
             <ToggleButtonGroup
                 size='small'
-                color="primary"
+                color='primary'
                 value={appState.timeSpanInfo.type}
                 exclusive
                 onChange={(_, value: 'month' | 'year' | null) => {
@@ -110,15 +110,15 @@ export const PeriodSelector = observer((): ReactElement => {
                     }
                 }}
             >
-                <ToggleButton value="month">Month</ToggleButton>
-                <ToggleButton value="year">Year</ToggleButton>
+                <ToggleButton value='month'>Month</ToggleButton>
+                <ToggleButton value='year'>Year</ToggleButton>
             </ToggleButtonGroup>
         </Box>
-        <Box display="flex" gap={1} justifyContent='space-between' alignItems="center">
+        <Box display='flex' gap={1} justifyContent='space-between' alignItems='center'>
             <Typography>Last:</Typography>
             <ToggleButtonGroup
                 size='small'
-                color="primary"
+                color='primary'
                 value={appState.timeSpanInfo.type}
                 exclusive
                 onChange={(_, value: 'lastMonth' | 'lastQuarter' | 'lastYear' | null) => {
@@ -131,15 +131,15 @@ export const PeriodSelector = observer((): ReactElement => {
                     }
                 }}
             >
-                <ToggleButton value="lastMonth">Month</ToggleButton>
-                <ToggleButton value="lastQuarter">Quarter</ToggleButton>
-                <ToggleButton value="lastYear">Year</ToggleButton>
+                <ToggleButton value='lastMonth'>Month</ToggleButton>
+                <ToggleButton value='lastQuarter'>Quarter</ToggleButton>
+                <ToggleButton value='lastYear'>Year</ToggleButton>
             </ToggleButtonGroup>
         </Box>
         <ToggleButtonGroup
             fullWidth
             size='small'
-            color="primary"
+            color='primary'
             value={appState.timeSpanInfo.type}
             exclusive
             onChange={(_, value: 'custom' | 'allHistory' | null) => {
@@ -155,8 +155,8 @@ export const PeriodSelector = observer((): ReactElement => {
                 }
             }}
         >
-            <ToggleButton value="allHistory">All history</ToggleButton>
-            <ToggleButton value="custom">Custom</ToggleButton>
+            <ToggleButton value='allHistory'>All history</ToggleButton>
+            <ToggleButton value='custom'>Custom</ToggleButton>
         </ToggleButtonGroup>
     </Box>
 })
@@ -169,7 +169,7 @@ interface MonthSelectorProps {
 function MonthSelector (props: MonthSelectorProps): ReactElement {
     const today = appState.today
 
-    return <FullScreenModal title="Select month" onClose={props.onClose}>
+    return <FullScreenModal title='Select month' onClose={props.onClose}>
         <Calendar
             maxDate={today.toJSDate()}
             maxDetail='year'
@@ -190,7 +190,7 @@ interface YearSelectorProps {
 function YearSelector (props: YearSelectorProps): ReactElement {
     const today = appState.today
 
-    return <FullScreenModal title="Select year" onClose={props.onClose}>
+    return <FullScreenModal title='Select year' onClose={props.onClose}>
         <Calendar
             maxDate={today.toJSDate()}
             maxDetail='decade'
@@ -213,7 +213,7 @@ function CustomSelector (props: CustomSelectorProps): ReactElement {
     const [period, setPeriod] = useState<[DateTime, DateTime] | null>(null)
 
     return <FullScreenModal
-        title="Select period"
+        title='Select period'
         onClose={props.onClose}
         onSave={period === null
             ? null

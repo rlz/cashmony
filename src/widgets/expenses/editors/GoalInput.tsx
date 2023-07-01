@@ -29,7 +29,7 @@ export function GoalInput (props: Props): ReactElement {
     return <>
         <Column gap={1}>
             <Row alignItems='center' gap={1}>
-                <DivBody1 flex="1 1 0">Set goal</DivBody1>
+                <DivBody1 flex='1 1 0'>Set goal</DivBody1>
                 <ToggleButtonGroup
                     size='small'
                     exclusive
@@ -42,9 +42,9 @@ export function GoalInput (props: Props): ReactElement {
                         setPeriod(p)
                     }}
                 >
-                    <ToggleButton value="day">Day</ToggleButton>
-                    <ToggleButton value="month">Month</ToggleButton>
-                    <ToggleButton value="year">Year</ToggleButton>
+                    <ToggleButton value='day'>Day</ToggleButton>
+                    <ToggleButton value='month'>Month</ToggleButton>
+                    <ToggleButton value='year'>Year</ToggleButton>
                 </ToggleButtonGroup>
             </Row>
             <Row gap={1}>

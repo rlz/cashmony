@@ -22,9 +22,9 @@ export const CommentEditor = (props: Props): ReactElement => {
         <AccordionDetails>
             <TextField
                 label='Comment'
-                size="small"
+                size='small'
                 fullWidth
-                variant="filled"
+                variant='filled'
                 value={props.comment ?? ''}
                 onChange={ev => {
                     const comment = ev.target.value

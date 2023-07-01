@@ -38,13 +38,13 @@ export function PBody2 (props: PropsWithChildren<Omit<TypographyProps, 'variant'
 }
 
 export function Bold (props: PropsWithChildren<Omit<TypographyProps, 'fontWeight'>>): ReactElement {
-    return <Typography component="span" fontWeight='bold' {...props}>
+    return <Typography component='span' fontWeight='bold' {...props}>
         {props.children}
     </Typography>
 }
 
 export function Italic (props: PropsWithChildren<Omit<TypographyProps, 'fontStyle'>>): ReactElement {
-    return <Typography component="span" fontStyle='italic' {...props}>
+    return <Typography component='span' fontStyle='italic' {...props}>
         {props.children}
     </Typography>
 }

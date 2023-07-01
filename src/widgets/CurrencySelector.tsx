@@ -19,9 +19,9 @@ export const CurrencySelector = observer((props: Props): ReactElement => {
     const [search, setSearch] = useState('')
     const currency = props.currency !== null ? CURRENCIES[props.currency] : null
 
-    return <FullScreenModal title="Currency" onClose={props.onClose}>
+    return <FullScreenModal title='Currency' onClose={props.onClose}>
         <Box p={1} color={theme.palette.primary.main}>
-            <Typography variant='h5' my={2} textAlign="center">
+            <Typography variant='h5' my={2} textAlign='center'>
                 {
                     currency === null
                         ? '—'
@@ -32,7 +32,7 @@ export const CurrencySelector = observer((props: Props): ReactElement => {
         <TextField variant='filled' size='small' label='Search' value={search} onChange={ev => {
             setSearch(ev.target.value)
         }} />
-        <Box overflow="scroll" flex="1 0 0">
+        <Box overflow='scroll' flex='1 0 0'>
             <List>
                 {currenciesModel.currencies
                     .map(c => CURRENCIES[c])

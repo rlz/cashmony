@@ -26,10 +26,10 @@ export function BaseOpCard (props: Props): ReactElement {
             <Box>
                 <Avatar sx={{ bgcolor: color }}>{props.icon}</Avatar>
             </Box>
-            <Box flex="1 1 0" minWidth={0}>
-                <Typography component="div" display="flex">
+            <Box flex='1 1 0' minWidth={0}>
+                <Typography component='div' display='flex'>
                     <Box
-                        flex="1 1 0"
+                        flex='1 1 0'
                         color={props.categoryGrey === true ? 'grey.500' : undefined}
                     >
                         {props.categoryName}
@@ -39,8 +39,8 @@ export function BaseOpCard (props: Props): ReactElement {
                     </Box>
                 </Typography>
                 {props.transferElement}
-                <Typography variant='body2' component="div" display="flex">
-                    <Box flex="1 1 0">
+                <Typography variant='body2' component='div' display='flex'>
+                    <Box flex='1 1 0'>
                         {props.tags.join(', ')}
                     </Box>
                     {
@@ -51,7 +51,7 @@ export function BaseOpCard (props: Props): ReactElement {
                             : null
                     }
                 </Typography>
-                <Typography variant='body2' fontStyle="italic" noWrap>
+                <Typography variant='body2' fontStyle='italic' noWrap>
                     {(props.comment ?? '') === '' ? '\u00a0' : props.comment}
                 </Typography>
             </Box>

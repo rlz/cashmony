@@ -27,27 +27,27 @@ export function MainBottomNavigation (): ReactElement {
         sx={() => fixed ? { position: 'fixed', bottom: 0, left: 0, right: 0 } : {}}
     >
         <BottomNavigationAction
-            value="o"
-            label="Operations"
+            value='o'
+            label='Operations'
             icon={<FontAwesomeIcon size='lg' icon={faList} />}
             onClick={() => { nav('/operations') }}
         />
         <BottomNavigationAction
-            value="c"
-            label="Categories"
+            value='c'
+            label='Categories'
             icon={<FontAwesomeIcon size='lg' icon={faShapes} />}
             onClick={() => { nav('/categories') }}
         />
         <BottomNavigationAction
-            value="g"
-            label="Goals"
-            icon={<FontAwesomeIcon size="lg" icon={faBullseye} />}
+            value='g'
+            label='Goals'
+            icon={<FontAwesomeIcon size='lg' icon={faBullseye} />}
             onClick={() => { nav('/goals') }}
         />
         <BottomNavigationAction
-            value="a"
-            label="Accounts"
-            icon={<FontAwesomeIcon size="lg" icon={faWallet} />}
+            value='a'
+            label='Accounts'
+            icon={<FontAwesomeIcon size='lg' icon={faWallet} />}
             onClick={() => { nav('/accounts') }}
         />
     </BottomNavigation>

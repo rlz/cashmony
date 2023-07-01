@@ -14,14 +14,14 @@ export const FullScreenModal = (props: Props): ReactElement => {
         <Box
             top={0}
             left={0}
-            width="100vw"
-            height="100vh"
-            position="absolute"
+            width='100vw'
+            height='100vh'
+            position='absolute'
             zIndex={10000}
-            display="flex"
-            flexDirection="column"
-            bgcolor="background.default"
-            color="text.primary"
+            display='flex'
+            flexDirection='column'
+            bgcolor='background.default'
+            color='text.primary'
         >
             <MainAppBar
                 noSettings
@@ -30,10 +30,10 @@ export const FullScreenModal = (props: Props): ReactElement => {
                 onSave={props.onSave}
             />
             <Box
-                display="flex"
-                flexDirection="column"
-                textOverflow="scroll"
-                flex="1 0 0"
+                display='flex'
+                flexDirection='column'
+                textOverflow='scroll'
+                flex='1 0 0'
                 gap={props.gap}
                 p={1}
                 bgcolor='background.default'

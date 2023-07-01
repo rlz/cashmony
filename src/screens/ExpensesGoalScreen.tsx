@@ -95,26 +95,26 @@ export const ExpensesGoalScreen = observer((): ReactElement => {
 
     return <MainScreen
         navigateOnBack='/goals'
-        title="Expenses goal"
+        title='Expenses goal'
         onSave={onSave}
     >
         <Box p={1}>
-            <Typography variant='h6' textAlign="center" mt={1}>
+            <Typography variant='h6' textAlign='center' mt={1}>
                 {newGoal.name.trim() === '' ? '-' : newGoal.name}
             </Typography>
-            <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
+            <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
                 {cur(-stats.amountTotal(appState.timeSpan, newGoal.currency))}
             </Typography>
-            <Typography variant='body2' textAlign="center">
+            <Typography variant='body2' textAlign='center'>
             Goal (30d): {goal30 !== null ? cur(-goal30.value) : '-'}
             </Typography>
             <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
-                <Tab label="Stats"/>
-                <Tab label="Modify"/>
-                <Tab label="Operations"/>
+                <Tab label='Stats'/>
+                <Tab label='Modify'/>
+                <Tab label='Operations'/>
             </Tabs>
         </Box>
-        <Box overflow="scroll">
+        <Box overflow='scroll'>
             <Box px={1}>
                 {
                     match(tab)

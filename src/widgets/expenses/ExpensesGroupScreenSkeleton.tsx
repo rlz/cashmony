@@ -7,13 +7,13 @@ import { Column } from '../Containers'
 export function ExpensesGroupScreenSkeleton (): ReactElement {
     return <MainScreen
         navigateOnBack='/categories'
-        title="Category"
+        title='Category'
         onSave={null}
     >
         <Typography variant='h6' mt={2}>
             <Skeleton width={75} sx={{ mx: 'auto' }} />
         </Typography>
-        <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
+        <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
             <Skeleton width={95} sx={{ mx: 'auto' }} />
         </Typography>
         <PBody2>

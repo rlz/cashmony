@@ -131,7 +131,7 @@ export const OperationScreen = observer((): ReactElement => {
             account={account} origAccount={origAccount}
             toAccount={toAccount} origToAccount={origToAccount}
         >
-            <Typography variant='h5' mt={10} textAlign="center">This operation was deleted</Typography>
+            <Typography variant='h5' mt={10} textAlign='center'>This operation was deleted</Typography>
         </Wrap>
     }
 
@@ -207,7 +207,7 @@ const Wrap = observer(({ showOps, op, origOp, account, origAccount, toAccount, o
     >
         {
             showOps
-                ? <PanelGroup direction="horizontal">
+                ? <PanelGroup direction='horizontal'>
                     <Panel>
                         <OpsList
                             sx={OPS_LIST_SX} /* no re-render here */

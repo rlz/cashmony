@@ -30,7 +30,7 @@ export const ExpensesGoalsScreen = observer((): ReactElement => {
                 )
                 .otherwise(
                     () => <Fab
-                        color="primary"
+                        color='primary'
                         sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
                         onClick={() => { setAdd(true) }}
                     >

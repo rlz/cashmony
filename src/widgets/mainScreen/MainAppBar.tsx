@@ -37,7 +37,7 @@ export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noSettings }
                     onOpen={() => { setSettingsOpen(true) }}
                     onClose={() => { setSettingsOpen(false) }}
                 >
-                    <AppStateSettings height="100vh" width="90vw" maxWidth="20rem"/>
+                    <AppStateSettings height='100vh' width='90vw' maxWidth='20rem'/>
                 </SwipeableDrawer>
             )
         }
@@ -60,13 +60,13 @@ export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noSettings }
                 </Modal>
             )
         }
-        <AppBar position="static">
+        <AppBar position='static'>
             <Toolbar>
                 {noSettings === true
                     ? null
                     : <IconButton
-                        size="large"
-                        edge="start"
+                        size='large'
+                        edge='start'
                         color='inherit'
                         sx={{ mr: 1 }}
                         onClick={() => { setSettingsOpen(true) }}
@@ -78,8 +78,8 @@ export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noSettings }
                     onBack === undefined
                         ? null
                         : <IconButton
-                            size="large"
-                            edge="start"
+                            size='large'
+                            edge='start'
                             color='inherit'
                             sx={{ mr: 1 }}
                             onClick={onBack}
@@ -88,15 +88,15 @@ export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noSettings }
                         </IconButton>
 
                 }
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
                     {title ?? 'Cashmony'}
                 </Typography>
                 {
                     onSave !== undefined
                         ? <IconButton
                             disabled={onSave === null}
-                            size="large"
-                            edge="end"
+                            size='large'
+                            edge='end'
                             color='inherit'
                             sx={{ ml: 1 }}
                             onClick={() => {

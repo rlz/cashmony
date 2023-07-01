@@ -51,7 +51,7 @@ const RootNode = observer((): ReactElement => {
     return <React.StrictMode>
         <ThemeProvider theme={match(theme).with('light', () => lightTheme).otherwise(() => darkTheme)}>
             <CssBaseline />
-            <Typography component="div">
+            <Typography component='div'>
                 <App />
             </Typography>
         </ThemeProvider>

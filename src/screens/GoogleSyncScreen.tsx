@@ -62,19 +62,19 @@ export function GoogleSyncScreen (): ReactElement {
     }, [])
 
     return <FullScreenModal
-        title="Sync with Google"
+        title='Sync with Google'
         onClose={() => { navigate(searchParams.get('redirect') ?? '/') }}
     >
-        <Box display="flex">
+        <Box display='flex'>
             <Box>Search/create spreadsheet</Box>
-            <Box flex="1 1 0" textAlign="right">
+            <Box flex='1 1 0' textAlign='right'>
                 {spreadsheet
                     ? 'ok'
                     : <FontAwesomeIcon icon={faSpinner} pulse/>
                 }
             </Box>
         </Box>
-        <Typography component="div" variant='body2'>
+        <Typography component='div' variant='body2'>
             <Stats title='Accounts' stats={accStats}/>
             <Stats title='Categories' stats={catStats}/>
             <Stats title='Goals' stats={goalsStats}/>
@@ -91,25 +91,25 @@ interface StatsProps {
 
 function Stats ({ title, extended, stats }: StatsProps): ReactElement {
     const primary = (value: number): ReactElement => {
-        return <Typography component="span" color={value === 0 ? undefined : 'info.main'}>
+        return <Typography component='span' color={value === 0 ? undefined : 'info.main'}>
             {value}
         </Typography>
     }
 
     return <>
         <Typography variant='h6' mt={1}>{title}</Typography>
-        <Box display="flex">
+        <Box display='flex'>
             <Box>Matched</Box>
-            <Box flex="1 1 0" textAlign="right">
+            <Box flex='1 1 0' textAlign='right'>
                 {stats !== null
                     ? primary(stats.matched)
                     : <FontAwesomeIcon icon={faSpinner} pulse/>
                 }
             </Box>
         </Box>
-        <Box display="flex" gap={2}>
+        <Box display='flex' gap={2}>
             <Box>Updated</Box>
-            <Box flex="1 1 0" textAlign="right">
+            <Box flex='1 1 0' textAlign='right'>
                 {stats !== null
                     ? <>
                         <FontAwesomeIcon icon={faArrowUpLong}/>
@@ -128,9 +128,9 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
                 }
             </Box>
         </Box>
-        <Box display="flex" gap={2}>
+        <Box display='flex' gap={2}>
             <Box>Added</Box>
-            <Box flex="1 1 0" textAlign="right">
+            <Box flex='1 1 0' textAlign='right'>
                 {stats !== null
                     ? <>
                         <FontAwesomeIcon icon={faArrowUpLong}/>
@@ -151,9 +151,9 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
         </Box>
         {
             extended === true
-                ? <Box display="flex" gap={2}>
+                ? <Box display='flex' gap={2}>
                     <Box>Deleted</Box>
-                    <Box flex="1 1 0" textAlign="right">
+                    <Box flex='1 1 0' textAlign='right'>
                         {stats !== null && 'deletedInGoogle' in stats
                             ? <>
                                 <FontAwesomeIcon icon={faArrowUpLong}/>

@@ -32,7 +32,7 @@ export function AuthScreen (): ReactElement {
         throw Error(`Can not parse auth URL: ${urlHash}`)
     }, [])
 
-    return <Typography variant='h5' mt="30vh" textAlign="center">
+    return <Typography variant='h5' mt='30vh' textAlign='center'>
         Authenticated
     </Typography>
 }

@@ -40,7 +40,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
     return <Box sx={props.sx}>
         <a onClick={() => { navigate(props.url) }}>
             <Paper sx={{ p: 1 }}>
-                <Box display="flex" gap={1}>
+                <Box display='flex' gap={1}>
                     <SpanBody1>{ props.name }</SpanBody1>
                     <SpanBody1
                         color='primary.main'
@@ -51,7 +51,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                     </SpanBody1>
                 </Box>
                 <DivBody2 my={1}>
-                    <table className="stats">
+                    <table className='stats'>
                         <tbody>
                             <tr>
                                 <th>Goal (30d):</th>
@@ -84,14 +84,14 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
 export function ExpensesCardSkeleton ({ sx }: { sx?: SxProps }): ReactElement {
     return <Box sx={sx}>
         <Paper sx={{ p: 1 }}>
-            <Box display="flex" gap={1}>
+            <Box display='flex' gap={1}>
                 <SpanBody1 flex='1 1 0'><Skeleton sx={{ maxWidth: 60 }}/></SpanBody1>
                 <SpanBody1>
                     <Skeleton sx={{ minWidth: 55 }}/>
                 </SpanBody1>
             </Box>
             <DivBody2 my={1}>
-                <table className="stats">
+                <table className='stats'>
                     <tbody>
                         <tr>
                             <th><Skeleton sx={{ maxWidth: 55 }}/></th>

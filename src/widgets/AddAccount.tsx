@@ -52,8 +52,8 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
     const acc = accountsModel.accounts?.get(name)
     const exists = acc !== undefined && acc.deleted !== true
 
-    return <FullScreenModal title="Add account" onClose={onClose} gap={1}>
-        <Box display="flex" gap={1}>
+    return <FullScreenModal title='Add account' onClose={onClose} gap={1}>
+        <Box display='flex' gap={1}>
             <IconButton
                 color='primary'
                 sx={{ width: 48 }}
@@ -62,9 +62,9 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
                 {getCurrencySymbol(currency)}
             </IconButton>
             <TextField
-                label="Name"
-                variant="filled"
-                size="small"
+                label='Name'
+                variant='filled'
+                size='small'
                 value={name}
                 error={name.trim() === '' || exists}
                 helperText={
@@ -87,7 +87,7 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
         />
         <Button
             fullWidth
-            variant="contained"
+            variant='contained'
             onClick={() => { void save() }}
             disabled={name.trim() === '' || exists}
         >Create</Button>

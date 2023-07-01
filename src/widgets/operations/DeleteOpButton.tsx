@@ -8,7 +8,7 @@ const Transition = React.forwardRef(function Transition (
     },
     ref: React.Ref<unknown>
 ) {
-    return <Slide direction="down" ref={ref} {...props} />
+    return <Slide direction='down' ref={ref} {...props} />
 })
 
 interface Props {
@@ -19,7 +19,7 @@ export function DeleteOpButton ({ onDelete }: Props): ReactElement {
     const [open, setOpen] = React.useState(false)
 
     return <>
-        <Button sx={{ mt: 2 }} color='error' fullWidth variant="contained" onClick={() => { setOpen(true) }}>Delete</Button>
+        <Button sx={{ mt: 2 }} color='error' fullWidth variant='contained' onClick={() => { setOpen(true) }}>Delete</Button>
         <Dialog
             open={open}
             TransitionComponent={Transition}

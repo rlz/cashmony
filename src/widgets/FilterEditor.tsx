@@ -41,7 +41,7 @@ interface EditorProps {
 }
 
 function SearchFilter ({ filter, setFilter }: EditorProps): ReactElement {
-    return <FormControl variant="outlined" fullWidth>
+    return <FormControl variant='outlined' fullWidth>
         <InputLabel size='small'>Search</InputLabel>
         <OutlinedInput
             size='small'
@@ -55,17 +55,17 @@ function SearchFilter ({ filter, setFilter }: EditorProps): ReactElement {
             endAdornment={
                 showIf(
                     filter.search !== null,
-                    <InputAdornment position="end">
+                    <InputAdornment position='end'>
                         <IconButton
                             onClick={() => { setFilter({ ...filter, search: null }) }}
-                            edge="end"
+                            edge='end'
                         >
                             <FontAwesomeIcon icon={faXmark} />
                         </IconButton>
                     </InputAdornment>
                 )
             }
-            label="Search"
+            label='Search'
         />
     </FormControl>
 }
@@ -81,10 +81,10 @@ function OpTypeFilter ({ filter, setFilter }: EditorProps): ReactElement {
                 setFilter({ ...filter, opTypeMode: 'selected', opType: v })
             }}
         >
-            <ToggleButton value="expense">Expense</ToggleButton>
-            <ToggleButton value="income">Income</ToggleButton>
-            <ToggleButton value="transfer">Transfer</ToggleButton>
-            <ToggleButton value="adjustment">Adj</ToggleButton>
+            <ToggleButton value='expense'>Expense</ToggleButton>
+            <ToggleButton value='income'>Income</ToggleButton>
+            <ToggleButton value='transfer'>Transfer</ToggleButton>
+            <ToggleButton value='adjustment'>Adj</ToggleButton>
         </ToggleButtonGroup>
     </Paper>
 }
@@ -103,9 +103,9 @@ function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
                     }
                 }}
             >
-                <ToggleButton value="all">All</ToggleButton>
-                <ToggleButton value="selected">Selected</ToggleButton>
-                <ToggleButton value="exclude">Exclude</ToggleButton>
+                <ToggleButton value='all'>All</ToggleButton>
+                <ToggleButton value='selected'>Selected</ToggleButton>
+                <ToggleButton value='exclude'>Exclude</ToggleButton>
             </ToggleButtonGroup>
         </Row>
         {
@@ -142,9 +142,9 @@ function AccountsFilter ({ filter, setFilter }: EditorProps): ReactElement {
                     }
                 }}
             >
-                <ToggleButton value="all">All</ToggleButton>
-                <ToggleButton value="selected">Selected</ToggleButton>
-                <ToggleButton value="exclude">Exclude</ToggleButton>
+                <ToggleButton value='all'>All</ToggleButton>
+                <ToggleButton value='selected'>Selected</ToggleButton>
+                <ToggleButton value='exclude'>Exclude</ToggleButton>
             </ToggleButtonGroup>
         </Row>
         {
@@ -181,9 +181,9 @@ function TagsFilter ({ filter, setFilter }: EditorProps): ReactElement {
                     }
                 }}
             >
-                <ToggleButton value="all">All</ToggleButton>
-                <ToggleButton value="selected">Selected</ToggleButton>
-                <ToggleButton value="exclude">Exclude</ToggleButton>
+                <ToggleButton value='all'>All</ToggleButton>
+                <ToggleButton value='selected'>Selected</ToggleButton>
+                <ToggleButton value='exclude'>Exclude</ToggleButton>
             </ToggleButtonGroup>
         </Row>
         {

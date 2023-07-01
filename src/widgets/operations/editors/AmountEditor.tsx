@@ -34,7 +34,7 @@ export const AmountEditor = observer((props: Props): ReactElement => {
                 {
                     showIf(
                         props.expanded,
-                        <Box display="flex" gap={1}>
+                        <Box display='flex' gap={1}>
                             <IconButton
                                 color='primary'
                                 sx={{ width: 48 }}

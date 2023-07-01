@@ -130,23 +130,23 @@ export const AccountScreen = observer(() => {
 
     return <MainScreen
         navigateOnBack='/accounts'
-        title="Account"
+        title='Account'
         onSave={onSave}
     >
         <Box p={1}>
-            <Typography variant='h6' textAlign="center" mt={1}>
+            <Typography variant='h6' textAlign='center' mt={1}>
                 {newAcc.name.trim() === '' ? '-' : newAcc.name}
             </Typography>
-            <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
+            <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
                 {cur(totalAmount[totalAmount.length - 1])}
             </Typography>
             <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
-                <Tab label="Stats"/>
-                <Tab label="Modify"/>
-                <Tab label="Operations"/>
+                <Tab label='Stats'/>
+                <Tab label='Modify'/>
+                <Tab label='Operations'/>
             </Tabs>
         </Box>
-        <Box overflow="scroll">
+        <Box overflow='scroll'>
             <Box px={1}>
                 {renderTab(tab)}
                 <Box minHeight={72}/>
@@ -156,11 +156,11 @@ export const AccountScreen = observer(() => {
 })
 
 function AccountScreenSkeleton (): ReactElement {
-    return <MainScreen navigateOnBack='/accounts' title="Account">
+    return <MainScreen navigateOnBack='/accounts' title='Account'>
         <Typography variant='h6' mt={2}>
             <Skeleton width={75} sx={{ mx: 'auto' }} />
         </Typography>
-        <Typography variant='h6' textAlign="center" color='primary.main' mb={1}>
+        <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
             <Skeleton width={95} sx={{ mx: 'auto' }} />
         </Typography>
         <Tabs value={0} variant='fullWidth'>
@@ -183,7 +183,7 @@ interface StatsProps {
 }
 
 function Stats ({ account, perDayAmount, totalAmount }: StatsProps): ReactElement {
-    return <Box display="flex" flexDirection="column" gap={1} mt={1}>
+    return <Box display='flex' flexDirection='column' gap={1} mt={1}>
         <AccPlot title='Amount' account={account} totalAmount={totalAmount} />
         <AccPlot title='Per day amount' account={account} perDayAmount={perDayAmount}/>
     </Box>
@@ -221,9 +221,9 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
                         accountsModel.get(newAcc.name).deleted !== true
                     }
                     label='Name'
-                    size="small"
+                    size='small'
                     fullWidth
-                    variant="filled"
+                    variant='filled'
                     value={newAcc.name}
                     onChange={ev => { setNewAcc({ ...newAcc, name: ev.target.value }) }}
                 />
@@ -297,7 +297,7 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
                         })
                     }}
                 />}
-                label="Hidden"
+                label='Hidden'
             />
         </Box>
         <Button

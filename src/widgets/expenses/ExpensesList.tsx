@@ -17,8 +17,8 @@ export const ExpensesList = observer(({ items }: ExpensesListProps): ReactElemen
     const currenciesModel = CurrenciesModel.instance()
 
     return <Box
-        display="flex"
-        flexDirection="column"
+        display='flex'
+        flexDirection='column'
         gap={1}
     >
         {

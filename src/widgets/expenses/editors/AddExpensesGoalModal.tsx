@@ -45,11 +45,11 @@ export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void
     })
 
     return <>
-        <FullScreenModal title="Add expenses goal" onClose={onClose} gap={1}>
+        <FullScreenModal title='Add expenses goal' onClose={onClose} gap={1}>
             <ExpensesGoalEditor origName='' goal={goal} onChange={setGoal} />
             <Button
                 fullWidth
-                variant="contained"
+                variant='contained'
                 disabled={ trimmedName === '' || goal.perDayAmount === 0 || exists }
                 onClick={() => { void save() }}
             >Create</Button>
