@@ -1,7 +1,10 @@
-import { Avatar, Box, Paper, Typography } from '@mui/material'
+import { Avatar, Box, Paper } from '@mui/material'
 import React, { type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { formatCurrency } from '../../../helpers/currencies'
+import { Row } from '../../Containers'
+import { DivBody1, DivBody2, SpanBody2 } from '../../Typography'
+import { showIf } from '../../../helpers/smallTools'
 
 interface Props {
     opId: string
@@ -27,33 +30,34 @@ export function BaseOpCard (props: Props): ReactElement {
                 <Avatar sx={{ bgcolor: color }}>{props.icon}</Avatar>
             </Box>
             <Box flex='1 1 0' minWidth={0}>
-                <Typography component='div' display='flex'>
-                    <Box
+                <Row gap={1}>
+                    <DivBody1
                         flex='1 1 0'
+                        minWidth={30}
                         color={props.categoryGrey === true ? 'grey.500' : undefined}
+                        noWrap
                     >
                         {props.categoryName}
-                    </Box>
-                    <Box color={color}>
+                    </DivBody1>
+                    <DivBody1 color={color} noWrap >
                         { formatCurrency(props.amount, props.currency) }
-                    </Box>
-                </Typography>
+                    </DivBody1>
+                </Row>
                 {props.transferElement}
-                <Typography variant='body2' component='div' display='flex'>
-                    <Box flex='1 1 0'>
-                        {props.tags.join(', ')}
-                    </Box>
+                <Row gap={1}>
+                    <DivBody2 flex='1 1 0' minWidth={30} noWrap >
+                        <SpanBody2>{props.tags.join(', ')}</SpanBody2>
+                    </DivBody2>
                     {
-                        props.accountName !== null
-                            ? <Box>
-                                Acc.: {props.accountName}
-                            </Box>
-                            : null
+                        showIf(
+                            props.accountName !== null,
+                            <DivBody2 noWrap>Acc.: {props.accountName}</DivBody2>
+                        )
                     }
-                </Typography>
-                <Typography variant='body2' fontStyle='italic' noWrap>
+                </Row>
+                <DivBody2 fontStyle='italic' noWrap>
                     {(props.comment ?? '') === '' ? '\u00a0' : props.comment}
-                </Typography>
+                </DivBody2>
             </Box>
         </Paper>
     </a>

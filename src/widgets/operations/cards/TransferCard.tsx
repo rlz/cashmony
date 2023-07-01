@@ -3,7 +3,8 @@ import { type TransferOperation } from '../../../model/model'
 import { BaseOpCard } from './BaseOpCard'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightLong, faMoneyBillTransfer } from '@fortawesome/free-solid-svg-icons'
-import { Typography } from '@mui/material'
+import { Row } from '../../Containers'
+import { DivBody2 } from '../../Typography'
 
 interface Props {
     operation: TransferOperation
@@ -21,13 +22,10 @@ export function TransferCard ({ operation }: Props): ReactElement {
         currency={operation.currency}
         tags={operation.tags}
         comment={operation.comment}
-        transferElement={<Typography
-            variant='body2'
-            component='div'
-        >
-            {operation.account.name}
-            {' '}<FontAwesomeIcon icon={faArrowRightLong} />{' '}
-            {operation.toAccount.name}
-        </Typography>}
+        transferElement={<Row gap={1}>
+            <DivBody2 flex='0 1 auto' noWrap>{operation.account.name}</DivBody2>
+            <DivBody2><FontAwesomeIcon icon={faArrowRightLong} /></DivBody2>
+            <DivBody2 flex='0 1 auto' noWrap>{operation.toAccount.name}</DivBody2>
+        </Row>}
     />
 }
