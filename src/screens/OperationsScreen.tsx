@@ -5,7 +5,7 @@ import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 export const OperationsScreen = observer((): ReactElement => {
     return <MainScreen>
-        <OpsList sx={{ p: 1, maxWidth: 800, width: '100vw', mx: 'auto' }}/>
+        <OpsList sx={{ p: 1, maxWidth: 900, width: '100vw', mx: 'auto' }}/>
     </MainScreen>
 })
 OperationsScreen.displayName = 'OperatiosScreen'

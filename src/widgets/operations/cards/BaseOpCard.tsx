@@ -1,9 +1,9 @@
-import { Avatar, Box, Paper } from '@mui/material'
+import { Avatar, Box, Paper, Skeleton } from '@mui/material'
 import React, { type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { formatCurrency } from '../../../helpers/currencies'
 import { Row } from '../../Containers'
-import { DivBody1, DivBody2, SpanBody2 } from '../../Typography'
+import { DivBody1, DivBody2 } from '../../Typography'
 import { showIf } from '../../../helpers/smallTools'
 
 interface Props {
@@ -46,7 +46,7 @@ export function BaseOpCard (props: Props): ReactElement {
                 {props.transferElement}
                 <Row gap={1}>
                     <DivBody2 flex='1 1 0' minWidth={30} noWrap >
-                        <SpanBody2>{props.tags.join(', ')}</SpanBody2>
+                        {props.tags.join(', ')}
                     </DivBody2>
                     {
                         showIf(
@@ -61,4 +61,36 @@ export function BaseOpCard (props: Props): ReactElement {
             </Box>
         </Paper>
     </a>
+}
+
+export function OpCardSkeleton (): ReactElement {
+    return <Paper elevation={1} sx={{ p: 1, display: 'flex', gap: 2 }}>
+        <Box>
+            <Skeleton variant='circular' width={40} height={40}/>
+        </Box>
+        <Box flex='1 1 0' minWidth={0}>
+            <Row gap={1}>
+                <DivBody1
+                    flex='1 1 0'
+                    minWidth={30}
+                >
+                    <Skeleton width={90} sx={{ maxWidth: '100%' }}/>
+                </DivBody1>
+                <DivBody1 flex='0 1 auto' minWidth={0}>
+                    <Skeleton width={70} sx={{ maxWidth: '100%' }}/>
+                </DivBody1>
+            </Row>
+            <Row gap={1}>
+                <DivBody2 flex='1 1 0' minWidth={30}>
+                    <Skeleton width={110} sx={{ maxWidth: '100%' }}/>
+                </DivBody2>
+                <DivBody2 flex='0 1 auto' minWidth={0}>
+                    <Skeleton width={140} sx={{ maxWidth: '100%' }}/>
+                </DivBody2>
+            </Row>
+            <DivBody2>
+                <Skeleton width={80} sx={{ maxWidth: '100%' }}/>
+            </DivBody2>
+        </Box>
+    </Paper>
 }

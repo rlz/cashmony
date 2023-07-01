@@ -50,9 +50,11 @@ export class CurrenciesModel {
         })
 
         autorun(() => {
-            runInAction(() => {
-                this.rates = null
-            })
+            // (d.maslennikov): do we need this?
+
+            // runInAction(() => {
+            //     this.rates = null
+            // })
 
             const masterCurrency = appState.masterCurrency
             if (

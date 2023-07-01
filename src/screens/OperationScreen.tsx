@@ -2,7 +2,7 @@ import React, { useState, type ReactElement, useEffect, type PropsWithChildren }
 import { Box, Skeleton, Typography, useTheme } from '@mui/material'
 import { OperationsModel } from '../model/operations'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { type ExpenseOperation, type DeletedOperation, type NotDeletedOperation, type IncomeOperation, type TransferOperation, type AdjustmentOperation } from '../model/model'
+import { type ExpenseOperation, type DeletedOperation, type NotDeletedOperation, type IncomeOperation, type TransferOperation, type AdjustmentOperation, type Operation } from '../model/model'
 import { observer } from 'mobx-react-lite'
 import { TagsEditor } from '../widgets/operations/editors/TagsEditor'
 import { AccountEditor } from '../widgets/operations/editors/AccountEditor'
@@ -37,6 +37,7 @@ type PartialOperation =
     Omit<AdjustmentOperation, 'account'>
 
 export const OperationScreen = observer((): ReactElement => {
+    const navigate = useNavigate()
     const [op, setOp] = useState<PartialOperation | DeletedOperation | null>(null)
     const [origOp, setOrigOp] = useState<PartialOperation | DeletedOperation | null>(null)
     const [account, setAccount] = useState<NotDeletedOperation['account'] | null>(null)
@@ -110,6 +111,42 @@ export const OperationScreen = observer((): ReactElement => {
         }
     }, [location])
 
+    const onSave = op !== null &&
+            op.type !== 'deleted' &&
+            op.amount !== 0 &&
+            account !== null &&
+            account.amount !== 0 &&
+            (op.type !== 'transfer' || (toAccount !== null && toAccount.amount !== 0)) &&
+            !(deepEqual(op, origOp) && deepEqual(account, origAccount) && deepEqual(toAccount, origToAccount))
+        ? async () => {
+            if (op === null) {
+                throw Error('Not null op expected here')
+            }
+
+            if (account === null) {
+                throw Error('Not null account expected here')
+            }
+
+            if (op.type === 'transfer') {
+                if (toAccount === null) {
+                    throw Error('Not null toAccount expected here')
+                }
+
+                await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account, toAccount }])
+            } else {
+                await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account }])
+            }
+
+            if (!showOps) {
+                navigate('/operations')
+            } else if (location.pathname.startsWith('/new-op/')) {
+                navigate(`/operations/${op.id}`)
+            } else {
+                setOrigOp(op)
+            }
+        }
+        : null
+
     if (
         op === null ||
         accountsModel.accounts === null ||
@@ -118,18 +155,18 @@ export const OperationScreen = observer((): ReactElement => {
     ) {
         return <Wrap
             showOps={showOps}
-            op={op} origOp={origOp}
-            account={account} origAccount={origAccount}
-            toAccount={toAccount} origToAccount={origToAccount}
-        ><SkeletonBody /></Wrap>
+            op={op}
+            onSave={null}
+        >
+            <SkeletonBody />
+        </Wrap>
     }
 
     if (op.type === 'deleted') {
         return <Wrap
             showOps={showOps}
-            op={op} origOp={origOp}
-            account={account} origAccount={origAccount}
-            toAccount={toAccount} origToAccount={origToAccount}
+            op={op}
+            onSave={undefined}
         >
             <Typography variant='h5' mt={10} textAlign='center'>This operation was deleted</Typography>
         </Wrap>
@@ -137,11 +174,24 @@ export const OperationScreen = observer((): ReactElement => {
 
     return <Wrap
         showOps={showOps}
-        op={op} origOp={origOp}
-        account={account} origAccount={origAccount}
-        toAccount={toAccount} origToAccount={origToAccount}
+        op={op}
+        onSave={onSave}
     >
         <OpBody
+            onDelete={async () => {
+                const o: Operation = {
+                    id: op.id,
+                    type: 'deleted'
+                }
+                await operationsModel.put([o])
+
+                if (!showOps) {
+                    navigate('/operations')
+                } else {
+                    setOp(o)
+                    setOrigOp(o)
+                }
+            }}
             op={op}
             setOp={setOp}
             account={account}
@@ -154,18 +204,13 @@ export const OperationScreen = observer((): ReactElement => {
 interface WrapProps extends PropsWithChildren {
     showOps: boolean
     op: PartialOperation | DeletedOperation | null
-    origOp: PartialOperation | DeletedOperation | null
-    account: NotDeletedOperation['account'] | null
-    origAccount: NotDeletedOperation['account'] | null
-    toAccount: NotDeletedOperation['account'] | null
-    origToAccount: NotDeletedOperation['account'] | null
+    onSave: (() => void) | null | undefined
 }
 
 const OPS_LIST_SX = { p: 1, overflow: 'auto', height: '100%' }
 
-const Wrap = observer(({ showOps, op, origOp, account, origAccount, toAccount, origToAccount, children }: WrapProps): ReactElement => {
+const Wrap = observer(({ showOps, op, onSave, children }: WrapProps): ReactElement => {
     const location = useLocation()
-    const navigate = useNavigate()
     const title = op === null
         ? ''
         : op.type[0].toLocaleUpperCase() + op.type.substring(1)
@@ -173,37 +218,7 @@ const Wrap = observer(({ showOps, op, origOp, account, origAccount, toAccount, o
     return <MainScreen
         title={title}
         navigateOnBack='/operations'
-        onSave={
-            op !== null &&
-            op.type !== 'deleted' &&
-            op.amount !== 0 &&
-            account !== null &&
-            account.amount !== 0 &&
-            (op.type !== 'transfer' || (toAccount !== null && toAccount.amount !== 0)) &&
-            !(deepEqual(op, origOp) && deepEqual(account, origAccount) && deepEqual(toAccount, origToAccount))
-                ? async () => {
-                    if (op === null) {
-                        throw Error('Not null op expected here')
-                    }
-
-                    if (account === null) {
-                        throw Error('Not null account expected here')
-                    }
-
-                    if (op.type === 'transfer') {
-                        if (toAccount === null) {
-                            throw Error('Not null toAccount expected here')
-                        }
-
-                        await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account, toAccount }])
-                    } else {
-                        await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account }])
-                    }
-
-                    navigate('/operations')
-                }
-                : (op !== null && op.type !== 'deleted' ? null : undefined)
-        }
+        onSave={onSave}
     >
         {
             showOps
@@ -229,16 +244,16 @@ const Wrap = observer(({ showOps, op, origOp, account, origAccount, toAccount, o
 })
 
 interface BodyProps {
+    onDelete: () => Promise<void>
     op: PartialOperation
-    setOp: (op: PartialOperation) => void
+    setOp: (op: PartialOperation | DeletedOperation) => void
     account: NotDeletedOperation['account'] | null
     setAccount: (account: NotDeletedOperation['account'] | null) => void
     toAccount: NotDeletedOperation['account'] | null
     setToAccount: (account: NotDeletedOperation['account'] | null) => void
 }
 
-function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: BodyProps): ReactElement {
-    const navigate = useNavigate()
+function OpBody ({ onDelete, op, setOp, account, setAccount, toAccount, setToAccount }: BodyProps): ReactElement {
     const location = useLocation()
 
     const [expanded, setExpanded] = useState<
@@ -344,14 +359,7 @@ function OpBody ({ op, setOp, account, setAccount, toAccount, setToAccount }: Bo
         {
             location.pathname.startsWith('/new-op/')
                 ? null
-                : <DeleteOpButton onDelete={async (): Promise<void> => {
-                    await operationsModel.put([{
-                        id: op.id,
-                        type: 'deleted'
-                    }])
-
-                    navigate('/operations')
-                }} />
+                : <DeleteOpButton onDelete={onDelete} />
         }
         <Box minHeight={72}/>
     </Box>

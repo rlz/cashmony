@@ -1,7 +1,7 @@
-import React, { useState, useEffect, type ReactElement, useMemo } from 'react'
+import React, { useState, useEffect, type ReactElement } from 'react'
 import { Operations } from '../../model/stats'
 import { type NotDeletedOperation } from '../../model/model'
-import { Backdrop, Box, SpeedDial, SpeedDialAction, SpeedDialIcon, type SxProps, Typography, Portal } from '@mui/material'
+import { Backdrop, Box, SpeedDial, SpeedDialAction, SpeedDialIcon, type SxProps, Typography, Portal, Skeleton } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import { AppState } from '../../model/appState'
 import { OperationsModel } from '../../model/operations'
@@ -13,6 +13,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCreditCard, faHandHoldingDollar, faMoneyBillTransfer } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
 import { run, showIf } from '../../helpers/smallTools'
+import { DivBody2 } from '../Typography'
+import { Column } from '../Containers'
+import { OpCardSkeleton } from './cards/BaseOpCard'
 
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
@@ -24,39 +27,53 @@ interface Props {
 }
 
 export const OpsList = observer((props: Props): ReactElement => {
-    const displayOps = useMemo(
+    const [displayOps, setDisplayOps] = useState<NotDeletedOperation[][] | null>(null)
+    const [displayDays, setDisplayDays] = useState(0)
+
+    useEffect(() => {
+        if (displayOps === null) {
+            return
+        }
+
+        setDisplayDays(Math.min(displayOps.length, 30))
+    }, [appState.timeSpanInfo, operationsModel.operations, displayOps])
+
+    useEffect(
         () => {
             const operations = props.operations ?? run(() => {
                 const appState = AppState.instance()
                 return Operations.forFilter(appState.filter).forTimeSpan(appState.timeSpan)
             })
-            return [...operations.groupByDate({ reverse: true })]
+            setDisplayOps([...operations.groupByDate({ reverse: true })])
         },
         [props.operations, operationsModel.operations]
     )
 
-    const [displayDays, setDisplayDays] = useState(Math.min(displayOps.length, 30))
-
-    useEffect(() => {
-        setDisplayDays(Math.min(displayOps.length, 30))
-    }, [appState.timeSpanInfo, operationsModel.operations])
+    if (displayOps === null) {
+        return <Box sx={props.sx}>
+            <DivBody2 pt={2}>
+                <Skeleton width={80} sx={{ maxWidth: '100%' }}/>
+            </DivBody2>
+            <Column gap={1}>
+                <OpCardSkeleton />
+                <OpCardSkeleton />
+                <OpCardSkeleton />
+            </Column>
+        </Box>
+    }
 
     return <Box sx={props.sx}>
         {displayOps.slice(0, displayDays).map(group =>
             <Box key={group[0].date.toISODate()}>
-                <Box pt={2}>
-                    <Typography
-                        variant='body2'
-                    >
-                        {group[0].date.toLocaleString({ dateStyle: 'full' })}
-                    </Typography>
-                </Box>
-                <Box display='flex' flexDirection='column' gap={1}>
+                <DivBody2 pt={2}>
+                    {group[0].date.toLocaleString({ dateStyle: 'full' })}
+                </DivBody2>
+                <Column gap={1}>
                     {group.map(t => <Transaction key={t.id} op={t}/>)}
-                </Box>
+                </Column>
             </Box>
         )}
-        {displayDays < displayOps.length
+        {displayOps !== null && displayDays < displayOps.length
             ? <Typography color='text.primary' textAlign='center' mt={2}>
                 <a onClick={() => {
                     setDisplayDays(Math.min(displayOps.length, displayDays + 10))
