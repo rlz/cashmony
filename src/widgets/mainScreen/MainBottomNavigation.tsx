@@ -3,14 +3,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { BottomNavigation, BottomNavigationAction } from '@mui/material'
 import React, { type ReactElement } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useWidth, widthOneOf } from '../../helpers/useWidth'
 
 export function MainBottomNavigation (): ReactElement {
     const loc = useLocation()
     const nav = useNavigate()
+    const fixed = widthOneOf(useWidth(), ['xs', 'sm'])
+
     return <BottomNavigation
         showLabels
         value={loc.pathname}
-        sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}
+        sx={() => fixed ? { position: 'fixed', bottom: 0, left: 0, right: 0 } : {}}
     >
         <BottomNavigationAction
             value="/operations"
