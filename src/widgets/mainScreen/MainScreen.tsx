@@ -2,6 +2,7 @@ import React, { type PropsWithChildren, type ReactElement } from 'react'
 import { Box, useTheme } from '@mui/material'
 import { MainAppBar } from './MainAppBar'
 import { MainBottomNavigation } from './MainBottomNavigation'
+import { Column } from '../Containers'
 
 interface Props extends PropsWithChildren {
     title?: string
@@ -12,7 +13,7 @@ interface Props extends PropsWithChildren {
 export const MainScreen = (props: Props): ReactElement => {
     const theme = useTheme()
 
-    return <Box width="100vw" height="100vh" display="flex" flexDirection="column">
+    return <Column width="100vw" height="100vh">
         <MainAppBar
             title={props.title}
             navigateOnBack={props.navigateOnBack}
@@ -28,5 +29,5 @@ export const MainScreen = (props: Props): ReactElement => {
             {props.children}
         </Box>
         <MainBottomNavigation />
-    </Box>
+    </Column>
 }

@@ -24,7 +24,7 @@ export const FullScreenModal = (props: Props): ReactElement => {
             color="text.primary"
         >
             <MainAppBar
-                noDrawer
+                noSettings
                 title={props.title}
                 onBack={props.onClose}
                 onSave={props.onSave}

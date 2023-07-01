@@ -1,22 +1,27 @@
 import React, { type ReactElement, useState } from 'react'
-import { MainAppDrawer } from './MainAppDrawer'
-import { AppBar, IconButton, Toolbar, Typography } from '@mui/material'
+import { AppBar, Button, Divider, IconButton, Modal, Paper, SwipeableDrawer, Toolbar, Typography } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars, faCircleCheck, faCircleChevronLeft, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
+import { useWidth, widthOneOf } from '../../helpers/useWidth'
+import { showIf } from '../../helpers/smallTools'
+import { AppStateSettings } from './AppStateSettings'
+import { Row } from '../Containers'
 
 interface Props {
     title?: string
     navigateOnBack?: string
-    noDrawer?: boolean
+    noSettings?: boolean
     onBack?: () => void
     onSave?: (() => void) | (() => Promise<void>) | null
 }
 
-export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noDrawer }: Props): ReactElement => {
+export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noSettings }: Props): ReactElement => {
     const navigate = useNavigate()
     const [inProgress, setInProgress] = useState(false)
-    const [drawerOpen, setDrawerOpen] = useState(false)
+    const [settingsOpen, setSettingsOpen] = useState(false)
+
+    const width = useWidth()
 
     if (onBack === undefined && navigateOnBack !== undefined) {
         onBack = () => { navigate(navigateOnBack) }
@@ -24,24 +29,47 @@ export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noDrawer }: 
 
     return <>
         {
-            noDrawer === true
-                ? null
-                : <MainAppDrawer
-                    open={drawerOpen}
-                    onOpen={() => { setDrawerOpen(true) }}
-                    onClose={() => { setDrawerOpen(false) }}
-                />
+            showIf(
+                noSettings !== true && widthOneOf(width, ['xs', 'sm']),
+                <SwipeableDrawer
+                    open={settingsOpen}
+                    anchor='left'
+                    onOpen={() => { setSettingsOpen(true) }}
+                    onClose={() => { setSettingsOpen(false) }}
+                >
+                    <AppStateSettings height="100vh" width="90vw" maxWidth="20rem"/>
+                </SwipeableDrawer>
+            )
+        }
+        {
+            showIf(
+                noSettings !== true && !widthOneOf(width, ['xs', 'sm']),
+                <Modal
+                    open={settingsOpen}
+                    onClose={() => { setSettingsOpen(false) }}
+                >
+                    <Paper sx={{ width: 550, mt: 4, mx: 'auto', p: 1 }}>
+                        <AppStateSettings />
+                        <Divider sx={{ my: 1 }}/>
+                        <Row justifyContent='flex-end'>
+                            <Button onClick={() => { setSettingsOpen(false) }}>
+                                Close
+                            </Button>
+                        </Row>
+                    </Paper>
+                </Modal>
+            )
         }
         <AppBar position="static">
             <Toolbar>
-                {noDrawer === true
+                {noSettings === true
                     ? null
                     : <IconButton
                         size="large"
                         edge="start"
                         color='inherit'
                         sx={{ mr: 1 }}
-                        onClick={() => { setDrawerOpen(true) }}
+                        onClick={() => { setSettingsOpen(true) }}
                     >
                         <FontAwesomeIcon icon={faBars}/>
                     </IconButton>
