@@ -28,8 +28,8 @@ export const ExpensesStatsWidget = observer(({ currency, stats }: Props): ReactE
             <table className='stats'>
                 <tbody>
                     <tr>
-                        <th>Period Pace (30d):</th>
-                        <td>{cur(-stats.avgUntilToday(30, timeSpan, currency))}</td>
+                        <th>Period pace (30d):</th>
+                        <td>{cur(match(stats.avgUntilToday(30, timeSpan, currency)).with(0, () => 0).otherwise(v => -v))}</td>
                     </tr>
                     <tr>
                         <th>Left per day:</th>

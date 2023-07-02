@@ -54,12 +54,12 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                     <table className='stats'>
                         <tbody>
                             <tr>
-                                <th>Goal (30d):</th>
-                                <td>{goal30 !== null ? cur(-goal30.value * currenciesModel.getRate(utcToday(), goal30.currency, currency)) : '-'}</td>
+                                <th>Period pace (30d):</th>
+                                <td>{cur(match(props.stats.avgUntilToday(30, appState.timeSpan, currency)).with(0, () => 0).otherwise(v => -v))}</td>
                             </tr>
                             <tr>
-                                <th>Period Pace (30d):</th>
-                                <td>{cur(-props.stats.avgUntilToday(30, appState.timeSpan, currency))}</td>
+                                <th>Goal (30d):</th>
+                                <td>{goal30 !== null ? cur(-goal30.value * currenciesModel.getRate(utcToday(), goal30.currency, currency)) : '-'}</td>
                             </tr>
                             <tr>
                                 <th>Left per day:</th>
