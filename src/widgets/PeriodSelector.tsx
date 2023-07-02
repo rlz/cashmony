@@ -1,7 +1,7 @@
 import React, { useState, type ReactElement } from 'react'
 import { AppState } from '../model/appState'
 import { observer } from 'mobx-react-lite'
-import { Box, Paper, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import { Box, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightLong } from '@fortawesome/free-solid-svg-icons'
 import { runInAction } from 'mobx'
@@ -170,15 +170,17 @@ function MonthSelector (props: MonthSelectorProps): ReactElement {
     const today = appState.today
 
     return <FullScreenModal title='Select month' onClose={props.onClose}>
-        <Calendar
-            maxDate={today.toJSDate()}
-            maxDetail='year'
-            onChange={(d) => {
-                if (!(d instanceof Date)) return
-                props.onMonthSelected(d.getFullYear(), d.getMonth() + 1)
-                props.onClose()
-            }}
-        />
+        <Box p={1}>
+            <Calendar
+                maxDate={today.toJSDate()}
+                maxDetail='year'
+                onChange={(d) => {
+                    if (!(d instanceof Date)) return
+                    props.onMonthSelected(d.getFullYear(), d.getMonth() + 1)
+                    props.onClose()
+                }}
+            />
+        </Box>
     </FullScreenModal>
 }
 
@@ -191,15 +193,17 @@ function YearSelector (props: YearSelectorProps): ReactElement {
     const today = appState.today
 
     return <FullScreenModal title='Select year' onClose={props.onClose}>
-        <Calendar
-            maxDate={today.toJSDate()}
-            maxDetail='decade'
-            onChange={(d) => {
-                if (!(d instanceof Date)) return
-                props.onYearSelected(d.getFullYear())
-                props.onClose()
-            }}
-        />
+        <Box p={1}>
+            <Calendar
+                maxDate={today.toJSDate()}
+                maxDetail='decade'
+                onChange={(d) => {
+                    if (!(d instanceof Date)) return
+                    props.onYearSelected(d.getFullYear())
+                    props.onClose()
+                }}
+            />
+        </Box>
     </FullScreenModal>
 }
 
@@ -223,7 +227,7 @@ function CustomSelector (props: CustomSelectorProps): ReactElement {
             }
         }
     >
-        <Paper elevation={1} sx={{ p: 1 }}>
+        <Box p={1}>
             <Calendar
                 selectRange
                 maxDate={today.toJSDate()}
@@ -232,6 +236,6 @@ function CustomSelector (props: CustomSelectorProps): ReactElement {
                     setPeriod([utcDate(range[0] ?? DateTime.now()), utcDate(range[1] ?? DateTime.now())])
                 }}
             />
-        </Paper>
+        </Box>
     </FullScreenModal>
 }

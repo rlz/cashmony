@@ -25,7 +25,7 @@ export function FilterEditor (props: Props): ReactElement {
         onClose={props.onClose}
         onSave={deepEqual(props.filter, filter) ? null : () => { props.onFilterChanged(filter); props.onClose() }}
     >
-        <Column gap={1}>
+        <Column gap={1} p={1}>
             <SearchFilter filter={filter} setFilter={setFilter} />
             <OpTypeFilter filter={filter} setFilter={setFilter} />
             <CategoriesFilter filter={filter} setFilter={setFilter} />

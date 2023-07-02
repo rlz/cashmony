@@ -1,45 +1,59 @@
 import React, { type ReactElement, type PropsWithChildren } from 'react'
-import { Box, Portal } from '@mui/material'
+import { Box, Button, Divider, Modal } from '@mui/material'
 import { MainAppBar } from './mainScreen/MainAppBar'
+import { useWidth, widthOneOf } from '../helpers/useWidth'
+import { Column, Row } from './Containers'
+import { showIf } from '../helpers/smallTools'
 
 interface Props extends PropsWithChildren {
     title?: string
-    gap?: number
     onClose: () => void
     onSave?: (() => void) | null
 }
 
 export const FullScreenModal = (props: Props): ReactElement => {
-    return <Portal>
-        <Box
-            top={0}
-            left={0}
+    const bigScreen = !widthOneOf(useWidth(), ['xs', 'sm'])
+
+    return <Modal open={true}>
+        <Column
+            maxWidth={900}
+            mx='auto'
             width='100vw'
             height='100vh'
-            position='absolute'
-            zIndex={10000}
-            display='flex'
-            flexDirection='column'
-            bgcolor='background.default'
-            color='text.primary'
+            justifyContent='center'
         >
             <MainAppBar
                 noSettings
                 title={props.title}
-                onBack={props.onClose}
-                onSave={props.onSave}
+                onBack={bigScreen ? undefined : props.onClose}
+                onSave={bigScreen ? undefined : props.onSave}
             />
             <Box
-                display='flex'
-                flexDirection='column'
-                textOverflow='scroll'
-                flex='1 0 0'
-                gap={props.gap}
-                p={1}
+                flex='0 1 auto'
                 bgcolor='background.default'
+                maxHeight={bigScreen ? 700 : undefined}
             >
                 {props.children}
             </Box>
-        </Box>
-    </Portal>
+            {
+                showIf(
+                    bigScreen,
+                    <Box px={1} bgcolor='background.default' >
+                        <Divider/>
+                        <Row py={1} justifyContent='end'>
+                            <Button onClick={props.onClose} color='secondary'>Close</Button>
+                            {
+                                props.onSave !== undefined
+                                    ? <Button
+                                        disabled={props.onSave === null}
+                                        onClick={props.onSave ?? undefined}
+                                    >Ok</Button>
+                                    : null
+                            }
+                        </Row>
+                    </Box>
+                )
+            }
+        </Column>
+    </Modal>
 }

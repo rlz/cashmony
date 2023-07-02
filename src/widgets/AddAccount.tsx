@@ -1,6 +1,6 @@
 import React, { useState, type ReactElement } from 'react'
 import { FullScreenModal } from './FullScreenModal'
-import { Box, Button, IconButton, TextField } from '@mui/material'
+import { Button, IconButton, TextField } from '@mui/material'
 import { CurrenciesModel } from '../model/currencies'
 import { DateTime } from 'luxon'
 import { getCurrencySymbol } from '../helpers/currencies'
@@ -10,6 +10,7 @@ import { CurrencyInput } from './CurrencyInput'
 import { OperationsModel } from '../model/operations'
 import { v1 as uuid } from 'uuid'
 import { utcToday } from '../helpers/dates'
+import { Column, Row } from './Containers'
 
 const currenciesModel = CurrenciesModel.instance()
 const accountsModel = AccountsModel.instance()
@@ -52,54 +53,56 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
     const acc = accountsModel.accounts?.get(name)
     const exists = acc !== undefined && acc.deleted !== true
 
-    return <FullScreenModal title='Add account' onClose={onClose} gap={1}>
-        <Box display='flex' gap={1}>
-            <IconButton
-                color='primary'
-                sx={{ width: 48 }}
-                onClick={() => { setCurSelOpen(true) }}
-            >
-                {getCurrencySymbol(currency)}
-            </IconButton>
-            <TextField
-                label='Name'
-                variant='filled'
-                size='small'
-                value={name}
-                error={name.trim() === '' || exists}
-                helperText={
-                    name.trim() === ''
-                        ? 'Empty'
-                        : (exists ? 'Already exists' : undefined)
-                }
-                onChange={ev => {
-                    setName(ev.target.value)
-                }}
-                sx={{ flex: '1 0 0' }}
-            />
-        </Box>
-        <CurrencyInput
-            allowZero
-            label='Initial amount'
-            currency={currency}
-            amount={initialAmount}
-            onAmountChange={a => { setInitialAmount(a) }}
-        />
-        <Button
-            fullWidth
-            variant='contained'
-            onClick={() => { void save() }}
-            disabled={name.trim() === '' || exists}
-        >Create</Button>
-        {curSelOpen
-            ? <CurrencySelector
+    return <FullScreenModal title='Add account' onClose={onClose}>
+        <Column gap={1} p={1}>
+            <Row gap={1}>
+                <IconButton
+                    color='primary'
+                    sx={{ width: 48 }}
+                    onClick={() => { setCurSelOpen(true) }}
+                >
+                    {getCurrencySymbol(currency)}
+                </IconButton>
+                <TextField
+                    label='Name'
+                    variant='filled'
+                    size='small'
+                    value={name}
+                    error={name.trim() === '' || exists}
+                    helperText={
+                        name.trim() === ''
+                            ? 'Empty'
+                            : (exists ? 'Already exists' : undefined)
+                    }
+                    onChange={ev => {
+                        setName(ev.target.value)
+                    }}
+                    sx={{ flex: '1 0 0' }}
+                />
+            </Row>
+            <CurrencyInput
+                allowZero
+                label='Initial amount'
                 currency={currency}
-                onClose={() => { setCurSelOpen(false) }}
-                onCurrencySelected={c => {
-                    setCurrency(c)
-                    setCurSelOpen(false)
-                }}
+                amount={initialAmount}
+                onAmountChange={a => { setInitialAmount(a) }}
             />
-            : undefined}
+            <Button
+                fullWidth
+                variant='contained'
+                onClick={() => { void save() }}
+                disabled={name.trim() === '' || exists}
+            >Create</Button>
+            {curSelOpen
+                ? <CurrencySelector
+                    currency={currency}
+                    onClose={() => { setCurSelOpen(false) }}
+                    onCurrencySelected={c => {
+                        setCurrency(c)
+                        setCurSelOpen(false)
+                    }}
+                />
+                : undefined}
+        </Column>
     </FullScreenModal>
 }

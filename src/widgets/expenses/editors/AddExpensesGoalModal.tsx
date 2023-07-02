@@ -9,6 +9,7 @@ import { run } from '../../../helpers/smallTools'
 import { ExpensesGoalEditor } from './ExpensesGoalEditor'
 import { observer } from 'mobx-react-lite'
 import { type ExpensesGoal } from '../../../model/model'
+import { Column } from '../../Containers'
 
 export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void }): ReactElement => {
     const currenciesModel = CurrenciesModel.instance()
@@ -45,14 +46,16 @@ export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void
     })
 
     return <>
-        <FullScreenModal title='Add expenses goal' onClose={onClose} gap={1}>
-            <ExpensesGoalEditor origName='' goal={goal} onChange={setGoal} />
-            <Button
-                fullWidth
-                variant='contained'
-                disabled={ trimmedName === '' || goal.perDayAmount === 0 || exists }
-                onClick={() => { void save() }}
-            >Create</Button>
+        <FullScreenModal title='Add expenses goal' onClose={onClose}>
+            <Column gap={1} p={1}>
+                <ExpensesGoalEditor origName='' goal={goal} onChange={setGoal} />
+                <Button
+                    fullWidth
+                    variant='contained'
+                    disabled={ trimmedName === '' || goal.perDayAmount === 0 || exists }
+                    onClick={() => { void save() }}
+                >Create</Button>
+            </Column>
         </FullScreenModal>
     </>
 })

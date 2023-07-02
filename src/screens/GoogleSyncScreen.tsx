@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDownLong, faArrowUpLong, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { Box, Typography } from '@mui/material'
 import { runAsync } from '../helpers/smallTools'
+import { Row } from '../widgets/Containers'
 
 const google = Google.instance()
 
@@ -65,21 +66,23 @@ export function GoogleSyncScreen (): ReactElement {
         title='Sync with Google'
         onClose={() => { navigate(searchParams.get('redirect') ?? '/') }}
     >
-        <Box display='flex'>
-            <Box>Search/create spreadsheet</Box>
-            <Box flex='1 1 0' textAlign='right'>
-                {spreadsheet
-                    ? 'ok'
-                    : <FontAwesomeIcon icon={faSpinner} pulse/>
-                }
-            </Box>
+        <Box p={1}>
+            <Row>
+                <Box>Search/create spreadsheet</Box>
+                <Box flex='1 1 0' textAlign='right'>
+                    {spreadsheet
+                        ? 'ok'
+                        : <FontAwesomeIcon icon={faSpinner} pulse/>
+                    }
+                </Box>
+            </Row>
+            <Typography component='div' variant='body2'>
+                <Stats title='Accounts' stats={accStats}/>
+                <Stats title='Categories' stats={catStats}/>
+                <Stats title='Goals' stats={goalsStats}/>
+                <Stats title='Operations' stats={opsStats} extended/>
+            </Typography>
         </Box>
-        <Typography component='div' variant='body2'>
-            <Stats title='Accounts' stats={accStats}/>
-            <Stats title='Categories' stats={catStats}/>
-            <Stats title='Goals' stats={goalsStats}/>
-            <Stats title='Operations' stats={opsStats} extended/>
-        </Typography>
     </FullScreenModal>
 }
 
