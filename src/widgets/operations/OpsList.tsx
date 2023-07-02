@@ -46,7 +46,7 @@ export const OpsList = observer((props: Props): ReactElement => {
             })
             setDisplayOps([...operations.groupByDate({ reverse: true })])
         },
-        [props.operations, operationsModel.operations, appState.filter]
+        [props.operations, operationsModel.operations, appState.filter, appState.timeSpan]
     )
 
     if (displayOps === null) {
