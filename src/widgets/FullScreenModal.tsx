@@ -20,7 +20,8 @@ export const FullScreenModal = (props: Props): ReactElement => {
             mx='auto'
             width='100vw'
             height='100vh'
-            justifyContent='center'
+            mt={bigScreen ? '5vh' : undefined}
+            maxHeight={bigScreen ? '90vh' : undefined}
         >
             <MainAppBar
                 noSettings
@@ -29,9 +30,9 @@ export const FullScreenModal = (props: Props): ReactElement => {
                 onSave={bigScreen ? undefined : props.onSave}
             />
             <Box
-                flex='0 1 auto'
+                flex={bigScreen ? '0 1 auto' : '1 1 auto'}
                 bgcolor='background.default'
-                maxHeight={bigScreen ? 700 : undefined}
+                overflow='scroll'
             >
                 {props.children}
             </Box>
