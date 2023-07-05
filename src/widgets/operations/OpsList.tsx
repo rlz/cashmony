@@ -28,7 +28,7 @@ interface Props {
 
 export const OpsList = observer((props: Props): ReactElement => {
     const [displayOps, setDisplayOps] = useState<NotDeletedOperation[][] | null>(null)
-    const [displayDays, setDisplayDays] = useState(0)
+    const [displayDays, setDisplayDays] = useState(30)
 
     useEffect(() => {
         if (displayOps === null) {

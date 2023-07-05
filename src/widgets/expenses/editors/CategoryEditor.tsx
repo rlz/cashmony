@@ -17,7 +17,7 @@ interface EditorProps {
     onChange: (cat: Category) => void
 }
 
-export const CategoryEditor = observer(({ origCatName, cat: newCat, onChange: setNewCat }: EditorProps): ReactElement => {
+export const CategoryEditor = observer(({ origCatName, cat, onChange }: EditorProps): ReactElement => {
     const virtual = origCatName === '_total' || origCatName === '_'
     const currenciesModel = CurrenciesModel.instance()
     const categoriesModel = CategoriesModel.instance()
@@ -43,16 +43,18 @@ export const CategoryEditor = observer(({ origCatName, cat: newCat, onChange: se
                     <AccordionDetails>
                         <TextField
                             error={
-                                newCat.name !== origCatName &&
-                                categoriesModel.categories.has(newCat.name) &&
-                                categoriesModel.get(newCat.name).deleted !== true
+                                cat.name !== origCatName &&
+                                categoriesModel.categories.has(cat.name) &&
+                                categoriesModel.get(cat.name).deleted !== true
                             }
                             label='Name'
                             size='small'
                             fullWidth
                             variant='filled'
-                            value={newCat.name}
-                            onChange={ev => { setNewCat({ ...newCat, name: ev.target.value }) }}
+                            value={cat.name}
+                            onChange={ev => {
+                                onChange({ ...cat, name: ev.target.value })
+                            }}
                         />
                     </AccordionDetails>
                 </Accordion>
@@ -72,28 +74,28 @@ export const CategoryEditor = observer(({ origCatName, cat: newCat, onChange: se
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={newCat.perDayAmount !== undefined}
+                            checked={cat.perDayAmount !== undefined}
                             onChange={(_, checked) => {
-                                setNewCat({
-                                    ...newCat,
+                                onChange({
+                                    ...cat,
                                     perDayAmount: checked ? 0 : undefined,
                                     currency: checked ? currenciesModel.currencies[0] : undefined
                                 })
                             }}
                         />
                     }
-                    label='Set daily goal'
+                    label='Set goal'
                 />
                 {
-                    newCat.perDayAmount !== undefined
+                    cat.perDayAmount !== undefined
                         ? <GoalInput
-                            perDayAmount={newCat.perDayAmount}
+                            perDayAmount={cat.perDayAmount}
                             onPerDayAmountChange={perDayAmount => {
-                                setNewCat({ ...newCat, perDayAmount })
+                                onChange({ ...cat, perDayAmount })
                             }}
-                            currency={newCat.currency ?? ''}
+                            currency={cat.currency ?? ''}
                             onCurrencyChange={currency => {
-                                setNewCat({ ...newCat, currency })
+                                onChange({ ...cat, currency })
                             }}
                         />
                         : null
@@ -119,11 +121,11 @@ export const CategoryEditor = observer(({ origCatName, cat: newCat, onChange: se
             showIf(
                 currencySelector,
                 <CurrencySelector
-                    currency={newCat.currency ?? ''}
+                    currency={cat.currency ?? ''}
                     onClose={() => { setCurrencySelector(false) }}
                     onCurrencySelected={c => {
-                        setNewCat({
-                            ...newCat,
+                        onChange({
+                            ...cat,
                             currency: c
                         })
                     }}

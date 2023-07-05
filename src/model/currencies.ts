@@ -86,7 +86,7 @@ export class CurrenciesModel {
                         }
 
                         if (currency !== 'USD') {
-                            needRates.add(`${op.date.toFormat('yyyy/MM')}/${masterCurrency}`)
+                            needRates.add(`${op.date.toFormat('yyyy/MM')}/${currency}`)
                         }
                     }
                 }

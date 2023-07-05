@@ -16,6 +16,13 @@ import { ExpensesList } from '../widgets/expenses/ExpensesList'
 import { Bold, Italic } from '../widgets/Typography'
 
 export const CategoriesScreen = observer((): ReactElement => {
+    return <MainScreen>
+        <CategoriesScreenBody />
+    </MainScreen>
+})
+CategoriesScreen.displayName = 'CategoriesScreen'
+
+export const CategoriesScreenBody = observer((): ReactElement => {
     const appState = AppState.instance()
     const categoriesModel = CategoriesModel.instance()
 
@@ -26,7 +33,7 @@ export const CategoriesScreen = observer((): ReactElement => {
         .map(c => categoriesModel.get(c))
         .filter(c => c.deleted !== true)
 
-    return <MainScreen>
+    return <>
         {
             match(addCategory)
                 .with(
@@ -44,7 +51,7 @@ export const CategoriesScreen = observer((): ReactElement => {
                     </Fab>
                 )
         }
-        <Box p={1}>
+        <Box p={1} height='100%' overflow='scroll'>
             <ExpensesCard
                 url='/categories/_total'
                 name={<Bold>Total</Bold>}
@@ -67,5 +74,6 @@ export const CategoriesScreen = observer((): ReactElement => {
             }
             <Box minHeight={144}/>
         </Box>
-    </MainScreen>
+    </>
 })
+CategoriesScreenBody.displayName = 'CategoriesScreenBody'

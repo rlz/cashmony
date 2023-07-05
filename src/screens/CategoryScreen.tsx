@@ -11,7 +11,7 @@ import { ExpensesStats, Operations } from '../model/stats'
 import { formatCurrency } from '../helpers/currencies'
 import { OpsList } from '../widgets/operations/OpsList'
 import { AppState } from '../model/appState'
-import { nonNull, run } from '../helpers/smallTools'
+import { nonNull, run, runAsync } from '../helpers/smallTools'
 import { match } from 'ts-pattern'
 import { runInAction } from 'mobx'
 import { CurrenciesModel } from '../model/currencies'
@@ -20,8 +20,44 @@ import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
 import { ExpensesStatsWidget } from '../widgets/expenses/ExpensesStatsWidget'
 import { CategoryEditor } from '../widgets/expenses/editors/CategoryEditor'
+import { useWidth, widthOneOf } from '../helpers/useWidth'
+import { Panel, PanelGroup } from 'react-resizable-panels'
+import { CategoriesScreenBody } from './CategoriesScreen'
+import { ResizeHandle } from '../widgets/generic/resizeHandle'
+import { Column } from '../widgets/Containers'
 
-export const CategoryScreen = observer((): ReactElement => {
+type OnSaveType = (() => void) | null | undefined
+
+export function CategoryScreen (): ReactElement {
+    const bigScreen = !widthOneOf(useWidth(), ['xs', 'sm'])
+    const [onSave, setOnSave] = useState<OnSaveType>(null)
+
+    return <MainScreen
+        navigateOnBack='/categories'
+        title='Category'
+        onSave={onSave}
+    >
+        {
+            bigScreen
+                ? <PanelGroup direction='horizontal'>
+                    <Panel>
+                        <CategoriesScreenBody/>
+                    </Panel>
+                    <ResizeHandle />
+                    <Panel>
+                        <CategoryScreenBody setOnSave={(onSave: OnSaveType) => { setOnSave((): OnSaveType => onSave) }}/>
+                    </Panel>
+                </PanelGroup>
+                : <CategoryScreenBody setOnSave={(onSave: OnSaveType) => { setOnSave((): OnSaveType => onSave) }}/>
+        }
+    </MainScreen>
+}
+
+interface Props {
+    setOnSave: (onSave: OnSaveType) => void
+}
+
+export const CategoryScreenBody = observer(({ setOnSave }: Props): ReactElement => {
     const appState = AppState.instance()
     const currenciesModel = CurrenciesModel.instance()
     const categoriesModel = CategoriesModel.instance()
@@ -38,6 +74,81 @@ export const CategoryScreen = observer((): ReactElement => {
 
     useEffect(
         () => {
+            if (
+                cat === null ||
+                newCat === null ||
+                currenciesModel.rates === null
+            ) {
+                return
+            }
+
+            if (
+                deepEqual(cat, newCat) ||
+                newCat.name.trim() === '' ||
+                (
+                    newCat.name !== cat.name &&
+                    categoriesModel.categories.has(newCat.name) &&
+                    categoriesModel.get(newCat.name).deleted !== true
+                )
+            ) {
+                setOnSave(null)
+                return
+            }
+
+            setOnSave(() => {
+                runAsync(
+                    async () => {
+                        if (catName === '_') {
+                            runInAction(() => {
+                                appState.uncategorizedGoalAmount = newCat.perDayAmount === undefined ? null : newCat.perDayAmount
+                                appState.uncategorizedGoalCurrency = newCat.currency ?? 'USD'
+                            })
+                        } else if (catName === '_total') {
+                            runInAction(() => {
+                                appState.totalGoalAmount = newCat.perDayAmount === undefined ? null : newCat.perDayAmount
+                                appState.totalGoalCurrency = newCat.currency ?? 'USD'
+                            })
+                        } else {
+                            await categoriesModel.put({ ...newCat, lastModified: DateTime.utc() })
+                        }
+
+                        if (newCat.name !== cat.name) {
+                            const changedOps: Operation[] = []
+                            for (const op of operationsModel.operations) {
+                                if (
+                                    (op.type === 'expense' || op.type === 'income') &&
+                            op.categories.find((c) => c.name === cat.name) !== undefined
+                                ) {
+                                    changedOps.push({
+                                        ...op,
+                                        lastModified: DateTime.utc(),
+                                        categories: op.categories.map(c => {
+                                            return {
+                                                ...c,
+                                                name: c.name === cat.name ? newCat.name : cat.name
+                                            }
+                                        })
+                                    })
+                                }
+                            }
+                            await operationsModel.put(changedOps)
+                            await categoriesModel.put({ ...cat, deleted: true, lastModified: DateTime.utc() })
+                            navigate(`/categories/${encodeURIComponent(newCat.name)}`)
+                        }
+
+                        setCat(newCat)
+                    }
+                )
+            })
+        },
+        [
+            cat,
+            newCat
+        ]
+    )
+
+    useEffect(
+        () => {
             if (catName === '_' || catName === '_total') {
                 const category: Category = {
                     name: match(catName)
@@ -47,12 +158,15 @@ export const CategoryScreen = observer((): ReactElement => {
                     lastModified: DateTime.utc(),
                     perDayAmount: run(() => {
                         const v = match(catName)
-                            .with('_', () => appState.uncategorizedGoalUsd ?? undefined)
-                            .with('_total', () => appState.totalGoalUsd ?? undefined)
+                            .with('_', () => appState.uncategorizedGoalAmount ?? undefined)
+                            .with('_total', () => appState.totalGoalAmount ?? undefined)
                             .exhaustive()
-                        return v !== undefined ? -v / 365 : 0
+                        return v !== undefined ? v : undefined
                     }),
-                    currency: 'USD'
+                    currency: match(catName)
+                        .with('_', () => appState.uncategorizedGoalAmount !== null ? appState.uncategorizedGoalCurrency ?? undefined : undefined)
+                        .with('_total', () => appState.totalGoalAmount !== null ? appState.totalGoalCurrency ?? undefined : undefined)
+                        .exhaustive()
                 }
                 setCat(category)
                 setNewCat(category)
@@ -63,10 +177,13 @@ export const CategoryScreen = observer((): ReactElement => {
             setNewCat(category)
         },
         [
+            catName,
             categoriesModel.categories,
             appState.masterCurrency,
-            appState.totalGoalUsd,
-            appState.uncategorizedGoalUsd
+            appState.totalGoalAmount,
+            appState.totalGoalCurrency,
+            appState.uncategorizedGoalAmount,
+            appState.uncategorizedGoalCurrency
         ]
     )
 
@@ -81,11 +198,11 @@ export const CategoryScreen = observer((): ReactElement => {
     const stats = match(catName)
         .with('_total', () => new ExpensesStats(
             Operations.forFilter(appState.filter),
-            match(appState.totalGoalUsd).with(null, () => null).otherwise(v => { return { value: v / 365, currency: 'USD' } })
+            match(appState.totalGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.totalGoalCurrency } })
         ))
         .with('_', () => new ExpensesStats(
             Operations.forFilter(appState.filter).onlyUncategorized(),
-            match(appState.uncategorizedGoalUsd).with(null, () => null).otherwise(v => { return { value: v / 365, currency: 'USD' } })
+            match(appState.uncategorizedGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.uncategorizedGoalCurrency } })
         ))
         .otherwise(() => new ExpensesStats(
             Operations.forFilter(appState.filter).keepTypes('expense', 'income').keepCategories(cat.name).skipUncategorized(),
@@ -94,65 +211,9 @@ export const CategoryScreen = observer((): ReactElement => {
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
 
-    const onSave = run(() => {
-        if (
-            deepEqual(cat, newCat) ||
-            newCat.name.trim() === '' ||
-            (
-                newCat.name !== cat.name &&
-                categoriesModel.categories.has(newCat.name) &&
-                categoriesModel.get(newCat.name).deleted !== true
-            )
-        ) {
-            return null
-        }
-
-        return async () => {
-            if (catName === '_') {
-                runInAction(() => {
-                    appState.uncategorizedGoalUsd = newCat.perDayAmount === undefined ? null : -newCat.perDayAmount * 365
-                })
-            } else if (catName === '_total') {
-                runInAction(() => {
-                    appState.totalGoalUsd = newCat.perDayAmount === undefined ? null : -newCat.perDayAmount * 365
-                })
-            } else {
-                await categoriesModel.put({ ...newCat, lastModified: DateTime.utc() })
-            }
-
-            if (newCat.name !== cat.name) {
-                const changedOps: Operation[] = []
-                for (const op of operationsModel.operations) {
-                    if (
-                        (op.type === 'expense' || op.type === 'income') &&
-                        op.categories.find((c) => c.name === cat.name) !== undefined
-                    ) {
-                        changedOps.push({
-                            ...op,
-                            lastModified: DateTime.utc(),
-                            categories: op.categories.map(c => {
-                                return {
-                                    ...c,
-                                    name: c.name === cat.name ? newCat.name : cat.name
-                                }
-                            })
-                        })
-                    }
-                }
-                await operationsModel.put(changedOps)
-                await categoriesModel.put({ ...cat, deleted: true, lastModified: DateTime.utc() })
-                navigate(`/categories/${encodeURIComponent(newCat.name)}`)
-            }
-        }
-    })
-
     const goal = stats.goal(30)
 
-    return <MainScreen
-        navigateOnBack='/categories'
-        title='Category'
-        onSave={onSave}
-    >
+    return <Column height='100%'>
         <Box p={1}>
             <Typography variant='h6' textAlign='center' mt={1}>
                 {newCat.name.trim() === '' ? '-' : newCat.name}
@@ -161,7 +222,7 @@ export const CategoryScreen = observer((): ReactElement => {
                 {cur(-stats.amountTotal(appState.timeSpan, currency))}
             </Typography>
             <Typography variant='body2' textAlign='center'>
-            Goal (30d): {goal !== null ? cur(-goal.value * currenciesModel.getRate(utcToday(), goal.currency, currency)) : '-'}
+                Goal (30d): {goal !== null ? cur(-goal.value * currenciesModel.getRate(utcToday(), goal.currency, currency)) : '-'}
             </Typography>
             <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
                 <Tab label='Stats'/>
@@ -169,7 +230,7 @@ export const CategoryScreen = observer((): ReactElement => {
                 <Tab label='Operations'/>
             </Tabs>
         </Box>
-        <Box overflow='scroll'>
+        <Box overflow='scroll' flex='1 1 auto'>
             <Box px={1}>
                 {
                     match(tab)
@@ -187,5 +248,6 @@ export const CategoryScreen = observer((): ReactElement => {
                 <Box minHeight={72}/>
             </Box>
         </Box>
-    </MainScreen>
+    </Column>
 })
+CategoryScreenBody.displayName = 'CategoryScreenBody'

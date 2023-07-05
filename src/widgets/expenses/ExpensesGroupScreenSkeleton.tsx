@@ -1,15 +1,10 @@
 import React, { type ReactElement } from 'react'
-import { MainScreen } from '../mainScreen/MainScreen'
 import { Skeleton, Tab, Tabs, Typography } from '@mui/material'
 import { PBody2 } from '../Typography'
 import { Column } from '../Containers'
 
 export function ExpensesGroupScreenSkeleton (): ReactElement {
-    return <MainScreen
-        navigateOnBack='/categories'
-        title='Category'
-        onSave={null}
-    >
+    return <>
         <Typography variant='h6' mt={2}>
             <Skeleton width={75} sx={{ mx: 'auto' }} />
         </Typography>
@@ -29,5 +24,5 @@ export function ExpensesGroupScreenSkeleton (): ReactElement {
             <Skeleton variant='rounded' height={100}/>
             <Skeleton variant='rounded' height={80}/>
         </Column>
-    </MainScreen>
+    </>
 }
