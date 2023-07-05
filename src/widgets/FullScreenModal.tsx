@@ -11,11 +11,15 @@ interface Props extends PropsWithChildren {
     onSave?: (() => void) | null
 }
 
+const RefColumn = React.forwardRef(function RefColumn (props: Parameters<typeof Column>[0], _) {
+    return <Column {...props}/>
+})
+
 export const FullScreenModal = (props: Props): ReactElement => {
     const bigScreen = !widthOneOf(useWidth(), ['xs', 'sm'])
 
     return <Modal open={true}>
-        <Column
+        <RefColumn
             maxWidth={900}
             mx='auto'
             width='100vw'
@@ -55,6 +59,6 @@ export const FullScreenModal = (props: Props): ReactElement => {
                     </Box>
                 )
             }
-        </Column>
+        </RefColumn>
     </Modal>
 }
