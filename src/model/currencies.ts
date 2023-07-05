@@ -11,12 +11,14 @@ import { match } from 'ts-pattern'
 import { GoalsModel } from './goals'
 import { CategoriesModel } from './categories'
 import { Operations } from './stats'
+import { AccountsModel } from './accounts'
 
 const finDataDb = FinDataDb.instance()
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 const categoriesModel = CategoriesModel.instance()
 const goalsModel = GoalsModel.instance()
+const accountsModel = AccountsModel.instance()
 
 let currenciesModel: CurrenciesModel | null = null
 const emptyStats: ReadonlyMap<string, number> = new Map()
@@ -61,7 +63,8 @@ export class CurrenciesModel {
                 operationsModel.operations === null ||
                 categoriesModel.categories === null ||
                 categoriesModel.categoriesSorted === null ||
-                goalsModel.goals === null
+                goalsModel.goals === null ||
+                accountsModel.accounts === null
             ) {
                 return
             }
@@ -107,6 +110,17 @@ export class CurrenciesModel {
 
                 const ops = Operations.forFilter(goal.filter).keepTypes('expense', 'income')
                 calcNeedRates(ops, goal.currency)
+            }
+
+            // to calculate 'Total' on accounts screen
+            const date = appState.timeSpan.endDate.toFormat('yyyy/MM')
+            for (const acc of accountsModel.accounts.values()) {
+                if (acc.currency !== 'USD') {
+                    needRates.add(`${date}/${acc.currency}`)
+                }
+            }
+            if (appState.masterCurrency !== 'USD') {
+                needRates.add(`${date}/${appState.masterCurrency}`)
             }
 
             runAsync(async () => {
