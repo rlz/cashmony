@@ -88,7 +88,7 @@ export const CategoryScreen = observer((): ReactElement => {
             match(appState.uncategorizedGoalUsd).with(null, () => null).otherwise(v => { return { value: v / 365, currency: 'USD' } })
         ))
         .otherwise(() => new ExpensesStats(
-            Operations.forFilter(appState.filter).keepTypes('expense', 'income').keepCategories(cat.name),
+            Operations.forFilter(appState.filter).keepTypes('expense', 'income').keepCategories(cat.name).skipUncategorized(),
             match(newCat.perDayAmount).with(undefined, () => null).otherwise(v => { return { value: -v, currency: newCat.currency ?? '' } })
         ))
 
