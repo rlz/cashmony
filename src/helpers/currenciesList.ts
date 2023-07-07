@@ -1,3 +1,5 @@
+import { faBahtSign, faBrazilianRealSign, faDollarSign, faEuroSign, faIndianRupeeSign, faRubleSign, faSterlingSign, faWonSign, faYenSign, type IconDefinition } from '@fortawesome/free-solid-svg-icons'
+
 export const CURRENCIES: Record<string, {
     symbol: string
     name: string
@@ -6,6 +8,7 @@ export const CURRENCIES: Record<string, {
     rounding: number
     code: string
     name_plural: string
+    faIcon: IconDefinition | undefined
 }> = {
     USD: {
         symbol: '$',
@@ -14,7 +17,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'USD',
-        name_plural: 'US dollars'
+        name_plural: 'US dollars',
+        faIcon: faDollarSign
     },
     AUD: {
         symbol: 'AU$',
@@ -23,7 +27,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'AUD',
-        name_plural: 'Australian dollars'
+        name_plural: 'Australian dollars',
+        faIcon: undefined
     },
     BRL: {
         symbol: 'R$',
@@ -32,7 +37,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'BRL',
-        name_plural: 'Brazilian reals'
+        name_plural: 'Brazilian reals',
+        faIcon: faBrazilianRealSign
     },
     CAD: {
         symbol: 'CA$',
@@ -41,7 +47,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'CAD',
-        name_plural: 'Canadian dollars'
+        name_plural: 'Canadian dollars',
+        faIcon: undefined
     },
     CHF: {
         symbol: 'CHF',
@@ -50,7 +57,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0.05,
         code: 'CHF',
-        name_plural: 'Swiss francs'
+        name_plural: 'Swiss francs',
+        faIcon: undefined
     },
     CNY: {
         symbol: 'CN¥',
@@ -59,7 +67,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'CNY',
-        name_plural: 'Chinese yuan'
+        name_plural: 'Chinese yuan',
+        faIcon: undefined
     },
     CZK: {
         symbol: 'Kč',
@@ -68,7 +77,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'CZK',
-        name_plural: 'Czech Republic korunas'
+        name_plural: 'Czech Republic korunas',
+        faIcon: undefined
     },
     DKK: {
         symbol: 'Dkr',
@@ -77,7 +87,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'DKK',
-        name_plural: 'Danish kroner'
+        name_plural: 'Danish kroner',
+        faIcon: undefined
     },
     EUR: {
         symbol: '€',
@@ -86,7 +97,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'EUR',
-        name_plural: 'euros'
+        name_plural: 'euros',
+        faIcon: faEuroSign
     },
     GBP: {
         symbol: '£',
@@ -95,7 +107,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'GBP',
-        name_plural: 'British pounds sterling'
+        name_plural: 'British pounds sterling',
+        faIcon: faSterlingSign
     },
     HKD: {
         symbol: 'HK$',
@@ -104,7 +117,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'HKD',
-        name_plural: 'Hong Kong dollars'
+        name_plural: 'Hong Kong dollars',
+        faIcon: undefined
     },
     HUF: {
         symbol: 'Ft',
@@ -113,16 +127,18 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 0,
         rounding: 0,
         code: 'HUF',
-        name_plural: 'Hungarian forints'
+        name_plural: 'Hungarian forints',
+        faIcon: undefined
     },
     INR: {
-        symbol: 'Rs',
+        symbol: '₹',
         name: 'Indian Rupee',
         symbol_native: 'টকা',
         decimal_digits: 2,
         rounding: 0,
         code: 'INR',
-        name_plural: 'Indian rupees'
+        name_plural: 'Indian rupees',
+        faIcon: faIndianRupeeSign
     },
     ISK: {
         symbol: 'Ikr',
@@ -131,7 +147,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 0,
         rounding: 0,
         code: 'ISK',
-        name_plural: 'Icelandic krónur'
+        name_plural: 'Icelandic krónur',
+        faIcon: undefined
     },
     JPY: {
         symbol: '¥',
@@ -140,7 +157,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 0,
         rounding: 0,
         code: 'JPY',
-        name_plural: 'Japanese yen'
+        name_plural: 'Japanese yen',
+        faIcon: faYenSign
     },
     KRW: {
         symbol: '₩',
@@ -149,7 +167,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 0,
         rounding: 0,
         code: 'KRW',
-        name_plural: 'South Korean won'
+        name_plural: 'South Korean won',
+        faIcon: faWonSign
     },
     MXN: {
         symbol: 'MX$',
@@ -158,7 +177,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'MXN',
-        name_plural: 'Mexican pesos'
+        name_plural: 'Mexican pesos',
+        faIcon: undefined
     },
     MYR: {
         symbol: 'RM',
@@ -167,7 +187,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'MYR',
-        name_plural: 'Malaysian ringgits'
+        name_plural: 'Malaysian ringgits',
+        faIcon: undefined
     },
     NOK: {
         symbol: 'Nkr',
@@ -176,7 +197,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'NOK',
-        name_plural: 'Norwegian kroner'
+        name_plural: 'Norwegian kroner',
+        faIcon: undefined
     },
     NZD: {
         symbol: 'NZ$',
@@ -185,7 +207,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'NZD',
-        name_plural: 'New Zealand dollars'
+        name_plural: 'New Zealand dollars',
+        faIcon: undefined
     },
     PLN: {
         symbol: 'zł',
@@ -194,7 +217,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'PLN',
-        name_plural: 'Polish zlotys'
+        name_plural: 'Polish zlotys',
+        faIcon: undefined
     },
     RUB: {
         symbol: 'RUB',
@@ -203,7 +227,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'RUB',
-        name_plural: 'Russian rubles'
+        name_plural: 'Russian rubles',
+        faIcon: faRubleSign
     },
     SEK: {
         symbol: 'Skr',
@@ -212,7 +237,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'SEK',
-        name_plural: 'Swedish kronor'
+        name_plural: 'Swedish kronor',
+        faIcon: undefined
     },
     SGD: {
         symbol: 'S$',
@@ -221,7 +247,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'SGD',
-        name_plural: 'Singapore dollars'
+        name_plural: 'Singapore dollars',
+        faIcon: undefined
     },
     THB: {
         symbol: '฿',
@@ -230,7 +257,8 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'THB',
-        name_plural: 'Thai baht'
+        name_plural: 'Thai baht',
+        faIcon: faBahtSign
     },
     ZAR: {
         symbol: 'R',
@@ -239,6 +267,7 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'ZAR',
-        name_plural: 'South African rand'
+        name_plural: 'South African rand',
+        faIcon: undefined
     }
 }

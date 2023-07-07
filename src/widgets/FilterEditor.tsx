@@ -1,14 +1,14 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material'
-import React, { type ReactElement, useState } from 'react'
+import React, { Fragment, type ReactElement, useState } from 'react'
 
 import { deepEqual } from '../helpers/deepEqual'
 import { showIf } from '../helpers/smallTools'
 import { type Filter } from '../model/filter'
 import { FullScreenModal } from './FullScreenModal'
 import { Column, Row } from './generic/Containers'
-import { PBody2, SpanBody2 } from './generic/Typography'
+import { DivBody2, PBody2, SpanBody2 } from './generic/Typography'
 import { AccountsSelect } from './select/AccountsSelect'
 import { CategoriesSelect } from './select/CategoriesSelect'
 import { TagsSelect } from './select/TagsSelect'
@@ -78,6 +78,7 @@ function OpTypeFilter ({ filter, setFilter }: EditorProps): ReactElement {
             fullWidth
             size='small'
             value={filter.opType}
+            color='primary'
             onChange={(_, v) => {
                 setFilter({ ...filter, opTypeMode: 'selected', opType: v })
             }}
@@ -92,7 +93,7 @@ function OpTypeFilter ({ filter, setFilter }: EditorProps): ReactElement {
 
 function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
     return <Paper sx={{ p: 1 }}>
-        <Row alignItems='center'>
+        <Row alignItems='center' gap={1}>
             <SpanBody2 flex='1 1 0'>Categories:</SpanBody2>
             <ToggleButtonGroup
                 exclusive
@@ -112,19 +113,40 @@ function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
         {
             showIf(
                 filter.categoriesMode !== 'all',
-                <CategoriesSelect
-                    sx={{ mt: 1 }}
-                    selected={filter.categories}
-                    onSelectedChange={selected => {
-                        setFilter({
-                            ...filter,
-                            categories: selected
-                        })
-                    }}
-                    selectMany={true}
-                    selectZero={true}
-                    showUncategorized={true}
-                />)
+                <>
+                    <DivBody2 mt={1}>
+                        {
+                            filter.categoriesMode !== 'all'
+                                ? filter.categories.map((i, index) => {
+                                    const el = <SpanBody2
+                                        key={i}
+                                        color='secondary.main'
+                                        fontStyle={i === '' ? 'italic' : undefined}>
+                                        {i === '' ? 'Uncategorized' : i}
+                                    </SpanBody2>
+                                    if (index === 0) {
+                                        return el
+                                    }
+                                    return <Fragment key={`c-${i}`}>{', '}{el}</Fragment>
+                                })
+                                : null
+                        }
+                    </DivBody2>
+                    <CategoriesSelect
+                        sx={{ my: 1 }}
+                        selected={filter.categories}
+                        onSelectedChange={selected => {
+                            setFilter({
+                                ...filter,
+                                categories: selected
+                            })
+                        }}
+                        selectMany={true}
+                        selectZero={true}
+                        showUncategorized={true}
+                    />
+                </>
+            )
         }
     </Paper>
 }
@@ -151,19 +173,35 @@ function AccountsFilter ({ filter, setFilter }: EditorProps): ReactElement {
         {
             showIf(
                 filter.accountsMode !== 'all',
-                <AccountsSelect
-                    sx={{ mt: 1 }}
-                    selected={filter.accounts}
-                    onSelectedChange={selected => {
-                        setFilter({
-                            ...filter,
-                            accounts: selected
-                        })
-                    }}
-                    selectMany={true}
-                    selectZero={true}
-                    showHidden={true}
-                />)
+                <>
+                    <DivBody2 mt={1}>
+                        {
+                            filter.accountsMode !== 'all'
+                                ? filter.accounts.map((i, index) => {
+                                    const el = <SpanBody2 key={i} color='secondary.main'>{i}</SpanBody2>
+                                    if (index === 0) {
+                                        return el
+                                    }
+                                    return <Fragment key={`c-${i}`}>{', '}{el}</Fragment>
+                                })
+                                : null
+                        }
+                    </DivBody2>
+                    <AccountsSelect
+                        sx={{ my: 1 }}
+                        selected={filter.accounts}
+                        onSelectedChange={selected => {
+                            setFilter({
+                                ...filter,
+                                accounts: selected
+                            })
+                        }}
+                        selectMany={true}
+                        selectZero={true}
+                        showHidden={true}
+                    />
+                </>
+            )
         }
     </Paper>
 }
@@ -190,19 +228,35 @@ function TagsFilter ({ filter, setFilter }: EditorProps): ReactElement {
         {
             showIf(
                 filter.tagsMode !== 'all',
-                <TagsSelect
-                    sx={{ mt: 1 }}
-                    opType={null}
-                    categories={[]}
-                    addedTags={[]}
-                    selected={filter.tags}
-                    onSelectedChange={selected => {
-                        setFilter({
-                            ...filter,
-                            tags: selected
-                        })
-                    }}
-                />)
+                <>
+                    <DivBody2 mt={1}>
+                        {
+                            filter.tagsMode !== 'all'
+                                ? filter.tags.map((i, index) => {
+                                    const el = <SpanBody2 key={i} color='secondary.main'>{i}</SpanBody2>
+                                    if (index === 0) {
+                                        return el
+                                    }
+                                    return <Fragment key={`c-${i}`}>{', '}{el}</Fragment>
+                                })
+                                : null
+                        }
+                    </DivBody2>
+                    <TagsSelect
+                        sx={{ my: 1 }}
+                        opType={null}
+                        categories={[]}
+                        addedTags={[]}
+                        selected={filter.tags}
+                        onSelectedChange={selected => {
+                            setFilter({
+                                ...filter,
+                                tags: selected
+                            })
+                        }}
+                    />
+                </>
+            )
         }
     </Paper>
 }

@@ -103,7 +103,7 @@ export function ItemsSelect (props: Props): ReactElement {
         })
     }, [props.items, props.selected, filter])
 
-    return <Box>
+    return <Box sx={props.sx}>
         <FormControl variant='filled' size='small' fullWidth sx={{ mb: 2 }}>
             <InputLabel>Filter</InputLabel>
             <FilledInput
@@ -126,7 +126,7 @@ export function ItemsSelect (props: Props): ReactElement {
                 }
             />
         </FormControl>
-        <Box sx={props.sx} overflow='hidden' ref={carouselRef}>
+        <Box overflow='hidden' ref={carouselRef}>
             <Row>
                 <Box height={pageHeight} overflow='hidden' flex='0 0 100%'>
                     <Box display='flex' ref={ref} flexWrap='wrap' gap={1} >

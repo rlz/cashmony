@@ -1,17 +1,19 @@
-import { faCloudArrowUp, faFilter } from '@fortawesome/free-solid-svg-icons'
+import { faCloudArrowUp, faFilter, faRubleSign } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useState } from 'react'
+import React, { type ReactElement } from 'react'
 
 import { getCurrencySymbol } from '../../helpers/currencies'
+import { CURRENCIES } from '../../helpers/currenciesList'
 import { showIf } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { initGoogleSync } from '../../model/sync'
 import { CurrencySelector } from '../CurrencySelector'
 import { FilterEditor } from '../FilterEditor'
 import { Column } from '../generic/Containers'
+import { DivBody1 } from '../generic/Typography'
 import { PeriodSelector } from '../PeriodSelector'
 
 const appState = AppState.instance()
@@ -19,26 +21,23 @@ const appState = AppState.instance()
 type Props = Omit<React.ComponentProps<typeof Column>, 'gap'>
 
 export const AppStateSettings = observer((props: Props): ReactElement => {
-    const [showCurSelector, setShowCurSelector] = useState(false)
-    const [showFilterEditor, setShowFilterEditor] = useState(false)
-
     return <Column gap={1} {...props}>
         {
             showIf(
-                showCurSelector,
+                appState.showGlobalCurrencySelector,
                 <CurrencySelector
                     currency={appState.masterCurrency}
-                    onClose={() => { setShowCurSelector(false) }}
+                    onClose={() => { runInAction(() => { appState.showGlobalCurrencySelector = false }) }}
                     onCurrencySelected={c => { runInAction(() => { appState.masterCurrency = c }) }}
                 />
             )
         }
         {
             showIf(
-                showFilterEditor,
+                appState.showGlobalFilterEditor,
                 <FilterEditor
                     filter={appState.filter}
-                    onClose={() => { setShowFilterEditor(false) }}
+                    onClose={() => { runInAction(() => { appState.showGlobalFilterEditor = false }) }}
                     onFilterChanged={filter => {
                         runInAction(() => {
                             appState.filter = filter
@@ -72,17 +71,23 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
         </Box>
         <List>
             <ListItem disablePadding>
-                <ListItemButton onClick={() => { setShowFilterEditor(true) }}>
+                <ListItemButton onClick={() => { runInAction(() => { appState.showGlobalFilterEditor = true }) }}>
                     <ListItemIcon>
-                        <FontAwesomeIcon icon={faFilter} />
+                        <FontAwesomeIcon icon={faFilter} fixedWidth/>
                     </ListItemIcon>
                     <ListItemText primary='Filter operations' />
                 </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-                <ListItemButton onClick={() => { setShowCurSelector(true) }}>
+                <ListItemButton onClick={() => { runInAction(() => { appState.showGlobalCurrencySelector = true }) }}>
                     <ListItemIcon>
-                        {getCurrencySymbol(appState.masterCurrency)}
+                        {
+                            CURRENCIES[appState.masterCurrency].faIcon !== undefined
+                                ? <FontAwesomeIcon icon={faRubleSign} fixedWidth/>
+                                : <DivBody1 width={20} textAlign='center' fontWeight='bold'>
+                                    {getCurrencySymbol(appState.masterCurrency)}
+                                </DivBody1>
+                        }
                     </ListItemIcon>
                     <ListItemText primary='Master currency' />
                 </ListItemButton>
@@ -90,7 +95,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
             <ListItem disablePadding>
                 <ListItemButton onClick={() => { void initGoogleSync() }}>
                     <ListItemIcon>
-                        <FontAwesomeIcon icon={faCloudArrowUp} />
+                        <FontAwesomeIcon icon={faCloudArrowUp} fixedWidth/>
                     </ListItemIcon>
                     <ListItemText primary='Sync with Google' />
                 </ListItemButton>

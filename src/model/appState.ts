@@ -116,6 +116,9 @@ export class AppState {
         return JSON.parse(val) as Filter
     })
 
+    showGlobalCurrencySelector = false
+    showGlobalFilterEditor = false
+
     private constructor () {
         makeAutoObservable(this)
 
