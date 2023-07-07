@@ -11,7 +11,7 @@ import { ExpensesStats, Operations } from '../model/stats'
 import { formatCurrency } from '../helpers/currencies'
 import { OpsList } from '../widgets/operations/OpsList'
 import { AppState } from '../model/appState'
-import { nonNull, run, runAsync } from '../helpers/smallTools'
+import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
 import { match } from 'ts-pattern'
 import { runInAction } from 'mobx'
 import { CurrenciesModel } from '../model/currencies'
@@ -25,6 +25,8 @@ import { Panel, PanelGroup } from 'react-resizable-panels'
 import { CategoriesScreenBody } from './CategoriesScreen'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
 import { Column } from '../widgets/Containers'
+import { FullScreenModal } from '../widgets/FullScreenModal'
+import { OperationScreenBody } from './OperationScreen'
 
 type OnSaveType = (() => void) | null | undefined
 
@@ -63,12 +65,23 @@ export const CategoryScreenBody = observer(({ setOnSave }: Props): ReactElement 
     const categoriesModel = CategoriesModel.instance()
     const operationsModel = OperationsModel.instance()
 
-    const catName = nonNull(useParams().catName, 'catName expected here')
+    const [catName, tabName, opId] = run(() => {
+        const params = useParams()
+        const catName = nonNull(params.catName, 'catName expected here')
+        const opId = params.opId
+        if (opId !== undefined) {
+            return [catName, 'operations', opId]
+        }
+
+        const tabName = params.tabName ?? 'stats'
+        return [catName, tabName, null]
+    })
 
     const [cat, setCat] = useState<Category | null>(null)
     const [newCat, setNewCat] = useState<Category | null>(null)
-    const [tab, setTab] = useState(0)
     const navigate = useNavigate()
+    const [opModalTitle, setOpModalTitle] = useState('')
+    const [opModalOnSave, setOpModalOnSave] = useState<(() => Promise<void>) | null | undefined>(null)
 
     const currency = newCat?.currency ?? appState.masterCurrency
 
@@ -213,41 +226,73 @@ export const CategoryScreenBody = observer(({ setOnSave }: Props): ReactElement 
 
     const goal = stats.goal(30)
 
-    return <Column height='100%'>
-        <Box p={1}>
-            <Typography variant='h6' textAlign='center' mt={1}>
-                {newCat.name.trim() === '' ? '-' : newCat.name}
-            </Typography>
-            <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
-                {cur(-stats.amountTotal(appState.timeSpan, currency))}
-            </Typography>
-            <Typography variant='body2' textAlign='center'>
+    return <>
+        <Column height='100%'>
+            <Box p={1}>
+                <Typography variant='h6' textAlign='center' mt={1}>
+                    {newCat.name.trim() === '' ? '-' : newCat.name}
+                </Typography>
+                <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
+                    {cur(-stats.amountTotal(appState.timeSpan, currency))}
+                </Typography>
+                <Typography variant='body2' textAlign='center'>
                 Goal (30d): {goal !== null ? cur(-goal.value * currenciesModel.getRate(utcToday(), goal.currency, currency)) : '-'}
-            </Typography>
-            <Tabs value={tab} onChange={(_, tab) => { setTab(tab) }} variant='fullWidth'>
-                <Tab label='Stats'/>
-                <Tab label='Modify'/>
-                <Tab label='Operations'/>
-            </Tabs>
-        </Box>
-        <Box overflow='scroll' flex='1 1 auto'>
-            <Box px={1}>
-                {
-                    match(tab)
-                        .with(0, () => <ExpensesStatsWidget currency={currency} stats={stats} />)
-                        .with(1, () => <CategoryEditor
-                            origCatName={cat.name}
-                            cat={newCat}
-                            onChange={setNewCat}
-                        />)
-                        .with(2, () => <OpsList
-                            operations={stats.operations.forTimeSpan(appState.timeSpan)}
-                        />)
-                        .otherwise(() => { throw Error('Unimplenented tab') })
-                }
-                <Box minHeight={72}/>
+                </Typography>
+                <Tabs value={tabName} onChange={(_, tab) => { navigate(`/categories/${catName}/${tab as string}`) }} variant='fullWidth'>
+                    <Tab value='stats' label='Stats'/>
+                    <Tab value='modify' label='Modify'/>
+                    <Tab value='operations' label='Operations'/>
+                </Tabs>
             </Box>
-        </Box>
-    </Column>
+            <Box overflow='scroll' flex='1 1 auto'>
+                <Box px={1}>
+                    {
+                        match(tabName)
+                            .with('stats', () => <ExpensesStatsWidget currency={currency} stats={stats} />)
+                            .with('modify', () => <CategoryEditor
+                                origCatName={cat.name}
+                                cat={newCat}
+                                onChange={setNewCat}
+                            />)
+                            .with('operations', () => <OpsList
+                                noFab
+                                onOpClick={(opId) => {
+                                    navigate(`/categories/${catName}/operations/${opId}`)
+                                }}
+                                operations={stats.operations.forTimeSpan(appState.timeSpan)}
+                            />)
+                            .otherwise(() => { throw Error('Unimplenented tab') })
+                    }
+                    <Box minHeight={72}/>
+                </Box>
+            </Box>
+        </Column>
+        {
+            showIfLazy(opId !== null, () => {
+                return <FullScreenModal
+                    title={opModalTitle}
+                    onClose={() => { navigate(`/categories/${catName}/operations`) }}
+                    onSave={opModalOnSave}
+                >
+                    <Box p={1}>
+                        <OperationScreenBody
+                            opId={opId ?? ''}
+                            setTitle={setOpModalTitle}
+                            setOnSave={(onSave) => {
+                                if (onSave === null || onSave === undefined) {
+                                    setOpModalOnSave(onSave)
+                                    return
+                                }
+
+                                setOpModalOnSave(() => {
+                                    return onSave
+                                })
+                            }}
+                        />
+                    </Box>
+                </FullScreenModal>
+            })
+        }
+    </>
 })
 CategoryScreenBody.displayName = 'CategoryScreenBody'

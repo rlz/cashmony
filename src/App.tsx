@@ -65,6 +65,14 @@ const router = createBrowserRouter([
         element: <CategoryScreen />
     },
     {
+        path: '/categories/:catName/:tabName',
+        element: <CategoryScreen />
+    },
+    {
+        path: '/categories/:catName/operations/:opId',
+        element: <CategoryScreen />
+    },
+    {
         path: '/accounts/:accName',
         element: <AccountScreen />
     },

@@ -52,27 +52,29 @@ export const CategoriesScreenBody = observer((): ReactElement => {
                 )
         }
         <Box p={1} height='100%' overflow='scroll'>
-            <ExpensesCard
-                url='/categories/_total'
-                name={<Bold>Total</Bold>}
-                stats={new ExpensesStats(Operations.forFilter(appState.filter), null)}
-                sx={{ mb: 1 }}
-            />
-            <ExpensesList items={cats}/>
-            {
-                run(() => {
-                    const stats = new ExpensesStats(Operations.forFilter(appState.filter).onlyUncategorized(), null)
-                    return showIf(
-                        stats.operations.count() > 0,
-                        <ExpensesCard
-                            url='/categories/_'
-                            name={<Italic>Uncategorized</Italic>}
-                            stats={stats}
-                        />
-                    )
-                })
-            }
-            <Box minHeight={144}/>
+            <Box maxWidth={900} mx='auto'>
+                <ExpensesCard
+                    url='/categories/_total'
+                    name={<Bold>Total</Bold>}
+                    stats={new ExpensesStats(Operations.forFilter(appState.filter), null)}
+                    sx={{ mb: 1 }}
+                />
+                <ExpensesList items={cats}/>
+                {
+                    run(() => {
+                        const stats = new ExpensesStats(Operations.forFilter(appState.filter).onlyUncategorized(), null)
+                        return showIf(
+                            stats.operations.count() > 0,
+                            <ExpensesCard
+                                url='/categories/_'
+                                name={<Italic>Uncategorized</Italic>}
+                                stats={stats}
+                            />
+                        )
+                    })
+                }
+                <Box minHeight={144}/>
+            </Box>
         </Box>
     </>
 })

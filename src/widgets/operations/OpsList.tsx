@@ -21,12 +21,14 @@ const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 
 interface Props {
+    onOpClick?: (opId: string) => void
     noFab?: boolean
     operations?: Operations
     sx?: SxProps
 }
 
 export const OpsList = observer((props: Props): ReactElement => {
+    const navigate = useNavigate()
     const [displayOps, setDisplayOps] = useState<NotDeletedOperation[][] | null>(null)
     const [displayDays, setDisplayDays] = useState(30)
 
@@ -69,7 +71,18 @@ export const OpsList = observer((props: Props): ReactElement => {
                     {group[0].date.toLocaleString({ dateStyle: 'full' })}
                 </DivBody2>
                 <Column gap={1}>
-                    {group.map(t => <Transaction key={t.id} op={t}/>)}
+                    {group.map(op => <a
+                        key={op.id}
+                        onClick={() => {
+                            if (props.onOpClick !== undefined) {
+                                props.onOpClick(op.id)
+                                return
+                            }
+                            navigate(`/operations/${op.id}`)
+                        }}
+                    >
+                        <Transaction op={op}/>
+                    </a>)}
                 </Column>
             </Box>
         )}

@@ -4,18 +4,22 @@ import { CategoriesModel } from '../../../model/categories'
 import { Button, TextField } from '@mui/material'
 import { DateTime } from 'luxon'
 import { Column } from '../../Containers'
+import { useNavigate } from 'react-router-dom'
 
 const categoriesModel = CategoriesModel.instance()
 
 export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement {
+    const navigate = useNavigate()
     const [name, setName] = useState('')
 
     const save = async (): Promise<void> => {
+        const trimmedName = name.trim()
         await categoriesModel.put({
-            name: name.trim(),
+            name: trimmedName,
             lastModified: DateTime.utc()
         })
         onClose()
+        navigate(`/categories/${encodeURIComponent(trimmedName)}/modify`)
     }
 
     const cat = categoriesModel.categories.get(name.trim())

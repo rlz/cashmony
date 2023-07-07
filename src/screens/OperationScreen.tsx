@@ -1,4 +1,4 @@
-import React, { useState, type ReactElement, useEffect, type PropsWithChildren } from 'react'
+import React, { useState, type ReactElement, useEffect } from 'react'
 import { Box, Skeleton, Typography, useTheme } from '@mui/material'
 import { OperationsModel } from '../model/operations'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
@@ -25,6 +25,11 @@ import { Panel, PanelGroup } from 'react-resizable-panels'
 import { OpsList } from '../widgets/operations/OpsList'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
 import { PBody2 } from '../widgets/Typography'
+import { runAsync } from '../helpers/smallTools'
+import { match } from 'ts-pattern'
+
+type OnSaveType = (() => Promise<void>) | null | undefined
+const OPS_LIST_SX = { p: 1, overflow: 'auto', height: '100%' }
 
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
@@ -36,190 +41,38 @@ type PartialOperation =
     Omit<TransferOperation, 'account' | 'toAccount'> |
     Omit<AdjustmentOperation, 'account'>
 
-export const OperationScreen = observer((): ReactElement => {
+export function OperationScreen (): ReactElement {
     const navigate = useNavigate()
-    const [op, setOp] = useState<PartialOperation | DeletedOperation | null>(null)
-    const [origOp, setOrigOp] = useState<PartialOperation | DeletedOperation | null>(null)
-    const [account, setAccount] = useState<NotDeletedOperation['account'] | null>(null)
-    const [origAccount, setOrigAccount] = useState<NotDeletedOperation['account'] | null>(null)
-    const [toAccount, setToAccount] = useState<NotDeletedOperation['account'] | null>(null)
-    const [origToAccount, setOrigToAccount] = useState<NotDeletedOperation['account'] | null>(null)
     const location = useLocation()
     const pathParams = useParams()
     const showOps = !widthOneOf(useWidth(), ['xs', 'sm'])
+    const [title, setTitle] = useState('')
+    const [onSave, setOnSave] = useState<OnSaveType>(null)
 
-    useEffect(() => {
-        setOp(null)
-        setOrigOp(null)
-        setAccount(null)
-        setOrigAccount(null)
-        setToAccount(null)
-        setOrigToAccount(null)
+    const opId = match(location.pathname)
+        .with('/new-op/expense', () => 'new-expense')
+        .with('/new-op/income', () => 'new-income')
+        .with('/new-op/transfer', () => 'new-transfer')
+        .otherwise(() => pathParams.opId ?? '')
 
-        if (location.pathname.endsWith('expense')) {
-            setOp({
-                id: uuid(),
-                type: 'expense',
-                lastModified: DateTime.utc(),
-                date: utcToday(),
-                amount: 0,
-                currency: currenciesModel.currencies[0],
-                categories: [],
-                tags: [],
-                comment: null
+    const body = <OperationScreenBody
+        opId={opId}
+        setTitle={setTitle}
+        setOnSave={(onSave) => {
+            setOnSave(() => {
+                if (onSave === null || onSave === undefined) {
+                    return onSave
+                }
+
+                return async () => {
+                    await onSave()
+                    if (!showOps) {
+                        navigate('/operations')
+                    }
+                }
             })
-        } else if (location.pathname.endsWith('income')) {
-            setOp({
-                id: uuid(),
-                type: 'income',
-                lastModified: DateTime.utc(),
-                date: utcToday(),
-                amount: 0,
-                currency: currenciesModel.currencies[0],
-                categories: [],
-                tags: [],
-                comment: null
-            })
-        } else if (location.pathname.endsWith('transfer')) {
-            setOp({
-                id: uuid(),
-                type: 'transfer',
-                lastModified: DateTime.utc(),
-                date: utcToday(),
-                amount: 0,
-                currency: currenciesModel.currencies[0],
-                tags: [],
-                comment: null
-            })
-        } else {
-            const getData = async (): Promise<void> => {
-                const op = await operationsModel.getOperation(pathParams.opId as string)
-                setOp(op)
-                setOrigOp(op)
-                if (op.type !== 'deleted') {
-                    setAccount(op.account)
-                    setOrigAccount(op.account)
-                }
-
-                if (op.type === 'transfer') {
-                    setToAccount(op.toAccount)
-                    setOrigToAccount(op.toAccount)
-                }
-            }
-
-            void getData()
-        }
-    }, [location])
-
-    const onSave = op !== null &&
-            op.type !== 'deleted' &&
-            op.amount !== 0 &&
-            account !== null &&
-            account.amount !== 0 &&
-            (op.type !== 'transfer' || (toAccount !== null && toAccount.amount !== 0)) &&
-            !(deepEqual(op, origOp) && deepEqual(account, origAccount) && deepEqual(toAccount, origToAccount))
-        ? async () => {
-            if (op === null) {
-                throw Error('Not null op expected here')
-            }
-
-            if (account === null) {
-                throw Error('Not null account expected here')
-            }
-
-            if (op.type === 'transfer') {
-                if (toAccount === null) {
-                    throw Error('Not null toAccount expected here')
-                }
-
-                await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account, toAccount }])
-            } else {
-                await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account }])
-            }
-
-            if (!showOps) {
-                navigate('/operations')
-            } else if (location.pathname.startsWith('/new-op/')) {
-                navigate(`/operations/${op.id}`)
-            } else {
-                setOrigOp(op)
-                setOrigAccount(account)
-                setOrigToAccount(toAccount)
-            }
-        }
-        : null
-
-    if (
-        op === null ||
-        accountsModel.accounts === null ||
-        accountsModel.amounts === null ||
-        currenciesModel.rates === null
-    ) {
-        return <Wrap
-            showOps={showOps}
-            op={op}
-            onSave={null}
-        >
-            <SkeletonBody />
-        </Wrap>
-    }
-
-    if (op.type === 'deleted') {
-        return <Wrap
-            showOps={showOps}
-            op={op}
-            onSave={undefined}
-        >
-            <Typography variant='h5' mt={10} textAlign='center'>This operation was deleted</Typography>
-        </Wrap>
-    }
-
-    return <Wrap
-        showOps={showOps}
-        op={op}
-        onSave={onSave}
-    >
-        <OpBody
-            onDelete={async () => {
-                const o: Operation = {
-                    id: op.id,
-                    type: 'deleted'
-                }
-                await operationsModel.put([o])
-
-                if (!showOps) {
-                    navigate('/operations')
-                } else {
-                    setOp(o)
-                    setOrigOp(o)
-                    setAccount(null)
-                    setOrigAccount(null)
-                    setToAccount(null)
-                    setOrigToAccount(null)
-                }
-            }}
-            op={op}
-            setOp={setOp}
-            account={account}
-            setAccount={setAccount}
-            toAccount={toAccount}
-            setToAccount={setToAccount}/>
-    </Wrap>
-})
-
-interface WrapProps extends PropsWithChildren {
-    showOps: boolean
-    op: PartialOperation | DeletedOperation | null
-    onSave: (() => void) | null | undefined
-}
-
-const OPS_LIST_SX = { p: 1, overflow: 'auto', height: '100%' }
-
-const Wrap = observer(({ showOps, op, onSave, children }: WrapProps): ReactElement => {
-    const location = useLocation()
-    const title = op === null
-        ? ''
-        : op.type[0].toLocaleUpperCase() + op.type.substring(1)
+        }}
+    />
 
     return <MainScreen
         title={title}
@@ -238,37 +91,170 @@ const Wrap = observer(({ showOps, op, onSave, children }: WrapProps): ReactEleme
                     <ResizeHandle/>
                     <Panel>
                         <Box p={1} overflow='auto' height='100%'>
-                            {children}
+                            {body}
                         </Box>
                     </Panel>
                 </PanelGroup>
                 : <Box p={1}>
-                    {children}
+                    {body}
                 </Box>
         }
     </MainScreen>
-})
-
-interface BodyProps {
-    onDelete: () => Promise<void>
-    op: PartialOperation
-    setOp: (op: PartialOperation | DeletedOperation) => void
-    account: NotDeletedOperation['account'] | null
-    setAccount: (account: NotDeletedOperation['account'] | null) => void
-    toAccount: NotDeletedOperation['account'] | null
-    setToAccount: (account: NotDeletedOperation['account'] | null) => void
 }
 
-function OpBody ({ onDelete, op, setOp, account, setAccount, toAccount, setToAccount }: BodyProps): ReactElement {
-    const location = useLocation()
+interface BodyProps {
+    opId: string
+    setOnSave: (onSave: OnSaveType) => void
+    setTitle: (title: string) => void
+}
+
+export const OperationScreenBody = observer(function OperationScreenBody ({ opId, setOnSave, setTitle }: BodyProps): ReactElement {
+    const navigate = useNavigate()
+
+    const [op, setOp] = useState<PartialOperation | DeletedOperation | null>(null)
+    const [origOp, setOrigOp] = useState<PartialOperation | DeletedOperation | null>(null)
+    const [account, setAccount] = useState<NotDeletedOperation['account'] | null>(null)
+    const [origAccount, setOrigAccount] = useState<NotDeletedOperation['account'] | null>(null)
+    const [toAccount, setToAccount] = useState<NotDeletedOperation['account'] | null>(null)
+    const [origToAccount, setOrigToAccount] = useState<NotDeletedOperation['account'] | null>(null)
 
     const [expanded, setExpanded] = useState<
     'amount' | 'tags' | 'account' | 'toAccount' | 'comment' | 'date' | 'categories' | null
     >(null)
 
     useEffect(() => {
+        setOp(null)
+        setOrigOp(null)
+        setAccount(null)
+        setOrigAccount(null)
+        setToAccount(null)
+        setOrigToAccount(null)
+
+        if (opId === 'new-expense') {
+            setOp({
+                id: uuid(),
+                type: 'expense',
+                lastModified: DateTime.utc(),
+                date: utcToday(),
+                amount: 0,
+                currency: currenciesModel.currencies[0],
+                categories: [],
+                tags: [],
+                comment: null
+            })
+            setTitle('Expense')
+        } else if (opId === 'new-income') {
+            setOp({
+                id: uuid(),
+                type: 'income',
+                lastModified: DateTime.utc(),
+                date: utcToday(),
+                amount: 0,
+                currency: currenciesModel.currencies[0],
+                categories: [],
+                tags: [],
+                comment: null
+            })
+            setTitle('Income')
+        } else if (opId === 'new-transfer') {
+            setOp({
+                id: uuid(),
+                type: 'transfer',
+                lastModified: DateTime.utc(),
+                date: utcToday(),
+                amount: 0,
+                currency: currenciesModel.currencies[0],
+                tags: [],
+                comment: null
+            })
+            setTitle('Transfer')
+        } else {
+            runAsync(async (): Promise<void> => {
+                const op = await operationsModel.getOperation(opId)
+                setOp(op)
+                setOrigOp(op)
+                if (op.type !== 'deleted') {
+                    setAccount(op.account)
+                    setOrigAccount(op.account)
+                }
+
+                if (op.type === 'transfer') {
+                    setToAccount(op.toAccount)
+                    setOrigToAccount(op.toAccount)
+                }
+                setTitle(op.type[0].toLocaleUpperCase() + op.type.substring(1))
+            })
+        }
+    }, [opId])
+
+    useEffect(() => {
         setExpanded(location.pathname.startsWith('/new-op/') ? 'amount' : null)
     }, [location])
+
+    useEffect(
+        () => {
+            if (op?.type === 'deleted') {
+                setOnSave(undefined)
+                return
+            }
+
+            if (
+                op === null ||
+                op.amount === 0 ||
+                account === null ||
+                account.amount === 0 ||
+                (op.type === 'transfer' && (toAccount === null || toAccount.amount === 0)) ||
+                (deepEqual(op, origOp) && deepEqual(account, origAccount) && deepEqual(toAccount, origToAccount))
+            ) {
+                setOnSave(null)
+                return
+            }
+
+            setOnSave(async () => {
+                if (op === null) {
+                    throw Error('Not null op expected here')
+                }
+
+                if (account === null) {
+                    throw Error('Not null account expected here')
+                }
+
+                if (op.type === 'transfer') {
+                    if (toAccount === null) {
+                        throw Error('Not null toAccount expected here')
+                    }
+
+                    await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account, toAccount }])
+                } else {
+                    await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account }])
+                }
+
+                setOrigOp(op)
+                setOrigAccount(account)
+                setOrigToAccount(toAccount)
+
+                console.log(opId)
+
+                if (opId.startsWith('new-')) {
+                    navigate(`/operations/${op.id}`)
+                }
+            })
+        },
+        [op, origOp, account, origAccount, toAccount, origToAccount]
+    )
+
+    if (
+        op === null ||
+        accountsModel.accounts === null ||
+        accountsModel.amounts === null ||
+        currenciesModel.rates === null
+    ) {
+        return <SkeletonBody />
+    }
+
+    if (op.type === 'deleted') {
+        return <Typography variant='h5' mt={10} textAlign='center'>This operation was deleted</Typography>
+    }
 
     const propagateAndSave = (
         op: PartialOperation,
@@ -365,11 +351,24 @@ function OpBody ({ onDelete, op, setOp, account, setAccount, toAccount, setToAcc
         {
             location.pathname.startsWith('/new-op/')
                 ? null
-                : <DeleteOpButton onDelete={onDelete} />
+                : <DeleteOpButton onDelete={async () => {
+                    const o: Operation = {
+                        id: opId,
+                        type: 'deleted'
+                    }
+                    await operationsModel.put([o])
+
+                    setOp(o)
+                    setOrigOp(o)
+                    setAccount(null)
+                    setOrigAccount(null)
+                    setToAccount(null)
+                    setOrigToAccount(null)
+                }} />
         }
         <Box minHeight={72}/>
     </Box>
-}
+})
 
 function SkeletonBody (): ReactElement {
     const theme = useTheme()
