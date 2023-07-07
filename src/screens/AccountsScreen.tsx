@@ -13,8 +13,8 @@ import { CurrenciesModel } from '../model/currencies'
 import { type Account } from '../model/model'
 import { AccPlot } from '../widgets/AccountPlots'
 import { AddAccount } from '../widgets/AddAccount'
+import { DivBody1 } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
-import { DivBody1 } from '../widgets/Typography'
 
 export function AccountsScreen (): ReactElement {
     return <MainScreen><AccountsScreenBody/></MainScreen>

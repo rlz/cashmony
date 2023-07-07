@@ -8,10 +8,10 @@ import { utcToday } from '../helpers/dates'
 import { AccountsModel } from '../model/accounts'
 import { CurrenciesModel } from '../model/currencies'
 import { OperationsModel } from '../model/operations'
-import { Column, Row } from './Containers'
 import { CurrencyInput } from './CurrencyInput'
 import { CurrencySelector } from './CurrencySelector'
 import { FullScreenModal } from './FullScreenModal'
+import { Column, Row } from './generic/Containers'
 
 const currenciesModel = CurrenciesModel.instance()
 const accountsModel = AccountsModel.instance()

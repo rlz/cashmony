@@ -1,7 +1,7 @@
 import { Box, useTheme } from '@mui/material'
 import React, { type PropsWithChildren, type ReactElement } from 'react'
 
-import { Column } from '../Containers'
+import { Column } from '../generic/Containers'
 import { MainAppBar } from './MainAppBar'
 import { MainBottomNavigation } from './MainBottomNavigation'
 

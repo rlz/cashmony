@@ -3,7 +3,7 @@ import React, { type PropsWithChildren, type ReactElement } from 'react'
 
 import { showIf } from '../helpers/smallTools'
 import { useWidth, widthOneOf } from '../helpers/useWidth'
-import { Column, Row } from './Containers'
+import { Column, Row } from './generic/Containers'
 import { MainAppBar } from './mainScreen/MainAppBar'
 
 interface Props extends PropsWithChildren {

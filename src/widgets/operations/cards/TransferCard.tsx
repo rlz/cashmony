@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { type ReactElement } from 'react'
 
 import { type TransferOperation } from '../../../model/model'
-import { Row } from '../../Containers'
-import { DivBody2 } from '../../Typography'
+import { Row } from '../../generic/Containers'
+import { DivBody2 } from '../../generic/Typography'
 import { BaseOpCard } from './BaseOpCard'
 
 interface Props {

@@ -8,8 +8,8 @@ import { CurrenciesModel } from '../../../model/currencies'
 import { DEFAULT_FILTER } from '../../../model/filter'
 import { GoalsModel } from '../../../model/goals'
 import { type ExpensesGoal } from '../../../model/model'
-import { Column } from '../../Containers'
 import { FullScreenModal } from '../../FullScreenModal'
+import { Column } from '../../generic/Containers'
 import { ExpensesGoalEditor } from './ExpensesGoalEditor'
 
 export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void }): ReactElement => {

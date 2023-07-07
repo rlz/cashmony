@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { showIf } from '../../helpers/smallTools'
 import { useWidth, widthOneOf } from '../../helpers/useWidth'
-import { Row } from '../Containers'
+import { Row } from '../generic/Containers'
 import { AppStateSettings } from './AppStateSettings'
 
 interface Props {

@@ -7,8 +7,8 @@ import { match, P } from 'ts-pattern'
 import { run, showIf } from '../../../helpers/smallTools'
 import { GoalsModel } from '../../../model/goals'
 import { type ExpensesGoal } from '../../../model/model'
-import { Column } from '../../Containers'
 import { FilterEditor } from '../../FilterEditor'
+import { Column } from '../../generic/Containers'
 import { GoalInput } from './GoalInput'
 
 interface Props {

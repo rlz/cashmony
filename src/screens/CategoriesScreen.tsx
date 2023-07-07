@@ -14,8 +14,8 @@ import { ExpensesStats, Operations } from '../model/stats'
 import { AddCategory } from '../widgets/expenses/editors/AddCategory'
 import { ExpensesCard } from '../widgets/expenses/ExpensesCard'
 import { ExpensesList } from '../widgets/expenses/ExpensesList'
+import { Bold, Italic } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
-import { Bold, Italic } from '../widgets/Typography'
 
 export const CategoriesScreen = observer((): ReactElement => {
     return <MainScreen>

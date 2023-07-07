@@ -6,12 +6,12 @@ import React, { type ReactElement, useState } from 'react'
 import { deepEqual } from '../helpers/deepEqual'
 import { showIf } from '../helpers/smallTools'
 import { type Filter } from '../model/filter'
-import { Column, Row } from './Containers'
 import { FullScreenModal } from './FullScreenModal'
+import { Column, Row } from './generic/Containers'
+import { PBody2, SpanBody2 } from './generic/Typography'
 import { AccountsSelect } from './select/AccountsSelect'
 import { CategoriesSelect } from './select/CategoriesSelect'
 import { TagsSelect } from './select/TagsSelect'
-import { PBody2, SpanBody2 } from './Typography'
 
 interface Props {
     filter: Filter

@@ -6,7 +6,7 @@ import { match, P } from 'ts-pattern'
 import { formatCurrency } from '../../helpers/currencies'
 import { AppState } from '../../model/appState'
 import { type ExpensesStats } from '../../model/stats'
-import { DivBody2, Italic } from '../Typography'
+import { DivBody2, Italic } from '../generic/Typography'
 import { ExpensesBarsPlot, ExpensesTotalPlot } from './ExpensesPlots'
 
 interface Props {

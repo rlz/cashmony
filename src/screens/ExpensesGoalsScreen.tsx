@@ -6,10 +6,10 @@ import React, { type ReactElement, useState } from 'react'
 import { match } from 'ts-pattern'
 
 import { GoalsModel } from '../model/goals'
-import { Column } from '../widgets/Containers'
 import { AddExpensesGoalModal } from '../widgets/expenses/editors/AddExpensesGoalModal'
 import { ExpensesCardSkeleton } from '../widgets/expenses/ExpensesCard'
 import { ExpensesList } from '../widgets/expenses/ExpensesList'
+import { Column } from '../widgets/generic/Containers'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 export function ExpensesGoalsScreen (): ReactElement {

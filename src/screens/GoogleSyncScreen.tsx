@@ -7,8 +7,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Google } from '../google/google'
 import { runAsync } from '../helpers/smallTools'
 import { syncAccounts, syncCategories, syncGoals, syncOperations, type SyncStats, type SyncStatsEx } from '../model/sync'
-import { Row } from '../widgets/Containers'
 import { FullScreenModal } from '../widgets/FullScreenModal'
+import { Row } from '../widgets/generic/Containers'
 
 const google = Google.instance()
 

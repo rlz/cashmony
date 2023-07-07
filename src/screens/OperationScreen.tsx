@@ -18,6 +18,7 @@ import { CurrenciesModel } from '../model/currencies'
 import { type AdjustmentOperation, type DeletedOperation, type ExpenseOperation, type IncomeOperation, type NotDeletedOperation, type Operation, type TransferOperation } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
+import { PBody2 } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { DeleteOpButton } from '../widgets/operations/DeleteOpButton'
 import { AccountEditor } from '../widgets/operations/editors/AccountEditor'
@@ -27,7 +28,6 @@ import { CommentEditor } from '../widgets/operations/editors/CommentEditor'
 import { DateEditor } from '../widgets/operations/editors/DateEditor'
 import { TagsEditor } from '../widgets/operations/editors/TagsEditor'
 import { OpsList } from '../widgets/operations/OpsList'
-import { PBody2 } from '../widgets/Typography'
 
 type OnSaveType = (() => Promise<void>) | null | undefined
 const OPS_LIST_SX = { p: 1, overflow: 'auto', height: '100%' }

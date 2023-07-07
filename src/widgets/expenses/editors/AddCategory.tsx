@@ -4,8 +4,8 @@ import React, { type ReactElement, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { CategoriesModel } from '../../../model/categories'
-import { Column } from '../../Containers'
 import { FullScreenModal } from '../../FullScreenModal'
+import { Column } from '../../generic/Containers'
 
 const categoriesModel = CategoriesModel.instance()
 

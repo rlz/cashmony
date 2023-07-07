@@ -9,7 +9,7 @@ import { utcToday } from '../../helpers/dates'
 import { AppState } from '../../model/appState'
 import { CurrenciesModel } from '../../model/currencies'
 import { type ExpensesStats } from '../../model/stats'
-import { DivBody2, Italic, SpanBody1 } from '../Typography'
+import { DivBody2, Italic, SpanBody1 } from '../generic/Typography'
 import { ExpensesBarsPlot } from './ExpensesPlots'
 
 interface Props {

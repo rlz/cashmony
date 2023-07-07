@@ -3,10 +3,10 @@ import React, { type ReactElement, useState } from 'react'
 
 import { getCurrencySymbol } from '../../../helpers/currencies'
 import { showIf } from '../../../helpers/smallTools'
-import { Column, Row } from '../../Containers'
 import { CurrencyInput } from '../../CurrencyInput'
 import { CurrencySelector } from '../../CurrencySelector'
-import { DivBody1 } from '../../Typography'
+import { Column, Row } from '../../generic/Containers'
+import { DivBody1 } from '../../generic/Typography'
 
 interface Props {
     currency: string

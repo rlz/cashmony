@@ -9,9 +9,9 @@ import { getCurrencySymbol } from '../../helpers/currencies'
 import { showIf } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { initGoogleSync } from '../../model/sync'
-import { Column } from '../Containers'
 import { CurrencySelector } from '../CurrencySelector'
 import { FilterEditor } from '../FilterEditor'
+import { Column } from '../generic/Containers'
 import { PeriodSelector } from '../PeriodSelector'
 
 const appState = AppState.instance()

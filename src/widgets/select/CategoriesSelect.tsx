@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite'
 import React from 'react'
 
 import { CategoriesModel } from '../../model/categories'
-import { SpanBody2 } from '../Typography'
+import { SpanBody2 } from '../generic/Typography'
 import { ItemsSelect, type ItemType } from './ItemsSelect'
 
 const categoriesModel = CategoriesModel.instance()

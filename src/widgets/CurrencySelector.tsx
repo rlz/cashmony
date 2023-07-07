@@ -5,8 +5,8 @@ import React, { type ReactElement, useState } from 'react'
 import { getCurrencySymbol } from '../helpers/currencies'
 import { CURRENCIES } from '../helpers/currenciesList'
 import { CurrenciesModel } from '../model/currencies'
-import { Column } from './Containers'
 import { FullScreenModal } from './FullScreenModal'
+import { Column } from './generic/Containers'
 
 const currenciesModel = CurrenciesModel.instance()
 
