@@ -1,28 +1,29 @@
-import { observer } from 'mobx-react-lite'
-import React, { useState, useEffect, type ReactElement } from 'react'
 import { Box, Button, Tab, Tabs, Typography } from '@mui/material'
-import { useNavigate, useParams } from 'react-router-dom'
-import { type ExpensesGoal } from '../model/model'
-import { deepEqual } from '../helpers/deepEqual'
 import { DateTime } from 'luxon'
-import { ExpensesStats, Operations } from '../model/stats'
-import { formatCurrency } from '../helpers/currencies'
-import { OpsList } from '../widgets/operations/OpsList'
-import { AppState } from '../model/appState'
-import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
-import { match } from 'ts-pattern'
-import { CurrenciesModel } from '../model/currencies'
-import { MainScreen } from '../widgets/mainScreen/MainScreen'
-import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
-import { GoalsModel } from '../model/goals'
-import { ExpensesStatsWidget } from '../widgets/expenses/ExpensesStatsWidget'
-import { ExpensesGoalEditor } from '../widgets/expenses/editors/ExpensesGoalEditor'
-import { useWidth, widthOneOf } from '../helpers/useWidth'
+import { observer } from 'mobx-react-lite'
+import React, { type ReactElement, useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
-import { ExpensesGoalsScreenBody } from './ExpensesGoalsScreen'
-import { ResizeHandle } from '../widgets/generic/resizeHandle'
+import { useNavigate, useParams } from 'react-router-dom'
+import { match } from 'ts-pattern'
+
+import { formatCurrency } from '../helpers/currencies'
+import { deepEqual } from '../helpers/deepEqual'
+import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
+import { useWidth, widthOneOf } from '../helpers/useWidth'
+import { AppState } from '../model/appState'
+import { CurrenciesModel } from '../model/currencies'
+import { GoalsModel } from '../model/goals'
+import { type ExpensesGoal } from '../model/model'
+import { ExpensesStats, Operations } from '../model/stats'
 import { Column } from '../widgets/Containers'
+import { ExpensesGoalEditor } from '../widgets/expenses/editors/ExpensesGoalEditor'
+import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
+import { ExpensesStatsWidget } from '../widgets/expenses/ExpensesStatsWidget'
 import { FullScreenModal } from '../widgets/FullScreenModal'
+import { ResizeHandle } from '../widgets/generic/resizeHandle'
+import { MainScreen } from '../widgets/mainScreen/MainScreen'
+import { OpsList } from '../widgets/operations/OpsList'
+import { ExpensesGoalsScreenBody } from './ExpensesGoalsScreen'
 import { OperationScreenBody } from './OperationScreen'
 
 type OnSaveType = (() => void) | null | undefined
@@ -63,7 +64,7 @@ export const ExpensesGoalScreenBody = observer((props: Props): ReactElement => {
 
     const [goalName, tabName, opId] = run(() => {
         const params = useParams()
-        const goalName = nonNull(params.goalName, 'catName expected here')
+        const goalName = nonNull(params.goalName, 'goalName expected here')
         const opId = params.opId
         if (opId !== undefined) {
             return [goalName, 'operations', opId]
@@ -157,7 +158,7 @@ export const ExpensesGoalScreenBody = observer((props: Props): ReactElement => {
         newGoalNameTrimmed === undefined ||
         currenciesModel.rates === null
     ) {
-        return <ExpensesGroupScreenSkeleton />
+        return <Box p={1}><ExpensesGroupScreenSkeleton /></Box>
     }
 
     const stats = new ExpensesStats(

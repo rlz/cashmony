@@ -1,15 +1,16 @@
 import React, { type ReactElement } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
-import { OperationsScreen } from './screens/OperationsScreen'
-import { OperationScreen } from './screens/OperationScreen'
-import { GoogleSyncScreen } from './screens/GoogleSyncScreen'
-import { AuthScreen } from './screens/AuthScreen'
+
+import { AccountScreen } from './screens/AccountScreen'
 import { AccountsScreen } from './screens/AccountsScreen'
+import { AuthScreen } from './screens/AuthScreen'
 import { CategoriesScreen } from './screens/CategoriesScreen'
 import { CategoryScreen } from './screens/CategoryScreen'
-import { AccountScreen } from './screens/AccountScreen'
-import { ExpensesGoalsScreen } from './screens/ExpensesGoalsScreen'
 import { ExpensesGoalScreen } from './screens/ExpensesGoalScreen'
+import { ExpensesGoalsScreen } from './screens/ExpensesGoalsScreen'
+import { GoogleSyncScreen } from './screens/GoogleSyncScreen'
+import { OperationScreen } from './screens/OperationScreen'
+import { OperationsScreen } from './screens/OperationsScreen'
 
 declare global {
     interface Window { routerNavigate: (to: string) => Promise<void> }
@@ -74,6 +75,14 @@ const router = createBrowserRouter([
     },
     {
         path: '/accounts/:accName',
+        element: <AccountScreen />
+    },
+    {
+        path: '/accounts/:accName/:tabName',
+        element: <AccountScreen />
+    },
+    {
+        path: '/accounts/:accName/operations/:opId',
         element: <AccountScreen />
     },
     {

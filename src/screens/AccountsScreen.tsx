@@ -1,21 +1,26 @@
-import { observer } from 'mobx-react-lite'
-import React, { useState, type ReactElement } from 'react'
-import { AccountsModel } from '../model/accounts'
-import { Box, Fab, Paper, Skeleton, Typography } from '@mui/material'
-import { AppState } from '../model/appState'
-import { formatCurrency } from '../helpers/currencies'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { AddAccount } from '../widgets/AddAccount'
-import { type Account } from '../model/model'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Box, Fab, Paper, Skeleton, Typography } from '@mui/material'
+import { observer } from 'mobx-react-lite'
+import React, { type ReactElement, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AccPlot } from '../widgets/AccountPlots'
+
+import { formatCurrency } from '../helpers/currencies'
 import { run } from '../helpers/smallTools'
+import { AccountsModel } from '../model/accounts'
+import { AppState } from '../model/appState'
 import { CurrenciesModel } from '../model/currencies'
+import { type Account } from '../model/model'
+import { AccPlot } from '../widgets/AccountPlots'
+import { AddAccount } from '../widgets/AddAccount'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { DivBody1 } from '../widgets/Typography'
 
-export const AccountsScreen = observer((): ReactElement => {
+export function AccountsScreen (): ReactElement {
+    return <MainScreen><AccountsScreenBody/></MainScreen>
+}
+
+export const AccountsScreenBody = observer((): ReactElement => {
     const [addAccount, setAddAccount] = useState(false)
     const [showHidden, setShowHidden] = useState(false)
 
@@ -55,7 +60,7 @@ export const AccountsScreen = observer((): ReactElement => {
         (a.hidden ? hiddenAccounts : visibleAccounts).push(a)
     }
 
-    return <MainScreen>
+    return <>
         {
             addAccount
                 ? <AddAccount
@@ -70,45 +75,47 @@ export const AccountsScreen = observer((): ReactElement => {
                 </Fab>
 
         }
-        <Box p={1}>
-            <Typography component='div' variant='h6' textAlign='center' my={1}>
-            Total
-                <Typography variant='body1' color='primary.main'>
-                    {formatCurrency(total, appState.masterCurrency)}
+        <Box p={1} height='100%' overflow='scroll'>
+            <Box maxWidth={900} mx='auto'>
+                <Typography component='div' variant='h6' textAlign='center' my={1}>
+                    Total
+                    <Typography variant='body1' color='primary.main'>
+                        {formatCurrency(total, appState.masterCurrency)}
+                    </Typography>
                 </Typography>
-            </Typography>
-            <Box
-                display='flex'
-                flexDirection='column'
-                gap={1}
-            >
-                {
-                    visibleAccounts.map(account => <AccountCard
-                        key={account.name}
-                        account={account}
-                        totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
-                    />)
-                }
-                { hiddenAccounts.length > 0
-                    ? (showHidden
-                        ? hiddenAccounts.map(account => <AccountCard
+                <Box
+                    display='flex'
+                    flexDirection='column'
+                    gap={1}
+                >
+                    {
+                        visibleAccounts.map(account => <AccountCard
                             key={account.name}
                             account={account}
                             totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
                         />)
-                        : <Typography color='primary.main' textAlign='center'>
-                            <a onClick={() => { setShowHidden(true) }}>Show {hiddenAccounts.length} hidden</a>
-                        </Typography>)
-                    : null
-                }
+                    }
+                    { hiddenAccounts.length > 0
+                        ? (showHidden
+                            ? hiddenAccounts.map(account => <AccountCard
+                                key={account.name}
+                                account={account}
+                                totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
+                            />)
+                            : <Typography color='primary.main' textAlign='center'>
+                                <a onClick={() => { setShowHidden(true) }}>Show {hiddenAccounts.length} hidden</a>
+                            </Typography>)
+                        : null
+                    }
+                </Box>
+                <Box minHeight={144}/>
             </Box>
-            <Box minHeight={144}/>
         </Box>
-    </MainScreen>
+    </>
 })
 
 function AccountsScreenSkeleton (): ReactElement {
-    return <MainScreen>
+    return <>
         <Typography component='div' variant='h6' textAlign='center' my={1}>
             <Skeleton sx={{ maxWidth: 85, mx: 'auto' }}/>
             <Typography variant='body1' color='primary.main'>
@@ -119,10 +126,12 @@ function AccountsScreenSkeleton (): ReactElement {
             display='flex'
             flexDirection='column'
             gap={1}
+            maxWidth={900}
+            mx='auto'
         >
             {[1, 1, 1].map((_, i) => <AccountCardSkeleton key={i}/>)}
         </Box>
-    </MainScreen>
+    </>
 }
 
 interface AccountPanelProps {

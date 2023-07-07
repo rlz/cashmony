@@ -1,13 +1,16 @@
-import React, { type PropsWithChildren, type ReactElement } from 'react'
 import { Box, useTheme } from '@mui/material'
+import React, { type PropsWithChildren, type ReactElement } from 'react'
+
+import { Column } from '../Containers'
 import { MainAppBar } from './MainAppBar'
 import { MainBottomNavigation } from './MainBottomNavigation'
-import { Column } from '../Containers'
+
+export type OnSaveType = (() => void) | (() => Promise<void>) | null | undefined
 
 interface Props extends PropsWithChildren {
     title?: string
     navigateOnBack?: string
-    onSave?: (() => void) | (() => Promise<void>) | null
+    onSave?: OnSaveType
 }
 
 export const MainScreen = (props: Props): ReactElement => {

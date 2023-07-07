@@ -1,15 +1,16 @@
-import { observer } from 'mobx-react-lite'
-import React, { useState, type ReactElement } from 'react'
-import { Box, Fab } from '@mui/material'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Box, Fab } from '@mui/material'
+import { observer } from 'mobx-react-lite'
+import React, { type ReactElement, useState } from 'react'
 import { match } from 'ts-pattern'
-import { MainScreen } from '../widgets/mainScreen/MainScreen'
-import { ExpensesList } from '../widgets/expenses/ExpensesList'
+
 import { GoalsModel } from '../model/goals'
-import { AddExpensesGoalModal } from '../widgets/expenses/editors/AddExpensesGoalModal'
 import { Column } from '../widgets/Containers'
+import { AddExpensesGoalModal } from '../widgets/expenses/editors/AddExpensesGoalModal'
 import { ExpensesCardSkeleton } from '../widgets/expenses/ExpensesCard'
+import { ExpensesList } from '../widgets/expenses/ExpensesList'
+import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 export function ExpensesGoalsScreen (): ReactElement {
     return <MainScreen>
@@ -54,7 +55,7 @@ export const ExpensesGoalsScreenBody = observer((): ReactElement => {
 })
 
 function GoalsScreenSkeleton (): ReactElement {
-    return <Column gap={1}>
+    return <Column gap={1} p={1}>
         <ExpensesCardSkeleton />
         <ExpensesCardSkeleton />
         <ExpensesCardSkeleton />

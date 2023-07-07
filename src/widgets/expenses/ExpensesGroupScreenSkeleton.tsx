@@ -1,7 +1,8 @@
-import React, { type ReactElement } from 'react'
 import { Skeleton, Tab, Tabs, Typography } from '@mui/material'
-import { PBody2 } from '../Typography'
+import React, { type ReactElement } from 'react'
+
 import { Column } from '../Containers'
+import { DivBody2, PBody2 } from '../Typography'
 
 export function ExpensesGroupScreenSkeleton (): ReactElement {
     return <>
@@ -19,7 +20,11 @@ export function ExpensesGroupScreenSkeleton (): ReactElement {
             <Tab label={<Skeleton width={65}/>}/>
             <Tab label={<Skeleton width={35}/>}/>
         </Tabs>
-        <Column gap={1} mt={1}>
+        <DivBody2 mt={2}>
+            <Skeleton width={135} sx={{ mx: 'auto' }} />
+            <Skeleton width={135} sx={{ mx: 'auto' }} />
+        </DivBody2>
+        <Column gap={1} mt={2}>
             <Skeleton variant='rounded' height={85}/>
             <Skeleton variant='rounded' height={100}/>
             <Skeleton variant='rounded' height={80}/>

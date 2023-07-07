@@ -1,9 +1,10 @@
-import React, { type ReactElement, type PropsWithChildren } from 'react'
 import { Box, Button, Divider, Modal } from '@mui/material'
-import { MainAppBar } from './mainScreen/MainAppBar'
+import React, { type PropsWithChildren, type ReactElement } from 'react'
+
+import { showIf } from '../helpers/smallTools'
 import { useWidth, widthOneOf } from '../helpers/useWidth'
 import { Column, Row } from './Containers'
-import { showIf } from '../helpers/smallTools'
+import { MainAppBar } from './mainScreen/MainAppBar'
 
 interface Props extends PropsWithChildren {
     title?: string
