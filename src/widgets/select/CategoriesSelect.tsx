@@ -3,7 +3,6 @@ import { observer } from 'mobx-react-lite'
 import React from 'react'
 
 import { CategoriesModel } from '../../model/categories'
-import { SpanBody2 } from '../generic/Typography'
 import { ItemsSelect, type ItemType } from './ItemsSelect'
 
 const categoriesModel = CategoriesModel.instance()
@@ -23,7 +22,8 @@ export const CategoriesSelect = observer((props: Props) => {
     if (props.showUncategorized === true) {
         categories.push({
             value: '',
-            label: <SpanBody2 fontStyle='italic'>Uncategorized</SpanBody2>
+            label: 'Uncategorized',
+            fontStyle: 'italic'
         })
     }
 

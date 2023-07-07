@@ -11,6 +11,8 @@
         "@fortawesome/free-solid-svg-icons": "^6.4.0",
         "@fortawesome/react-fontawesome": "^0.2.0",
         "@mui/material": "^5.13.0",
+        "embla-carousel-react": "^8.0.0-rc07",
+        "embla-carousel-wheel-gestures": "^8.0.0-rc04",
         "idb": "^7.1.1",
         "luxon": "^3.3.0",
         "mobx": "^6.9.0",

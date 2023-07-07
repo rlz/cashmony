@@ -29,3 +29,11 @@ export function showIfLazy (condition: boolean | null | undefined, elementFactor
 export function run<T> (action: () => T): T {
     return action()
 }
+
+export function times (count: number): number[] {
+    const result = []
+    for (let i = 0; i < count; ++i) {
+        result.push(i)
+    }
+    return result
+}
