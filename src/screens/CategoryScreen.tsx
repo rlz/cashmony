@@ -236,7 +236,7 @@ export const CategoryScreenBody = observer(({ setOnSave }: Props): ReactElement 
                     {cur(-stats.amountTotal(appState.timeSpan, currency))}
                 </Typography>
                 <Typography variant='body2' textAlign='center'>
-                Goal (30d): {goal !== null ? cur(-goal.value * currenciesModel.getRate(utcToday(), goal.currency, currency)) : '-'}
+                    Goal (30d): {goal !== null ? cur(-goal.value * currenciesModel.getRate(utcToday(), goal.currency, currency)) : '-'}
                 </Typography>
                 <Tabs value={tabName} onChange={(_, tab) => { navigate(`/categories/${catName}/${tab as string}`) }} variant='fullWidth'>
                     <Tab value='stats' label='Stats'/>

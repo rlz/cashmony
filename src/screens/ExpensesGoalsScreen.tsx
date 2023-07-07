@@ -11,7 +11,13 @@ import { AddExpensesGoalModal } from '../widgets/expenses/editors/AddExpensesGoa
 import { Column } from '../widgets/Containers'
 import { ExpensesCardSkeleton } from '../widgets/expenses/ExpensesCard'
 
-export const ExpensesGoalsScreen = observer((): ReactElement => {
+export function ExpensesGoalsScreen (): ReactElement {
+    return <MainScreen>
+        <ExpensesGoalsScreenBody />
+    </MainScreen>
+}
+
+export const ExpensesGoalsScreenBody = observer((): ReactElement => {
     const goalsModel = GoalsModel.instance()
 
     const [add, setAdd] = useState(false)
@@ -20,7 +26,7 @@ export const ExpensesGoalsScreen = observer((): ReactElement => {
         return <GoalsScreenSkeleton />
     }
 
-    return <MainScreen>
+    return <>
         {
             match(add)
                 .with(
@@ -39,18 +45,18 @@ export const ExpensesGoalsScreen = observer((): ReactElement => {
                 )
         }
         <Box p={1}>
-            <ExpensesList items={goalsModel.goals.filter(i => i.deleted !== true)}/>
-            <Box minHeight={144}/>
+            <Box maxWidth={900} mx='auto'>
+                <ExpensesList items={goalsModel.goals.filter(i => i.deleted !== true)}/>
+                <Box minHeight={144}/>
+            </Box>
         </Box>
-    </MainScreen>
+    </>
 })
 
 function GoalsScreenSkeleton (): ReactElement {
-    return <MainScreen>
-        <Column gap={1}>
-            <ExpensesCardSkeleton />
-            <ExpensesCardSkeleton />
-            <ExpensesCardSkeleton />
-        </Column>
-    </MainScreen>
+    return <Column gap={1}>
+        <ExpensesCardSkeleton />
+        <ExpensesCardSkeleton />
+        <ExpensesCardSkeleton />
+    </Column>
 }

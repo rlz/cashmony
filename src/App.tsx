@@ -79,6 +79,14 @@ const router = createBrowserRouter([
     {
         path: '/goals/:goalName',
         element: <ExpensesGoalScreen/>
+    },
+    {
+        path: '/goals/:goalName/:tabName',
+        element: <ExpensesGoalScreen />
+    },
+    {
+        path: '/goals/:goalName/operations/:opId',
+        element: <ExpensesGoalScreen />
     }
 ])
 
