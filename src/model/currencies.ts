@@ -113,7 +113,11 @@ export class CurrenciesModel {
             }
 
             // to calculate 'Total' on accounts screen
-            const date = appState.timeSpan.endDate.toFormat('yyyy/MM')
+            const date = run(() => {
+                const endDate = appState.timeSpan.endDate
+                const today = appState.today
+                return (endDate <= today ? endDate : today).toFormat('yyyy/MM')
+            })
             for (const acc of accountsModel.accounts.values()) {
                 if (acc.currency !== 'USD') {
                     needRates.add(`${date}/${acc.currency}`)
