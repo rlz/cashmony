@@ -1,9 +1,10 @@
-import React, { useState, type ReactElement } from 'react'
-import { Column, Row } from '../../Containers'
 import { IconButton, ToggleButton, ToggleButtonGroup } from '@mui/material'
-import { CurrencyInput } from '../../CurrencyInput'
+import React, { type ReactElement, useState } from 'react'
+
 import { getCurrencySymbol } from '../../../helpers/currencies'
 import { showIf } from '../../../helpers/smallTools'
+import { Column, Row } from '../../Containers'
+import { CurrencyInput } from '../../CurrencyInput'
 import { CurrencySelector } from '../../CurrencySelector'
 import { DivBody1 } from '../../Typography'
 

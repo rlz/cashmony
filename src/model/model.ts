@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import { z } from 'zod'
+
 import { type Filter } from './filter'
 
 export interface Amount {

@@ -1,9 +1,10 @@
+import { type SxProps } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React from 'react'
+
 import { CategoriesModel } from '../../model/categories'
-import { type ItemType, ItemsSelect } from './ItemsSelect'
 import { SpanBody2 } from '../Typography'
-import { type SxProps } from '@mui/material'
+import { ItemsSelect, type ItemType } from './ItemsSelect'
 
 const categoriesModel = CategoriesModel.instance()
 

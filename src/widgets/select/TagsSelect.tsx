@@ -1,9 +1,10 @@
+import { type SxProps } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React from 'react'
-import { ItemsSelect } from './ItemsSelect'
-import { TagsModel, mergeTags } from '../../model/tags'
+
 import { type NotDeletedOperation } from '../../model/model'
-import { type SxProps } from '@mui/material'
+import { mergeTags, TagsModel } from '../../model/tags'
+import { ItemsSelect } from './ItemsSelect'
 
 const tagsModel = TagsModel.instance()
 

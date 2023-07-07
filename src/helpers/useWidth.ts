@@ -1,4 +1,4 @@
-import { type Breakpoint, type Theme, useTheme, useMediaQuery } from '@mui/material'
+import { type Breakpoint, type Theme, useMediaQuery, useTheme } from '@mui/material'
 
 export function useWidth (): Breakpoint {
     const theme: Theme = useTheme()

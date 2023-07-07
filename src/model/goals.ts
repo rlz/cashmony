@@ -1,4 +1,5 @@
 import { makeAutoObservable, observable, runInAction } from 'mobx'
+
 import { FinDataDb } from './finDataDb'
 import { type ExpensesGoal } from './model'
 

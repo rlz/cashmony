@@ -1,14 +1,15 @@
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material'
-import React, { type ReactElement } from 'react'
-import { type NotDeletedOperation } from '../../../model/model'
-import { AccountsModel } from '../../../model/accounts'
 import { observer } from 'mobx-react-lite'
+import React, { type ReactElement } from 'react'
+import { match } from 'ts-pattern'
+
 import { formatExchangeRate } from '../../../helpers/currencies'
+import { AccountsModel } from '../../../model/accounts'
+import { type NotDeletedOperation } from '../../../model/model'
 import { CurrencyInput } from '../../CurrencyInput'
 import { AccountsSelect } from '../../select/AccountsSelect'
-import { match } from 'ts-pattern'
 
 interface Props {
     title: string

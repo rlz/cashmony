@@ -1,6 +1,7 @@
 import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
+
 import { AppState } from '../model/appState'
 import { type Account } from '../model/model'
 import { Plot, type PlotSeries } from './Plot'

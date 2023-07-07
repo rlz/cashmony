@@ -1,13 +1,14 @@
-import React, { useState, type ReactElement } from 'react'
-import { Button, FormControlLabel, Switch, TextField } from '@mui/material'
-import { GoalsModel } from '../../../model/goals'
-import { FilterEditor } from '../../FilterEditor'
-import { Column } from '../../Containers'
-import { run, showIf } from '../../../helpers/smallTools'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFilter } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Button, FormControlLabel, Switch, TextField } from '@mui/material'
+import React, { type ReactElement, useState } from 'react'
+import { match, P } from 'ts-pattern'
+
+import { run, showIf } from '../../../helpers/smallTools'
+import { GoalsModel } from '../../../model/goals'
 import { type ExpensesGoal } from '../../../model/model'
-import { P, match } from 'ts-pattern'
+import { Column } from '../../Containers'
+import { FilterEditor } from '../../FilterEditor'
 import { GoalInput } from './GoalInput'
 
 interface Props {

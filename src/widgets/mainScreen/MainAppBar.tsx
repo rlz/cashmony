@@ -1,12 +1,13 @@
-import React, { type ReactElement, useState } from 'react'
-import { AppBar, Button, Divider, IconButton, Modal, Paper, SwipeableDrawer, Toolbar, Typography } from '@mui/material'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars, faCircleCheck, faCircleChevronLeft, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { AppBar, Button, Divider, IconButton, Modal, Paper, SwipeableDrawer, Toolbar, Typography } from '@mui/material'
+import React, { type ReactElement, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useWidth, widthOneOf } from '../../helpers/useWidth'
+
 import { showIf } from '../../helpers/smallTools'
-import { AppStateSettings } from './AppStateSettings'
+import { useWidth, widthOneOf } from '../../helpers/useWidth'
 import { Row } from '../Containers'
+import { AppStateSettings } from './AppStateSettings'
 
 interface Props {
     title?: string

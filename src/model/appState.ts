@@ -1,9 +1,10 @@
-import { autorun, makeAutoObservable, runInAction } from 'mobx'
-import { CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, ThisMonthTimeSpan, ThisYearTimeSpan, YearTimeSpan, utcToday, AllHistoryTimeSpan } from '../helpers/dates'
 import { DateTime } from 'luxon'
-import { OperationsModel } from './operations'
+import { autorun, makeAutoObservable, runInAction } from 'mobx'
+
+import { AllHistoryTimeSpan, CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, ThisMonthTimeSpan, ThisYearTimeSpan, utcToday, YearTimeSpan } from '../helpers/dates'
 import { run } from '../helpers/smallTools'
 import { type Filter } from './filter'
+import { OperationsModel } from './operations'
 
 const operationsModel = OperationsModel.instance()
 

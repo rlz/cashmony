@@ -1,16 +1,17 @@
-import React, { useState, type ReactElement } from 'react'
-import { FullScreenModal } from './FullScreenModal'
 import { Button, IconButton, TextField } from '@mui/material'
-import { CurrenciesModel } from '../model/currencies'
 import { DateTime } from 'luxon'
-import { getCurrencySymbol } from '../helpers/currencies'
-import { CurrencySelector } from './CurrencySelector'
-import { AccountsModel } from '../model/accounts'
-import { CurrencyInput } from './CurrencyInput'
-import { OperationsModel } from '../model/operations'
+import React, { type ReactElement, useState } from 'react'
 import { v1 as uuid } from 'uuid'
+
+import { getCurrencySymbol } from '../helpers/currencies'
 import { utcToday } from '../helpers/dates'
+import { AccountsModel } from '../model/accounts'
+import { CurrenciesModel } from '../model/currencies'
+import { OperationsModel } from '../model/operations'
 import { Column, Row } from './Containers'
+import { CurrencyInput } from './CurrencyInput'
+import { CurrencySelector } from './CurrencySelector'
+import { FullScreenModal } from './FullScreenModal'
 
 const currenciesModel = CurrenciesModel.instance()
 const accountsModel = AccountsModel.instance()

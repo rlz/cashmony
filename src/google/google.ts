@@ -1,10 +1,12 @@
 import './google.scss'
-import makeUrl from './makeUrl'
+
+import { match } from 'ts-pattern'
+
+import { type Account, type Category, type ExpensesGoal, type Operation } from '../model/model'
 import { createDataSpreadsheet } from './createDataSpreadsheet'
 import { loadAccounts, loadCategories, loadGoals, loadOperations } from './load'
-import { type Category, type Account, type Operation, type ExpensesGoal } from '../model/model'
+import makeUrl from './makeUrl'
 import { storeAccounts, storeCategories, storeGoals, storeOperations } from './store'
-import { match } from 'ts-pattern'
 import { updateDataSpreadsheet } from './updateDataSpreadsheet'
 
 const ACCESS_TOKEN = 'access_token'

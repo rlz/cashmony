@@ -1,14 +1,15 @@
-import React, { useState, type ReactElement } from 'react'
-import { AppState } from '../model/appState'
-import { observer } from 'mobx-react-lite'
-import { Box, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightLong } from '@fortawesome/free-solid-svg-icons'
-import { runInAction } from 'mobx'
-import Calendar from 'react-calendar'
-import { FullScreenModal } from './FullScreenModal'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Box, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
+import { runInAction } from 'mobx'
+import { observer } from 'mobx-react-lite'
+import React, { type ReactElement, useState } from 'react'
+import Calendar from 'react-calendar'
+
 import { utcDate } from '../helpers/dates'
+import { AppState } from '../model/appState'
+import { FullScreenModal } from './FullScreenModal'
 
 const appState = AppState.instance()
 

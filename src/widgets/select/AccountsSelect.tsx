@@ -1,8 +1,9 @@
+import { type SxProps } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React from 'react'
-import { ItemsSelect } from './ItemsSelect'
+
 import { AccountsModel } from '../../model/accounts'
-import { type SxProps } from '@mui/material'
+import { ItemsSelect } from './ItemsSelect'
 
 const accountsModel = AccountsModel.instance()
 

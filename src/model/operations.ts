@@ -1,6 +1,7 @@
 import { makeAutoObservable, observable, runInAction } from 'mobx'
-import { type Operation, operationComparator, type NotDeletedOperation } from './model'
+
 import { FinDataDb } from './finDataDb'
+import { type NotDeletedOperation, type Operation, operationComparator } from './model'
 
 const finDataDb = FinDataDb.instance()
 let operationsModel: OperationsModel | null = null

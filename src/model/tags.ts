@@ -1,6 +1,7 @@
 import { autorun, makeAutoObservable, runInAction } from 'mobx'
-import { OperationsModel } from './operations'
+
 import { compareByStats } from '../helpers/stats'
+import { OperationsModel } from './operations'
 
 let tagsModel: TagsModel | null = null
 

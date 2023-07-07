@@ -1,6 +1,7 @@
 import { z } from 'zod'
+
 import { nonNull } from '../helpers/smallTools'
-import { isOk, type Google, type GoogleSheetProperties } from './google'
+import { type Google, type GoogleSheetProperties, isOk } from './google'
 import { storeRows } from './store'
 
 const getSpreadsheetReplySchema = z.object({

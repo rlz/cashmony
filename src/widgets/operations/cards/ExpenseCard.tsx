@@ -1,8 +1,9 @@
+import { faCreditCard } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { type ReactElement } from 'react'
+
 import { type ExpenseOperation } from '../../../model/model'
 import { BaseOpCard } from './BaseOpCard'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCreditCard } from '@fortawesome/free-solid-svg-icons'
 
 interface Props {
     operation: ExpenseOperation

@@ -1,7 +1,8 @@
-import React, { useState, type ReactElement } from 'react'
-import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Button, TextField, Typography } from '@mui/material'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Button, TextField, Typography } from '@mui/material'
+import React, { type ReactElement, useState } from 'react'
+
 import { type Operation } from '../../../model/model'
 import { TagsSelect } from '../../select/TagsSelect'
 

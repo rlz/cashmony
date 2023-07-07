@@ -1,11 +1,12 @@
+import { DateTime } from 'luxon'
 import { autorun, makeAutoObservable, observable, runInAction, toJS } from 'mobx'
-import { FinDataDb } from './finDataDb'
-import { type NotDeletedOperation, type Account } from './model'
-import { OperationsModel } from './operations'
+
 import { utcToday } from '../helpers/dates'
 import { compareByStats } from '../helpers/stats'
-import { DateTime } from 'luxon'
 import { AppState } from './appState'
+import { FinDataDb } from './finDataDb'
+import { type Account, type NotDeletedOperation } from './model'
+import { OperationsModel } from './operations'
 
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()

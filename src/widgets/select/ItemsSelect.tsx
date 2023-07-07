@@ -1,6 +1,6 @@
 import { Box, Chip, type SxProps } from '@mui/material'
 import React, { type ReactElement } from 'react'
-import { P, match } from 'ts-pattern'
+import { match, P } from 'ts-pattern'
 
 export type ItemType = string | { value: string, label: string | ReactElement }
 export type ItemsType = ReadonlyArray<string | { value: string, label: string | ReactElement }>

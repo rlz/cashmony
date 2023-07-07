@@ -1,17 +1,18 @@
 import { faCloudArrowUp, faFilter } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box, ToggleButtonGroup, ToggleButton } from '@mui/material'
-import React, { useState, type ReactElement } from 'react'
-import { observer } from 'mobx-react-lite'
-import { PeriodSelector } from '../PeriodSelector'
-import { AppState } from '../../model/appState'
+import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { runInAction } from 'mobx'
-import { showIf } from '../../helpers/smallTools'
-import { CurrencySelector } from '../CurrencySelector'
+import { observer } from 'mobx-react-lite'
+import React, { type ReactElement, useState } from 'react'
+
 import { getCurrencySymbol } from '../../helpers/currencies'
-import { FilterEditor } from '../FilterEditor'
+import { showIf } from '../../helpers/smallTools'
+import { AppState } from '../../model/appState'
 import { initGoogleSync } from '../../model/sync'
 import { Column } from '../Containers'
+import { CurrencySelector } from '../CurrencySelector'
+import { FilterEditor } from '../FilterEditor'
+import { PeriodSelector } from '../PeriodSelector'
 
 const appState = AppState.instance()
 

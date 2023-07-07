@@ -1,10 +1,11 @@
 import { type DurationLikeObject } from 'luxon'
-import { type NotDeletedOperation, type Amount } from './model'
-import { LastPeriodTimeSpan, type HumanTimeSpan, utcToday } from '../helpers/dates'
-import { OperationsModel } from './operations'
+
+import { type HumanTimeSpan, LastPeriodTimeSpan, utcToday } from '../helpers/dates'
 import { AppState } from './appState'
 import { CurrenciesModel } from './currencies'
 import { type Filter } from './filter'
+import { type Amount, type NotDeletedOperation } from './model'
+import { OperationsModel } from './operations'
 
 const appState = AppState.instance()
 const currenciesModel = CurrenciesModel.instance()

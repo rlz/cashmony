@@ -1,15 +1,16 @@
-import React, { type ReactElement } from 'react'
-import { type ExpensesStats } from '../../model/stats'
-import { observer } from 'mobx-react-lite'
-import { useNavigate } from 'react-router-dom'
-import { AppState } from '../../model/appState'
-import { P, match } from 'ts-pattern'
-import { formatCurrency } from '../../helpers/currencies'
 import { Box, Paper, Skeleton, type SxProps } from '@mui/material'
+import { observer } from 'mobx-react-lite'
+import React, { type ReactElement } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { match, P } from 'ts-pattern'
+
+import { formatCurrency } from '../../helpers/currencies'
+import { utcToday } from '../../helpers/dates'
+import { AppState } from '../../model/appState'
+import { CurrenciesModel } from '../../model/currencies'
+import { type ExpensesStats } from '../../model/stats'
 import { DivBody2, Italic, SpanBody1 } from '../Typography'
 import { ExpensesBarsPlot } from './ExpensesPlots'
-import { utcToday } from '../../helpers/dates'
-import { CurrenciesModel } from '../../model/currencies'
 
 interface Props {
     url: string

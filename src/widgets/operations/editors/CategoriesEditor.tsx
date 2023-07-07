@@ -1,11 +1,12 @@
-import React, { type ReactElement } from 'react'
-import { type ExpenseOperation } from '../../../model/model'
-import { observer } from 'mobx-react-lite'
-import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material'
+import { observer } from 'mobx-react-lite'
+import React, { type ReactElement } from 'react'
+import { match, P } from 'ts-pattern'
+
+import { type ExpenseOperation } from '../../../model/model'
 import { CategoriesSelect } from '../../select/CategoriesSelect'
-import { P, match } from 'ts-pattern'
 
 interface Props {
     expanded: boolean

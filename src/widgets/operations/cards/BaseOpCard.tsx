@@ -1,9 +1,10 @@
 import { Avatar, Box, Paper, Skeleton } from '@mui/material'
 import React, { type ReactElement } from 'react'
+
 import { formatCurrency } from '../../../helpers/currencies'
+import { showIf } from '../../../helpers/smallTools'
 import { Row } from '../../Containers'
 import { DivBody1, DivBody2 } from '../../Typography'
-import { showIf } from '../../../helpers/smallTools'
 
 interface Props {
     opId: string

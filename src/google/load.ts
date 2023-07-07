@@ -1,8 +1,8 @@
-import { isOk, type Google } from './google'
-import makeUrl from './makeUrl'
-import { accsFromGoogle, catsFromGoogle, goalsFromGoogle, opsFromGoogle } from './googleDataSchema'
-import { type ExpensesGoal, type Account, type Category, type Operation } from '../model/model'
+import { type Account, type Category, type ExpensesGoal, type Operation } from '../model/model'
 import { assertRowsType } from '../typeCheckers.g/google'
+import { type Google, isOk } from './google'
+import { accsFromGoogle, catsFromGoogle, goalsFromGoogle, opsFromGoogle } from './googleDataSchema'
+import makeUrl from './makeUrl'
 
 export interface RowsType {
     values?: unknown[]

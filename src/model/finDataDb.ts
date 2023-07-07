@@ -1,8 +1,9 @@
 import { type IDBPDatabase, openDB } from 'idb'
-import { type Category, type Account, type NotDeletedOperation, type Operation, type CurrencyRatesCache, ratesMonth, type ExpensesGoal } from './model'
 import { DateTime } from 'luxon'
+import { match, P } from 'ts-pattern'
+
 import { runAsync } from '../helpers/smallTools'
-import { P, match } from 'ts-pattern'
+import { type Account, type Category, type CurrencyRatesCache, type ExpensesGoal, type NotDeletedOperation, type Operation, ratesMonth } from './model'
 
 const OPERATIONS_STORE_NAME = 'operations'
 const OPERATIONS_DATE_INDEX_NAME = 'date'

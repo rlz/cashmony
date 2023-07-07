@@ -1,13 +1,14 @@
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
-import React, { useState, type ReactElement } from 'react'
+import { DateTime } from 'luxon'
+import React, { type ReactElement, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Operations } from '../model/stats'
+
+import { CategoriesModel } from '../model/categories'
 import { type NotDeletedOperation } from '../model/model'
 import { OperationsModel } from '../model/operations'
-import { CategoriesModel } from '../model/categories'
-import { DateTime } from 'luxon'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { Operations } from '../model/stats'
 
 interface Props {
     name: string

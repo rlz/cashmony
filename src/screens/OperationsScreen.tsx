@@ -1,7 +1,8 @@
-import React, { type ReactElement } from 'react'
 import { observer } from 'mobx-react-lite'
-import { OpsList } from '../widgets/operations/OpsList'
+import React, { type ReactElement } from 'react'
+
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
+import { OpsList } from '../widgets/operations/OpsList'
 
 export const OperationsScreen = observer((): ReactElement => {
     return <MainScreen>

@@ -1,8 +1,9 @@
+import { DateTime } from 'luxon'
 import { autorun, makeAutoObservable, observable, runInAction } from 'mobx'
+
+import { compareByStats } from '../helpers/stats'
 import { FinDataDb } from './finDataDb'
 import { type Category } from './model'
-import { compareByStats } from '../helpers/stats'
-import { DateTime } from 'luxon'
 import { Operations } from './stats'
 
 let categoriesModel: CategoriesModel | null = null

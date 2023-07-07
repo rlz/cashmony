@@ -1,13 +1,14 @@
 import { useTheme } from '@mui/material'
-import React, { useMemo, type ReactElement } from 'react'
-import { AppState } from '../../model/appState'
 import { observer } from 'mobx-react-lite'
-import { OperationsModel } from '../../model/operations'
+import React, { type ReactElement, useMemo } from 'react'
+
+import { utcToday } from '../../helpers/dates'
+import { AppState } from '../../model/appState'
 import { CategoriesModel } from '../../model/categories'
+import { CurrenciesModel } from '../../model/currencies'
+import { OperationsModel } from '../../model/operations'
 import { type ExpensesStats } from '../../model/stats'
 import { Plot, type PlotSeries } from '../Plot'
-import { utcToday } from '../../helpers/dates'
-import { CurrenciesModel } from '../../model/currencies'
 
 const appState = AppState.instance()
 const currenciesModel = CurrenciesModel.instance()

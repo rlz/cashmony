@@ -1,8 +1,8 @@
-import { isOk, type Google } from './google'
-import makeUrl from './makeUrl'
-import { type ExpensesGoal, type Account, type Category, type Operation } from '../model/model'
-import { accsToGoogle, catsToGoogle, goalsToGoogle, opsToGoogle } from './googleDataSchema'
+import { type Account, type Category, type ExpensesGoal, type Operation } from '../model/model'
 import { assertClearReplyBody, assertPutReplyBody } from '../typeCheckers.g/google'
+import { type Google, isOk } from './google'
+import { accsToGoogle, catsToGoogle, goalsToGoogle, opsToGoogle } from './googleDataSchema'
+import makeUrl from './makeUrl'
 
 export interface ClearReplyBody {
     clearedRange: string

@@ -1,6 +1,7 @@
-import { DateTime } from 'luxon'
 import { mkdirSync, writeFileSync } from 'fs'
+import { DateTime } from 'luxon'
 import z from 'zod'
+
 import makeUrl from '../src/google/makeUrl'
 import { CURRENCIES } from '../src/helpers/currenciesList'
 

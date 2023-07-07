@@ -1,12 +1,13 @@
+import { Box, Paper, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
+import { match, P } from 'ts-pattern'
+
+import { formatCurrency } from '../../helpers/currencies'
 import { AppState } from '../../model/appState'
 import { type ExpensesStats } from '../../model/stats'
-import { formatCurrency } from '../../helpers/currencies'
-import { Box, Paper, Typography } from '@mui/material'
 import { DivBody2, Italic } from '../Typography'
 import { ExpensesBarsPlot, ExpensesTotalPlot } from './ExpensesPlots'
-import { P, match } from 'ts-pattern'
 
 interface Props {
     currency: string

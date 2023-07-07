@@ -1,13 +1,15 @@
+import './index.scss'
+
+import { createTheme, CssBaseline, ThemeProvider, Typography, useMediaQuery } from '@mui/material'
+import { deepOrange, indigo } from '@mui/material/colors'
+import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import ReactDOM from 'react-dom/client'
-import './index.scss'
-import App from './App'
-import reportWebVitals from './reportWebVitals'
-import { CssBaseline, ThemeProvider, Typography, createTheme, useMediaQuery } from '@mui/material'
-import { deepOrange, indigo } from '@mui/material/colors'
-import { AppState } from './model/appState'
-import { observer } from 'mobx-react-lite'
 import { match } from 'ts-pattern'
+
+import App from './App'
+import { AppState } from './model/appState'
+import reportWebVitals from './reportWebVitals'
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement

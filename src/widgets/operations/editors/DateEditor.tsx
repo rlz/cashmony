@@ -1,10 +1,12 @@
 import './DateSelector.scss'
+
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Button, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import React, { type ReactElement } from 'react'
 import Calendar from 'react-calendar'
+
 import { utcToday } from '../../../helpers/dates'
 import { AppState } from '../../../model/appState'
 

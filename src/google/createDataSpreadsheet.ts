@@ -1,5 +1,6 @@
 import { runInAction } from 'mobx'
-import { isOk, type Google } from './google'
+
+import { type Google, isOk } from './google'
 
 export async function createDataSpreadsheet (google: Google): Promise<void> {
     const reply = await google.fetch(

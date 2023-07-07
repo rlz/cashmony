@@ -1,15 +1,16 @@
-import React, { useState, type ReactElement } from 'react'
-import { FullScreenModal } from '../../FullScreenModal'
 import { Button } from '@mui/material'
 import { DateTime } from 'luxon'
-import { GoalsModel } from '../../../model/goals'
-import { DEFAULT_FILTER } from '../../../model/filter'
-import { CurrenciesModel } from '../../../model/currencies'
-import { run } from '../../../helpers/smallTools'
-import { ExpensesGoalEditor } from './ExpensesGoalEditor'
 import { observer } from 'mobx-react-lite'
+import React, { type ReactElement, useState } from 'react'
+
+import { run } from '../../../helpers/smallTools'
+import { CurrenciesModel } from '../../../model/currencies'
+import { DEFAULT_FILTER } from '../../../model/filter'
+import { GoalsModel } from '../../../model/goals'
 import { type ExpensesGoal } from '../../../model/model'
 import { Column } from '../../Containers'
+import { FullScreenModal } from '../../FullScreenModal'
+import { ExpensesGoalEditor } from './ExpensesGoalEditor'
 
 export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void }): ReactElement => {
     const currenciesModel = CurrenciesModel.instance()

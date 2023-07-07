@@ -1,5 +1,6 @@
 import { InputAdornment, TextField } from '@mui/material'
-import React, { useState, type ReactElement, useEffect } from 'react'
+import React, { type ReactElement, useEffect, useState } from 'react'
+
 import { getCurrencySymbol } from '../helpers/currencies'
 
 interface Props {

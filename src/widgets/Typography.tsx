@@ -1,4 +1,4 @@
-import { type TypographyProps, Typography } from '@mui/material'
+import { Typography, type TypographyProps } from '@mui/material'
 import React, { type PropsWithChildren, type ReactElement } from 'react'
 
 export function DivBody1 (props: PropsWithChildren<Omit<TypographyProps<'div'>, 'variant'>>): ReactElement {

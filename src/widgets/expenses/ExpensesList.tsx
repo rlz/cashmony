@@ -1,11 +1,12 @@
-import React, { type ReactElement } from 'react'
-import { type Category, type ExpensesGoal } from '../../model/model'
 import { Box } from '@mui/material'
+import { observer } from 'mobx-react-lite'
+import React, { type ReactElement } from 'react'
 import { match } from 'ts-pattern'
-import { ExpensesStats, Operations } from '../../model/stats'
+
 import { AppState } from '../../model/appState'
 import { CurrenciesModel } from '../../model/currencies'
-import { observer } from 'mobx-react-lite'
+import { type Category, type ExpensesGoal } from '../../model/model'
+import { ExpensesStats, Operations } from '../../model/stats'
 import { ExpensesCard, ExpensesCardSkeleton } from './ExpensesCard'
 
 interface ExpensesListProps {

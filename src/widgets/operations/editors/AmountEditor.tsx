@@ -1,12 +1,13 @@
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Accordion, AccordionDetails, AccordionSummary, Box, IconButton, Typography } from '@mui/material'
-import React, { useState, type ReactElement } from 'react'
 import { observer } from 'mobx-react-lite'
+import React, { type ReactElement, useState } from 'react'
+
 import { getCurrencySymbol } from '../../../helpers/currencies'
+import { showIf } from '../../../helpers/smallTools'
 import { CurrencyInput } from '../../CurrencyInput'
 import { CurrencySelector } from '../../CurrencySelector'
-import { showIf } from '../../../helpers/smallTools'
 
 interface Props {
     amount: number

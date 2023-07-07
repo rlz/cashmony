@@ -1,12 +1,14 @@
+import 'uplot/dist/uPlot.min.css'
+
 import { Box, Paper, Typography, useTheme } from '@mui/material'
 import React, { type ReactElement } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
+import { match } from 'ts-pattern'
 import uPlot from 'uplot'
 import UplotReact from 'uplot-react'
+
 import { formatCurrency } from '../helpers/currencies'
 import { nonNull, showIf } from '../helpers/smallTools'
-import { match } from 'ts-pattern'
-import 'uplot/dist/uPlot.min.css'
 
 export interface PlotSeries {
     points: Array<number | null | undefined>

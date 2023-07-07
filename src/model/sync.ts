@@ -4,7 +4,7 @@ import { nonNull } from '../helpers/smallTools'
 import { AccountsModel } from './accounts'
 import { CategoriesModel } from './categories'
 import { GoalsModel } from './goals'
-import { type Category, type Account, type Operation, type ExpensesGoal } from './model'
+import { type Account, type Category, type ExpensesGoal, type Operation } from './model'
 import { OperationsModel } from './operations'
 
 const google = Google.instance()

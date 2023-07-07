@@ -3,8 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { BottomNavigation, BottomNavigationAction } from '@mui/material'
 import React, { type ReactElement } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { match, P } from 'ts-pattern'
+
 import { useWidth, widthOneOf } from '../../helpers/useWidth'
-import { P, match } from 'ts-pattern'
 
 type Tabs = 'o' | 'c' | 'g' | 'a' | null
 

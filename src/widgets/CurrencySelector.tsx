@@ -1,11 +1,12 @@
-import React, { useState, type ReactElement } from 'react'
 import { Box, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, TextField, Typography, useTheme } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import { CURRENCIES } from '../helpers/currenciesList'
+import React, { type ReactElement, useState } from 'react'
+
 import { getCurrencySymbol } from '../helpers/currencies'
-import { FullScreenModal } from './FullScreenModal'
+import { CURRENCIES } from '../helpers/currenciesList'
 import { CurrenciesModel } from '../model/currencies'
 import { Column } from './Containers'
+import { FullScreenModal } from './FullScreenModal'
 
 const currenciesModel = CurrenciesModel.instance()
 

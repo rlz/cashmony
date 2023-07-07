@@ -1,16 +1,17 @@
-import React, { useState, type ReactElement } from 'react'
-import { type Filter } from '../model/filter'
-import { FullScreenModal } from './FullScreenModal'
-import { CategoriesSelect } from './select/CategoriesSelect'
-import { FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
-import { showIf } from '../helpers/smallTools'
-import { Column, Row } from './Containers'
-import { PBody2, SpanBody2 } from './Typography'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import React, { type ReactElement, useState } from 'react'
+
 import { deepEqual } from '../helpers/deepEqual'
+import { showIf } from '../helpers/smallTools'
+import { type Filter } from '../model/filter'
+import { Column, Row } from './Containers'
+import { FullScreenModal } from './FullScreenModal'
 import { AccountsSelect } from './select/AccountsSelect'
+import { CategoriesSelect } from './select/CategoriesSelect'
 import { TagsSelect } from './select/TagsSelect'
+import { PBody2, SpanBody2 } from './Typography'
 
 interface Props {
     filter: Filter

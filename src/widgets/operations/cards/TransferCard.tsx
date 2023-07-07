@@ -1,10 +1,11 @@
-import React, { type ReactElement } from 'react'
-import { type TransferOperation } from '../../../model/model'
-import { BaseOpCard } from './BaseOpCard'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightLong, faMoneyBillTransfer } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React, { type ReactElement } from 'react'
+
+import { type TransferOperation } from '../../../model/model'
 import { Row } from '../../Containers'
 import { DivBody2 } from '../../Typography'
+import { BaseOpCard } from './BaseOpCard'
 
 interface Props {
     operation: TransferOperation

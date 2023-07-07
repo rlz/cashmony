@@ -1,13 +1,14 @@
-import React, { useEffect, type ReactElement, useState } from 'react'
-import { Google } from '../google/google'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { type SyncStats, syncAccounts, syncCategories, syncOperations, type SyncStatsEx, syncGoals } from '../model/sync'
-import { FullScreenModal } from '../widgets/FullScreenModal'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDownLong, faArrowUpLong, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Typography } from '@mui/material'
+import React, { type ReactElement, useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+
+import { Google } from '../google/google'
 import { runAsync } from '../helpers/smallTools'
+import { syncAccounts, syncCategories, syncGoals, syncOperations, type SyncStats, type SyncStatsEx } from '../model/sync'
 import { Row } from '../widgets/Containers'
+import { FullScreenModal } from '../widgets/FullScreenModal'
 
 const google = Google.instance()
 
