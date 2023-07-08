@@ -88,7 +88,6 @@ export const ExpensesBarsPlot = observer(({ currency, stats, sparkline }: Amount
         height={sparkline === true ? 50 : 150}
         xvalues={series.xvalues}
         series={series.series}
-        initialWidth={window.innerWidth - 32}
         title={sparkline === true ? undefined : 'Daily Amount'}
         p={sparkline === true ? 0 : 1}
     />
@@ -172,7 +171,6 @@ export const ExpensesTotalPlot = observer(({ currency, stats }: TotalCatPlotProp
         height={250}
         xvalues={series.xvalues}
         series={series.series}
-        initialWidth={window.innerWidth - 32}
         title='Total Amount'
         p={1}
     />

@@ -55,7 +55,6 @@ export const AccPlot = observer(({ title, account, sparkline, perDayAmount, tota
         height={sparkline === true ? 50 : 250}
         xvalues={allDates.map(d => d.toMillis() / 1000)}
         series={series}
-        initialWidth={window.innerWidth - 32}
         title={sparkline === true ? undefined : title}
         p={sparkline === true ? 0 : 1}
     />

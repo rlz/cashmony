@@ -20,7 +20,6 @@ interface Props {
     elevation: number
     showAxes: boolean
     currency: string
-    initialWidth: number
     title?: string
     p?: number
     height: number
@@ -56,54 +55,58 @@ export function Plot (props: Props): ReactElement {
             )
         }
         <div ref={ref}>
-            <UplotReact
-                options={{
-                    width: width ?? props.initialWidth,
-                    height: props.height,
-                    pxAlign: false,
-                    cursor: { show: false },
-                    legend: { show: false },
-                    axes: [
-                        axe,
-                        {
-                            ...axe,
-                            values: (_, vals) => vals.map(v => formatCurrency(v, props.currency, true))
-                        }
-                    ],
-                    series: [
-                        {},
-                        ...props.series.map(
-                            (ser): uPlot.Series =>
-                                match(ser)
-                                    .with({ type: 'line' }, s => {
-                                        return {
-                                            stroke: s.color,
-                                            points: { show: false }
-                                        }
-                                    })
-                                    .with({ type: 'dash' }, s => {
-                                        return {
-                                            stroke: s.color,
-                                            points: { show: false },
-                                            dash: [4, 6]
-                                        }
-                                    })
-                                    .with({ type: 'bars' }, s => {
-                                        return {
-                                            stroke: s.color,
-                                            fill: s.color,
-                                            points: { show: false },
-                                            paths: bars({ size: [0.8], align: -1 })
-                                        }
-                                    })
-                                    .exhaustive()
-                        )
-                    ]
-                }}
-                data={[
-                    props.xvalues,
-                    ...props.series.map(s => s.points)
-                ]} />
+            {
+                width !== undefined
+                    ? <UplotReact
+                        options={{
+                            width,
+                            height: props.height,
+                            pxAlign: false,
+                            cursor: { show: false },
+                            legend: { show: false },
+                            axes: [
+                                axe,
+                                {
+                                    ...axe,
+                                    values: (_, vals) => vals.map(v => formatCurrency(v, props.currency, true))
+                                }
+                            ],
+                            series: [
+                                {},
+                                ...props.series.map(
+                                    (ser): uPlot.Series =>
+                                        match(ser)
+                                            .with({ type: 'line' }, s => {
+                                                return {
+                                                    stroke: s.color,
+                                                    points: { show: false }
+                                                }
+                                            })
+                                            .with({ type: 'dash' }, s => {
+                                                return {
+                                                    stroke: s.color,
+                                                    points: { show: false },
+                                                    dash: [4, 6]
+                                                }
+                                            })
+                                            .with({ type: 'bars' }, s => {
+                                                return {
+                                                    stroke: s.color,
+                                                    fill: s.color,
+                                                    points: { show: false },
+                                                    paths: bars({ size: [0.8], align: -1 })
+                                                }
+                                            })
+                                            .exhaustive()
+                                )
+                            ]
+                        }}
+                        data={[
+                            props.xvalues,
+                            ...props.series.map(s => s.points)
+                        ]} />
+                    : <Box height={props.height}/>
+            }
         </div>
     </Box>
 
