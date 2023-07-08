@@ -1,13 +1,16 @@
 import { Box, Paper, Skeleton, type SxProps } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement } from 'react'
+import React, { type ReactElement, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { match, P } from 'ts-pattern'
 
 import { formatCurrency } from '../../helpers/currencies'
 import { utcToday } from '../../helpers/dates'
+import { runAsync } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { CurrenciesModel } from '../../model/currencies'
+import { type Amount } from '../../model/model'
+import { OperationsModel } from '../../model/operations'
 import { type ExpensesStats } from '../../model/stats'
 import { DivBody2, Italic, SpanBody1 } from '../generic/Typography'
 import { ExpensesBarsPlot } from './ExpensesPlots'
@@ -20,23 +23,50 @@ interface Props {
 }
 
 export const ExpensesCard = observer((props: Props): ReactElement => {
-    const navigate = useNavigate()
-
     const appState = AppState.instance()
     const currenciesModel = CurrenciesModel.instance()
-    if (currenciesModel.rates === null) {
-        return <ExpensesCardSkeleton sx={props.sx}/>
-    }
+    const operationsModel = OperationsModel.instance()
 
     const currency = props.stats.perDayGoal?.currency ?? appState.masterCurrency
 
-    const goal30 = props.stats.goal(30)
-    const leftPerDay = match(props.stats.leftPerDay(appState.timeSpan, currency))
-        .with(null, () => null)
-        .with({ value: P.select() }, v => -v)
-        .otherwise(() => 0)
+    const navigate = useNavigate()
+
+    const [goal30, setGoal30] = useState<Amount | null>(null)
+    const [leftPerDay, setLeftPerDay] = useState<number | null>(null)
+    const [amountTotal, setAmountTotal] = useState<number | null>(null)
+
+    useEffect(() => {
+        runAsync(async () => {
+            setGoal30(props.stats.goal(30))
+        })
+
+        runAsync(async () => {
+            setLeftPerDay(
+                match(props.stats.leftPerDay(appState.timeSpan, currency))
+                    .with(null, () => null)
+                    .with({ value: P.select() }, v => -v)
+                    .otherwise(() => 0)
+            )
+        })
+
+        runAsync(async () => {
+            setAmountTotal(
+                props.stats.amountTotal(appState.timeSpan, currency)
+            )
+        })
+    }, [
+        props.stats,
+        currency,
+        operationsModel.operations,
+        appState.today,
+        appState.timeSpanInfo
+    ])
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
+
+    if (currenciesModel.rates === null || amountTotal === null) {
+        return <ExpensesCardSkeleton name={props.name} sx={props.sx}/>
+    }
 
     return <Box sx={props.sx}>
         <a onClick={() => { navigate(props.url) }}>
@@ -48,7 +78,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                         flex='1 1 0'
                         textAlign='right'
                     >
-                        {cur(match(props.stats.amountTotal(appState.timeSpan, currency)).with(0, v => v).otherwise(v => -v))}
+                        {cur(match(amountTotal).with(0, v => v).otherwise(v => -v))}
                     </SpanBody1>
                 </Box>
                 <DivBody2 my={1}>
@@ -82,11 +112,13 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
     </Box>
 })
 
-export function ExpensesCardSkeleton ({ sx }: { sx?: SxProps }): ReactElement {
+export function ExpensesCardSkeleton ({ name, sx }: { name?: string | ReactElement, sx?: SxProps }): ReactElement {
     return <Box sx={sx}>
         <Paper sx={{ p: 1 }}>
             <Box display='flex' gap={1}>
-                <SpanBody1 flex='1 1 0'><Skeleton sx={{ maxWidth: 60 }}/></SpanBody1>
+                <SpanBody1 flex='1 1 0'>
+                    { name !== undefined ? name : <Skeleton sx={{ maxWidth: 60 }}/> }
+                </SpanBody1>
                 <SpanBody1>
                     <Skeleton sx={{ minWidth: 55 }}/>
                 </SpanBody1>
