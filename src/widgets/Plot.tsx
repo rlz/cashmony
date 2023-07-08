@@ -54,7 +54,7 @@ export function Plot (props: Props): ReactElement {
                 <Typography variant='h6' textAlign='center'>{props.title}</Typography>
             )
         }
-        <div ref={ref}>
+        <Box ref={ref}>
             {
                 width !== undefined
                     ? <UplotReact
@@ -107,7 +107,7 @@ export function Plot (props: Props): ReactElement {
                         ]} />
                     : <Box height={props.height}/>
             }
-        </div>
+        </Box>
     </Box>
 
     return match(props.elevation)
