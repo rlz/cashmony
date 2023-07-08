@@ -13,6 +13,7 @@ import { CurrenciesModel } from '../model/currencies'
 import { type Account } from '../model/model'
 import { AccPlot } from '../widgets/AccountPlots'
 import { AddAccount } from '../widgets/AddAccount'
+import { Column } from '../widgets/generic/Containers'
 import { DivBody1 } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
@@ -115,7 +116,7 @@ export const AccountsScreenBody = observer((): ReactElement => {
 })
 
 function AccountsScreenSkeleton (): ReactElement {
-    return <>
+    return <Column width='100%' p={1}>
         <Typography component='div' variant='h6' textAlign='center' my={1}>
             <Skeleton sx={{ maxWidth: 85, mx: 'auto' }}/>
             <Typography variant='body1' color='primary.main'>
@@ -126,12 +127,11 @@ function AccountsScreenSkeleton (): ReactElement {
             display='flex'
             flexDirection='column'
             gap={1}
-            maxWidth={900}
-            mx='auto'
+            width='100%'
         >
             {[1, 1, 1].map((_, i) => <AccountCardSkeleton key={i}/>)}
         </Box>
-    </>
+    </Column>
 }
 
 interface AccountPanelProps {
@@ -165,7 +165,7 @@ function AccountCard ({ account, totalAmount }: AccountPanelProps): ReactElement
 }
 
 function AccountCardSkeleton (): ReactElement {
-    return <Paper sx={{ p: 1 }}>
+    return <Paper sx={{ p: 1, maxWidth: 900, mx: 'auto', width: '100%' }}>
         <Box display='flex' mb={1}>
             <DivBody1 flex='1 1 0'><Skeleton sx={{ maxWidth: 85 }}/></DivBody1>
             <DivBody1 textAlign='right' color='primary.main'>
