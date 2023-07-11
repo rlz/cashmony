@@ -1,4 +1,4 @@
-import { faCloudArrowUp, faFilter, faRubleSign } from '@fortawesome/free-solid-svg-icons'
+import { faCloudArrowUp, faFilter } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { runInAction } from 'mobx'
@@ -7,7 +7,7 @@ import React, { type ReactElement } from 'react'
 
 import { getCurrencySymbol } from '../../helpers/currencies'
 import { CURRENCIES } from '../../helpers/currenciesList'
-import { showIf } from '../../helpers/smallTools'
+import { run, showIf } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { initGoogleSync } from '../../model/sync'
 import { CurrencySelector } from '../CurrencySelector'
@@ -24,20 +24,20 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
     return <Column gap={1} {...props}>
         {
             showIf(
-                appState.showGlobalCurrencySelector,
+                appState.topBarState.showGlobalCurrencySelector,
                 <CurrencySelector
                     currency={appState.masterCurrency}
-                    onClose={() => { runInAction(() => { appState.showGlobalCurrencySelector = false }) }}
+                    onClose={() => { runInAction(() => { appState.topBarState.showGlobalCurrencySelector = false }) }}
                     onCurrencySelected={c => { runInAction(() => { appState.masterCurrency = c }) }}
                 />
             )
         }
         {
             showIf(
-                appState.showGlobalFilterEditor,
+                appState.topBarState.showGlobalFilterEditor,
                 <FilterEditor
                     filter={appState.filter}
-                    onClose={() => { runInAction(() => { appState.showGlobalFilterEditor = false }) }}
+                    onClose={() => { runInAction(() => { appState.topBarState.showGlobalFilterEditor = false }) }}
                     onFilterChanged={filter => {
                         runInAction(() => {
                             appState.filter = filter
@@ -71,7 +71,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
         </Box>
         <List>
             <ListItem disablePadding>
-                <ListItemButton onClick={() => { runInAction(() => { appState.showGlobalFilterEditor = true }) }}>
+                <ListItemButton onClick={() => { runInAction(() => { appState.topBarState.showGlobalFilterEditor = true }) }}>
                     <ListItemIcon>
                         <FontAwesomeIcon icon={faFilter} fixedWidth/>
                     </ListItemIcon>
@@ -79,14 +79,17 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                 </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-                <ListItemButton onClick={() => { runInAction(() => { appState.showGlobalCurrencySelector = true }) }}>
+                <ListItemButton onClick={() => { runInAction(() => { appState.topBarState.showGlobalCurrencySelector = true }) }}>
                     <ListItemIcon>
                         {
-                            CURRENCIES[appState.masterCurrency].faIcon !== undefined
-                                ? <FontAwesomeIcon icon={faRubleSign} fixedWidth/>
-                                : <DivBody1 width={20} textAlign='center' fontWeight='bold'>
-                                    {getCurrencySymbol(appState.masterCurrency)}
-                                </DivBody1>
+                            run(() => {
+                                const icon = CURRENCIES[appState.masterCurrency].faIcon
+                                return icon !== undefined
+                                    ? <FontAwesomeIcon icon={icon} fixedWidth/>
+                                    : <DivBody1 width={20} textAlign='center' fontWeight='bold'>
+                                        {getCurrencySymbol(appState.masterCurrency)}
+                                    </DivBody1>
+                            })
                         }
                     </ListItemIcon>
                     <ListItemText primary='Master currency' />

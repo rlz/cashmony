@@ -1,65 +1,50 @@
-import { Box, Button, Divider, Modal } from '@mui/material'
+import { Box, Modal } from '@mui/material'
 import React, { type PropsWithChildren, type ReactElement } from 'react'
 
-import { showIf } from '../helpers/smallTools'
-import { useWidth, widthOneOf } from '../helpers/useWidth'
+import { screenWidthIs } from '../helpers/useWidth'
 import { Column, Row } from './generic/Containers'
-import { MainAppBar } from './mainScreen/MainAppBar'
+import { CashmonyAppBar } from './mainScreen/MainAppBar'
 
 interface Props extends PropsWithChildren {
-    title?: string
+    title: string
+    width?: Parameters<typeof Column>[0]['width']
     onClose: () => void
-    onSave?: (() => void) | null
 }
 
-const RefColumn = React.forwardRef(function RefColumn (props: Parameters<typeof Column>[0], _) {
-    return <Column {...props}/>
-})
-
 export const FullScreenModal = (props: Props): ReactElement => {
-    const bigScreen = !widthOneOf(useWidth(), ['xs', 'sm'])
+    const smallScreen = screenWidthIs('xs', 'sm')
 
-    return <Modal open={true}>
-        <RefColumn
-            maxWidth={900}
-            mx='auto'
-            width='100vw'
-            height='100vh'
-            mt={bigScreen ? '5vh' : undefined}
-            maxHeight={bigScreen ? '90vh' : undefined}
-        >
-            <MainAppBar
-                noSettings
-                title={props.title}
-                onBack={bigScreen ? undefined : props.onClose}
-                onSave={bigScreen ? undefined : props.onSave}
-            />
-            <Box
-                flex={bigScreen ? '0 1 auto' : '1 1 auto'}
-                bgcolor='background.default'
-                overflow='scroll'
+    return <Modal
+        open={true}
+        onClose={props.onClose}
+    >
+        <Box>
+            <Row
+                justifyContent='center'
+                mt={smallScreen ? undefined : 10}
             >
-                {props.children}
-            </Box>
-            {
-                showIf(
-                    bigScreen,
-                    <Box px={1} bgcolor='background.default' >
-                        <Divider/>
-                        <Row py={1} justifyContent='end'>
-                            <Button onClick={props.onClose} color='secondary'>Close</Button>
-                            {
-                                props.onSave !== undefined
-                                    ? <Button
-                                        disabled={props.onSave === null}
-                                        onClick={props.onSave ?? undefined}
-                                    >Ok</Button>
-                                    : null
-                            }
-                        </Row>
+                <Column
+                    width={smallScreen ? '100vw' : props.width}
+                    height={smallScreen ? '100vh' : undefined}
+                    maxWidth={smallScreen ? '100vw' : '850px'}
+                    maxHeight={smallScreen ? '100vh' : 'calc(100vh - 160px)'}
+                    position={'relative'}
+                >
+                    <CashmonyAppBar
+                        modal
+                        title={props.title}
+                        subTitle={null}
+                        onClose={props.onClose}
+                    />
+                    <Box
+                        flex={smallScreen ? '1 1 auto' : '0 1 auto'}
+                        bgcolor='background.default'
+                        overflow='auto'
+                    >
+                        {props.children}
                     </Box>
-                )
-            }
-        </RefColumn>
+                </Column>
+            </Row>
+        </Box>
     </Modal>
 }

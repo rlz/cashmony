@@ -21,7 +21,7 @@ export const CurrencySelector = observer((props: Props): ReactElement => {
     const [search, setSearch] = useState('')
     const currency = props.currency !== null ? CURRENCIES[props.currency] : null
 
-    return <FullScreenModal title='Currency' onClose={props.onClose}>
+    return <FullScreenModal width={'600px'} title='Currency' onClose={props.onClose}>
         <Column height='100%' p={1} gap={1}>
             <Box p={1} color={theme.palette.primary.main}>
                 <Typography variant='h5' my={2} textAlign='center'>

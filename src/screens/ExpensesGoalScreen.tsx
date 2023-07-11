@@ -1,5 +1,4 @@
 import { Box, Button, Tab, Tabs, Typography } from '@mui/material'
-import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
@@ -7,9 +6,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
 
 import { formatCurrency } from '../helpers/currencies'
-import { deepEqual } from '../helpers/deepEqual'
 import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
-import { useWidth, widthOneOf } from '../helpers/useWidth'
+import { screenWidthIs } from '../helpers/useWidth'
 import { AppState } from '../model/appState'
 import { CurrenciesModel } from '../model/currencies'
 import { GoalsModel } from '../model/goals'
@@ -26,38 +24,35 @@ import { OpsList } from '../widgets/operations/OpsList'
 import { ExpensesGoalsScreenBody } from './ExpensesGoalsScreen'
 import { OperationScreenBody } from './OperationScreen'
 
-type OnSaveType = (() => void) | null | undefined
-
 export function ExpensesGoalScreen (): ReactElement {
-    const bigScreen = !widthOneOf(useWidth(), ['xs', 'sm'])
-    const [onSave, setOnSave] = useState<OnSaveType>(null)
+    const appState = AppState.instance()
+    const smallScreen = screenWidthIs('xs', 'sm')
+    const navigate = useNavigate()
 
-    return <MainScreen
-        navigateOnBack='/goals'
-        title='Expenses goal'
-        onSave={onSave}
-    >
+    useEffect(() => {
+        appState.setOnClose(() => {
+            navigate('/goals')
+        })
+    }, [])
+
+    return <MainScreen>
         {
-            bigScreen
-                ? <PanelGroup direction='horizontal'>
+            smallScreen
+                ? <ExpensesGoalScreenBody/>
+                : <PanelGroup direction='horizontal'>
                     <Panel>
-                        <ExpensesGoalsScreenBody />
+                        <ExpensesGoalsScreenBody noFab />
                     </Panel>
                     <ResizeHandle />
                     <Panel>
-                        <ExpensesGoalScreenBody setOnSave={(onSave: OnSaveType) => { setOnSave((): OnSaveType => onSave) }}/>
+                        <ExpensesGoalScreenBody/>
                     </Panel>
                 </PanelGroup>
-                : <ExpensesGoalScreenBody setOnSave={(onSave: OnSaveType) => { setOnSave((): OnSaveType => onSave) }}/>
         }
     </MainScreen>
 }
 
-interface Props {
-    setOnSave: (onSave: OnSaveType) => void
-}
-
-export const ExpensesGoalScreenBody = observer((props: Props): ReactElement => {
+export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (): ReactElement {
     const appState = AppState.instance()
     const currenciesModel = CurrenciesModel.instance()
     const goalsModel = GoalsModel.instance()
@@ -78,23 +73,8 @@ export const ExpensesGoalScreenBody = observer((props: Props): ReactElement => {
     const [goal, setGoal] = useState<ExpensesGoal | null>(null)
     const [newGoal, setNewGoal] = useState<ExpensesGoal | null>(null)
     const [opModalTitle, setOpModalTitle] = useState('')
-    const [opModalOnSave, setOpModalOnSave] = useState<(() => Promise<void>) | null | undefined>(null)
 
     const newGoalNameTrimmed = newGoal?.name.trim()
-
-    const nameCollision = run(() => {
-        if (
-            goal === null ||
-            newGoal === null ||
-            newGoalNameTrimmed === undefined ||
-            newGoal.name === goal.name
-        ) {
-            return false
-        }
-
-        const collision = goalsModel.get(newGoalNameTrimmed)
-        return collision !== null && collision.deleted !== true
-    })
 
     useEffect(
         () => {
@@ -112,45 +92,9 @@ export const ExpensesGoalScreenBody = observer((props: Props): ReactElement => {
         ]
     )
 
-    useEffect(
-        () => {
-            if (
-                goal === null ||
-                newGoal === null ||
-                newGoalNameTrimmed === undefined
-            ) {
-                return
-            }
-
-            if (
-                deepEqual(goal, newGoal) ||
-                newGoalNameTrimmed === '' ||
-                nameCollision
-            ) {
-                props.setOnSave(null)
-                return
-            }
-
-            props.setOnSave(() => {
-                runAsync(async () => {
-                    const g = { ...newGoal, name: newGoalNameTrimmed, lastModified: DateTime.utc() }
-                    await goalsModel.put(g)
-                    if (goal.name !== g.name) {
-                        await goalsModel.put({ ...goal, deleted: true })
-                        navigate(`/goals/${encodeURIComponent(g.name)}`)
-                    } else {
-                        setGoal(g)
-                    }
-                })
-            })
-        },
-        [
-            goal,
-            newGoal,
-            newGoalNameTrimmed,
-            nameCollision
-        ]
-    )
+    useEffect(() => {
+        appState.setSubTitle(`Goals :: ${newGoal?.name ?? 'loading...'}`)
+    }, [newGoal?.name])
 
     if (
         goal === null ||
@@ -195,7 +139,7 @@ export const ExpensesGoalScreenBody = observer((props: Props): ReactElement => {
                             .with('stats', () => <ExpensesStatsWidget currency={newGoal.currency} stats={stats} />)
                             .with('modify', () => {
                                 return <>
-                                    <ExpensesGoalEditor origName={goal.name} goal={newGoal} onChange={setNewGoal} />
+                                    <ExpensesGoalEditor goal={newGoal} onChange={setNewGoal} />
                                     <Button
                                         variant='contained'
                                         fullWidth
@@ -208,7 +152,7 @@ export const ExpensesGoalScreenBody = observer((props: Props): ReactElement => {
                                             })
                                         }}
                                     >
-                                Delete
+                                        {'Delete'}
                                     </Button>
                                 </>
                             })
@@ -221,31 +165,21 @@ export const ExpensesGoalScreenBody = observer((props: Props): ReactElement => {
                             />)
                             .otherwise(() => { throw Error('Unimplenented tab') })
                     }
-                    <Box minHeight={72}/>
+                    <Box minHeight={80}/>
                 </Box>
             </Box>
         </Column>
         {
             showIfLazy(opId !== null, () => {
                 return <FullScreenModal
+                    width={'850px'}
                     title={opModalTitle}
                     onClose={() => { navigate(`/goals/${goalName}/operations`) }}
-                    onSave={opModalOnSave}
                 >
                     <Box p={1}>
                         <OperationScreenBody
                             opId={opId ?? ''}
-                            setTitle={setOpModalTitle}
-                            setOnSave={(onSave) => {
-                                if (onSave === null || onSave === undefined) {
-                                    setOpModalOnSave(onSave)
-                                    return
-                                }
-
-                                setOpModalOnSave(() => {
-                                    return onSave
-                                })
-                            }}
+                            setModalTitle={setOpModalTitle}
                         />
                     </Box>
                 </FullScreenModal>

@@ -2,9 +2,9 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Fab } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useState } from 'react'
-import { match } from 'ts-pattern'
+import React, { type ReactElement, useEffect, useState } from 'react'
 
+import { AppState } from '../model/appState'
 import { GoalsModel } from '../model/goals'
 import { AddExpensesGoalModal } from '../widgets/expenses/editors/AddExpensesGoalModal'
 import { ExpensesCardSkeleton } from '../widgets/expenses/ExpensesCard'
@@ -13,12 +13,23 @@ import { Column } from '../widgets/generic/Containers'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 export function ExpensesGoalsScreen (): ReactElement {
+    const appState = AppState.instance()
+
+    useEffect(() => {
+        appState.setSubTitle('Goals')
+        appState.setOnClose(null)
+    }, [])
+
     return <MainScreen>
         <ExpensesGoalsScreenBody />
     </MainScreen>
 }
 
-export const ExpensesGoalsScreenBody = observer((): ReactElement => {
+interface ExpensesGoalsScreenBodyProps {
+    noFab?: boolean
+}
+
+export const ExpensesGoalsScreenBody = observer(({ noFab }: ExpensesGoalsScreenBodyProps): ReactElement => {
     const goalsModel = GoalsModel.instance()
 
     const [add, setAdd] = useState(false)
@@ -29,23 +40,24 @@ export const ExpensesGoalsScreenBody = observer((): ReactElement => {
 
     return <>
         {
-            match(add)
-                .with(
-                    true, () => <AddExpensesGoalModal
-                        onClose={() => { setAdd(false) }}
-                    />
-                )
-                .otherwise(
-                    () => <Fab
-                        color='primary'
-                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                        onClick={() => { setAdd(true) }}
-                    >
-                        <FontAwesomeIcon icon={faPlus} />
-                    </Fab>
-                )
+            add
+                ? <AddExpensesGoalModal
+                    onClose={() => { setAdd(false) }}
+                />
+                : undefined
         }
-        <Box p={1}>
+        {
+            add || noFab === true
+                ? undefined
+                : <Fab
+                    color='primary'
+                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                    onClick={() => { setAdd(true) }}
+                >
+                    <FontAwesomeIcon icon={faPlus} />
+                </Fab>
+        }
+        <Box p={1} height={'100%'} overflow={'auto'}>
             <Box maxWidth={900} mx='auto'>
                 <ExpensesList items={goalsModel.goals.filter(i => i.deleted !== true)}/>
                 <Box minHeight={144}/>

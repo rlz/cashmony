@@ -1,6 +1,6 @@
 import { faArrowRightLong } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Box, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import { Box, Button, Divider, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
@@ -8,8 +8,11 @@ import React, { type ReactElement, useState } from 'react'
 import Calendar from 'react-calendar'
 
 import { utcDate } from '../helpers/dates'
+import { showIf } from '../helpers/smallTools'
+import { screenWidthIs } from '../helpers/useWidth'
 import { AppState } from '../model/appState'
 import { FullScreenModal } from './FullScreenModal'
+import { Row } from './generic/Containers'
 
 const appState = AppState.instance()
 
@@ -216,19 +219,13 @@ interface CustomSelectorProps {
 function CustomSelector (props: CustomSelectorProps): ReactElement {
     const today = appState.today
     const [period, setPeriod] = useState<[DateTime, DateTime] | null>(null)
+    const smallScreen = screenWidthIs('xs', 'sm')
 
     return <FullScreenModal
         title='Select period'
         onClose={props.onClose}
-        onSave={period === null
-            ? null
-            : () => {
-                props.onPeriodSelected(...period)
-                props.onClose()
-            }
-        }
     >
-        <Box p={1}>
+        <Box p={1} mb={1}>
             <Calendar
                 selectRange
                 maxDate={today.toJSDate()}
@@ -238,5 +235,21 @@ function CustomSelector (props: CustomSelectorProps): ReactElement {
                 }}
             />
         </Box>
+        { showIf(!smallScreen, <Divider/>) }
+        <Row p={1} justifyContent={smallScreen ? 'center' : 'end'}>
+            <Button
+                color='primary'
+                variant='contained'
+                disabled={period === null}
+                onClick={() => {
+                    if (period !== null) {
+                        props.onPeriodSelected(...period)
+                        props.onClose()
+                    }
+                }}
+            >
+                {'Save'}
+            </Button>
+        </Row>
     </FullScreenModal>
 }

@@ -1,18 +1,20 @@
 import { faBullseye, faList, faShapes, faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { BottomNavigation, BottomNavigationAction } from '@mui/material'
+import { BottomNavigation, BottomNavigationAction, type SxProps } from '@mui/material'
 import React, { type ReactElement } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { match, P } from 'ts-pattern'
 
-import { useWidth, widthOneOf } from '../../helpers/useWidth'
+import { screenWidthIs } from '../../helpers/useWidth'
 
 type Tabs = 'o' | 'c' | 'g' | 'a' | null
+
+const FIXED_BOTTON_NAVIGATION_STYLE: SxProps = { position: 'fixed', bottom: 0, left: 0, right: 0 }
 
 export function MainBottomNavigation (): ReactElement {
     const loc = useLocation()
     const nav = useNavigate()
-    const fixed = widthOneOf(useWidth(), ['xs', 'sm'])
+    const smallScreen = screenWidthIs('xs', 'sm')
 
     const active = match<string, Tabs>(loc.pathname)
         .with(P.string.startsWith('/operations'), () => 'o')
@@ -25,7 +27,7 @@ export function MainBottomNavigation (): ReactElement {
     return <BottomNavigation
         showLabels
         value={active}
-        sx={() => fixed ? { position: 'fixed', bottom: 0, left: 0, right: 0 } : {}}
+        sx={smallScreen ? FIXED_BOTTON_NAVIGATION_STYLE : undefined}
     >
         <BottomNavigationAction
             value='o'

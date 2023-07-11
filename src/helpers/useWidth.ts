@@ -12,6 +12,7 @@ export function useWidth (): Breakpoint {
     return key ?? 'xs'
 }
 
-export function widthOneOf (width: Breakpoint, breakpoints: Breakpoint[]): boolean {
+export function screenWidthIs (...breakpoints: Breakpoint[]): boolean {
+    const width = useWidth()
     return breakpoints.some(i => i === width)
 }

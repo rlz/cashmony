@@ -1,7 +1,9 @@
+import { faCheck } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Skeleton, Typography, useTheme } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useEffect, useState } from 'react'
+import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
@@ -11,12 +13,13 @@ import { formatCurrency } from '../helpers/currencies'
 import { utcToday } from '../helpers/dates'
 import { deepEqual } from '../helpers/deepEqual'
 import { runAsync } from '../helpers/smallTools'
-import { useWidth, widthOneOf } from '../helpers/useWidth'
+import { screenWidthIs } from '../helpers/useWidth'
 import { AccountsModel } from '../model/accounts'
 import { AppState } from '../model/appState'
 import { CurrenciesModel } from '../model/currencies'
 import { type AdjustmentOperation, type DeletedOperation, type ExpenseOperation, type IncomeOperation, type NotDeletedOperation, type Operation, type TransferOperation } from '../model/model'
 import { OperationsModel } from '../model/operations'
+import { ActionFab } from '../widgets/generic/ActionButton'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
 import { PBody2 } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
@@ -29,7 +32,6 @@ import { DateEditor } from '../widgets/operations/editors/DateEditor'
 import { TagsEditor } from '../widgets/operations/editors/TagsEditor'
 import { OpsList } from '../widgets/operations/OpsList'
 
-type OnSaveType = (() => Promise<void>) | null | undefined
 const OPS_LIST_SX = { p: 1, overflow: 'auto', height: '100%' }
 
 const appState = AppState.instance()
@@ -43,12 +45,16 @@ type PartialOperation =
     Omit<AdjustmentOperation, 'account'>
 
 export function OperationScreen (): ReactElement {
-    const navigate = useNavigate()
     const location = useLocation()
+    const navigate = useNavigate()
     const pathParams = useParams()
-    const showOps = !widthOneOf(useWidth(), ['xs', 'sm'])
-    const [title, setTitle] = useState('')
-    const [onSave, setOnSave] = useState<OnSaveType>(null)
+    const smallScreen = screenWidthIs('xs', 'sm')
+
+    useEffect(() => {
+        appState.setOnClose(() => {
+            navigate('/operations')
+        })
+    }, [])
 
     const opId = match(location.pathname)
         .with('/new-op/expense', () => 'new-expense')
@@ -56,37 +62,16 @@ export function OperationScreen (): ReactElement {
         .with('/new-op/transfer', () => 'new-transfer')
         .otherwise(() => pathParams.opId ?? '')
 
-    const body = <OperationScreenBody
-        opId={opId}
-        setTitle={setTitle}
-        setOnSave={(onSave) => {
-            setOnSave(() => {
-                if (onSave === null || onSave === undefined) {
-                    return onSave
-                }
+    const body = <OperationScreenBody opId={opId}/>
 
-                return async () => {
-                    await onSave()
-                    if (!showOps) {
-                        navigate('/operations')
-                    }
-                }
-            })
-        }}
-    />
-
-    return <MainScreen
-        title={title}
-        navigateOnBack='/operations'
-        onSave={onSave}
-    >
+    return <MainScreen>
         {
-            showOps
+            !smallScreen
                 ? <PanelGroup direction='horizontal'>
                     <Panel>
                         <OpsList
                             sx={OPS_LIST_SX} /* no re-render here */
-                            noFab={location.pathname.startsWith('/new-op/')}
+                            noFab
                         />
                     </Panel>
                     <ResizeHandle/>
@@ -105,11 +90,10 @@ export function OperationScreen (): ReactElement {
 
 interface BodyProps {
     opId: string
-    setOnSave: (onSave: OnSaveType) => void
-    setTitle: (title: string) => void
+    setModalTitle?: (title: string) => void
 }
 
-export const OperationScreenBody = observer(function OperationScreenBody ({ opId, setOnSave, setTitle }: BodyProps): ReactElement {
+export const OperationScreenBody = observer(function OperationScreenBody ({ opId, setModalTitle }: BodyProps): ReactElement {
     const navigate = useNavigate()
 
     const [op, setOp] = useState<PartialOperation | DeletedOperation | null>(null)
@@ -131,6 +115,8 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
         setToAccount(null)
         setOrigToAccount(null)
 
+        const setTitle = setModalTitle !== undefined ? setModalTitle : appState.setSubTitle
+
         if (opId === 'new-expense') {
             setOp({
                 id: uuid(),
@@ -143,7 +129,8 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
                 tags: [],
                 comment: null
             })
-            setTitle('Expense')
+
+            setTitle('Operations :: new :: expense')
         } else if (opId === 'new-income') {
             setOp({
                 id: uuid(),
@@ -156,7 +143,8 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
                 tags: [],
                 comment: null
             })
-            setTitle('Income')
+
+            setTitle('Operations :: new :: income')
         } else if (opId === 'new-transfer') {
             setOp({
                 id: uuid(),
@@ -168,8 +156,11 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
                 tags: [],
                 comment: null
             })
-            setTitle('Transfer')
+
+            setTitle('Operations :: new :: transfer')
         } else {
+            setTitle('Operations :: loading...')
+
             runAsync(async (): Promise<void> => {
                 const op = await operationsModel.getOperation(opId)
                 setOp(op)
@@ -183,35 +174,31 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
                     setToAccount(op.toAccount)
                     setOrigToAccount(op.toAccount)
                 }
-                setTitle(op.type[0].toLocaleUpperCase() + op.type.substring(1))
+
+                setTitle(`Operations :: ${op.type}`)
             })
         }
-    }, [opId])
+    }, [opId, setModalTitle])
 
     useEffect(() => {
         setExpanded(location.pathname.startsWith('/new-op/') ? 'amount' : null)
     }, [location])
 
-    useEffect(
+    const onSave = useMemo(
         () => {
-            if (op?.type === 'deleted') {
-                setOnSave(undefined)
-                return
-            }
-
             if (
                 op === null ||
+                op.type === 'deleted' ||
                 op.amount === 0 ||
                 account === null ||
                 account.amount === 0 ||
                 (op.type === 'transfer' && (toAccount === null || toAccount.amount === 0)) ||
                 (deepEqual(op, origOp) && deepEqual(account, origAccount) && deepEqual(toAccount, origToAccount))
             ) {
-                setOnSave(null)
-                return
+                return null
             }
 
-            setOnSave(async () => {
+            return async () => {
                 if (op === null) {
                     throw Error('Not null op expected here')
                 }
@@ -239,7 +226,7 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
                 if (opId.startsWith('new-')) {
                     navigate(`/operations/${op.id}`)
                 }
-            })
+            }
         },
         [op, origOp, account, origAccount, toAccount, origToAccount]
     )
@@ -349,6 +336,12 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
             comment={op.comment}
             onCommentChange={comment => { setOp({ ...op, comment }) }}
         />
+        <ActionFab
+            action={onSave}
+            bottom={setModalTitle !== undefined ? '20px' : undefined}
+        >
+            <FontAwesomeIcon icon={faCheck}/>
+        </ActionFab>
         {
             location.pathname.startsWith('/new-op/')
                 ? null
@@ -367,7 +360,7 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
                     setOrigToAccount(null)
                 }} />
         }
-        <Box minHeight={72}/>
+        <Box minHeight={128}/>
     </Box>
 })
 

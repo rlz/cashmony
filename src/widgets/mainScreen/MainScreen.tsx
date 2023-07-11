@@ -1,27 +1,16 @@
 import { Box, useTheme } from '@mui/material'
+import { observer } from 'mobx-react-lite'
 import React, { type PropsWithChildren, type ReactElement } from 'react'
 
 import { Column } from '../generic/Containers'
 import { MainAppBar } from './MainAppBar'
 import { MainBottomNavigation } from './MainBottomNavigation'
 
-export type OnSaveType = (() => void) | (() => Promise<void>) | null | undefined
-
-interface Props extends PropsWithChildren {
-    title?: string
-    navigateOnBack?: string
-    onSave?: OnSaveType
-}
-
-export const MainScreen = (props: Props): ReactElement => {
+export const MainScreen = observer(function MainScreen ({ children }: PropsWithChildren): ReactElement {
     const theme = useTheme()
 
     return <Column width='100vw' height='100vh'>
-        <MainAppBar
-            title={props.title}
-            navigateOnBack={props.navigateOnBack}
-            onSave={props.onSave}
-        />
+        <MainAppBar />
         <Box
             display='flex'
             flexDirection='column'
@@ -29,8 +18,8 @@ export const MainScreen = (props: Props): ReactElement => {
             flex='1 0 0'
             bgcolor={theme.palette.background.default}
         >
-            {props.children}
+            {children}
         </Box>
         <MainBottomNavigation />
     </Column>
-}
+})

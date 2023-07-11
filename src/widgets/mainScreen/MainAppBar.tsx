@@ -1,42 +1,92 @@
-import { faBars, faCircleCheck, faCircleChevronLeft, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faBars, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { AppBar, Button, Divider, IconButton, Modal, Paper, SwipeableDrawer, Toolbar, Typography } from '@mui/material'
+import { AppBar, IconButton, SwipeableDrawer, type SxProps, Toolbar, Typography } from '@mui/material'
+import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { showIf } from '../../helpers/smallTools'
-import { useWidth, widthOneOf } from '../../helpers/useWidth'
-import { Row } from '../generic/Containers'
+import { screenWidthIs } from '../../helpers/useWidth'
+import { AppState } from '../../model/appState'
+import { FullScreenModal } from '../FullScreenModal'
+import { Column } from '../generic/Containers'
+import { DivBody2 } from '../generic/Typography'
 import { AppStateSettings } from './AppStateSettings'
 
-interface Props {
-    title?: string
-    navigateOnBack?: string
-    noSettings?: boolean
-    onBack?: () => void
-    onSave?: (() => void) | (() => Promise<void>) | null
+interface CashmonyAppBarProps {
+    modal?: boolean
+    title: string
+    subTitle: string | null
+    onSettingsClick?: () => void
+    onClose?: () => void
 }
 
-export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noSettings }: Props): ReactElement => {
-    const navigate = useNavigate()
-    const [inProgress, setInProgress] = useState(false)
-    const [settingsOpen, setSettingsOpen] = useState(false)
+const CLOSE_BTN_BIG_SCREEN: SxProps = {
+    color: 'primary.main',
+    position: 'relative',
+    left: '8px',
+    top: '64px'
+}
 
-    const width = useWidth()
+export function CashmonyAppBar (props: CashmonyAppBarProps): ReactElement {
+    const smallScreen = screenWidthIs('xs', 'sm')
 
-    if (onBack === undefined && navigateOnBack !== undefined) {
-        onBack = () => { navigate(navigateOnBack) }
-    }
+    return <AppBar position='static'>
+        <Toolbar>
+            <IconButton
+                size='large'
+                edge='start'
+                color='inherit'
+                disabled={props.onSettingsClick === undefined}
+                sx={{ visibility: props.onSettingsClick === undefined ? 'hidden' : undefined }}
+                onClick={props.onSettingsClick}
+            >
+                <FontAwesomeIcon icon={faBars}/>
+            </IconButton>
+            <Column flex='1 1 0' textAlign='center' gap={0.3}>
+                <Typography variant='h6' component='div' lineHeight={1}>
+                    {props.title}
+                </Typography>
+                {
+                    props.subTitle !== undefined
+                        ? <DivBody2 noWrap>
+                            {props.subTitle}
+                        </DivBody2>
+                        : undefined
+                }
+            </Column>
+            <IconButton
+                size='large'
+                edge='end'
+                color='inherit'
+                disabled={props.onClose === undefined}
+                sx={{
+                    ...(smallScreen || props.modal === true
+                        ? {}
+                        : CLOSE_BTN_BIG_SCREEN),
+                    visibility: props.onClose === undefined ? 'hidden' : undefined
+                }}
+                onClick={props.onClose}
+            >
+                <FontAwesomeIcon icon={faTimesCircle}/>
+            </IconButton>
+        </Toolbar>
+    </AppBar>
+}
+
+export const MainAppBar = observer(function MainAppBar (): ReactElement {
+    const appState = AppState.instance()
+    const [showSettings, setShowSettings] = useState(false)
+    const smallScreen = screenWidthIs('xs', 'sm')
 
     return <>
         {
             showIf(
-                noSettings !== true && widthOneOf(width, ['xs', 'sm']),
+                smallScreen,
                 <SwipeableDrawer
-                    open={settingsOpen}
+                    open={showSettings}
                     anchor='left'
-                    onOpen={() => { setSettingsOpen(true) }}
-                    onClose={() => { setSettingsOpen(false) }}
+                    onOpen={() => { setShowSettings(true) }}
+                    onClose={() => { setShowSettings(false) }}
                 >
                     <AppStateSettings height='100vh' width='90vw' maxWidth='20rem'/>
                 </SwipeableDrawer>
@@ -44,90 +94,21 @@ export const MainAppBar = ({ title, navigateOnBack, onBack, onSave, noSettings }
         }
         {
             showIf(
-                noSettings !== true && !widthOneOf(width, ['xs', 'sm']),
-                <Modal
-                    open={settingsOpen}
-                    onClose={() => { setSettingsOpen(false) }}
+                !smallScreen && showSettings,
+                <FullScreenModal
+                    width='600px'
+                    title='Settings'
+                    onClose={() => { setShowSettings(false) }}
                 >
-                    <Paper sx={{ width: 550, mt: 4, mx: 'auto', p: 1 }}>
-                        <AppStateSettings />
-                        <Divider sx={{ my: 1 }}/>
-                        <Row justifyContent='flex-end'>
-                            <Button onClick={() => { setSettingsOpen(false) }}>
-                                Close
-                            </Button>
-                        </Row>
-                    </Paper>
-                </Modal>
+                    <AppStateSettings />
+                </FullScreenModal>
             )
         }
-        <AppBar position='static'>
-            <Toolbar>
-                {noSettings === true
-                    ? null
-                    : <IconButton
-                        size='large'
-                        edge='start'
-                        color='inherit'
-                        sx={{ mr: 1 }}
-                        onClick={() => { setSettingsOpen(true) }}
-                    >
-                        <FontAwesomeIcon icon={faBars}/>
-                    </IconButton>
-                }
-                {
-                    onBack === undefined
-                        ? null
-                        : <IconButton
-                            size='large'
-                            edge='start'
-                            color='inherit'
-                            sx={{ mr: 1 }}
-                            onClick={onBack}
-                        >
-                            <FontAwesomeIcon icon={faCircleChevronLeft}/>
-                        </IconButton>
-
-                }
-                <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
-                    {title ?? 'Cashmony'}
-                </Typography>
-                {
-                    onSave !== undefined
-                        ? <IconButton
-                            disabled={onSave === null}
-                            size='large'
-                            edge='end'
-                            color='inherit'
-                            sx={{ ml: 1 }}
-                            onClick={() => {
-                                if (onSave === null) {
-                                    throw Error('Non null onSave expected here')
-                                }
-
-                                setInProgress(true)
-
-                                setTimeout(() => {
-                                    const ret = onSave()
-                                    if (ret !== undefined) {
-                                        void ret.then(() => {
-                                            setInProgress(false)
-                                        })
-                                    } else {
-                                        setInProgress(false)
-                                    }
-                                })
-                            }}
-                        >
-                            {
-                                inProgress
-                                    ? <FontAwesomeIcon icon={faSpinner} spinPulse />
-                                    : <FontAwesomeIcon icon={faCircleCheck}/>
-                            }
-                        </IconButton>
-                        : undefined
-                }
-            </Toolbar>
-        </AppBar>
+        <CashmonyAppBar
+            title='Cashmony'
+            subTitle={appState.topBarState.subTitle}
+            onSettingsClick={() => { setShowSettings(true) }}
+            onClose={appState.topBarState.onClose ?? undefined}
+        />
     </>
-}
+})

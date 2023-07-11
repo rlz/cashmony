@@ -1,7 +1,8 @@
 import { type SxProps } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
+import { deepEqual } from '../../helpers/deepEqual'
 import { type NotDeletedOperation } from '../../model/model'
 import { mergeTags, TagsModel } from '../../model/tags'
 import { ItemsSelect } from './ItemsSelect'
@@ -18,14 +19,24 @@ interface Props {
 }
 
 export const TagsSelect = observer((props: Props) => {
-    const tags = [
-        ...props.addedTags,
-        ...mergeTags(
-            props.categories.reduce<readonly string[]>((tags, cat) => [...tags, ...tagsModel.byCat.get(cat) ?? []], []),
-            props.opType !== null ? tagsModel[props.opType] : [],
-            tagsModel.all
-        )
-    ]
+    const [tags, setTags] = useState<string[]>([])
+
+    useEffect(
+        () => {
+            const newTags = [
+                ...props.addedTags,
+                ...mergeTags(
+                    props.categories.reduce<readonly string[]>((tags, cat) => [...tags, ...tagsModel.byCat.get(cat) ?? []], []),
+                    props.opType !== null ? tagsModel[props.opType] : [],
+                    tagsModel.all
+                )
+            ]
+            if (!deepEqual(tags, newTags)) {
+                setTags(newTags)
+            }
+        },
+        [props.addedTags]
+    )
 
     return <ItemsSelect
         items={tags}

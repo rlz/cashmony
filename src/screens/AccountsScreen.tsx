@@ -2,7 +2,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Fab, Paper, Skeleton, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useState } from 'react'
+import React, { type ReactElement, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { formatCurrency } from '../helpers/currencies'
@@ -18,10 +18,21 @@ import { DivBody1 } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 export function AccountsScreen (): ReactElement {
+    const appState = AppState.instance()
+
+    useEffect(() => {
+        appState.setSubTitle('Accounts')
+        appState.setOnClose(null)
+    }, [])
+
     return <MainScreen><AccountsScreenBody/></MainScreen>
 }
 
-export const AccountsScreenBody = observer((): ReactElement => {
+interface AccountsScreenBodyProps {
+    noFab?: boolean
+}
+
+export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps): ReactElement => {
     const [addAccount, setAddAccount] = useState(false)
     const [showHidden, setShowHidden] = useState(false)
 
@@ -67,6 +78,11 @@ export const AccountsScreenBody = observer((): ReactElement => {
                 ? <AddAccount
                     onClose={() => { setAddAccount(false) }}
                 />
+                : undefined
+        }
+        {
+            addAccount || noFab === true
+                ? undefined
                 : <Fab
                     color='primary'
                     sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
@@ -74,7 +90,6 @@ export const AccountsScreenBody = observer((): ReactElement => {
                 >
                     <FontAwesomeIcon icon={faPlus} />
                 </Fab>
-
         }
         <Box p={1} height='100%' overflow='scroll'>
             <Box maxWidth={900} mx='auto'>

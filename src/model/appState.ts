@@ -116,8 +116,12 @@ export class AppState {
         return JSON.parse(val) as Filter
     })
 
-    showGlobalCurrencySelector = false
-    showGlobalFilterEditor = false
+    topBarState = {
+        subTitle: null as string | null,
+        onClose: null as (() => void) | null,
+        showGlobalCurrencySelector: false,
+        showGlobalFilterEditor: false
+    }
 
     private constructor () {
         makeAutoObservable(this)
@@ -222,6 +226,26 @@ export class AppState {
         }
 
         return appState
+    }
+
+    public setSubTitle = (subtitle: string | null): void => {
+        runInAction(() => {
+            this.topBarState.subTitle = subtitle
+        })
+    }
+
+    public setOnClose = (action: (() => void) | null): void => {
+        runInAction(() => {
+            if (action === null) {
+                this.topBarState.onClose = null
+                return
+            }
+
+            this.topBarState.onClose = () => {
+                action()
+                this.setOnClose(null)
+            }
+        })
     }
 }
 

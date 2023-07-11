@@ -1,6 +1,6 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Box, Button, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import React, { Fragment, type ReactElement, useState } from 'react'
 
 import { deepEqual } from '../helpers/deepEqual'
@@ -23,15 +23,29 @@ export function FilterEditor (props: Props): ReactElement {
     const [filter, setFilter] = useState(props.filter)
 
     return <FullScreenModal
+        width='600px'
+        title='Global filter'
         onClose={props.onClose}
-        onSave={deepEqual(props.filter, filter) ? null : () => { props.onFilterChanged(filter); props.onClose() }}
     >
-        <Column gap={1} p={1}>
-            <SearchFilter filter={filter} setFilter={setFilter} />
-            <OpTypeFilter filter={filter} setFilter={setFilter} />
-            <CategoriesFilter filter={filter} setFilter={setFilter} />
-            <AccountsFilter filter={filter} setFilter={setFilter} />
-            <TagsFilter filter={filter} setFilter={setFilter} />
+        <Column height={'100%'} width={'100%'}>
+            <Column gap={1} p={1} overflow='auto'>
+                <SearchFilter filter={filter} setFilter={setFilter} />
+                <OpTypeFilter filter={filter} setFilter={setFilter} />
+                <CategoriesFilter filter={filter} setFilter={setFilter} />
+                <AccountsFilter filter={filter} setFilter={setFilter} />
+                <TagsFilter filter={filter} setFilter={setFilter} />
+            </Column>
+            <Box p={1}>
+                <Button
+                    color='primary'
+                    fullWidth
+                    variant='contained'
+                    disabled={deepEqual(props.filter, filter)}
+                    onClick={() => { props.onFilterChanged(filter); props.onClose() } }
+                >
+                    {'Apply'}
+                </Button>
+            </Box>
         </Column>
     </FullScreenModal>
 }
@@ -43,7 +57,7 @@ interface EditorProps {
 
 function SearchFilter ({ filter, setFilter }: EditorProps): ReactElement {
     return <FormControl variant='outlined' fullWidth>
-        <InputLabel size='small'>Search</InputLabel>
+        <InputLabel size='small'>Comment search</InputLabel>
         <OutlinedInput
             size='small'
             value={filter.search ?? ''}
@@ -99,6 +113,7 @@ function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
                 exclusive
                 size='small'
                 value={filter.categoriesMode}
+                color='primary'
                 onChange={(_, v) => {
                     if (v !== null) {
                         setFilter({ ...filter, categoriesMode: v })
@@ -159,6 +174,7 @@ function AccountsFilter ({ filter, setFilter }: EditorProps): ReactElement {
                 exclusive
                 size='small'
                 value={filter.accountsMode}
+                color='primary'
                 onChange={(_, v) => {
                     if (v !== null) {
                         setFilter({ ...filter, accountsMode: v })
@@ -214,6 +230,7 @@ function TagsFilter ({ filter, setFilter }: EditorProps): ReactElement {
                 exclusive
                 size='small'
                 value={filter.tagsMode}
+                color='primary'
                 onChange={(_, v) => {
                     if (v !== null) {
                         setFilter({ ...filter, tagsMode: v })

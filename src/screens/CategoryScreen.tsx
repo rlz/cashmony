@@ -1,6 +1,5 @@
 import { Box, Tab, Tabs, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
-import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
@@ -9,14 +8,12 @@ import { match } from 'ts-pattern'
 
 import { formatCurrency } from '../helpers/currencies'
 import { utcToday } from '../helpers/dates'
-import { deepEqual } from '../helpers/deepEqual'
-import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
-import { useWidth, widthOneOf } from '../helpers/useWidth'
+import { nonNull, run, showIfLazy } from '../helpers/smallTools'
+import { screenWidthIs } from '../helpers/useWidth'
 import { AppState } from '../model/appState'
 import { CategoriesModel } from '../model/categories'
 import { CurrenciesModel } from '../model/currencies'
-import { type Category, type Operation } from '../model/model'
-import { OperationsModel } from '../model/operations'
+import { type Category } from '../model/model'
 import { ExpensesStats, Operations } from '../model/stats'
 import { CategoryEditor } from '../widgets/expenses/editors/CategoryEditor'
 import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
@@ -26,45 +23,41 @@ import { Column } from '../widgets/generic/Containers'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
-import { CategoriesScreenBody } from './CategoriesScreen'
+import { CategoriesScreenBody, getTotalStats, getUncategorizedStats } from './CategoriesScreen'
 import { OperationScreenBody } from './OperationScreen'
 
-type OnSaveType = (() => void) | null | undefined
-
 export function CategoryScreen (): ReactElement {
-    const bigScreen = !widthOneOf(useWidth(), ['xs', 'sm'])
-    const [onSave, setOnSave] = useState<OnSaveType>(null)
+    const appState = AppState.instance()
+    const navigate = useNavigate()
+    const smallScreen = screenWidthIs('xs', 'sm')
 
-    return <MainScreen
-        navigateOnBack='/categories'
-        title='Category'
-        onSave={onSave}
-    >
+    useEffect(() => {
+        appState.setOnClose(() => {
+            navigate('/categories')
+        })
+    }, [])
+
+    return <MainScreen>
         {
-            bigScreen
-                ? <PanelGroup direction='horizontal'>
+            smallScreen
+                ? <CategoryScreenBody />
+                : <PanelGroup direction='horizontal'>
                     <Panel>
-                        <CategoriesScreenBody/>
+                        <CategoriesScreenBody noFab/>
                     </Panel>
                     <ResizeHandle />
                     <Panel>
-                        <CategoryScreenBody setOnSave={(onSave: OnSaveType) => { setOnSave((): OnSaveType => onSave) }}/>
+                        <CategoryScreenBody />
                     </Panel>
                 </PanelGroup>
-                : <CategoryScreenBody setOnSave={(onSave: OnSaveType) => { setOnSave((): OnSaveType => onSave) }}/>
         }
     </MainScreen>
 }
 
-interface Props {
-    setOnSave: (onSave: OnSaveType) => void
-}
-
-export const CategoryScreenBody = observer(({ setOnSave }: Props): ReactElement => {
+export const CategoryScreenBody = observer((): ReactElement => {
     const appState = AppState.instance()
     const currenciesModel = CurrenciesModel.instance()
     const categoriesModel = CategoriesModel.instance()
-    const operationsModel = OperationsModel.instance()
 
     const [catName, tabName, opId] = run(() => {
         const params = useParams()
@@ -82,93 +75,27 @@ export const CategoryScreenBody = observer(({ setOnSave }: Props): ReactElement 
     const [newCat, setNewCat] = useState<Category | null>(null)
     const navigate = useNavigate()
     const [opModalTitle, setOpModalTitle] = useState('')
-    const [opModalOnSave, setOpModalOnSave] = useState<(() => Promise<void>) | null | undefined>(null)
 
     const currency = newCat?.currency ?? appState.masterCurrency
 
-    useEffect(
-        () => {
-            if (
-                cat === null ||
-                newCat === null ||
-                currenciesModel.rates === null
-            ) {
-                return
-            }
+    useEffect(() => {
+        if (cat === null) {
+            appState.setSubTitle('Category :: loading...')
+        } else {
+            const name = match(catName)
+                .with('_', () => 'Uncategorized')
+                .with('_total', () => 'Total')
+                .otherwise(() => catName)
 
-            if (
-                deepEqual(cat, newCat) ||
-                newCat.name.trim() === '' ||
-                (
-                    newCat.name !== cat.name &&
-                    categoriesModel.categories.has(newCat.name) &&
-                    categoriesModel.get(newCat.name).deleted !== true
-                )
-            ) {
-                setOnSave(null)
-                return
-            }
-
-            setOnSave(() => {
-                runAsync(
-                    async () => {
-                        if (catName === '_') {
-                            runInAction(() => {
-                                appState.uncategorizedGoalAmount = newCat.perDayAmount === undefined ? null : newCat.perDayAmount
-                                appState.uncategorizedGoalCurrency = newCat.currency ?? 'USD'
-                            })
-                        } else if (catName === '_total') {
-                            runInAction(() => {
-                                appState.totalGoalAmount = newCat.perDayAmount === undefined ? null : newCat.perDayAmount
-                                appState.totalGoalCurrency = newCat.currency ?? 'USD'
-                            })
-                        } else {
-                            await categoriesModel.put({ ...newCat, lastModified: DateTime.utc() })
-                        }
-
-                        if (newCat.name !== cat.name) {
-                            const changedOps: Operation[] = []
-                            for (const op of operationsModel.operations) {
-                                if (
-                                    (op.type === 'expense' || op.type === 'income') &&
-                            op.categories.find((c) => c.name === cat.name) !== undefined
-                                ) {
-                                    changedOps.push({
-                                        ...op,
-                                        lastModified: DateTime.utc(),
-                                        categories: op.categories.map(c => {
-                                            return {
-                                                ...c,
-                                                name: c.name === cat.name ? newCat.name : cat.name
-                                            }
-                                        })
-                                    })
-                                }
-                            }
-                            await operationsModel.put(changedOps)
-                            await categoriesModel.put({ ...cat, deleted: true, lastModified: DateTime.utc() })
-                            navigate(`/categories/${encodeURIComponent(newCat.name)}`)
-                        }
-
-                        setCat(newCat)
-                    }
-                )
-            })
-        },
-        [
-            cat,
-            newCat
-        ]
-    )
+            appState.setSubTitle(`Category :: ${name}`)
+        }
+    }, [cat])
 
     useEffect(
         () => {
             if (catName === '_' || catName === '_total') {
                 const category: Category = {
-                    name: match(catName)
-                        .with('_', () => 'Uncategorized')
-                        .with('_total', () => 'Total')
-                        .exhaustive(),
+                    name: catName,
                     lastModified: DateTime.utc(),
                     perDayAmount: run(() => {
                         const v = match(catName)
@@ -209,15 +136,9 @@ export const CategoryScreenBody = observer(({ setOnSave }: Props): ReactElement 
         return <ExpensesGroupScreenSkeleton />
     }
 
-    const stats = match(catName)
-        .with('_total', () => new ExpensesStats(
-            Operations.forFilter(appState.filter),
-            match(appState.totalGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.totalGoalCurrency } })
-        ))
-        .with('_', () => new ExpensesStats(
-            Operations.forFilter(appState.filter).onlyUncategorized(),
-            match(appState.uncategorizedGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.uncategorizedGoalCurrency } })
-        ))
+    const stats = match<string, ExpensesStats>(catName)
+        .with('_total', () => getTotalStats())
+        .with('_', () => getUncategorizedStats())
         .otherwise(() => new ExpensesStats(
             Operations.forFilter(appState.filter).keepTypes('expense', 'income').keepCategories(cat.name).skipUncategorized(),
             match(newCat.perDayAmount).with(undefined, () => null).otherwise(v => { return { value: -v, currency: newCat.currency ?? '' } })
@@ -231,7 +152,13 @@ export const CategoryScreenBody = observer(({ setOnSave }: Props): ReactElement 
         <Column height='100%'>
             <Box p={1}>
                 <Typography variant='h6' textAlign='center' mt={1}>
-                    {newCat.name.trim() === '' ? '-' : newCat.name}
+                    {
+                        match(newCat.name.trim())
+                            .with('', () => '-')
+                            .with('_', () => 'Uncategorized')
+                            .with('_total', () => 'Total')
+                            .otherwise(v => v)
+                    }
                 </Typography>
                 <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
                     {cur(-stats.amountTotal(appState.timeSpan, currency))}
@@ -251,9 +178,10 @@ export const CategoryScreenBody = observer(({ setOnSave }: Props): ReactElement 
                         match(tabName)
                             .with('stats', () => <ExpensesStatsWidget currency={currency} stats={stats} />)
                             .with('modify', () => <CategoryEditor
-                                origCatName={cat.name}
-                                cat={newCat}
-                                onChange={setNewCat}
+                                origCat={cat}
+                                newCat={newCat}
+                                setCat={setCat}
+                                setNewCat={setNewCat}
                             />)
                             .with('operations', () => <OpsList
                                 noFab
@@ -271,24 +199,14 @@ export const CategoryScreenBody = observer(({ setOnSave }: Props): ReactElement 
         {
             showIfLazy(opId !== null, () => {
                 return <FullScreenModal
+                    width={'850px'}
                     title={opModalTitle}
                     onClose={() => { navigate(`/categories/${catName}/operations`) }}
-                    onSave={opModalOnSave}
                 >
                     <Box p={1}>
                         <OperationScreenBody
                             opId={opId ?? ''}
-                            setTitle={setOpModalTitle}
-                            setOnSave={(onSave) => {
-                                if (onSave === null || onSave === undefined) {
-                                    setOpModalOnSave(onSave)
-                                    return
-                                }
-
-                                setOpModalOnSave(() => {
-                                    return onSave
-                                })
-                            }}
+                            setModalTitle={setOpModalTitle}
                         />
                     </Box>
                 </FullScreenModal>

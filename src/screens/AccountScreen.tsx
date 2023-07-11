@@ -1,4 +1,4 @@
-import { faChevronDown, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faChevronDown, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Box, Button, FormControlLabel, Skeleton, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
@@ -12,7 +12,7 @@ import { v1 as uuid } from 'uuid'
 import { formatCurrency } from '../helpers/currencies'
 import { deepEqual } from '../helpers/deepEqual'
 import { nonNull, run, showIfLazy } from '../helpers/smallTools'
-import { useWidth, widthOneOf } from '../helpers/useWidth'
+import { screenWidthIs } from '../helpers/useWidth'
 import { AccountsModel } from '../model/accounts'
 import { AppState } from '../model/appState'
 import { type Account, type Operation } from '../model/model'
@@ -22,9 +22,10 @@ import { AccPlot } from '../widgets/AccountPlots'
 import { CurrencyInput } from '../widgets/CurrencyInput'
 import { DeleteAccount } from '../widgets/DeleteAccount'
 import { FullScreenModal } from '../widgets/FullScreenModal'
+import { ActionFab } from '../widgets/generic/ActionButton'
 import { Column } from '../widgets/generic/Containers'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
-import { MainScreen, type OnSaveType } from '../widgets/mainScreen/MainScreen'
+import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
 import { AccountsScreenBody } from './AccountsScreen'
 import { OperationScreenBody } from './OperationScreen'
@@ -34,35 +35,33 @@ const accountsModel = AccountsModel.instance()
 const operationsModel = OperationsModel.instance()
 
 export function AccountScreen (): ReactElement {
-    const bigScreen = !widthOneOf(useWidth(), ['xs', 'sm'])
-    const [onSave, setOnSave] = useState<OnSaveType>(null)
+    const navigate = useNavigate()
+    const smallScreen = screenWidthIs('xs', 'sm')
 
-    return <MainScreen
-        navigateOnBack='/accounts'
-        title='Account'
-        onSave={onSave}
-    >
+    useEffect(() => {
+        appState.setOnClose(() => {
+            navigate('/accounts')
+        })
+    }, [])
+
+    return <MainScreen>
         {
-            bigScreen
+            !smallScreen
                 ? <PanelGroup direction='horizontal'>
                     <Panel>
-                        <AccountsScreenBody/>
+                        <AccountsScreenBody noFab/>
                     </Panel>
                     <ResizeHandle />
                     <Panel>
-                        <AccountScreenBody setOnSave={(onSave: OnSaveType) => { setOnSave((): OnSaveType => onSave) }}/>
+                        <AccountScreenBody />
                     </Panel>
                 </PanelGroup>
-                : <AccountScreenBody setOnSave={(onSave: OnSaveType) => { setOnSave((): OnSaveType => onSave) }}/>
+                : <AccountScreenBody />
         }
     </MainScreen>
 }
 
-interface Props {
-    setOnSave: (onSave: OnSaveType) => void
-}
-
-export const AccountScreenBody = observer(({ setOnSave }: Props) => {
+export const AccountScreenBody = observer(() => {
     const [accName, tabName, opId] = run(() => {
         const params = useParams()
         const accName = nonNull(params.accName, 'accName expected here')
@@ -78,8 +77,8 @@ export const AccountScreenBody = observer(({ setOnSave }: Props) => {
     const [acc, setAcc] = useState<Account | null>(null)
     const [newAcc, setNewAcc] = useState<Account | null>(null)
     const navigate = useNavigate()
+
     const [opModalTitle, setOpModalTitle] = useState('')
-    const [opModalOnSave, setOpModalOnSave] = useState<(() => Promise<void>) | null | undefined>(null)
 
     useEffect(() => {
         if (accountsModel.accounts === null) {
@@ -90,6 +89,10 @@ export const AccountScreenBody = observer(({ setOnSave }: Props) => {
         setAcc(account)
         setNewAcc(account)
     }, [accName, accountsModel.accounts])
+
+    useEffect(() => {
+        appState.setSubTitle(`Accounts :: ${newAcc?.name ?? 'Loading...'}`)
+    }, [newAcc?.name])
 
     const [perDayAmount, totalAmount] = useMemo(() => {
         if (accountsModel.amounts === null) {
@@ -106,62 +109,6 @@ export const AccountScreenBody = observer(({ setOnSave }: Props) => {
 
         return [perDayAmount, totalAmount]
     }, [accName, accountsModel.amounts, appState.timeSpanInfo])
-
-    useEffect(
-        () => {
-            if (
-                acc === null ||
-                newAcc === null ||
-                accountsModel.accounts === null
-            ) {
-                return
-            }
-
-            if (
-                deepEqual(acc, newAcc) ||
-                newAcc.name.trim() === '' ||
-            (
-                newAcc.name !== acc.name &&
-                accountsModel.accounts.has(newAcc.name) &&
-                accountsModel.get(newAcc.name).deleted !== true
-            )
-            ) {
-                setOnSave(null)
-                return
-            }
-
-            setOnSave(async () => {
-                await accountsModel.put({ ...newAcc, lastModified: DateTime.utc() })
-
-                if (newAcc.name !== acc.name) {
-                    const changedOps: Operation[] = []
-                    for (const op of operationsModel.operations) {
-                        if (
-                            (op.type !== 'deleted') &&
-                        op.account.name === acc.name
-                        ) {
-                            changedOps.push({
-                                ...op,
-                                lastModified: DateTime.utc(),
-                                account: {
-                                    ...op.account,
-                                    name: newAcc.name
-                                }
-                            })
-                        }
-                    }
-                    await operationsModel.put(changedOps)
-                    await accountsModel.put({ ...acc, deleted: true, lastModified: DateTime.utc() })
-                    navigate(`/accounts/${encodeURIComponent(newAcc.name)}`)
-                }
-            })
-        },
-        [
-            acc,
-            newAcc,
-            accountsModel.accounts
-        ]
-    )
 
     if (
         acc === null ||
@@ -211,24 +158,14 @@ export const AccountScreenBody = observer(({ setOnSave }: Props) => {
         {
             showIfLazy(opId !== null, () => {
                 return <FullScreenModal
+                    width={'850px'}
                     title={opModalTitle}
                     onClose={() => { navigate(`/accounts/${accName}/operations`) }}
-                    onSave={opModalOnSave}
                 >
                     <Box p={1}>
                         <OperationScreenBody
                             opId={opId ?? ''}
-                            setTitle={setOpModalTitle}
-                            setOnSave={(onSave) => {
-                                if (onSave === null || onSave === undefined) {
-                                    setOpModalOnSave(onSave)
-                                    return
-                                }
-
-                                setOpModalOnSave(() => {
-                                    return onSave
-                                })
-                            }}
+                            setModalTitle={setOpModalTitle}
                         />
                     </Box>
                 </FullScreenModal>
@@ -278,11 +215,62 @@ interface EditorProps {
 }
 
 function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
+    const navigate = useNavigate()
     const [open, setOpen] = useState<'name' | 'goal' | null>(null)
     const amount = accountsModel.getAmounts(appState.today).get(acc.name) ?? 0
     const [adjustedAmount, setAdjustedAmount] = useState(amount)
     const [adjInProgress, setAdjInProgress] = useState(false)
     const [delOpen, setDelOpen] = useState(false)
+
+    const onSave = useMemo(
+        () => {
+            if (
+                acc === null ||
+                newAcc === null ||
+                accountsModel.accounts === null ||
+                deepEqual(acc, newAcc) ||
+                newAcc.name.trim() === '' ||
+                (
+                    newAcc.name !== acc.name &&
+                    accountsModel.accounts.has(newAcc.name) &&
+                    accountsModel.get(newAcc.name).deleted !== true
+                )
+            ) {
+                return null
+            }
+
+            return async () => {
+                await accountsModel.put({ ...newAcc, lastModified: DateTime.utc() })
+
+                if (newAcc.name !== acc.name) {
+                    const changedOps: Operation[] = []
+                    for (const op of operationsModel.operations) {
+                        if (
+                            (op.type !== 'deleted') &&
+                        op.account.name === acc.name
+                        ) {
+                            changedOps.push({
+                                ...op,
+                                lastModified: DateTime.utc(),
+                                account: {
+                                    ...op.account,
+                                    name: newAcc.name
+                                }
+                            })
+                        }
+                    }
+                    await operationsModel.put(changedOps)
+                    await accountsModel.put({ ...acc, deleted: true, lastModified: DateTime.utc() })
+                    navigate(`/accounts/${encodeURIComponent(newAcc.name)}`)
+                }
+            }
+        },
+        [
+            acc,
+            newAcc,
+            accountsModel.accounts
+        ]
+    )
 
     return <Box mt={1}>
         <Accordion
@@ -382,6 +370,9 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
                 label='Hidden'
             />
         </Box>
+        <ActionFab action={onSave}>
+            <FontAwesomeIcon icon={faCheck}/>
+        </ActionFab>
         <Button
             variant='contained'
             color='error'

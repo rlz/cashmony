@@ -4,7 +4,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Fab } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useState } from 'react'
+import React, { type ReactElement, useEffect, useState } from 'react'
 import { match } from 'ts-pattern'
 
 import { run, showIf } from '../helpers/smallTools'
@@ -17,15 +17,24 @@ import { ExpensesList } from '../widgets/expenses/ExpensesList'
 import { Bold, Italic } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
-export const CategoriesScreen = observer((): ReactElement => {
+export const CategoriesScreen = observer(function CategoriesScreen (): ReactElement {
+    const appState = AppState.instance()
+
+    useEffect(() => {
+        appState.setSubTitle('Categories')
+        appState.setOnClose(null)
+    }, [])
+
     return <MainScreen>
         <CategoriesScreenBody />
     </MainScreen>
 })
-CategoriesScreen.displayName = 'CategoriesScreen'
 
-export const CategoriesScreenBody = observer((): ReactElement => {
-    const appState = AppState.instance()
+interface CategoriesScreenBodyProps {
+    noFab?: boolean
+}
+
+export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyProps): ReactElement => {
     const categoriesModel = CategoriesModel.instance()
 
     const [addCategory, setAddCategory] = useState(false)
@@ -37,34 +46,35 @@ export const CategoriesScreenBody = observer((): ReactElement => {
 
     return <>
         {
-            match(addCategory)
-                .with(
-                    true, () => <AddCategory
-                        onClose={() => { setAddCategory(false) }}
-                    />
-                )
-                .otherwise(
-                    () => <Fab
-                        color='primary'
-                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                        onClick={() => { setAddCategory(true) }}
-                    >
-                        <FontAwesomeIcon icon={faPlus} />
-                    </Fab>
-                )
+            addCategory
+                ? <AddCategory
+                    onClose={() => { setAddCategory(false) }}
+                />
+                : undefined
+        }
+        {
+            addCategory || noFab === true
+                ? null
+                : <Fab
+                    color='primary'
+                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                    onClick={() => { setAddCategory(true) }}
+                >
+                    <FontAwesomeIcon icon={faPlus} />
+                </Fab>
         }
         <Box p={1} height='100%' overflow='scroll'>
             <Box maxWidth={900} mx='auto'>
                 <ExpensesCard
                     url='/categories/_total'
                     name={<Bold>Total</Bold>}
-                    stats={new ExpensesStats(Operations.forFilter(appState.filter), null)}
+                    stats={getTotalStats()}
                     sx={{ mb: 1 }}
                 />
                 <ExpensesList items={cats}/>
                 {
                     run(() => {
-                        const stats = new ExpensesStats(Operations.forFilter(appState.filter).onlyUncategorized(), null)
+                        const stats = getUncategorizedStats()
                         return showIf(
                             stats.operations.count() > 0,
                             <ExpensesCard
@@ -81,3 +91,21 @@ export const CategoriesScreenBody = observer((): ReactElement => {
     </>
 })
 CategoriesScreenBody.displayName = 'CategoriesScreenBody'
+
+export function getTotalStats (): ExpensesStats {
+    const appState = AppState.instance()
+
+    return new ExpensesStats(
+        Operations.forFilter(appState.filter),
+        match(appState.totalGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.totalGoalCurrency } })
+    )
+}
+
+export function getUncategorizedStats (): ExpensesStats {
+    const appState = AppState.instance()
+
+    return new ExpensesStats(
+        Operations.forFilter(appState.filter).onlyUncategorized(),
+        match(appState.uncategorizedGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.uncategorizedGoalCurrency } })
+    )
+}
