@@ -35,7 +35,7 @@ export const TagsSelect = observer((props: Props) => {
                 setTags(newTags)
             }
         },
-        [props.addedTags]
+        [props.addedTags, props.categories, tagsModel.all, props.opType]
     )
 
     return <ItemsSelect
