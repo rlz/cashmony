@@ -95,6 +95,7 @@ interface BodyProps {
 
 export const OperationScreenBody = observer(function OperationScreenBody ({ opId, setModalTitle }: BodyProps): ReactElement {
     const navigate = useNavigate()
+    const smallScreen = screenWidthIs('xs', 'sm')
 
     const [op, setOp] = useState<PartialOperation | DeletedOperation | null>(null)
     const [origOp, setOrigOp] = useState<PartialOperation | DeletedOperation | null>(null)
@@ -221,14 +222,16 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
                 setOrigAccount(account)
                 setOrigToAccount(toAccount)
 
-                console.log(opId)
-
                 if (opId.startsWith('new-')) {
-                    navigate(`/operations/${op.id}`)
+                    if (smallScreen) {
+                        navigate('/operations')
+                    } else {
+                        navigate(`/operations/${op.id}`)
+                    }
                 }
             }
         },
-        [op, origOp, account, origAccount, toAccount, origToAccount]
+        [op, origOp, account, origAccount, toAccount, origToAccount, smallScreen]
     )
 
     if (
@@ -358,6 +361,10 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
                     setOrigAccount(null)
                     setToAccount(null)
                     setOrigToAccount(null)
+
+                    if (smallScreen && setModalTitle === undefined) {
+                        navigate('/operations')
+                    }
                 }} />
         }
         <Box minHeight={128}/>
