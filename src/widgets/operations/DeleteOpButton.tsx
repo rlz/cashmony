@@ -8,7 +8,7 @@ const Transition = React.forwardRef(function Transition (
     },
     ref: React.Ref<unknown>
 ) {
-    return <Slide direction='down' ref={ref} {...props} />
+    return <Slide direction={'down'} ref={ref} {...props} />
 })
 
 interface Props {
@@ -19,20 +19,20 @@ export function DeleteOpButton ({ onDelete }: Props): ReactElement {
     const [open, setOpen] = React.useState(false)
 
     return <>
-        <Button sx={{ mt: 2 }} color='error' fullWidth variant='contained' onClick={() => { setOpen(true) }}>Delete</Button>
+        <Button sx={{ mt: 2 }} color={'error'} fullWidth variant={'contained'} onClick={() => { setOpen(true) }}>{'Delete'}</Button>
         <Dialog
             open={open}
             TransitionComponent={Transition}
             keepMounted
             onClose={() => { setOpen(false) }}
         >
-            <DialogTitle>Confirmation</DialogTitle>
+            <DialogTitle>{'Confirmation'}</DialogTitle>
             <DialogContent>
-                <DialogContentText>Are you sure that you want to delete this operation?</DialogContentText>
+                <DialogContentText>{'Are you sure that you want to delete this operation?'}</DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button color='error' onClick={() => { setOpen(false) }}>No</Button>
-                <Button color='primary' onClick={() => { setOpen(false); setTimeout(() => { void onDelete() }, 0) }}>Yes</Button>
+                <Button color={'error'} onClick={() => { setOpen(false) }}>{'No'}</Button>
+                <Button color={'primary'} onClick={() => { setOpen(false); setTimeout(() => { void onDelete() }, 0) }}>{'Yes'}</Button>
             </DialogActions>
         </Dialog>
     </>

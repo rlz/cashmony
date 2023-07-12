@@ -12,9 +12,9 @@ interface Props {
 export function AdjustmentCard ({ operation }: Props): ReactElement {
     return <BaseOpCard
         opId={operation.id}
-        color='warning'
+        color={'warning'}
         icon={<FontAwesomeIcon icon={faExclamation}/>}
-        categoryName='Adjustment'
+        categoryName={'Adjustment'}
         categoryGrey
         amount={operation.amount}
         accountName={operation.account.name}

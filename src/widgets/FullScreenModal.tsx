@@ -20,7 +20,7 @@ export const FullScreenModal = (props: Props): ReactElement => {
     >
         <Box>
             <Row
-                justifyContent='center'
+                justifyContent={'center'}
                 mt={smallScreen ? undefined : 10}
             >
                 <Column
@@ -38,8 +38,8 @@ export const FullScreenModal = (props: Props): ReactElement => {
                     />
                     <Box
                         flex={smallScreen ? '1 1 auto' : '0 1 auto'}
-                        bgcolor='background.default'
-                        overflow='auto'
+                        bgcolor={'background.default'}
+                        overflow={'auto'}
                     >
                         {props.children}
                     </Box>

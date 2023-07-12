@@ -27,7 +27,7 @@ export const CategoriesEditor = observer((props: Props): ReactElement => {
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
     >
         <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-            <Typography>Category</Typography>
+            <Typography>{'Category'}</Typography>
         </AccordionSummary>
         <AccordionDetails>
             <CategoriesSelect

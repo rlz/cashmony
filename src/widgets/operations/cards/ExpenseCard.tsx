@@ -23,7 +23,7 @@ export function ExpenseCard ({ operation }: Props): ReactElement {
 
     return <BaseOpCard
         opId={operation.id}
-        color='error'
+        color={'error'}
         icon={<FontAwesomeIcon icon={faCreditCard}/>}
         categoryName={categoryName}
         categoryGrey={categoryGrey}

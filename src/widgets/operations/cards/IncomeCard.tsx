@@ -23,7 +23,7 @@ export function IncomeCard ({ operation }: Props): ReactElement {
 
     return <BaseOpCard
         opId={operation.id}
-        color='success'
+        color={'success'}
         icon={<FontAwesomeIcon icon={faHandHoldingDollar}/>}
         categoryName={categoryName}
         categoryGrey={categoryGrey}

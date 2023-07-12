@@ -6,8 +6,8 @@ import { Column } from './Containers'
 
 export function ResizeHandle (): ReactElement {
     return <PanelResizeHandle>
-        <Column justifyContent='center' height='100%'>
-            <Box borderRadius={500} bgcolor='secondary.main' height={20} width={5}></Box>
+        <Column justifyContent={'center'} height={'100%'}>
+            <Box borderRadius={500} bgcolor={'secondary.main'} height={20} width={5}></Box>
         </Column>
     </PanelResizeHandle>
 }

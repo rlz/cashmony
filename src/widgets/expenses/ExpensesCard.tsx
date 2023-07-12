@@ -71,35 +71,35 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
     return <Box sx={props.sx}>
         <a onClick={() => { navigate(props.url) }}>
             <Paper sx={{ p: 1 }}>
-                <Box display='flex' gap={1}>
+                <Box display={'flex'} gap={1}>
                     <SpanBody1>{ props.name }</SpanBody1>
                     <SpanBody1
-                        color='primary.main'
-                        flex='1 1 0'
-                        textAlign='right'
+                        color={'primary.main'}
+                        flex={'1 1 0'}
+                        textAlign={'right'}
                     >
                         {cur(match(amountTotal).with(0, v => v).otherwise(v => -v))}
                     </SpanBody1>
                 </Box>
                 <DivBody2 my={1}>
-                    <table className='stats'>
+                    <table className={'stats'}>
                         <tbody>
                             <tr>
-                                <th>Period pace (30d):</th>
+                                <th>{'Period pace (30d):'}</th>
                                 <td>{cur(match(props.stats.avgUntilToday(30, appState.timeSpan, currency)).with(0, () => 0).otherwise(v => -v))}</td>
                             </tr>
                             <tr>
-                                <th>Goal (30d):</th>
+                                <th>{'Goal (30d):'}</th>
                                 <td>{goal30 !== null ? cur(-goal30.value * currenciesModel.getRate(utcToday(), goal30.currency, currency)) : '-'}</td>
                             </tr>
                             <tr>
-                                <th>Left per day:</th>
+                                <th>{'Left per day:'}</th>
                                 <td>
                                     {
                                         match(leftPerDay)
                                             .with(null, () => '-')
                                             .with(P.number.gt(0), v => cur(v))
-                                            .otherwise(() => <Italic color={'warning.main'}>overspend</Italic>)
+                                            .otherwise(() => <Italic color={'warning.main'}>{'overspend'}</Italic>)
                                     }
                                 </td>
                             </tr>
@@ -115,8 +115,8 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
 export function ExpensesCardSkeleton ({ name, sx }: { name?: string | ReactElement, sx?: SxProps }): ReactElement {
     return <Box sx={sx}>
         <Paper sx={{ p: 1 }}>
-            <Box display='flex' gap={1}>
-                <SpanBody1 flex='1 1 0'>
+            <Box display={'flex'} gap={1}>
+                <SpanBody1 flex={'1 1 0'}>
                     { name !== undefined ? name : <Skeleton sx={{ maxWidth: 60 }}/> }
                 </SpanBody1>
                 <SpanBody1>
@@ -124,7 +124,7 @@ export function ExpensesCardSkeleton ({ name, sx }: { name?: string | ReactEleme
                 </SpanBody1>
             </Box>
             <DivBody2 my={1}>
-                <table className='stats'>
+                <table className={'stats'}>
                     <tbody>
                         <tr>
                             <th><Skeleton sx={{ maxWidth: 55 }}/></th>
@@ -141,7 +141,7 @@ export function ExpensesCardSkeleton ({ name, sx }: { name?: string | ReactEleme
                     </tbody>
                 </table>
             </DivBody2>
-            <Skeleton variant='rectangular' height={50}/>
+            <Skeleton variant={'rectangular'} height={50}/>
         </Paper>
     </Box>
 }

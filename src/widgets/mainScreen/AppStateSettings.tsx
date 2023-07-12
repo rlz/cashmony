@@ -46,14 +46,14 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                 />
             )
         }
-        <Box flex='1 1 0' mt={1} px={1}>
+        <Box flex={'1 1 0'} mt={1} px={1}>
             <PeriodSelector/>
         </Box>
-        <Box px={1} display='flex' gap={1} justifyContent='space-between' alignItems='center'>
-            <div>Theme:</div>
+        <Box px={1} display={'flex'} gap={1} justifyContent={'space-between'} alignItems={'center'}>
+            <div>{'Theme:'}</div>
             <ToggleButtonGroup
-                size='small'
-                color='primary'
+                size={'small'}
+                color={'primary'}
                 value={appState.theme}
                 exclusive
                 onChange={(_, value: 'light' | 'dark' | 'auto' | null) => {
@@ -64,9 +64,9 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                     }
                 }}
             >
-                <ToggleButton value='light'>Light</ToggleButton>
-                <ToggleButton value='dark'>Dark</ToggleButton>
-                <ToggleButton value='auto'>Auto</ToggleButton>
+                <ToggleButton value={'light'}>{'Light'}</ToggleButton>
+                <ToggleButton value={'dark'}>{'Dark'}</ToggleButton>
+                <ToggleButton value={'auto'}>{'Auto'}</ToggleButton>
             </ToggleButtonGroup>
         </Box>
         <List>
@@ -75,7 +75,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                     <ListItemIcon>
                         <FontAwesomeIcon icon={faFilter} fixedWidth/>
                     </ListItemIcon>
-                    <ListItemText primary='Filter operations' />
+                    <ListItemText primary={'Filter operations'} />
                 </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
@@ -86,13 +86,13 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                                 const icon = CURRENCIES[appState.masterCurrency].faIcon
                                 return icon !== undefined
                                     ? <FontAwesomeIcon icon={icon} fixedWidth/>
-                                    : <DivBody1 width={20} textAlign='center' fontWeight='bold'>
+                                    : <DivBody1 width={20} textAlign={'center'} fontWeight={'bold'}>
                                         {getCurrencySymbol(appState.masterCurrency)}
                                     </DivBody1>
                             })
                         }
                     </ListItemIcon>
-                    <ListItemText primary='Master currency' />
+                    <ListItemText primary={'Master currency'} />
                 </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
@@ -100,7 +100,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                     <ListItemIcon>
                         <FontAwesomeIcon icon={faCloudArrowUp} fixedWidth/>
                     </ListItemIcon>
-                    <ListItemText primary='Sync with Google' />
+                    <ListItemText primary={'Sync with Google'} />
                 </ListItemButton>
             </ListItem>
         </List>

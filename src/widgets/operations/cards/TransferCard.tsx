@@ -14,9 +14,9 @@ interface Props {
 export function TransferCard ({ operation }: Props): ReactElement {
     return <BaseOpCard
         opId={operation.id}
-        color='info'
+        color={'info'}
         icon={<FontAwesomeIcon icon={faMoneyBillTransfer}/>}
-        categoryName='Transfer'
+        categoryName={'Transfer'}
         categoryGrey
         amount={operation.amount}
         accountName={null}
@@ -24,9 +24,9 @@ export function TransferCard ({ operation }: Props): ReactElement {
         tags={operation.tags}
         comment={operation.comment}
         transferElement={<Row gap={1}>
-            <DivBody2 flex='0 1 auto' noWrap>{operation.account.name}</DivBody2>
+            <DivBody2 flex={'0 1 auto'} noWrap>{operation.account.name}</DivBody2>
             <DivBody2><FontAwesomeIcon icon={faArrowRightLong} /></DivBody2>
-            <DivBody2 flex='0 1 auto' noWrap>{operation.toAccount.name}</DivBody2>
+            <DivBody2 flex={'0 1 auto'} noWrap>{operation.toAccount.name}</DivBody2>
         </Row>}
     />
 }

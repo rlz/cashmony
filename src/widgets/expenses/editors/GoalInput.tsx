@@ -29,10 +29,10 @@ export function GoalInput (props: Props): ReactElement {
 
     return <>
         <Column gap={1}>
-            <Row alignItems='center' gap={1}>
-                <DivBody1 flex='1 1 0'>Set goal</DivBody1>
+            <Row alignItems={'center'} gap={1}>
+                <DivBody1 flex={'1 1 0'}>{'Set goal'}</DivBody1>
                 <ToggleButtonGroup
-                    size='small'
+                    size={'small'}
                     exclusive
                     value={period}
                     onChange={(_, p) => {
@@ -43,21 +43,21 @@ export function GoalInput (props: Props): ReactElement {
                         setPeriod(p)
                     }}
                 >
-                    <ToggleButton value='day'>Day</ToggleButton>
-                    <ToggleButton value='month'>Month</ToggleButton>
-                    <ToggleButton value='year'>Year</ToggleButton>
+                    <ToggleButton value={'day'}>{'Day'}</ToggleButton>
+                    <ToggleButton value={'month'}>{'Month'}</ToggleButton>
+                    <ToggleButton value={'year'}>{'Year'}</ToggleButton>
                 </ToggleButtonGroup>
             </Row>
             <Row gap={1}>
                 <IconButton
-                    color='primary'
+                    color={'primary'}
                     sx={{ width: 48 }}
                     onClick={() => { setCurrecySelector(true) }}
                 >
                     {getCurrencySymbol(props.currency)}
                 </IconButton>
                 <CurrencyInput
-                    label='Per day amount'
+                    label={'Per day amount'}
                     mult={MULT[period]}
                     amount={props.perDayAmount}
                     currency={props.currency}

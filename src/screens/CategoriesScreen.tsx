@@ -56,18 +56,18 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
             addCategory || noFab === true
                 ? null
                 : <Fab
-                    color='primary'
+                    color={'primary'}
                     sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
                     onClick={() => { setAddCategory(true) }}
                 >
                     <FontAwesomeIcon icon={faPlus} />
                 </Fab>
         }
-        <Box p={1} height='100%' overflow='scroll'>
-            <Box maxWidth={900} mx='auto'>
+        <Box p={1} height={'100%'} overflow={'scroll'}>
+            <Box maxWidth={900} mx={'auto'}>
                 <ExpensesCard
-                    url='/categories/_total'
-                    name={<Bold>Total</Bold>}
+                    url={'/categories/_total'}
+                    name={<Bold>{'Total'}</Bold>}
                     stats={getTotalStats()}
                     sx={{ mb: 1 }}
                 />
@@ -78,8 +78,8 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
                         return showIf(
                             stats.operations.count() > 0,
                             <ExpensesCard
-                                url='/categories/_'
-                                name={<Italic>Uncategorized</Italic>}
+                                url={'/categories/_'}
+                                name={<Italic>{'Uncategorized'}</Italic>}
                                 stats={stats}
                             />
                         )

@@ -24,7 +24,7 @@ export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void
 
     return <>
         <FullScreenModal
-            title='Add expenses goal'
+            title={'Add expenses goal'}
             width={'600px'}
             onClose={onClose}
         >

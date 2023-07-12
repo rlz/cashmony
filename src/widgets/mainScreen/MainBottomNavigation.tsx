@@ -30,27 +30,27 @@ export function MainBottomNavigation (): ReactElement {
         sx={smallScreen ? FIXED_BOTTON_NAVIGATION_STYLE : undefined}
     >
         <BottomNavigationAction
-            value='o'
-            label='Operations'
-            icon={<FontAwesomeIcon size='lg' icon={faList} />}
+            value={'o'}
+            label={'Operations'}
+            icon={<FontAwesomeIcon size={'lg'} icon={faList} />}
             onClick={() => { nav('/operations') }}
         />
         <BottomNavigationAction
-            value='c'
-            label='Categories'
-            icon={<FontAwesomeIcon size='lg' icon={faShapes} />}
+            value={'c'}
+            label={'Categories'}
+            icon={<FontAwesomeIcon size={'lg'} icon={faShapes} />}
             onClick={() => { nav('/categories') }}
         />
         <BottomNavigationAction
-            value='g'
-            label='Goals'
-            icon={<FontAwesomeIcon size='lg' icon={faBullseye} />}
+            value={'g'}
+            label={'Goals'}
+            icon={<FontAwesomeIcon size={'lg'} icon={faBullseye} />}
             onClick={() => { nav('/goals') }}
         />
         <BottomNavigationAction
-            value='a'
-            label='Accounts'
-            icon={<FontAwesomeIcon size='lg' icon={faWallet} />}
+            value={'a'}
+            label={'Accounts'}
+            icon={<FontAwesomeIcon size={'lg'} icon={faWallet} />}
             onClick={() => { nav('/accounts') }}
         />
     </BottomNavigation>

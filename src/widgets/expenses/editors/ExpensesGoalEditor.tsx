@@ -70,9 +70,9 @@ export function ExpensesGoalEditor ({ goal, onChange }: Props): ReactElement {
 
     return <Column mt={1} gap={1}>
         <TextField
-            label='Name'
-            variant='filled'
-            size='small'
+            label={'Name'}
+            variant={'filled'}
+            size={'small'}
             value={newGoal.name}
             error={newNameTrimmed === '' || nameCollision }
             helperText={
@@ -87,12 +87,12 @@ export function ExpensesGoalEditor ({ goal, onChange }: Props): ReactElement {
         />
         <Button
             fullWidth
-            variant='contained'
+            variant={'contained'}
             onClick={() => { setEditFilter(true) }}
             sx={{ gap: 1 }}
-        ><FontAwesomeIcon icon={faFilter}/>Filter</Button>
+        ><FontAwesomeIcon icon={faFilter}/>{'Filter'}</Button>
         <FormControlLabel
-            label='Regular expenses'
+            label={'Regular expenses'}
             control={<Switch
                 checked={newGoal.isRegular}
                 onChange={(_, v) => { setNewGoal({ ...newGoal, isRegular: v }) }}

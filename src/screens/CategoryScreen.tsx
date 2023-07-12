@@ -41,7 +41,7 @@ export function CategoryScreen (): ReactElement {
         {
             smallScreen
                 ? <CategoryScreenBody />
-                : <PanelGroup direction='horizontal'>
+                : <PanelGroup direction={'horizontal'}>
                     <Panel>
                         <CategoriesScreenBody noFab/>
                     </Panel>
@@ -149,9 +149,9 @@ export const CategoryScreenBody = observer((): ReactElement => {
     const goal = stats.goal(30)
 
     return <>
-        <Column height='100%'>
+        <Column height={'100%'}>
             <Box p={1}>
-                <Typography variant='h6' textAlign='center' mt={1}>
+                <Typography variant={'h6'} textAlign={'center'} mt={1}>
                     {
                         match(newCat.name.trim())
                             .with('', () => '-')
@@ -160,19 +160,19 @@ export const CategoryScreenBody = observer((): ReactElement => {
                             .otherwise(v => v)
                     }
                 </Typography>
-                <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
+                <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
                     {cur(-stats.amountTotal(appState.timeSpan, currency))}
                 </Typography>
-                <Typography variant='body2' textAlign='center'>
-                    Goal (30d): {goal !== null ? cur(-goal.value * currenciesModel.getRate(utcToday(), goal.currency, currency)) : '-'}
+                <Typography variant={'body2'} textAlign={'center'}>
+                    {'Goal (30d): '}{goal !== null ? cur(-goal.value * currenciesModel.getRate(utcToday(), goal.currency, currency)) : '-'}
                 </Typography>
-                <Tabs value={tabName} onChange={(_, tab) => { navigate(`/categories/${catName}/${tab as string}`) }} variant='fullWidth'>
-                    <Tab value='stats' label='Stats'/>
-                    <Tab value='modify' label='Modify'/>
-                    <Tab value='operations' label='Operations'/>
+                <Tabs value={tabName} onChange={(_, tab) => { navigate(`/categories/${catName}/${tab as string}`) }} variant={'fullWidth'}>
+                    <Tab value={'stats'} label={'Stats'}/>
+                    <Tab value={'modify'} label={'Modify'}/>
+                    <Tab value={'operations'} label={'Operations'}/>
                 </Tabs>
             </Box>
-            <Box overflow='scroll' flex='1 1 auto'>
+            <Box overflow={'scroll'} flex={'1 1 auto'}>
                 <Box px={1}>
                     {
                         match(tabName)

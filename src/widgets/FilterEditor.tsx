@@ -23,12 +23,12 @@ export function FilterEditor (props: Props): ReactElement {
     const [filter, setFilter] = useState(props.filter)
 
     return <FullScreenModal
-        width='600px'
-        title='Global filter'
+        width={'600px'}
+        title={'Global filter'}
         onClose={props.onClose}
     >
         <Column height={'100%'} width={'100%'}>
-            <Column gap={1} p={1} overflow='auto'>
+            <Column gap={1} p={1} overflow={'auto'}>
                 <SearchFilter filter={filter} setFilter={setFilter} />
                 <OpTypeFilter filter={filter} setFilter={setFilter} />
                 <CategoriesFilter filter={filter} setFilter={setFilter} />
@@ -37,9 +37,9 @@ export function FilterEditor (props: Props): ReactElement {
             </Column>
             <Box p={1}>
                 <Button
-                    color='primary'
+                    color={'primary'}
                     fullWidth
-                    variant='contained'
+                    variant={'contained'}
                     disabled={deepEqual(props.filter, filter)}
                     onClick={() => { props.onFilterChanged(filter); props.onClose() } }
                 >
@@ -56,10 +56,10 @@ interface EditorProps {
 }
 
 function SearchFilter ({ filter, setFilter }: EditorProps): ReactElement {
-    return <FormControl variant='outlined' fullWidth>
-        <InputLabel size='small'>Comment search</InputLabel>
+    return <FormControl variant={'outlined'} fullWidth>
+        <InputLabel size={'small'}>{'Comment search'}</InputLabel>
         <OutlinedInput
-            size='small'
+            size={'small'}
             value={filter.search ?? ''}
             onChange={(ev) => {
                 setFilter({
@@ -70,59 +70,59 @@ function SearchFilter ({ filter, setFilter }: EditorProps): ReactElement {
             endAdornment={
                 showIf(
                     filter.search !== null,
-                    <InputAdornment position='end'>
+                    <InputAdornment position={'end'}>
                         <IconButton
                             onClick={() => { setFilter({ ...filter, search: null }) }}
-                            edge='end'
+                            edge={'end'}
                         >
                             <FontAwesomeIcon icon={faXmark} />
                         </IconButton>
                     </InputAdornment>
                 )
             }
-            label='Search'
+            label={'Search'}
         />
     </FormControl>
 }
 
 function OpTypeFilter ({ filter, setFilter }: EditorProps): ReactElement {
     return <Paper sx={{ p: 1 }}>
-        <PBody2 mb={1} flex='1 1 0'>Op. type:</PBody2>
+        <PBody2 mb={1} flex={'1 1 0'}>{'Op. type:'}</PBody2>
         <ToggleButtonGroup
             fullWidth
-            size='small'
+            size={'small'}
             value={filter.opType}
-            color='primary'
+            color={'primary'}
             onChange={(_, v) => {
                 setFilter({ ...filter, opTypeMode: 'selected', opType: v })
             }}
         >
-            <ToggleButton value='expense'>Expense</ToggleButton>
-            <ToggleButton value='income'>Income</ToggleButton>
-            <ToggleButton value='transfer'>Transfer</ToggleButton>
-            <ToggleButton value='adjustment'>Adj</ToggleButton>
+            <ToggleButton value={'expense'}>{'Expense'}</ToggleButton>
+            <ToggleButton value={'income'}>{'Income'}</ToggleButton>
+            <ToggleButton value={'transfer'}>{'Transfer'}</ToggleButton>
+            <ToggleButton value={'adjustment'}>{'Adj'}</ToggleButton>
         </ToggleButtonGroup>
     </Paper>
 }
 
 function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
     return <Paper sx={{ p: 1 }}>
-        <Row alignItems='center' gap={1}>
-            <SpanBody2 flex='1 1 0'>Categories:</SpanBody2>
+        <Row alignItems={'center'} gap={1}>
+            <SpanBody2 flex={'1 1 0'}>{'Categories:'}</SpanBody2>
             <ToggleButtonGroup
                 exclusive
-                size='small'
+                size={'small'}
                 value={filter.categoriesMode}
-                color='primary'
+                color={'primary'}
                 onChange={(_, v) => {
                     if (v !== null) {
                         setFilter({ ...filter, categoriesMode: v })
                     }
                 }}
             >
-                <ToggleButton value='all'>All</ToggleButton>
-                <ToggleButton value='selected'>Selected</ToggleButton>
-                <ToggleButton value='exclude'>Exclude</ToggleButton>
+                <ToggleButton value={'all'}>{'All'}</ToggleButton>
+                <ToggleButton value={'selected'}>{'Selected'}</ToggleButton>
+                <ToggleButton value={'exclude'}>{'Exclude'}</ToggleButton>
             </ToggleButtonGroup>
         </Row>
         {
@@ -135,7 +135,7 @@ function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
                                 ? filter.categories.map((i, index) => {
                                     const el = <SpanBody2
                                         key={i}
-                                        color='secondary.main'
+                                        color={'secondary.main'}
                                         fontStyle={i === '' ? 'italic' : undefined}>
                                         {i === '' ? 'Uncategorized' : i}
                                     </SpanBody2>
@@ -168,22 +168,22 @@ function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
 
 function AccountsFilter ({ filter, setFilter }: EditorProps): ReactElement {
     return <Paper sx={{ p: 1 }}>
-        <Row alignItems='center'>
-            <SpanBody2 flex='1 1 0'>Accounts:</SpanBody2>
+        <Row alignItems={'center'}>
+            <SpanBody2 flex={'1 1 0'}>{'Accounts:'}</SpanBody2>
             <ToggleButtonGroup
                 exclusive
-                size='small'
+                size={'small'}
                 value={filter.accountsMode}
-                color='primary'
+                color={'primary'}
                 onChange={(_, v) => {
                     if (v !== null) {
                         setFilter({ ...filter, accountsMode: v })
                     }
                 }}
             >
-                <ToggleButton value='all'>All</ToggleButton>
-                <ToggleButton value='selected'>Selected</ToggleButton>
-                <ToggleButton value='exclude'>Exclude</ToggleButton>
+                <ToggleButton value={'all'}>{'All'}</ToggleButton>
+                <ToggleButton value={'selected'}>{'Selected'}</ToggleButton>
+                <ToggleButton value={'exclude'}>{'Exclude'}</ToggleButton>
             </ToggleButtonGroup>
         </Row>
         {
@@ -194,7 +194,7 @@ function AccountsFilter ({ filter, setFilter }: EditorProps): ReactElement {
                         {
                             filter.accountsMode !== 'all'
                                 ? filter.accounts.map((i, index) => {
-                                    const el = <SpanBody2 key={i} color='secondary.main'>{i}</SpanBody2>
+                                    const el = <SpanBody2 key={i} color={'secondary.main'}>{i}</SpanBody2>
                                     if (index === 0) {
                                         return el
                                     }
@@ -224,22 +224,22 @@ function AccountsFilter ({ filter, setFilter }: EditorProps): ReactElement {
 
 function TagsFilter ({ filter, setFilter }: EditorProps): ReactElement {
     return <Paper sx={{ p: 1 }}>
-        <Row alignItems='center'>
-            <SpanBody2 flex='1 1 0'>Tags:</SpanBody2>
+        <Row alignItems={'center'}>
+            <SpanBody2 flex={'1 1 0'}>{'Tags:'}</SpanBody2>
             <ToggleButtonGroup
                 exclusive
-                size='small'
+                size={'small'}
                 value={filter.tagsMode}
-                color='primary'
+                color={'primary'}
                 onChange={(_, v) => {
                     if (v !== null) {
                         setFilter({ ...filter, tagsMode: v })
                     }
                 }}
             >
-                <ToggleButton value='all'>All</ToggleButton>
-                <ToggleButton value='selected'>Selected</ToggleButton>
-                <ToggleButton value='exclude'>Exclude</ToggleButton>
+                <ToggleButton value={'all'}>{'All'}</ToggleButton>
+                <ToggleButton value={'selected'}>{'Selected'}</ToggleButton>
+                <ToggleButton value={'exclude'}>{'Exclude'}</ToggleButton>
             </ToggleButtonGroup>
         </Row>
         {
@@ -250,7 +250,7 @@ function TagsFilter ({ filter, setFilter }: EditorProps): ReactElement {
                         {
                             filter.tagsMode !== 'all'
                                 ? filter.tags.map((i, index) => {
-                                    const el = <SpanBody2 key={i} color='secondary.main'>{i}</SpanBody2>
+                                    const el = <SpanBody2 key={i} color={'secondary.main'}>{i}</SpanBody2>
                                     if (index === 0) {
                                         return el
                                     }

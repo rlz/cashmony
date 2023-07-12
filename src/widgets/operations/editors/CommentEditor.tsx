@@ -17,14 +17,14 @@ export const CommentEditor = (props: Props): ReactElement => {
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
     >
         <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-            <Typography>Comment</Typography>
+            <Typography>{'Comment'}</Typography>
         </AccordionSummary>
         <AccordionDetails>
             <TextField
-                label='Comment'
-                size='small'
+                label={'Comment'}
+                size={'small'}
                 fullWidth
-                variant='filled'
+                variant={'filled'}
                 value={props.comment ?? ''}
                 onChange={ev => {
                     const comment = ev.target.value

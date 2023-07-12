@@ -19,7 +19,7 @@ declare global {
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <Navigate to='operations'/>
+        element: <Navigate to={'operations'}/>
     },
     {
         path: '/operations',

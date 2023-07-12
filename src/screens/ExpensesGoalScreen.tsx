@@ -39,7 +39,7 @@ export function ExpensesGoalScreen (): ReactElement {
         {
             smallScreen
                 ? <ExpensesGoalScreenBody/>
-                : <PanelGroup direction='horizontal'>
+                : <PanelGroup direction={'horizontal'}>
                     <Panel>
                         <ExpensesGoalsScreenBody noFab />
                     </Panel>
@@ -115,24 +115,28 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
     const goal30 = stats.goal(30)
 
     return <>
-        <Column height='100%'>
+        <Column height={'100%'}>
             <Box p={1}>
-                <Typography variant='h6' textAlign='center' mt={1}>
+                <Typography variant={'h6'} textAlign={'center'} mt={1}>
                     {newGoal.name.trim() === '' ? '-' : newGoal.name}
                 </Typography>
-                <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
+                <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
                     {cur(-stats.amountTotal(appState.timeSpan, newGoal.currency))}
                 </Typography>
-                <Typography variant='body2' textAlign='center'>
-            Goal (30d): {goal30 !== null ? cur(-goal30.value) : '-'}
+                <Typography variant={'body2'} textAlign={'center'}>
+                    {'Goal (30d): '}{goal30 !== null ? cur(-goal30.value) : '-'}
                 </Typography>
-                <Tabs value={tabName} onChange={(_, tab) => { navigate(`/goals/${encodeURIComponent(goal.name)}/${tab as string}`) }} variant='fullWidth'>
-                    <Tab value='stats' label='Stats'/>
-                    <Tab value='modify' label='Modify'/>
-                    <Tab value='operations' label='Operations'/>
+                <Tabs
+                    value={tabName}
+                    onChange={(_, tab) => { navigate(`/goals/${encodeURIComponent(goal.name)}/${tab as string}`) }}
+                    variant={'fullWidth'}
+                >
+                    <Tab value={'stats'} label={'Stats'}/>
+                    <Tab value={'modify'} label={'Modify'}/>
+                    <Tab value={'operations'} label={'Operations'}/>
                 </Tabs>
             </Box>
-            <Box overflow='scroll' flex='1 1 auto'>
+            <Box overflow={'scroll'} flex={'1 1 auto'}>
                 <Box px={1}>
                     {
                         match(tabName)
@@ -141,9 +145,9 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
                                 return <>
                                     <ExpensesGoalEditor goal={newGoal} onChange={setNewGoal} />
                                     <Button
-                                        variant='contained'
+                                        variant={'contained'}
                                         fullWidth
-                                        color='error'
+                                        color={'error'}
                                         sx={{ mt: 5 }}
                                         onClick={() => {
                                             runAsync(async () => {

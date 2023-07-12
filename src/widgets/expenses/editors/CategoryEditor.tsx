@@ -116,7 +116,7 @@ export const CategoryEditor = observer(({ origCat, newCat, setCat, setNewCat }: 
                     }}
                 >
                     <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-                        <Typography>Name</Typography>
+                        <Typography>{'Name'}</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                         <TextField
@@ -125,10 +125,10 @@ export const CategoryEditor = observer(({ origCat, newCat, setCat, setNewCat }: 
                                 categoriesModel.categories.has(newCat.name) &&
                                 categoriesModel.get(newCat.name).deleted !== true
                             }
-                            label='Name'
-                            size='small'
+                            label={'Name'}
+                            size={'small'}
                             fullWidth
-                            variant='filled'
+                            variant={'filled'}
                             value={newCat.name}
                             onChange={ev => {
                                 setNewCat({ ...newCat, name: ev.target.value })
@@ -146,7 +146,7 @@ export const CategoryEditor = observer(({ origCat, newCat, setCat, setNewCat }: 
             }}
         >
             <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-                <Typography>Goal</Typography>
+                <Typography>{'Goal'}</Typography>
             </AccordionSummary>
             <AccordionDetails>
                 <FormControlLabel
@@ -162,7 +162,7 @@ export const CategoryEditor = observer(({ origCat, newCat, setCat, setNewCat }: 
                             }}
                         />
                     }
-                    label='Set goal'
+                    label={'Set goal'}
                 />
                 {
                     newCat.perDayAmount !== undefined
@@ -190,12 +190,14 @@ export const CategoryEditor = observer(({ origCat, newCat, setCat, setNewCat }: 
                 !virtual,
                 <>
                     <Button
-                        variant='contained'
-                        color='error'
+                        variant={'contained'}
+                        color={'error'}
                         onClick={() => { setDelOpen(true) }}
                         fullWidth
                         sx={{ mt: 1 }}
-                    >Delete</Button>
+                    >
+                        {'Delete'}
+                    </Button>
                     <DeleteCategory name={origCat.name} open={delOpen} setOpen={setDelOpen} />
                 </>
             )

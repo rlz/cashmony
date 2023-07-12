@@ -68,21 +68,21 @@ export const PeriodSelector = observer((): ReactElement => {
         />
     }
 
-    return <Box display='flex' flexDirection='column' gap={1}>
+    return <Box display={'flex'} flexDirection={'column'} gap={1}>
         {selector}
         <Box>
-            <Typography variant='h6' textAlign='center'>Period</Typography>
-            <Typography variant='body1' textAlign='center'>
+            <Typography variant={'h6'} textAlign={'center'}>{'Period'}</Typography>
+            <Typography variant={'body1'} textAlign={'center'}>
                 {appState.timeSpan.startDate.toISODate()}
                 {' '}<FontAwesomeIcon icon={faArrowRightLong}/>{' '}
                 {appState.timeSpan.endDate.toISODate()}
             </Typography>
         </Box>
-        <Box display='flex' gap={1} justifyContent='space-between' alignItems='center'>
-            <Typography>Current:</Typography>
+        <Box display={'flex'} gap={1} justifyContent={'space-between'} alignItems={'center'}>
+            <Typography>{'Current:'}</Typography>
             <ToggleButtonGroup
-                size='small'
-                color='primary'
+                size={'small'}
+                color={'primary'}
                 value={appState.timeSpanInfo.type}
                 exclusive
                 onChange={(_, value: 'thisMonth' | 'thisYear' | null) => {
@@ -95,15 +95,15 @@ export const PeriodSelector = observer((): ReactElement => {
                     }
                 }}
             >
-                <ToggleButton value='thisMonth'>Month</ToggleButton>
-                <ToggleButton value='thisYear'>Year</ToggleButton>
+                <ToggleButton value={'thisMonth'}>{'Month'}</ToggleButton>
+                <ToggleButton value={'thisYear'}>{'Year'}</ToggleButton>
             </ToggleButtonGroup>
         </Box>
-        <Box display='flex' gap={1} justifyContent='space-between' alignItems='center'>
-            <Typography>Selected:</Typography>
+        <Box display={'flex'} gap={1} justifyContent={'space-between'} alignItems={'center'}>
+            <Typography>{'Selected:'}</Typography>
             <ToggleButtonGroup
-                size='small'
-                color='primary'
+                size={'small'}
+                color={'primary'}
                 value={appState.timeSpanInfo.type}
                 exclusive
                 onChange={(_, value: 'month' | 'year' | null) => {
@@ -114,15 +114,15 @@ export const PeriodSelector = observer((): ReactElement => {
                     }
                 }}
             >
-                <ToggleButton value='month'>Month</ToggleButton>
-                <ToggleButton value='year'>Year</ToggleButton>
+                <ToggleButton value={'month'}>{'Month'}</ToggleButton>
+                <ToggleButton value={'year'}>{'Year'}</ToggleButton>
             </ToggleButtonGroup>
         </Box>
-        <Box display='flex' gap={1} justifyContent='space-between' alignItems='center'>
-            <Typography>Last:</Typography>
+        <Box display={'flex'} gap={1} justifyContent={'space-between'} alignItems={'center'}>
+            <Typography>{'Last:'}</Typography>
             <ToggleButtonGroup
-                size='small'
-                color='primary'
+                size={'small'}
+                color={'primary'}
                 value={appState.timeSpanInfo.type}
                 exclusive
                 onChange={(_, value: 'lastMonth' | 'lastQuarter' | 'lastYear' | null) => {
@@ -135,15 +135,15 @@ export const PeriodSelector = observer((): ReactElement => {
                     }
                 }}
             >
-                <ToggleButton value='lastMonth'>Month</ToggleButton>
-                <ToggleButton value='lastQuarter'>Quarter</ToggleButton>
-                <ToggleButton value='lastYear'>Year</ToggleButton>
+                <ToggleButton value={'lastMonth'}>{'Month'}</ToggleButton>
+                <ToggleButton value={'lastQuarter'}>{'Quarter'}</ToggleButton>
+                <ToggleButton value={'lastYear'}>{'Year'}</ToggleButton>
             </ToggleButtonGroup>
         </Box>
         <ToggleButtonGroup
             fullWidth
-            size='small'
-            color='primary'
+            size={'small'}
+            color={'primary'}
             value={appState.timeSpanInfo.type}
             exclusive
             onChange={(_, value: 'custom' | 'allHistory' | null) => {
@@ -159,8 +159,8 @@ export const PeriodSelector = observer((): ReactElement => {
                 }
             }}
         >
-            <ToggleButton value='allHistory'>All history</ToggleButton>
-            <ToggleButton value='custom'>Custom</ToggleButton>
+            <ToggleButton value={'allHistory'}>{'All history'}</ToggleButton>
+            <ToggleButton value={'custom'}>{'Custom'}</ToggleButton>
         </ToggleButtonGroup>
     </Box>
 })
@@ -173,11 +173,11 @@ interface MonthSelectorProps {
 function MonthSelector (props: MonthSelectorProps): ReactElement {
     const today = appState.today
 
-    return <FullScreenModal title='Select month' onClose={props.onClose}>
+    return <FullScreenModal title={'Select month'} onClose={props.onClose}>
         <Box p={1}>
             <Calendar
                 maxDate={today.toJSDate()}
-                maxDetail='year'
+                maxDetail={'year'}
                 onChange={(d) => {
                     if (!(d instanceof Date)) return
                     props.onMonthSelected(d.getFullYear(), d.getMonth() + 1)
@@ -196,11 +196,11 @@ interface YearSelectorProps {
 function YearSelector (props: YearSelectorProps): ReactElement {
     const today = appState.today
 
-    return <FullScreenModal title='Select year' onClose={props.onClose}>
+    return <FullScreenModal title={'Select year'} onClose={props.onClose}>
         <Box p={1}>
             <Calendar
                 maxDate={today.toJSDate()}
-                maxDetail='decade'
+                maxDetail={'decade'}
                 onChange={(d) => {
                     if (!(d instanceof Date)) return
                     props.onYearSelected(d.getFullYear())
@@ -222,7 +222,7 @@ function CustomSelector (props: CustomSelectorProps): ReactElement {
     const smallScreen = screenWidthIs('xs', 'sm')
 
     return <FullScreenModal
-        title='Select period'
+        title={'Select period'}
         onClose={props.onClose}
     >
         <Box p={1} mb={1}>
@@ -238,8 +238,8 @@ function CustomSelector (props: CustomSelectorProps): ReactElement {
         { showIf(!smallScreen, <Divider/>) }
         <Row p={1} justifyContent={smallScreen ? 'center' : 'end'}>
             <Button
-                color='primary'
-                variant='contained'
+                color={'primary'}
+                variant={'contained'}
                 disabled={period === null}
                 onClick={() => {
                     if (period !== null) {

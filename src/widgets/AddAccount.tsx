@@ -54,20 +54,20 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
     const acc = accountsModel.accounts?.get(name)
     const exists = acc !== undefined && acc.deleted !== true
 
-    return <FullScreenModal title='Add account' onClose={onClose}>
+    return <FullScreenModal title={'Add account'} onClose={onClose}>
         <Column gap={1} p={1}>
             <Row gap={1}>
                 <IconButton
-                    color='primary'
+                    color={'primary'}
                     sx={{ width: 48 }}
                     onClick={() => { setCurSelOpen(true) }}
                 >
                     {getCurrencySymbol(currency)}
                 </IconButton>
                 <TextField
-                    label='Name'
-                    variant='filled'
-                    size='small'
+                    label={'Name'}
+                    variant={'filled'}
+                    size={'small'}
                     value={name}
                     error={name.trim() === '' || exists}
                     helperText={
@@ -83,17 +83,17 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
             </Row>
             <CurrencyInput
                 allowZero
-                label='Initial amount'
+                label={'Initial amount'}
                 currency={currency}
                 amount={initialAmount}
                 onAmountChange={a => { setInitialAmount(a) }}
             />
             <Button
                 fullWidth
-                variant='contained'
+                variant={'contained'}
                 onClick={() => { void save() }}
                 disabled={name.trim() === '' || exists}
-            >Create</Button>
+            >{'Create'}</Button>
             {curSelOpen
                 ? <CurrencySelector
                     currency={currency}

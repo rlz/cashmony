@@ -26,7 +26,7 @@ export function DeleteAccount ({ name, open, setOpen }: Props): ReactElement {
         open={open}
         onClose={() => { setOpen(false) }}
     >
-        <DialogTitle>Delete account?</DialogTitle>
+        <DialogTitle>{'Delete account?'}</DialogTitle>
         <DialogContent>
             <DialogContentText>
                 {
@@ -37,10 +37,10 @@ export function DeleteAccount ({ name, open, setOpen }: Props): ReactElement {
             </DialogContentText>
         </DialogContent>
         <DialogActions>
-            <Button variant='contained' onClick={() => { setOpen(false) }}>Cancel</Button>
+            <Button variant={'contained'} onClick={() => { setOpen(false) }}>{'Cancel'}</Button>
             <Button
-                variant='contained'
-                color='error'
+                variant={'contained'}
+                color={'error'}
                 onClick={() => {
                     setDelInProcess(true)
                     setTimeout(() => {
@@ -59,7 +59,7 @@ export function DeleteAccount ({ name, open, setOpen }: Props): ReactElement {
             >
                 { delInProcess
                     ? <FontAwesomeIcon icon={faSpinner} pulse />
-                    : null} Delete
+                    : null}{' Delete'}
             </Button>
         </DialogActions>
     </Dialog>

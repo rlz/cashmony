@@ -25,7 +25,7 @@ export function TagsEditor (props: Props): ReactElement {
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
     >
         <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-            <Typography>Tags</Typography>
+            <Typography>{'Tags'}</Typography>
         </AccordionSummary>
         <AccordionDetails>
             <TagsSelect
@@ -39,9 +39,9 @@ export function TagsEditor (props: Props): ReactElement {
         <AccordionActions sx={{ gap: 1, alignItems: 'stretch' }}>
             <TextField
                 fullWidth
-                variant='filled'
-                size='small'
-                label='New tag'
+                variant={'filled'}
+                size={'small'}
+                label={'New tag'}
                 value={newTag}
                 onChange={(ev) => { setNewTag(ev.target.value.trim()) }}
             />
@@ -49,7 +49,7 @@ export function TagsEditor (props: Props): ReactElement {
                 setNewTag('')
                 setNewTags([newTag, ...newTags])
                 props.onTagsChanged([...props.tags, newTag])
-            }}>Add</Button>
+            }}>{'Add'}</Button>
         </AccordionActions>
     </Accordion>
 }

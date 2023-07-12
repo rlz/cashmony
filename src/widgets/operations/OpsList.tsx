@@ -88,10 +88,10 @@ export const OpsList = observer((props: Props): ReactElement => {
             </Box>
         )}
         {displayOps !== null && displayDays < displayOps.length
-            ? <Typography color='text.primary' textAlign='center' mt={2}>
+            ? <Typography color={'text.primary'} textAlign={'center'} mt={2}>
                 <a onClick={() => {
                     setDisplayDays(Math.min(displayOps.length, displayDays + 10))
-                }}>Show more</a>
+                }}>{'Show more'}</a>
             </Typography>
             : null
         }
@@ -128,7 +128,7 @@ const Fab = (): ReactElement => {
         <SpeedDial
             sx={{ position: 'fixed', bottom: 70, right: 16 }}
             icon={<SpeedDialIcon />}
-            ariaLabel='add'
+            ariaLabel={'add'}
             open={open}
             onOpen={() => { setOpen(true) }}
             onClose={() => { setOpen(false) }}
@@ -136,21 +136,21 @@ const Fab = (): ReactElement => {
             <SpeedDialAction
                 icon={<FontAwesomeIcon icon={faCreditCard}/>}
                 tooltipOpen
-                tooltipTitle='Expence'
+                tooltipTitle={'Expence'}
                 FabProps={{ color: 'error', size: 'medium' }}
                 onClick={() => { navigate('/new-op/expense') }}
             />
             <SpeedDialAction
                 icon={<FontAwesomeIcon icon={faHandHoldingDollar} />}
                 tooltipOpen
-                tooltipTitle='Income'
+                tooltipTitle={'Income'}
                 FabProps={{ color: 'success', size: 'medium' }}
                 onClick={() => { navigate('/new-op/income') }}
             />
             <SpeedDialAction
                 icon={<FontAwesomeIcon icon={faMoneyBillTransfer} />}
                 tooltipOpen
-                tooltipTitle='Transfer'
+                tooltipTitle={'Transfer'}
                 FabProps={{ color: 'info', size: 'medium' }}
                 onClick={() => { navigate('/new-op/transfer') }}
             />

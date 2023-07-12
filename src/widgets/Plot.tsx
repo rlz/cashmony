@@ -51,7 +51,7 @@ export function Plot (props: Props): ReactElement {
         {
             showIf(
                 props.title !== undefined,
-                <Typography variant='h6' textAlign='center'>{props.title}</Typography>
+                <Typography variant={'h6'} textAlign={'center'}>{props.title}</Typography>
             )
         }
         <Box ref={ref}>

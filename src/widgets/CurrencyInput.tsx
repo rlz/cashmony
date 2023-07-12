@@ -45,13 +45,13 @@ export function CurrencyInput (props: Props): ReactElement {
     return <TextField
         autoFocus={props.autoFocus}
         fullWidth
-        variant='filled'
+        variant={'filled'}
         label={props.label}
-        size='small'
+        size={'small'}
         value={amountText}
         error={error}
         InputProps={{
-            startAdornment: <InputAdornment position='start'>{getCurrencySymbol(props.currency)}</InputAdornment>
+            startAdornment: <InputAdornment position={'start'}>{getCurrencySymbol(props.currency)}</InputAdornment>
         }}
         onChange={(ev) => {
             const text = ev.target.value

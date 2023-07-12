@@ -44,7 +44,7 @@ export function ActionFab (props: PropsWithChildren<ActionFabProps>): ReactEleme
     const [inProgress, setInProgress] = useState(false)
 
     return <Fab
-        color='primary'
+        color={'primary'}
         disabled={props.action === null}
         sx={{ position: 'absolute', bottom: props.bottom ?? '70px', right: '20px' }}
         onClick={() => {

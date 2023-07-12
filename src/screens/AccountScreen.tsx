@@ -47,7 +47,7 @@ export function AccountScreen (): ReactElement {
     return <MainScreen>
         {
             !smallScreen
-                ? <PanelGroup direction='horizontal'>
+                ? <PanelGroup direction={'horizontal'}>
                     <Panel>
                         <AccountsScreenBody noFab/>
                     </Panel>
@@ -122,21 +122,25 @@ export const AccountScreenBody = observer(() => {
     const cur = (amount: number, compact = false): string => formatCurrency(amount, acc.currency, compact)
 
     return <>
-        <Column height='100%'>
+        <Column height={'100%'}>
             <Box p={1}>
-                <Typography variant='h6' textAlign='center' mt={1}>
+                <Typography variant={'h6'} textAlign={'center'} mt={1}>
                     {newAcc.name.trim() === '' ? '-' : newAcc.name}
                 </Typography>
-                <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
+                <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
                     {cur(totalAmount[totalAmount.length - 1])}
                 </Typography>
-                <Tabs value={tabName} onChange={(_, tab) => { navigate(`/accounts/${encodeURIComponent(accName)}/${tab as string}`) }} variant='fullWidth'>
-                    <Tab value='stats' label='Stats'/>
-                    <Tab value='modify' label='Modify'/>
-                    <Tab value='operations' label='Operations'/>
+                <Tabs
+                    value={tabName}
+                    onChange={(_, tab) => { navigate(`/accounts/${encodeURIComponent(accName)}/${tab as string}`) }}
+                    variant={'fullWidth'}
+                >
+                    <Tab value={'stats'} label={'Stats'}/>
+                    <Tab value={'modify'} label={'Modify'}/>
+                    <Tab value={'operations'} label={'Operations'}/>
                 </Tabs>
             </Box>
-            <Box overflow='scroll' flex='1 1 auto'>
+            <Box overflow={'scroll'} flex={'1 1 auto'}>
                 <Box px={1}>
                     {
                         match(tabName)
@@ -176,21 +180,21 @@ export const AccountScreenBody = observer(() => {
 
 function AccountScreenSkeleton (): ReactElement {
     return <>
-        <Typography variant='h6' mt={2}>
+        <Typography variant={'h6'} mt={2}>
             <Skeleton width={75} sx={{ mx: 'auto' }} />
         </Typography>
-        <Typography variant='h6' textAlign='center' color='primary.main' mb={1}>
+        <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
             <Skeleton width={95} sx={{ mx: 'auto' }} />
         </Typography>
-        <Tabs value={0} variant='fullWidth'>
+        <Tabs value={0} variant={'fullWidth'}>
             <Tab label={<Skeleton width={45} />}/>
             <Tab label={<Skeleton width={65}/>}/>
             <Tab label={<Skeleton width={35}/>}/>
         </Tabs>
         <Column gap={1} mt={1}>
-            <Skeleton variant='rounded' height={185}/>
-            <Skeleton variant='rounded' height={200}/>
-            <Skeleton variant='rounded' height={180}/>
+            <Skeleton variant={'rounded'} height={185}/>
+            <Skeleton variant={'rounded'} height={200}/>
+            <Skeleton variant={'rounded'} height={180}/>
         </Column>
     </>
 }
@@ -202,9 +206,9 @@ interface StatsProps {
 }
 
 function Stats ({ account, perDayAmount, totalAmount }: StatsProps): ReactElement {
-    return <Box display='flex' flexDirection='column' gap={1} mt={1}>
-        <AccPlot title='Amount' account={account} totalAmount={totalAmount} />
-        <AccPlot title='Per day amount' account={account} perDayAmount={perDayAmount}/>
+    return <Box display={'flex'} flexDirection={'column'} gap={1} mt={1}>
+        <AccPlot title={'Amount'} account={account} totalAmount={totalAmount} />
+        <AccPlot title={'Per day amount'} account={account} perDayAmount={perDayAmount}/>
     </Box>
 }
 
@@ -281,7 +285,7 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
             }}
         >
             <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-                <Typography>Name</Typography>
+                <Typography>{'Name'}</Typography>
             </AccordionSummary>
             <AccordionDetails>
                 <TextField
@@ -290,10 +294,10 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
                         accountsModel.accounts?.has(newAcc.name) === true &&
                         accountsModel.get(newAcc.name).deleted !== true
                     }
-                    label='Name'
-                    size='small'
+                    label={'Name'}
+                    size={'small'}
                     fullWidth
-                    variant='filled'
+                    variant={'filled'}
                     value={newAcc.name}
                     onChange={ev => { setNewAcc({ ...newAcc, name: ev.target.value }) }}
                 />
@@ -307,11 +311,11 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
             }}
         >
             <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-                <Typography>Current Amount</Typography>
+                <Typography>{'Current Amount'}</Typography>
             </AccordionSummary>
             <AccordionDetails>
                 <CurrencyInput
-                    label='Amount'
+                    label={'Amount'}
                     currency={newAcc.currency}
                     amount={adjustedAmount}
                     onAmountChange={amount => { setAdjustedAmount(amount) }}
@@ -347,12 +351,12 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
                             void run()
                         })
                     }}
-                    variant='contained'
-                    size='small'
+                    variant={'contained'}
+                    size={'small'}
                     fullWidth
                     sx={{ gap: 1 }}
                 >
-                    {adjInProgress ? <FontAwesomeIcon icon={faSpinner} pulse /> : null} Adjust
+                    {adjInProgress ? <FontAwesomeIcon icon={faSpinner} pulse /> : null}{' Adjust'}
                 </Button>
             </AccordionActions>
         </Accordion>
@@ -367,18 +371,20 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
                         })
                     }}
                 />}
-                label='Hidden'
+                label={'Hidden'}
             />
         </Box>
         <ActionFab action={onSave}>
             <FontAwesomeIcon icon={faCheck}/>
         </ActionFab>
         <Button
-            variant='contained'
-            color='error'
+            variant={'contained'}
+            color={'error'}
             onClick={() => { setDelOpen(true) }}
             fullWidth
-        >Delete</Button>
+        >
+            {'Delete'}
+        </Button>
         <DeleteAccount name={acc.name} open={delOpen} setOpen={setDelOpen} />
     </Box>
 }

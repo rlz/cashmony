@@ -171,7 +171,7 @@ export const ExpensesTotalPlot = observer(({ currency, stats }: TotalCatPlotProp
         height={250}
         xvalues={series.xvalues}
         series={series.series}
-        title='Total Amount'
+        title={'Total Amount'}
         p={1}
     />
 })

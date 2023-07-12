@@ -30,20 +30,20 @@ const CLOSE_BTN_BIG_SCREEN: SxProps = {
 export function CashmonyAppBar (props: CashmonyAppBarProps): ReactElement {
     const smallScreen = screenWidthIs('xs', 'sm')
 
-    return <AppBar position='static'>
+    return <AppBar position={'static'}>
         <Toolbar>
             <IconButton
-                size='large'
-                edge='start'
-                color='inherit'
+                size={'large'}
+                edge={'start'}
+                color={'inherit'}
                 disabled={props.onSettingsClick === undefined}
                 sx={{ visibility: props.onSettingsClick === undefined ? 'hidden' : undefined }}
                 onClick={props.onSettingsClick}
             >
                 <FontAwesomeIcon icon={faBars}/>
             </IconButton>
-            <Column flex='1 1 0' textAlign='center' gap={0.3}>
-                <Typography variant='h6' component='div' lineHeight={1}>
+            <Column flex={'1 1 0'} textAlign={'center'} gap={0.3}>
+                <Typography variant={'h6'} component={'div'} lineHeight={1}>
                     {props.title}
                 </Typography>
                 {
@@ -55,9 +55,9 @@ export function CashmonyAppBar (props: CashmonyAppBarProps): ReactElement {
                 }
             </Column>
             <IconButton
-                size='large'
-                edge='end'
-                color='inherit'
+                size={'large'}
+                edge={'end'}
+                color={'inherit'}
                 disabled={props.onClose === undefined}
                 sx={{
                     ...(smallScreen || props.modal === true
@@ -84,11 +84,11 @@ export const MainAppBar = observer(function MainAppBar (): ReactElement {
                 smallScreen,
                 <SwipeableDrawer
                     open={showSettings}
-                    anchor='left'
+                    anchor={'left'}
                     onOpen={() => { setShowSettings(true) }}
                     onClose={() => { setShowSettings(false) }}
                 >
-                    <AppStateSettings height='100vh' width='90vw' maxWidth='20rem'/>
+                    <AppStateSettings height={'100vh'} width={'90vw'} maxWidth={'20rem'}/>
                 </SwipeableDrawer>
             )
         }
@@ -96,8 +96,8 @@ export const MainAppBar = observer(function MainAppBar (): ReactElement {
             showIf(
                 !smallScreen && showSettings,
                 <FullScreenModal
-                    width='600px'
-                    title='Settings'
+                    width={'600px'}
+                    title={'Settings'}
                     onClose={() => { setShowSettings(false) }}
                 >
                     <AppStateSettings />
@@ -105,7 +105,7 @@ export const MainAppBar = observer(function MainAppBar (): ReactElement {
             )
         }
         <CashmonyAppBar
-            title='Cashmony'
+            title={'Cashmony'}
             subTitle={appState.topBarState.subTitle}
             onSettingsClick={() => { setShowSettings(true) }}
             onClose={appState.topBarState.onClose ?? undefined}

@@ -74,7 +74,7 @@ export function ItemsSelect (props: Props): ReactElement {
             const label = match(i).with(P.string, v => v).otherwise(v => v.label)
             const fontStyle = match(i).with(P.string, v => undefined).otherwise(v => v.fontStyle)
             if (selected.has(v)) {
-                const chip = <Chip key={v} color='primary' size='small' label={label} sx={{ fontStyle }}/>
+                const chip = <Chip key={v} color={'primary'} size={'small'} label={label} sx={{ fontStyle }}/>
 
                 if (props.selectZero || (props.selectMany && selected.size > 1)) {
                     return <a
@@ -101,27 +101,27 @@ export function ItemsSelect (props: Props): ReactElement {
                     }
                 }}
             >
-                <Chip size='small' label={label} sx={{ fontStyle }}/>
+                <Chip size={'small'} label={label} sx={{ fontStyle }}/>
             </a>
         })
     }, [props.items, props.selected, filter, props.selectMany])
 
     return <Box sx={props.sx}>
-        <FormControl variant='filled' size='small' fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Filter</InputLabel>
+        <FormControl variant={'filled'} size={'small'} fullWidth sx={{ mb: 2 }}>
+            <InputLabel>{'Filter'}</InputLabel>
             <FilledInput
                 fullWidth
-                size='small'
+                size={'small'}
                 value={filter ?? ''}
                 onChange={ev => {
                     setFilter(ev.target.value === '' ? null : ev.target.value)
                 }}
                 endAdornment={
-                    <InputAdornment position='end'>
+                    <InputAdornment position={'end'}>
                         <IconButton
                             disabled={filter === null}
                             onClick={() => { setFilter(null) }}
-                            edge='end'
+                            edge={'end'}
                         >
                             <FontAwesomeIcon icon={faTimes}/>
                         </IconButton>
@@ -129,10 +129,10 @@ export function ItemsSelect (props: Props): ReactElement {
                 }
             />
         </FormControl>
-        <Box overflow='hidden' ref={carouselRef}>
+        <Box overflow={'hidden'} ref={carouselRef}>
             <Row>
-                <Box height={pageHeight} overflow='hidden' flex='0 0 100%'>
-                    <Box display='flex' ref={ref} flexWrap='wrap' gap={1} >
+                <Box height={pageHeight} overflow={'hidden'} flex={'0 0 100%'}>
+                    <Box display={'flex'} ref={ref} flexWrap={'wrap'} gap={1} >
                         { items }
                     </Box>
                 </Box>
@@ -141,9 +141,9 @@ export function ItemsSelect (props: Props): ReactElement {
                         if (p === 0) {
                             return undefined
                         }
-                        return <Box key={p} height={pageHeight} overflow='hidden' position='relative' flex='0 0 100%'>
-                            <Box position='absolute' top={-pageHeight * p}>
-                                <Box display='flex' flexWrap='wrap' gap={1}>
+                        return <Box key={p} height={pageHeight} overflow={'hidden'} position={'relative'} flex={'0 0 100%'}>
+                            <Box position={'absolute'} top={-pageHeight * p}>
+                                <Box display={'flex'} flexWrap={'wrap'} gap={1}>
                                     { items }
                                 </Box>
                             </Box>
@@ -152,7 +152,7 @@ export function ItemsSelect (props: Props): ReactElement {
                 }
             </Row>
         </Box>
-        <Row justifyContent='center' gap={1} mt={1} height={10}>
+        <Row justifyContent={'center'} gap={1} mt={1} height={10}>
             {
                 pages > 1
                     ? times(pages ?? 0).map(p => {

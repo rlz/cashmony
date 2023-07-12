@@ -84,24 +84,24 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
             addAccount || noFab === true
                 ? undefined
                 : <Fab
-                    color='primary'
+                    color={'primary'}
                     sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
                     onClick={() => { setAddAccount(true) }}
                 >
                     <FontAwesomeIcon icon={faPlus} />
                 </Fab>
         }
-        <Box p={1} height='100%' overflow='scroll'>
-            <Box maxWidth={900} mx='auto'>
-                <Typography component='div' variant='h6' textAlign='center' my={1}>
-                    Total
-                    <Typography variant='body1' color='primary.main'>
+        <Box p={1} height={'100%'} overflow={'scroll'}>
+            <Box maxWidth={900} mx={'auto'}>
+                <Typography component={'div'} variant={'h6'} textAlign={'center'} my={1}>
+                    {'Total'}
+                    <Typography variant={'body1'} color={'primary.main'}>
                         {formatCurrency(total, appState.masterCurrency)}
                     </Typography>
                 </Typography>
                 <Box
-                    display='flex'
-                    flexDirection='column'
+                    display={'flex'}
+                    flexDirection={'column'}
                     gap={1}
                 >
                     {
@@ -118,8 +118,8 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
                                 account={account}
                                 totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
                             />)
-                            : <Typography color='primary.main' textAlign='center'>
-                                <a onClick={() => { setShowHidden(true) }}>Show {hiddenAccounts.length} hidden</a>
+                            : <Typography color={'primary.main'} textAlign={'center'}>
+                                <a onClick={() => { setShowHidden(true) }}>{'Show '}{hiddenAccounts.length}{' hidden'}</a>
                             </Typography>)
                         : null
                     }
@@ -131,18 +131,18 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
 })
 
 function AccountsScreenSkeleton (): ReactElement {
-    return <Column width='100%' p={1}>
-        <Typography component='div' variant='h6' textAlign='center' my={1}>
+    return <Column width={'100%'} p={1}>
+        <Typography component={'div'} variant={'h6'} textAlign={'center'} my={1}>
             <Skeleton sx={{ maxWidth: 85, mx: 'auto' }}/>
-            <Typography variant='body1' color='primary.main'>
+            <Typography variant={'body1'} color={'primary.main'}>
                 <Skeleton sx={{ maxWidth: 65, mx: 'auto' }}/>
             </Typography>
         </Typography>
         <Box
-            display='flex'
-            flexDirection='column'
+            display={'flex'}
+            flexDirection={'column'}
             gap={1}
-            width='100%'
+            width={'100%'}
         >
             {[1, 1, 1].map((_, i) => <AccountCardSkeleton key={i}/>)}
         </Box>
@@ -161,9 +161,9 @@ function AccountCard ({ account, totalAmount }: AccountPanelProps): ReactElement
         <Paper
             sx={{ p: 1 }}
         >
-            <Box display='flex' mb={1}>
+            <Box display={'flex'} mb={1}>
                 <DivBody1>{account.name}</DivBody1>
-                <DivBody1 flex='1 1 0' textAlign='right' color='primary.main'>
+                <DivBody1 flex={'1 1 0'} textAlign={'right'} color={'primary.main'}>
                     {
                         formatCurrency(totalAmount[totalAmount.length - 1], account.currency)
                     }
@@ -181,12 +181,12 @@ function AccountCard ({ account, totalAmount }: AccountPanelProps): ReactElement
 
 function AccountCardSkeleton (): ReactElement {
     return <Paper sx={{ p: 1, maxWidth: 900, mx: 'auto', width: '100%' }}>
-        <Box display='flex' mb={1}>
-            <DivBody1 flex='1 1 0'><Skeleton sx={{ maxWidth: 85 }}/></DivBody1>
-            <DivBody1 textAlign='right' color='primary.main'>
+        <Box display={'flex'} mb={1}>
+            <DivBody1 flex={'1 1 0'}><Skeleton sx={{ maxWidth: 85 }}/></DivBody1>
+            <DivBody1 textAlign={'right'} color={'primary.main'}>
                 <Skeleton sx={{ minWidth: 55 }} />
             </DivBody1>
         </Box>
-        <Skeleton variant='rectangular' height={50}/>
+        <Skeleton variant={'rectangular'} height={50}/>
     </Paper>
 }

@@ -76,6 +76,7 @@
                 "error",
                 "prefer-single"
             ],
+            "react/jsx-no-literals": ["error", {"noAttributeStrings": true}],
             "simple-import-sort/imports": "error",
             "@typescript-eslint/no-unused-vars": "warn",
             "@typescript-eslint/consistent-type-imports": "warn",

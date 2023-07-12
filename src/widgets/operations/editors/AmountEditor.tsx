@@ -29,15 +29,15 @@ export const AmountEditor = observer((props: Props): ReactElement => {
             onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
         >
             <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-                <Typography>Amount</Typography>
+                <Typography>{'Amount'}</Typography>
             </AccordionSummary>
             <AccordionDetails>
                 {
                     showIf(
                         props.expanded,
-                        <Box display='flex' gap={1}>
+                        <Box display={'flex'} gap={1}>
                             <IconButton
-                                color='primary'
+                                color={'primary'}
                                 sx={{ width: 48 }}
                                 onClick={() => { setCurSelOpen(true) }}
                             >
@@ -45,7 +45,7 @@ export const AmountEditor = observer((props: Props): ReactElement => {
                             </IconButton>
                             <CurrencyInput
                                 autoFocus
-                                label='Amount'
+                                label={'Amount'}
                                 mult={props.negative ? -1 : 1}
                                 amount={props.amount}
                                 currency={props.currency}

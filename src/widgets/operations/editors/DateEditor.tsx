@@ -26,7 +26,7 @@ export const DateEditor = (props: Props): ReactElement => {
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
     >
         <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-            <Typography>Date</Typography>
+            <Typography>{'Date'}</Typography>
         </AccordionSummary>
         <AccordionDetails>
             { props.expanded
@@ -45,11 +45,11 @@ export const DateEditor = (props: Props): ReactElement => {
             <Button onClick={() => {
                 const utc = utcToday().minus({ days: 1 })
                 props.onDateChange(utc)
-            }}>Yesterday</Button>
+            }}>{'Yesterday'}</Button>
             <Button onClick={() => {
                 const utc = utcToday()
                 props.onDateChange(utc)
-            }}>Today</Button>
+            }}>{'Today'}</Button>
         </AccordionActions>
     </Accordion>
 }

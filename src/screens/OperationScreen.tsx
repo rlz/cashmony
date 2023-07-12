@@ -67,7 +67,7 @@ export function OperationScreen (): ReactElement {
     return <MainScreen>
         {
             !smallScreen
-                ? <PanelGroup direction='horizontal'>
+                ? <PanelGroup direction={'horizontal'}>
                     <Panel>
                         <OpsList
                             sx={OPS_LIST_SX} /* no re-render here */
@@ -76,7 +76,7 @@ export function OperationScreen (): ReactElement {
                     </Panel>
                     <ResizeHandle/>
                     <Panel>
-                        <Box p={1} overflow='auto' height='100%'>
+                        <Box p={1} overflow={'auto'} height={'100%'}>
                             {body}
                         </Box>
                     </Panel>
@@ -244,7 +244,7 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
     }
 
     if (op.type === 'deleted') {
-        return <Typography variant='h5' mt={10} textAlign='center'>This operation was deleted</Typography>
+        return <Typography variant={'h5'} mt={10} textAlign={'center'}>{'This operation was deleted'}</Typography>
     }
 
     const propagateAndSave = (
@@ -296,7 +296,7 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
             op.type === 'transfer'
                 ? <>
                     <AccountEditor
-                        title='To account'
+                        title={'To account'}
                         opAmount={op.amount}
                         negative={false}
                         opCurrency={op.currency}
@@ -379,7 +379,7 @@ function SkeletonBody (): ReactElement {
             <PBody2>
                 <Skeleton width={90} sx={{ margin: '0 auto' }} />
             </PBody2>
-            <Typography variant='h4'>
+            <Typography variant={'h4'}>
                 <Skeleton width={180} sx={{ margin: '0 auto' }} />
             </Typography>
             <PBody2 mt={1}>
@@ -389,13 +389,13 @@ function SkeletonBody (): ReactElement {
                 <Skeleton width={270} />
             </PBody2>
         </Box>
-        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant='rounded' sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant='rounded' sx={{ height: 36, mt: 2 }} />
+        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+        <Skeleton variant={'rounded'} sx={{ height: 36, mt: 2 }} />
     </Box>
 }
 
@@ -466,33 +466,36 @@ const BasicInfo = observer(({ op, account, toAccount }: BasicInfoProps): ReactEl
     let categoryInfo: ReactElement | null = null
     if (op.type === 'expense' || op.type === 'income') {
         if (op.categories.length === 0) {
-            categoryInfo = <Typography variant='body2'>Cat.: -</Typography>
+            categoryInfo = <Typography variant={'body2'}>{'Cat.: -'}</Typography>
         } else {
             categoryInfo = <>{
                 op.categories
-                    .map(c => <Typography key={c.name} variant='body2'>
-                        Cat.: {c.name} ({
+                    .map(c => <Typography key={c.name} variant={'body2'}>
+                        {'Cat.: '}{c.name}{' ('}
+                        {
                             formatCurrency(
                                 c.amount * currenciesModel.getRate(op.date, op.currency, appState.masterCurrency),
                                 appState.masterCurrency
-                            )})
+                            )
+                        }
+                        {')'}
                     </Typography>)
             }</>
         }
     }
 
     return <>
-        <Typography variant='body2' textAlign='center'>
+        <Typography variant={'body2'} textAlign={'center'}>
             {op.date.toLocaleString({ dateStyle: 'full' })}
         </Typography>
-        <Typography variant='h4' textAlign='center' color={amountColor}>
+        <Typography variant={'h4'} textAlign={'center'} color={amountColor}>
             {Math.abs(op.amount).toLocaleString(undefined, {
                 style: 'currency',
                 currency: op.currency,
                 currencyDisplay: 'narrowSymbol'
             })}
         </Typography>
-        <Typography variant='body2' mt={1}>
+        <Typography variant={'body2'} mt={1}>
             {op.type === 'transfer' ? 'From acc.: ' : 'Acc.: '}
             {
                 account === null
@@ -509,8 +512,8 @@ const BasicInfo = observer(({ op, account, toAccount }: BasicInfoProps): ReactEl
         </Typography>
         {
             op.type === 'transfer'
-                ? <Typography variant='body2'>
-                    To acc.: {toAccount?.name ?? '-'}
+                ? <Typography variant={'body2'}>
+                    {'To acc.: '}{toAccount?.name ?? '-'}
                     {
                         toAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
                             ? null
@@ -520,9 +523,9 @@ const BasicInfo = observer(({ op, account, toAccount }: BasicInfoProps): ReactEl
                 : null
         }
         {categoryInfo}
-        <Typography variant='body2' mt={1} color='primary.light' noWrap>
+        <Typography variant={'body2'} mt={1} color={'primary.light'} noWrap>
             {op.tags.join(', ')}
         </Typography>
-        <Typography variant='body2' fontStyle='italic'>{op.comment}</Typography>
+        <Typography variant={'body2'} fontStyle={'italic'}>{op.comment}</Typography>
     </>
 })

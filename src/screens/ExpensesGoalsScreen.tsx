@@ -50,7 +50,7 @@ export const ExpensesGoalsScreenBody = observer(({ noFab }: ExpensesGoalsScreenB
             add || noFab === true
                 ? undefined
                 : <Fab
-                    color='primary'
+                    color={'primary'}
                     sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
                     onClick={() => { setAdd(true) }}
                 >
@@ -58,7 +58,7 @@ export const ExpensesGoalsScreenBody = observer(({ noFab }: ExpensesGoalsScreenB
                 </Fab>
         }
         <Box p={1} height={'100%'} overflow={'auto'}>
-            <Box maxWidth={900} mx='auto'>
+            <Box maxWidth={900} mx={'auto'}>
                 <ExpensesList items={goalsModel.goals.filter(i => i.deleted !== true)}/>
                 <Box minHeight={144}/>
             </Box>
