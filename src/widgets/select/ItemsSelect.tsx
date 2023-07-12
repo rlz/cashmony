@@ -8,7 +8,6 @@ import { useResizeDetector } from 'react-resize-detector'
 import { match, P } from 'ts-pattern'
 
 import { run, times } from '../../helpers/smallTools'
-import { useValueContainer } from '../../helpers/useValueContainer'
 import { Row } from '../generic/Containers'
 
 export type ItemType = string | { value: string, label: string, fontStyle?: string }
@@ -55,8 +54,8 @@ export function ItemsSelect (props: Props): ReactElement {
         }
     }, [carouselApi, onSelect])
 
-    const onSelectedChangeContainer = useValueContainer(props.onSelectedChange)
-    onSelectedChangeContainer.val = props.onSelectedChange
+    const onSelectedChangeContainer = useMemo(() => { return { v: props.onSelectedChange } }, [])
+    onSelectedChangeContainer.v = props.onSelectedChange
 
     const items = useMemo(() => {
         const items = filter === null
@@ -82,7 +81,7 @@ export function ItemsSelect (props: Props): ReactElement {
                         style={aStyle}
                         key={v}
                         onClick={() => {
-                            onSelectedChangeContainer.val(props.selected.filter(s => s !== v))
+                            onSelectedChangeContainer.v(props.selected.filter(s => s !== v))
                         }}
                     >
                         {chip}
@@ -96,9 +95,9 @@ export function ItemsSelect (props: Props): ReactElement {
                 key={v}
                 onClick={() => {
                     if (props.selectMany) {
-                        onSelectedChangeContainer.val([...selected, v])
+                        onSelectedChangeContainer.v([...selected, v])
                     } else {
-                        onSelectedChangeContainer.val([v])
+                        onSelectedChangeContainer.v([v])
                     }
                 }}
             >
