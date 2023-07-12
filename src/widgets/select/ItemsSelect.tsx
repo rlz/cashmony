@@ -8,6 +8,7 @@ import { useResizeDetector } from 'react-resize-detector'
 import { match, P } from 'ts-pattern'
 
 import { run, times } from '../../helpers/smallTools'
+import { useValueContainer } from '../../helpers/useValueContainer'
 import { Row } from '../generic/Containers'
 
 export type ItemType = string | { value: string, label: string, fontStyle?: string }
@@ -54,6 +55,9 @@ export function ItemsSelect (props: Props): ReactElement {
         }
     }, [carouselApi, onSelect])
 
+    const onSelectedChangeContainer = useValueContainer(props.onSelectedChange)
+    onSelectedChangeContainer.val = props.onSelectedChange
+
     const items = useMemo(() => {
         const items = filter === null
             ? props.items
@@ -78,7 +82,7 @@ export function ItemsSelect (props: Props): ReactElement {
                         style={aStyle}
                         key={v}
                         onClick={() => {
-                            props.onSelectedChange(props.selected.filter(s => s !== v))
+                            onSelectedChangeContainer.val(props.selected.filter(s => s !== v))
                         }}
                     >
                         {chip}
@@ -92,16 +96,16 @@ export function ItemsSelect (props: Props): ReactElement {
                 key={v}
                 onClick={() => {
                     if (props.selectMany) {
-                        props.onSelectedChange([...selected, v])
+                        onSelectedChangeContainer.val([...selected, v])
                     } else {
-                        props.onSelectedChange([v])
+                        onSelectedChangeContainer.val([v])
                     }
                 }}
             >
                 <Chip size='small' label={label} sx={{ fontStyle }}/>
             </a>
         })
-    }, [props.items, props.selected, filter])
+    }, [props.items, props.selected, filter, props.selectMany])
 
     return <Box sx={props.sx}>
         <FormControl variant='filled' size='small' fullWidth sx={{ mb: 2 }}>
