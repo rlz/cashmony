@@ -1,6 +1,6 @@
-import { faCheck, faChevronDown, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Box, Button, FormControlLabel, Skeleton, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
+import { Box, Button, FormControlLabel, Skeleton, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
@@ -22,7 +22,7 @@ import { AccPlot } from '../widgets/AccountPlots'
 import { CurrencyInput } from '../widgets/CurrencyInput'
 import { DeleteAccount } from '../widgets/DeleteAccount'
 import { FullScreenModal } from '../widgets/FullScreenModal'
-import { ActionFab } from '../widgets/generic/ActionButton'
+import { ActionButton, ActionFab } from '../widgets/generic/ActionButton'
 import { Column } from '../widgets/generic/Containers'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
@@ -75,7 +75,6 @@ export const AccountScreenBody = observer(() => {
     })
 
     const [acc, setAcc] = useState<Account | null>(null)
-    const [newAcc, setNewAcc] = useState<Account | null>(null)
     const navigate = useNavigate()
 
     const [opModalTitle, setOpModalTitle] = useState('')
@@ -87,12 +86,11 @@ export const AccountScreenBody = observer(() => {
 
         const account = accountsModel.get(accName)
         setAcc(account)
-        setNewAcc(account)
     }, [accName, accountsModel.accounts])
 
     useEffect(() => {
-        appState.setSubTitle(`Accounts :: ${newAcc?.name ?? 'Loading...'}`)
-    }, [newAcc?.name])
+        appState.setSubTitle(`Accounts :: ${acc?.name ?? 'Loading...'}`)
+    }, [acc?.name])
 
     const [perDayAmount, totalAmount] = useMemo(() => {
         if (accountsModel.amounts === null) {
@@ -112,7 +110,6 @@ export const AccountScreenBody = observer(() => {
 
     if (
         acc === null ||
-        newAcc === null ||
         accountsModel.accounts === null ||
         accountsModel.amounts === null
     ) {
@@ -125,7 +122,7 @@ export const AccountScreenBody = observer(() => {
         <Column height={'100%'}>
             <Box p={1}>
                 <Typography variant={'h6'} textAlign={'center'} mt={1}>
-                    {newAcc.name.trim() === '' ? '-' : newAcc.name}
+                    {acc.name}
                 </Typography>
                 <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
                     {cur(totalAmount[totalAmount.length - 1])}
@@ -145,7 +142,7 @@ export const AccountScreenBody = observer(() => {
                     {
                         match(tabName)
                             .with('stats', () => <Stats account={acc} perDayAmount={perDayAmount} totalAmount={totalAmount} />)
-                            .with('modify', () => <Editor acc={acc} newAcc={newAcc} setNewAcc={setNewAcc}/>)
+                            .with('modify', () => <Editor acc={acc} setAcc={setAcc}/>)
                             .with('operations', () => <OpsList
                                 noFab
                                 onOpClick={(opId) => {
@@ -214,39 +211,40 @@ function Stats ({ account, perDayAmount, totalAmount }: StatsProps): ReactElemen
 
 interface EditorProps {
     acc: Account
-    newAcc: Account
-    setNewAcc: (cat: Account) => void
+    setAcc: (cat: Account) => void
 }
 
-function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
+function Editor ({ acc, setAcc }: EditorProps): ReactElement {
     const navigate = useNavigate()
-    const [open, setOpen] = useState<'name' | 'goal' | null>(null)
     const amount = accountsModel.getAmounts(appState.today).get(acc.name) ?? 0
+
     const [adjustedAmount, setAdjustedAmount] = useState(amount)
-    const [adjInProgress, setAdjInProgress] = useState(false)
+
     const [delOpen, setDelOpen] = useState(false)
+    const [newAcc, setNewAcc] = useState(acc)
+
+    useEffect(() => { setNewAcc(acc) }, [acc])
+
+    const trimmedName = newAcc.name.trim()
+    const nameConflict = trimmedName !== acc.name &&
+        accountsModel.accounts !== null &&
+        accountsModel.accounts.has(newAcc.name) &&
+        accountsModel.get(newAcc.name).deleted !== true
 
     const onSave = useMemo(
         () => {
             if (
-                acc === null ||
-                newAcc === null ||
-                accountsModel.accounts === null ||
                 deepEqual(acc, newAcc) ||
-                newAcc.name.trim() === '' ||
-                (
-                    newAcc.name !== acc.name &&
-                    accountsModel.accounts.has(newAcc.name) &&
-                    accountsModel.get(newAcc.name).deleted !== true
-                )
+                trimmedName === '' ||
+                nameConflict
             ) {
                 return null
             }
 
             return async () => {
-                await accountsModel.put({ ...newAcc, lastModified: DateTime.utc() })
+                await accountsModel.put({ ...newAcc, name: trimmedName, lastModified: DateTime.utc() })
 
-                if (newAcc.name !== acc.name) {
+                if (trimmedName !== acc.name) {
                     const changedOps: Operation[] = []
                     for (const op of operationsModel.operations) {
                         if (
@@ -258,15 +256,18 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
                                 lastModified: DateTime.utc(),
                                 account: {
                                     ...op.account,
-                                    name: newAcc.name
+                                    name: trimmedName
                                 }
                             })
                         }
                     }
                     await operationsModel.put(changedOps)
                     await accountsModel.put({ ...acc, deleted: true, lastModified: DateTime.utc() })
-                    navigate(`/accounts/${encodeURIComponent(newAcc.name)}`)
+                    navigate(`/accounts/${encodeURIComponent(trimmedName)}`)
+                    return
                 }
+
+                setAcc(newAcc)
             }
         },
         [
@@ -277,102 +278,66 @@ function Editor ({ acc, newAcc, setNewAcc }: EditorProps): ReactElement {
     )
 
     return <Box mt={1}>
-        <Accordion
-            disableGutters
-            expanded={open === 'name'}
-            onChange={(_, expanded) => {
-                setOpen(expanded ? 'name' : null)
-            }}
-        >
-            <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-                <Typography>{'Name'}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-                <TextField
-                    error={
-                        newAcc.name !== acc.name &&
-                        accountsModel.accounts?.has(newAcc.name) === true &&
-                        accountsModel.get(newAcc.name).deleted !== true
-                    }
-                    label={'Name'}
-                    size={'small'}
-                    fullWidth
-                    variant={'filled'}
-                    value={newAcc.name}
-                    onChange={ev => { setNewAcc({ ...newAcc, name: ev.target.value }) }}
-                />
-            </AccordionDetails>
-        </Accordion>
-        <Accordion
-            disableGutters
-            expanded={open === 'goal'}
-            onChange={(_, expanded) => {
-                setOpen(expanded ? 'goal' : null)
-            }}
-        >
-            <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
-                <Typography>{'Current Amount'}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-                <CurrencyInput
-                    label={'Amount'}
-                    currency={newAcc.currency}
-                    amount={adjustedAmount}
-                    onAmountChange={amount => { setAdjustedAmount(amount) }}
-                />
-            </AccordionDetails>
-            <AccordionActions>
-                <Button
-                    disabled={amount === adjustedAmount || adjInProgress}
-                    onClick={() => {
-                        setAdjInProgress(true)
-                        setTimeout(() => {
-                            const run = async (): Promise<void> => {
-                                try {
-                                    await operationsModel.put([{
-                                        id: uuid(),
-                                        lastModified: DateTime.utc(),
-                                        date: appState.today,
-                                        type: 'adjustment',
-                                        currency: acc.currency,
-                                        amount: adjustedAmount - amount,
-                                        account: {
-                                            name: acc.name,
-                                            amount: adjustedAmount - amount
-                                        },
-                                        tags: [],
-                                        comment: null
-                                    }])
-                                } finally {
-                                    setAdjInProgress(false)
-                                }
-                            }
-
-                            void run()
-                        })
-                    }}
-                    variant={'contained'}
-                    size={'small'}
-                    fullWidth
-                    sx={{ gap: 1 }}
-                >
-                    {adjInProgress ? <FontAwesomeIcon icon={faSpinner} pulse /> : null}{' Adjust'}
-                </Button>
-            </AccordionActions>
-        </Accordion>
-        <Box my={1}>
-            <FormControlLabel
-                control={<Switch
-                    checked={newAcc.hidden}
-                    onChange={(_, checked) => {
-                        setNewAcc({
-                            ...newAcc,
-                            hidden: checked
-                        })
-                    }}
-                />}
-                label={'Hidden'}
+        <TextField
+            error={trimmedName === '' || nameConflict}
+            helperText={match(null)
+                .when(() => trimmedName === '', () => 'Black name')
+                .when(() => nameConflict, () => 'Already exists')
+                .otherwise(() => 'Ok')
+            }
+            label={'Name'}
+            size={'small'}
+            fullWidth
+            variant={'filled'}
+            value={newAcc.name}
+            onChange={ev => { setNewAcc({ ...newAcc, name: ev.target.value }) }}
+        />
+        <FormControlLabel
+            control={<Switch
+                checked={newAcc.hidden}
+                onChange={(_, checked) => {
+                    setNewAcc({
+                        ...newAcc,
+                        hidden: checked
+                    })
+                }}
+            />}
+            label={'Hidden'}
+        />
+        <Box my={4}>
+            <CurrencyInput
+                label={'Adjust amount'}
+                currency={newAcc.currency}
+                amount={adjustedAmount}
+                onAmountChange={amount => { setAdjustedAmount(amount) }}
             />
+            <ActionButton
+                sx={{ mt: 1 }}
+                action={
+                    amount === adjustedAmount
+                        ? null
+                        : async () => {
+                            await operationsModel.put([{
+                                id: uuid(),
+                                lastModified: DateTime.utc(),
+                                date: appState.today,
+                                type: 'adjustment',
+                                currency: acc.currency,
+                                amount: adjustedAmount - amount,
+                                account: {
+                                    name: acc.name,
+                                    amount: adjustedAmount - amount
+                                },
+                                tags: [],
+                                comment: null
+                            }])
+                        }
+                }
+                variant={'contained'}
+                fullWidth
+            >
+                {'Adjust'}
+            </ActionButton>
         </Box>
         <ActionFab action={onSave}>
             <FontAwesomeIcon icon={faCheck}/>

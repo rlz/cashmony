@@ -34,7 +34,7 @@ export function ActionButton ({ confirmationTitle, confirmation, action, childre
     return <>
         <Button
             {...btnProps}
-            disabled={action === null}
+            disabled={action === null || inProgress}
             onClick={() => {
                 if (confirmation !== undefined) {
                     setDialogOpen(true)
@@ -42,8 +42,9 @@ export function ActionButton ({ confirmationTitle, confirmation, action, childre
                 }
                 runAction()
             }}
+            sx={{ ...btnProps.sx ?? {}, gap: 1 }}
         >
-            {inProgress ? <FontAwesomeIcon icon={faSpinner} pulse/> : children}
+            {inProgress ? <><FontAwesomeIcon icon={faSpinner} pulse/>{children}</> : children}
         </Button>
         {
             showIf(
@@ -87,7 +88,7 @@ export function ActionFab (props: PropsWithChildren<ActionFabProps>): ReactEleme
 
     return <Fab
         color={'primary'}
-        disabled={props.action === null}
+        disabled={props.action === null || inProgress}
         sx={{ position: 'absolute', bottom: props.bottom ?? '70px', right: '20px' }}
         onClick={() => {
             setInProgress(true)
