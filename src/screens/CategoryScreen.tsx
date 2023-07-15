@@ -72,11 +72,10 @@ export const CategoryScreenBody = observer((): ReactElement => {
     })
 
     const [cat, setCat] = useState<Category | null>(null)
-    const [newCat, setNewCat] = useState<Category | null>(null)
     const navigate = useNavigate()
     const [opModalTitle, setOpModalTitle] = useState('')
 
-    const currency = newCat?.currency ?? appState.masterCurrency
+    const currency = cat?.currency ?? appState.masterCurrency
 
     useEffect(() => {
         if (cat === null) {
@@ -110,12 +109,10 @@ export const CategoryScreenBody = observer((): ReactElement => {
                         .exhaustive()
                 }
                 setCat(category)
-                setNewCat(category)
                 return
             }
             const category = categoriesModel.get(catName)
             setCat(category)
-            setNewCat(category)
         },
         [
             catName,
@@ -130,7 +127,6 @@ export const CategoryScreenBody = observer((): ReactElement => {
 
     if (
         cat === null ||
-        newCat === null ||
         currenciesModel.rates === null
     ) {
         return <ExpensesGroupScreenSkeleton />
@@ -141,7 +137,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
         .with('_', () => getUncategorizedStats())
         .otherwise(() => new ExpensesStats(
             Operations.forFilter(appState.filter).keepTypes('expense', 'income').keepCategories(cat.name).skipUncategorized(),
-            match(newCat.perDayAmount).with(undefined, () => null).otherwise(v => { return { value: -v, currency: newCat.currency ?? '' } })
+            match(cat.perDayAmount).with(undefined, () => null).otherwise(v => { return { value: -v, currency: cat.currency ?? '' } })
         ))
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
@@ -153,7 +149,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
             <Box p={1}>
                 <Typography variant={'h6'} textAlign={'center'} mt={1}>
                     {
-                        match(newCat.name.trim())
+                        match(cat.name.trim())
                             .with('', () => '-')
                             .with('_', () => 'Uncategorized')
                             .with('_total', () => 'Total')
@@ -178,10 +174,8 @@ export const CategoryScreenBody = observer((): ReactElement => {
                         match(tabName)
                             .with('stats', () => <ExpensesStatsWidget currency={currency} stats={stats} />)
                             .with('modify', () => <CategoryEditor
-                                origCat={cat}
-                                newCat={newCat}
+                                cat={cat}
                                 setCat={setCat}
-                                setNewCat={setNewCat}
                             />)
                             .with('operations', () => <OpsList
                                 noFab
