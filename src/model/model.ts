@@ -31,7 +31,7 @@ export interface ExpensesGoal extends Category {
     readonly filter: Filter
 }
 
-interface BaseTransaction {
+export interface BaseTransaction {
     readonly name: string
     readonly amount: number
 }

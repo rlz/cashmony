@@ -12,12 +12,12 @@ import { v1 as uuid } from 'uuid'
 import { formatCurrency } from '../helpers/currencies'
 import { utcToday } from '../helpers/dates'
 import { deepEqual } from '../helpers/deepEqual'
-import { runAsync } from '../helpers/smallTools'
+import { nonNull, run, runAsync } from '../helpers/smallTools'
 import { screenWidthIs } from '../helpers/useWidth'
 import { AccountsModel } from '../model/accounts'
 import { AppState } from '../model/appState'
 import { CurrenciesModel } from '../model/currencies'
-import { type AdjustmentOperation, type DeletedOperation, type ExpenseOperation, type IncomeOperation, type NotDeletedOperation, type Operation, type TransferOperation } from '../model/model'
+import { type BaseTransaction, type NotDeletedOperation, type Operation } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { ActionButton, ActionFab } from '../widgets/generic/ActionButton'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
@@ -38,11 +38,6 @@ const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
 const currenciesModel = CurrenciesModel.instance()
 
-type PartialOperation =
-    Omit<IncomeOperation | ExpenseOperation, 'account'> |
-    Omit<TransferOperation, 'account' | 'toAccount'> |
-    Omit<AdjustmentOperation, 'account'>
-
 export function OperationScreen (): ReactElement {
     const location = useLocation()
     const navigate = useNavigate()
@@ -61,7 +56,7 @@ export function OperationScreen (): ReactElement {
         .with('/new-op/transfer', () => 'new-transfer')
         .otherwise(() => pathParams.opId ?? '')
 
-    const body = <OperationScreenBody opId={opId}/>
+    const body = <OperationScreenBody urlOpId={opId}/>
 
     return <MainScreen>
         {
@@ -88,97 +83,148 @@ export function OperationScreen (): ReactElement {
 }
 
 interface BodyProps {
-    opId: string
+    urlOpId: string
     setModalTitle?: (title: string) => void
 }
 
-export const OperationScreenBody = observer(function OperationScreenBody ({ opId, setModalTitle }: BodyProps): ReactElement {
+export const OperationScreenBody = observer(function OperationScreenBody ({ urlOpId, setModalTitle }: BodyProps): ReactElement {
     const navigate = useNavigate()
     const smallScreen = screenWidthIs('xs', 'sm')
 
-    const [op, setOp] = useState<PartialOperation | DeletedOperation | null>(null)
-    const [origOp, setOrigOp] = useState<PartialOperation | DeletedOperation | null>(null)
-    const [account, setAccount] = useState<NotDeletedOperation['account'] | null>(null)
-    const [origAccount, setOrigAccount] = useState<NotDeletedOperation['account'] | null>(null)
-    const [toAccount, setToAccount] = useState<NotDeletedOperation['account'] | null>(null)
-    const [origToAccount, setOrigToAccount] = useState<NotDeletedOperation['account'] | null>(null)
+    const [opId, setOpId] = useState<string | null>(null)
+    const [opType, setOpType] = useState<Operation['type'] | null>(null)
+    const [opDate, setOpDate] = useState<DateTime | null>(null)
+    const [origOpDate, setOrigOpDate] = useState<DateTime | null>(null)
+    const [opAmount, setOpAmount] = useState<number | null>(null)
+    const [origOpAmount, setOrigOpAmount] = useState<number | null>(null)
+    const [opCurrency, setOpCurrency] = useState<string | null>(null)
+    const [origOpCurrency, setOrigOpCurrency] = useState<string | null>(null)
+    const [opAccount, setOpAccount] = useState<BaseTransaction | null>(null)
+    const [origOpAccount, setOrigOpAccount] = useState<BaseTransaction | null>(null)
+    const [opToAccount, setOpToAccount] = useState<BaseTransaction | null>(null)
+    const [origOpToAccount, setOrigOpToAccount] = useState<BaseTransaction | null>(null)
+    const [opCategories, setOpCategories] = useState<readonly BaseTransaction[] | null>(null)
+    const [origOpCategories, setOrigOpCategories] = useState<readonly BaseTransaction[] | null>(null)
+    const [opTags, setOpTags] = useState<readonly string[] | null>(null)
+    const [origOpTags, setOrigOpTags] = useState<readonly string[] | null>(null)
+    const [opComment, setOpComment] = useState<string | null>(null)
+    const [origOpComment, setOrigOpComment] = useState<string | null>(null)
+
+    const clearOpState = (): void => {
+        setOpId(null)
+        setOpType(null)
+        setOpDate(null)
+        setOrigOpDate(null)
+        setOpAmount(null)
+        setOrigOpAmount(null)
+        setOpCurrency(null)
+        setOrigOpCurrency(null)
+        setOpAccount(null)
+        setOrigOpAccount(null)
+        setOpToAccount(null)
+        setOrigOpToAccount(null)
+        setOpCategories(null)
+        setOrigOpCategories(null)
+        setOpTags(null)
+        setOrigOpTags(null)
+        setOpComment(null)
+        setOrigOpComment(null)
+    }
+
+    const clearOpDiff = (): void => {
+        setOrigOpDate(opDate)
+        setOrigOpAmount(opAmount)
+        setOrigOpCurrency(opCurrency)
+        setOrigOpAccount(opAccount)
+        setOrigOpToAccount(opToAccount)
+        setOrigOpCategories(opCategories)
+        setOrigOpTags(opTags)
+        setOrigOpComment(opComment)
+    }
+
+    const isChanged = (): boolean => (
+        opDate?.toMillis() !== origOpDate?.toMillis() ||
+        opAmount !== origOpAmount ||
+        opCurrency !== origOpCurrency ||
+        !deepEqual(opAccount, origOpAccount) ||
+        !deepEqual(opToAccount, origOpToAccount) ||
+        !deepEqual(opCategories, origOpCategories) ||
+        !deepEqual(opTags, origOpTags) ||
+        !deepEqual(opComment, origOpComment)
+    )
 
     const [expanded, setExpanded] = useState<
     'amount' | 'tags' | 'account' | 'toAccount' | 'comment' | 'date' | 'categories' | null
     >(null)
 
     useEffect(() => {
-        setOp(null)
-        setOrigOp(null)
-        setAccount(null)
-        setOrigAccount(null)
-        setToAccount(null)
-        setOrigToAccount(null)
+        clearOpState()
 
         const setTitle = setModalTitle !== undefined ? setModalTitle : appState.setSubTitle
 
-        if (opId === 'new-expense') {
-            setOp({
-                id: uuid(),
-                type: 'expense',
-                lastModified: DateTime.utc(),
-                date: utcToday(),
-                amount: 0,
-                currency: currenciesModel.currencies[0],
-                categories: [],
-                tags: [],
-                comment: null
-            })
+        if (urlOpId.startsWith('new-')) {
+            setOpId(uuid())
+            setOpDate(utcToday())
+            setOpAmount(0)
+            setOpCurrency(currenciesModel.currencies[0])
+            setOpTags([])
+        }
+
+        if (urlOpId === 'new-expense') {
+            setOpType('expense')
+            setOpCategories([])
 
             setTitle('Operations :: new :: expense')
-        } else if (opId === 'new-income') {
-            setOp({
-                id: uuid(),
-                type: 'income',
-                lastModified: DateTime.utc(),
-                date: utcToday(),
-                amount: 0,
-                currency: currenciesModel.currencies[0],
-                categories: [],
-                tags: [],
-                comment: null
-            })
+        } else if (urlOpId === 'new-income') {
+            setOpType('income')
+            setOpCategories([])
 
             setTitle('Operations :: new :: income')
-        } else if (opId === 'new-transfer') {
-            setOp({
-                id: uuid(),
-                type: 'transfer',
-                lastModified: DateTime.utc(),
-                date: utcToday(),
-                amount: 0,
-                currency: currenciesModel.currencies[0],
-                tags: [],
-                comment: null
-            })
+        } else if (urlOpId === 'new-transfer') {
+            setOpType('transfer')
 
             setTitle('Operations :: new :: transfer')
         } else {
             setTitle('Operations :: loading...')
 
             runAsync(async (): Promise<void> => {
-                const op = await operationsModel.getOperation(opId)
-                setOp(op)
-                setOrigOp(op)
-                if (op.type !== 'deleted') {
-                    setAccount(op.account)
-                    setOrigAccount(op.account)
+                const op = await operationsModel.getOperation(urlOpId)
+
+                setOpId(op.id)
+                setOpType(op.type)
+                setTitle(`Operations :: ${op.type}`)
+
+                if (op.type === 'deleted') {
+                    return
+                }
+
+                setOpDate(op.date)
+                setOrigOpDate(op.date)
+                setOpAmount(op.amount)
+                setOrigOpAmount(op.amount)
+                setOpCurrency(op.currency)
+                setOrigOpCurrency(op.currency)
+                setOpAccount(op.account)
+                setOrigOpAccount(op.account)
+                setOpToAccount(null)
+                setOrigOpToAccount(null)
+                setOpTags(op.tags)
+                setOrigOpTags(op.tags)
+                setOpComment(op.comment)
+                setOrigOpComment(op.comment)
+
+                if (op.type === 'expense' || op.type === 'income') {
+                    setOpCategories(op.categories)
+                    setOrigOpCategories(op.categories)
                 }
 
                 if (op.type === 'transfer') {
-                    setToAccount(op.toAccount)
-                    setOrigToAccount(op.toAccount)
+                    setOpToAccount(op.toAccount)
+                    setOrigOpToAccount(op.toAccount)
                 }
-
-                setTitle(`Operations :: ${op.type}`)
             })
         }
-    }, [opId, setModalTitle])
+    }, [urlOpId, setModalTitle])
 
     useEffect(() => {
         setExpanded(location.pathname.startsWith('/new-op/') ? 'amount' : null)
@@ -187,41 +233,59 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
     const onSave = useMemo(
         () => {
             if (
-                op === null ||
-                op.type === 'deleted' ||
-                op.amount === 0 ||
-                account === null ||
-                account.amount === 0 ||
-                (op.type === 'transfer' && (toAccount === null || toAccount.amount === 0)) ||
-                (deepEqual(op, origOp) && deepEqual(account, origAccount) && deepEqual(toAccount, origToAccount))
+                opType === 'deleted' ||
+                opAmount === 0 ||
+                opAccount === null ||
+                opAccount.amount === 0 ||
+                (opType === 'transfer' && (opToAccount === null || opToAccount.amount === 0)) ||
+                (!isChanged())
             ) {
                 return null
             }
 
             return async () => {
-                if (op === null) {
-                    throw Error('Not null op expected here')
+                if (
+                    opId === null ||
+                    opType === null ||
+                    opDate === null ||
+                    opAmount === null ||
+                    opCurrency === null ||
+                    opAccount === null ||
+                    (opType === 'transfer' && opToAccount === null) ||
+                    ((opType === 'expense' || opType === 'income') && opCategories === null) ||
+                    opTags === null
+                ) {
+                    throw Error('Not null fields expected here')
                 }
 
-                if (account === null) {
-                    throw Error('Not null account expected here')
-                }
-
-                if (op.type === 'transfer') {
-                    if (toAccount === null) {
-                        throw Error('Not null toAccount expected here')
+                const op = run((): NotDeletedOperation => {
+                    const op = {
+                        id: opId,
+                        lastModified: DateTime.utc(),
+                        date: opDate,
+                        amount: opAmount,
+                        currency: opCurrency,
+                        account: opAccount,
+                        tags: opTags,
+                        comment: opComment
                     }
 
-                    await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account, toAccount }])
-                } else {
-                    await operationsModel.put([{ ...op, lastModified: DateTime.utc(), account }])
-                }
+                    if (opType === 'expense' || opType === 'income') {
+                        return { ...op, type: opType, categories: opCategories! }
+                    }
 
-                setOrigOp(op)
-                setOrigAccount(account)
-                setOrigToAccount(toAccount)
+                    if (opType === 'transfer') {
+                        return { ...op, type: opType, toAccount: opToAccount! }
+                    }
 
-                if (opId.startsWith('new-')) {
+                    return { ...op, type: opType }
+                })
+
+                await operationsModel.put([op])
+
+                clearOpDiff()
+
+                if (urlOpId.startsWith('new-')) {
                     if (smallScreen) {
                         navigate('/operations')
                     } else {
@@ -230,11 +294,36 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
                 }
             }
         },
-        [op, origOp, account, origAccount, toAccount, origToAccount, smallScreen]
+        [
+            opId,
+            opType,
+            opDate,
+            origOpDate,
+            opAmount,
+            origOpAmount,
+            opCurrency,
+            origOpCurrency,
+            opAccount,
+            origOpAccount,
+            opToAccount,
+            origOpToAccount,
+            opCategories,
+            origOpCategories,
+            opTags,
+            origOpTags,
+            opComment,
+            origOpComment,
+            smallScreen
+        ]
     )
 
     if (
-        op === null ||
+        opId === null ||
+        opType === null ||
+        opDate === null ||
+        opAmount === null ||
+        opCurrency === null ||
+        opTags === null ||
         accountsModel.accounts === null ||
         accountsModel.amounts === null ||
         currenciesModel.rates === null
@@ -242,84 +331,105 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
         return <SkeletonBody />
     }
 
-    if (op.type === 'deleted') {
+    if (opType === 'deleted') {
         return <Typography variant={'h5'} mt={10} textAlign={'center'}>{'This operation was deleted'}</Typography>
     }
 
     const propagateAndSave = (
-        op: PartialOperation,
+        amount: number,
+        currency: string,
+        categories: readonly BaseTransaction[] | null,
         account: NotDeletedOperation['account'] | null,
         toAccount: NotDeletedOperation['account'] | null
     ): void => {
-        const [prOp, prAccount, prToAccount] = propagateAmount(op, account, toAccount)
-        setOp(prOp)
-        setAccount(prAccount)
-        setToAccount(prToAccount)
+        const [prCategories, prAccount, prToAccount] = propagateAmount(
+            opType,
+            amount,
+            currency,
+            categories,
+            account,
+            toAccount
+        )
+        setOpAmount(amount)
+        setOpCurrency(currency)
+        setOpCategories(prCategories)
+        setOpAccount(prAccount)
+        setOpToAccount(prToAccount)
     }
 
     return <Box>
         <Box pt={1} pb={2}>
-            <BasicInfo op={op} account={account} toAccount={toAccount}/>
+            <BasicInfo
+                opType={opType}
+                opDate={opDate}
+                opAmount={opAmount}
+                opCurrency={opCurrency}
+                opAccount={opAccount}
+                opToAccount={opToAccount}
+                opCategories={opCategories}
+                opTags={opTags}
+                opComment={opComment}
+            />
         </Box>
         <AmountEditor
-            amount={op.amount}
-            negative={op.type === 'expense'}
-            currency={op.currency}
+            amount={opAmount}
+            negative={opType === 'expense'}
+            currency={opCurrency}
             expanded={expanded === 'amount'}
             onCurrencyChange={currency => {
-                propagateAndSave({ ...op, currency }, account, toAccount)
+                propagateAndSave(opAmount, currency, opCategories, opAccount, opToAccount)
             }}
             onAmountChange={amount => {
-                propagateAndSave({ ...op, amount }, account, toAccount)
+                propagateAndSave(amount, opCurrency, opCategories, opAccount, opToAccount)
             }}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'amount' : null) }}
         />
         <DateEditor
             expanded={expanded === 'date'}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'date' : null) }}
-            date={op.date}
-            onDateChange={date => { setOp({ ...op, date }) }}
+            date={opDate}
+            onDateChange={setOpDate}
         />
         <AccountEditor
-            title={op.type === 'transfer' ? 'From account' : 'Account'}
-            opAmount={op.amount}
-            negative={op.type === 'expense' || op.type === 'transfer'}
-            opCurrency={op.currency}
+            title={opType === 'transfer' ? 'From account' : 'Account'}
+            opAmount={opAmount}
+            negative={opType === 'expense' || opType === 'transfer'}
+            opCurrency={opCurrency}
             expanded={expanded === 'account'}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : null) }}
-            account={account}
-            onAccountChange={account => { propagateAndSave(op, account, toAccount) }}
-            hideAccount={op.type === 'transfer' ? toAccount?.name : undefined}
+            account={opAccount}
+            onAccountChange={account => { propagateAndSave(opAmount, opCurrency, opCategories, account, opToAccount) }}
+            hideAccount={opType === 'transfer' ? opToAccount?.name : undefined}
         />
         {
-            op.type === 'transfer'
+            opType === 'transfer'
                 ? <>
                     <AccountEditor
                         title={'To account'}
-                        opAmount={op.amount}
+                        opAmount={opAmount}
                         negative={false}
-                        opCurrency={op.currency}
+                        opCurrency={opCurrency}
                         expanded={expanded === 'toAccount'}
                         onExpandedChange={(expanded) => { setExpanded(expanded ? 'toAccount' : null) }}
-                        account={toAccount}
+                        account={opToAccount}
                         onAccountChange={toAccount => {
-                            propagateAndSave(op, account, toAccount)
+                            propagateAndSave(opAmount, opCurrency, opCategories, opAccount, toAccount)
                         }}
-                        hideAccount={account?.name}
+                        hideAccount={opAccount?.name}
                     /></>
                 : null
         }
         {
-            op.type === 'expense' || op.type === 'income'
+            opType === 'expense' || opType === 'income'
                 ? <CategoriesEditor
                     expanded={expanded === 'categories'}
                     onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
-                    opAmount={op.amount}
-                    negative={op.type === 'expense'}
-                    opCurrency={op.currency}
-                    categories={op.categories}
+                    opAmount={opAmount}
+                    negative={opType === 'expense'}
+                    opCurrency={opCurrency}
+                    categories={nonNull(opCategories, 'non null opCAtegories expected here')}
                     onCategoriesChange={categories => {
-                        propagateAndSave({ ...op, categories }, account, toAccount)
+                        propagateAndSave(opAmount, opCurrency, categories, opAccount, opToAccount)
                     }}
                 />
                 : null
@@ -327,16 +437,16 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
         <TagsEditor
             expanded={expanded === 'tags'}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'tags' : null) }}
-            categories={op.type === 'income' || op.type === 'expense' ? op.categories.map(c => c.name) : []}
-            tags={op.tags}
-            opType={op.type}
-            onTagsChanged={tags => { setOp({ ...op, tags }) }}
+            categories={opType === 'income' || opType === 'expense' ? opCategories?.map(c => c.name) ?? [] : []}
+            tags={opTags}
+            opType={opType}
+            onTagsChanged={setOpTags}
         />
         <CommentEditor
             expanded={expanded === 'comment'}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'comment' : null) }}
-            comment={op.comment}
-            onCommentChange={comment => { setOp({ ...op, comment }) }}
+            comment={opComment}
+            onCommentChange={setOpComment}
         />
         <ActionFab
             action={onSave}
@@ -354,20 +464,13 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
                     sx={{ mt: 4 }}
                     confirmation={'Are you sure that you want to delete this operation?'}
                     action={async () => {
-                        const o: Operation = {
-                            id: opId,
-                            type: 'deleted'
-                        }
-                        await operationsModel.put([o])
-
-                        setOp(o)
-                        setOrigOp(o)
-                        setAccount(null)
-                        setOrigAccount(null)
-                        setToAccount(null)
-                        setOrigToAccount(null)
+                        clearOpState()
+                        setOpId(urlOpId)
+                        setOpType('deleted')
+                        await operationsModel.put([{ id: urlOpId, type: 'deleted' }])
 
                         if (smallScreen && setModalTitle === undefined) {
+                            // todo: fix navigation from non operation screens
                             navigate('/operations')
                         }
                     }}
@@ -407,82 +510,90 @@ function SkeletonBody (): ReactElement {
     </Box>
 }
 
-function propagateAmount<T extends PartialOperation> (
-    op: T,
-    account: NotDeletedOperation['account'] | null,
-    toAccount: NotDeletedOperation['account'] | null
-): [T, NotDeletedOperation['account'] | null, NotDeletedOperation['account'] | null] {
+function propagateAmount (
+    opType: string,
+    opAmount: number,
+    opCurrency: string,
+    opCategories: readonly BaseTransaction[] | null,
+    opAccount: BaseTransaction | null,
+    opToAccount: BaseTransaction | null
+): [readonly BaseTransaction[] | null, BaseTransaction | null, BaseTransaction | null] {
     if (
-        account !== null &&
-        op.amount !== account.amount &&
-        op.currency === accountsModel.get(account.name).currency
+        opAccount !== null &&
+        opAmount !== opAccount.amount &&
+        opCurrency === accountsModel.get(opAccount.name).currency
     ) {
-        account = {
-            ...account,
-            amount: op.type === 'transfer' ? -op.amount : op.amount
+        opAccount = {
+            ...opAccount,
+            amount: opType === 'transfer' ? -opAmount : opAmount
         }
     }
 
     if (
-        op.type === 'transfer' &&
-        toAccount !== null &&
-        op.amount !== toAccount.amount &&
-        op.currency === accountsModel.get(toAccount.name).currency
+        opType === 'transfer' &&
+        opToAccount !== null &&
+        opAmount !== opToAccount.amount &&
+        opCurrency === accountsModel.get(opToAccount.name).currency
     ) {
-        toAccount = {
-            ...toAccount,
-            amount: op.amount
+        opToAccount = {
+            ...opToAccount,
+            amount: opAmount
         }
     }
 
     if (
-        (op.type === 'expense' || op.type === 'income') &&
-        op.categories.length === 1 &&
-        op.categories[0].amount !== op.amount
+        opCategories !== null &&
+        opCategories.length === 1 &&
+        opCategories[0].amount !== opAmount
     ) {
-        op = {
-            ...op,
-            categories: [{
-                ...op.categories[0],
-                amount: op.amount
-            }]
-        }
+        opCategories = [{
+            ...opCategories[0],
+            amount: opAmount
+        }]
     }
 
-    return [op, account, toAccount]
+    return [opCategories, opAccount, opToAccount]
 }
 
 interface BasicInfoProps {
-    op: PartialOperation
-    account: NotDeletedOperation['account'] | null
-    toAccount: NotDeletedOperation['account'] | null
+    opType: NotDeletedOperation['type']
+    opDate: DateTime
+    opAmount: number
+    opCurrency: string
+    opCategories: readonly BaseTransaction[] | null
+    opAccount: NotDeletedOperation['account'] | null
+    opToAccount: NotDeletedOperation['account'] | null
+    opTags: readonly string[]
+    opComment: string | null
 }
 
-const BasicInfo = observer(({ op, account, toAccount }: BasicInfoProps): ReactElement => {
+const BasicInfo = observer(({ opType, opDate, opAmount, opCurrency, opCategories, opAccount, opToAccount, opTags, opComment }: BasicInfoProps): ReactElement => {
     const theme = useTheme()
 
-    const accountCurrency = account !== null ? accountsModel.get(account.name).currency : null
-    const toAccountCurrency = toAccount !== null ? accountsModel.get(toAccount.name).currency : null
+    const accountCurrency = opAccount !== null ? accountsModel.get(opAccount.name).currency : null
+    const toAccountCurrency = opToAccount !== null ? accountsModel.get(opToAccount.name).currency : null
 
     const amountColor = {
         expense: theme.palette.error,
         income: theme.palette.success,
         transfer: theme.palette.info,
         adjustment: theme.palette.warning
-    }[op.type].light
+    }[opType].light
 
     let categoryInfo: ReactElement | null = null
-    if (op.type === 'expense' || op.type === 'income') {
-        if (op.categories.length === 0) {
+    if (opType === 'expense' || opType === 'income') {
+        const opCats = nonNull(opCategories, 'not null opCategories expected here')
+
+        if (opCats.length === 0) {
             categoryInfo = <Typography variant={'body2'}>{'Cat.: -'}</Typography>
         } else {
             categoryInfo = <>{
-                op.categories
+                opCats
                     .map(c => <Typography key={c.name} variant={'body2'}>
                         {'Cat.: '}{c.name}{' ('}
                         {
                             formatCurrency(
-                                c.amount * currenciesModel.getRate(op.date, op.currency, appState.masterCurrency),
+                                c.amount * currenciesModel.getRate(opDate, opCurrency, appState.masterCurrency),
                                 appState.masterCurrency
                             )
                         }
@@ -494,46 +605,46 @@ const BasicInfo = observer(({ op, account, toAccount }: BasicInfoProps): ReactEl
 
     return <>
         <Typography variant={'body2'} textAlign={'center'}>
-            {op.date.toLocaleString({ dateStyle: 'full' })}
+            {opDate.toLocaleString({ dateStyle: 'full' })}
         </Typography>
         <Typography variant={'h4'} textAlign={'center'} color={amountColor}>
-            {Math.abs(op.amount).toLocaleString(undefined, {
+            {Math.abs(opAmount).toLocaleString(undefined, {
                 style: 'currency',
-                currency: op.currency,
+                currency: opCurrency,
                 currencyDisplay: 'narrowSymbol'
             })}
         </Typography>
         <Typography variant={'body2'} mt={1}>
-            {op.type === 'transfer' ? 'From acc.: ' : 'Acc.: '}
+            {opType === 'transfer' ? 'From acc.: ' : 'Acc.: '}
             {
-                account === null
+                opAccount === null
                     ? '-'
                     : <>
-                        {account.name}
+                        {opAccount.name}
                         {
                             accountCurrency === undefined || accountCurrency === null
                                 ? null
-                                : ` (${formatCurrency(account.amount, accountCurrency)})`
+                                : ` (${formatCurrency(opAccount.amount, accountCurrency)})`
                         }
                     </>
             }
         </Typography>
         {
-            op.type === 'transfer'
+            opType === 'transfer'
                 ? <Typography variant={'body2'}>
-                    {'To acc.: '}{toAccount?.name ?? '-'}
+                    {'To acc.: '}{opToAccount?.name ?? '-'}
                     {
-                        toAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
+                        opToAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
                             ? null
-                            : ` (${formatCurrency(toAccount.amount, toAccountCurrency)})`
+                            : ` (${formatCurrency(opToAccount.amount, toAccountCurrency)})`
                     }
                 </Typography>
                 : null
         }
         {categoryInfo}
         <Typography variant={'body2'} mt={1} color={'primary.light'} noWrap>
-            {op.tags.join(', ')}
+            {opTags.join(', ')}
         </Typography>
-        <Typography variant={'body2'} fontStyle={'italic'}>{op.comment}</Typography>
+        <Typography variant={'body2'} fontStyle={'italic'}>{opComment}</Typography>
     </>
 })

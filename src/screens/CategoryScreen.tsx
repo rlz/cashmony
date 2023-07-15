@@ -205,7 +205,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
                 >
                     <Box p={1}>
                         <OperationScreenBody
-                            opId={opId ?? ''}
+                            urlOpId={opId ?? ''}
                             setModalTitle={setOpModalTitle}
                         />
                     </Box>

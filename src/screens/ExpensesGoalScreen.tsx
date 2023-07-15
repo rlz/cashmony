@@ -182,7 +182,7 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
                 >
                     <Box p={1}>
                         <OperationScreenBody
-                            opId={opId ?? ''}
+                            urlOpId={opId ?? ''}
                             setModalTitle={setOpModalTitle}
                         />
                     </Box>

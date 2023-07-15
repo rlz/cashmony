@@ -168,7 +168,7 @@ export const AccountScreenBody = observer(() => {
                 >
                     <Box p={1}>
                         <OperationScreenBody
-                            opId={opId ?? ''}
+                            urlOpId={opId ?? ''}
                             setModalTitle={setOpModalTitle}
                         />
                     </Box>
