@@ -320,6 +320,7 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ urlO
     if (
         opId === null ||
         opType === null ||
+        opType === 'deleted' ||
         opDate === null ||
         opAmount === null ||
         opCurrency === null ||
@@ -328,11 +329,10 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ urlO
         accountsModel.amounts === null ||
         currenciesModel.rates === null
     ) {
+        if (opType === 'deleted') {
+            return <Typography variant={'h5'} mt={10} textAlign={'center'}>{'This operation was deleted'}</Typography>
+        }
         return <SkeletonBody />
-    }
-
-    if (opType === 'deleted') {
-        return <Typography variant={'h5'} mt={10} textAlign={'center'}>{'This operation was deleted'}</Typography>
     }
 
     const propagateAndSave = (
