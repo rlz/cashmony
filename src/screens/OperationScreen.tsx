@@ -19,11 +19,10 @@ import { AppState } from '../model/appState'
 import { CurrenciesModel } from '../model/currencies'
 import { type AdjustmentOperation, type DeletedOperation, type ExpenseOperation, type IncomeOperation, type NotDeletedOperation, type Operation, type TransferOperation } from '../model/model'
 import { OperationsModel } from '../model/operations'
-import { ActionFab } from '../widgets/generic/ActionButton'
+import { ActionButton, ActionFab } from '../widgets/generic/ActionButton'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
 import { PBody2 } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
-import { DeleteOpButton } from '../widgets/operations/DeleteOpButton'
 import { AccountEditor } from '../widgets/operations/editors/AccountEditor'
 import { AmountEditor } from '../widgets/operations/editors/AmountEditor'
 import { CategoriesEditor } from '../widgets/operations/editors/CategoriesEditor'
@@ -348,24 +347,33 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ opId
         {
             location.pathname.startsWith('/new-op/')
                 ? null
-                : <DeleteOpButton onDelete={async () => {
-                    const o: Operation = {
-                        id: opId,
-                        type: 'deleted'
-                    }
-                    await operationsModel.put([o])
+                : <ActionButton
+                    variant={'contained'}
+                    fullWidth
+                    color={'error'}
+                    sx={{ mt: 4 }}
+                    confirmation={'Are you sure that you want to delete this operation?'}
+                    action={async () => {
+                        const o: Operation = {
+                            id: opId,
+                            type: 'deleted'
+                        }
+                        await operationsModel.put([o])
 
-                    setOp(o)
-                    setOrigOp(o)
-                    setAccount(null)
-                    setOrigAccount(null)
-                    setToAccount(null)
-                    setOrigToAccount(null)
+                        setOp(o)
+                        setOrigOp(o)
+                        setAccount(null)
+                        setOrigAccount(null)
+                        setToAccount(null)
+                        setOrigToAccount(null)
 
-                    if (smallScreen && setModalTitle === undefined) {
-                        navigate('/operations')
-                    }
-                }} />
+                        if (smallScreen && setModalTitle === undefined) {
+                            navigate('/operations')
+                        }
+                    }}
+                >
+                    {'Delete'}
+                </ActionButton>
         }
         <Box minHeight={128}/>
     </Box>

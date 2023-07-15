@@ -1,39 +1,81 @@
 import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button, type ButtonProps, Fab } from '@mui/material'
-import React, { type PropsWithChildren, type ReactElement, useState } from 'react'
+import { Button, type ButtonProps, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, Slide } from '@mui/material'
+import { type TransitionProps } from '@mui/material/transitions'
+import React, { type PropsWithChildren, type ReactElement, useCallback, useState } from 'react'
 
-import { runAsync } from '../../helpers/smallTools'
+import { runAsync, showIf } from '../../helpers/smallTools'
 
 type Props = Omit<PropsWithChildren<ButtonProps>, 'action' | 'disabled'> & {
+    confirmationTitle?: string
+    confirmation?: string
     action: (() => Promise<void>) | null
 }
 
-export function ActionButton (props: Props): ReactElement {
+export function ActionButton ({ confirmationTitle, confirmation, action, children, ...btnProps }: Props): ReactElement {
     const [inProgress, setInProgress] = useState(false)
+    const [dialogOpen, setDialogOpen] = useState(false)
 
-    const action = props.action
-    const btnProps: Partial<Props> = { ...props }
-    delete btnProps.action
-
-    return <Button
-        {...btnProps}
-        disabled={props.action === null}
-        onClick={() => {
-            setInProgress(true)
-            runAsync(async () => {
+    const runAction = useCallback(() => {
+        setInProgress(true)
+        runAsync(async () => {
+            try {
                 if (action === null) {
                     return
                 }
 
                 await action()
+            } finally {
                 setInProgress(false)
-            })
-        }}
-    >
-        {inProgress ? <FontAwesomeIcon icon={faSpinner} pulse/> : props.children}
-    </Button>
+            }
+        })
+    }, [action])
+
+    return <>
+        <Button
+            {...btnProps}
+            disabled={action === null}
+            onClick={() => {
+                if (confirmation !== undefined) {
+                    setDialogOpen(true)
+                    return
+                }
+                runAction()
+            }}
+        >
+            {inProgress ? <FontAwesomeIcon icon={faSpinner} pulse/> : children}
+        </Button>
+        {
+            showIf(
+                dialogOpen,
+                <Dialog
+                    open={true}
+                    TransitionComponent={Transition}
+                    onClose={() => { setDialogOpen(false) }}
+                >
+                    <DialogTitle>{confirmationTitle ?? 'Confirmation'}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>{confirmation}</DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color={'error'} onClick={() => { setDialogOpen(false) }}>{'No'}</Button>
+                        <Button color={'primary'} onClick={() => { setDialogOpen(false); runAction() }}>{'Yes'}</Button>
+                    </DialogActions>
+                </Dialog>
+
+            )
+        }
+    </>
 }
+
+const Transition = React.forwardRef(function Transition (
+    props: TransitionProps & {
+        children: React.ReactElement<any, any>
+    },
+    ref: React.Ref<unknown>
+) {
+    return <Slide direction={'down'} ref={ref} {...props} />
+})
 
 interface ActionFabProps {
     action: (() => Promise<void>) | null
