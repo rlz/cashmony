@@ -1,5 +1,3 @@
-import { generate } from 'astring'
-import { type BinaryExpression, type Expression, type Identifier, type Literal, type LogicalExpression, type MemberExpression, type ReturnStatement } from 'estree'
 import { match, P } from 'ts-pattern'
 
 import { type Filter } from './filter'
@@ -58,238 +56,56 @@ export type Predicate =
     UncategorizedPredicate | AccountPredicate | TagPredicate |
     AndPredicate | OrPredicate | NotPredicate
 
-function astIdentifier (name: string): Identifier {
-    return { type: 'Identifier', name }
-}
-
-function astOpMember (member: string): MemberExpression {
-    return {
-        type: 'MemberExpression',
-        object: astIdentifier('op'),
-        property: astIdentifier(member),
-        computed: false,
-        optional: false
-    }
-}
-
-function astLiteral (value: null | boolean | number | string): Literal {
-    return { type: 'Literal', value }
-}
-
-function astEq (left: Expression, right: Expression): BinaryExpression {
-    return {
-        type: 'BinaryExpression',
-        operator: '===',
-        left,
-        right
-    }
-}
-
-function astOr (left: Expression, right: Expression): LogicalExpression {
-    return {
-        type: 'LogicalExpression',
-        operator: '||',
-        left,
-        right
-    }
-}
-
-function astAnd (left: Expression, right: Expression): LogicalExpression {
-    return {
-        type: 'LogicalExpression',
-        operator: '&&',
-        left,
-        right
-    }
-}
-
-function predicateToEstree (predicate: Predicate): Expression {
-    return match(predicate)
-        .with({ type: 'type' }, (p): Expression => {
-            return astEq(astOpMember('type'), astLiteral(p.opType))
+export function compilePredicate (predicate: Predicate): (op: NotDeletedOperation) => boolean {
+    return match<Predicate, (op: NotDeletedOperation) => boolean>(predicate)
+        .with({ type: 'type' }, p => {
+            return op => op.type === p.opType
         })
-        .with({ type: 'and', predicates: [] }, (): Expression => {
+        .with({ type: 'and', predicates: [] }, () => {
             throw Error('and predicate must not be empty')
         })
-        .with({ type: 'and', predicates: [P._] }, (p): Expression => {
-            return predicateToEstree(p.predicates[0])
+        .with({ type: 'and', predicates: [P._] }, p => {
+            return compilePredicate(p.predicates[0])
         })
-        .with({ type: 'and', predicates: [P._, P._, ...P.array()] }, (p): Expression => {
-            let result = astAnd(
-                predicateToEstree(p.predicates[0]),
-                predicateToEstree(p.predicates[1])
-            )
-            for (let i = 2; i < p.predicates.length; ++i) {
-                result = astAnd(result, predicateToEstree(p.predicates[i]))
-            }
-            return result
+        .with({ type: 'and', predicates: [P._, P._, ...P.array()] }, p => {
+            const compiledPredicates = p.predicates.map(i => compilePredicate(i))
+            return op => compiledPredicates.every(i => i(op))
         })
-        .with({ type: 'or', predicates: [] }, (): Expression => {
+        .with({ type: 'or', predicates: [] }, () => {
             throw Error('or predicate must not be empty')
         })
-        .with({ type: 'or', predicates: [P._] }, (p): Expression => {
-            return predicateToEstree(p.predicates[0])
+        .with({ type: 'or', predicates: [P._] }, p => {
+            return compilePredicate(p.predicates[0])
         })
-        .with({ type: 'or', predicates: [P._, P._, ...P.array()] }, (p): Expression => {
-            let result = astOr(
-                predicateToEstree(p.predicates[0]),
-                predicateToEstree(p.predicates[1])
-            )
-            for (let i = 2; i < p.predicates.length; ++i) {
-                result = astOr(result, predicateToEstree(p.predicates[i]))
-            }
-            return result
+        .with({ type: 'or', predicates: [P._, P._, ...P.array()] }, p => {
+            const compiledPredicates = p.predicates.map(i => compilePredicate(i))
+            return op => compiledPredicates.some(i => i(op))
         })
-        .with({ type: 'not' }, (p): Expression => {
-            return {
-                type: 'UnaryExpression',
-                operator: '!',
-                prefix: true,
-                argument: predicateToEstree(p.predicate)
-            }
+        .with({ type: 'not' }, p => {
+            const predicate = compilePredicate(p.predicate)
+            return op => !predicate(op)
         })
-        .with({ type: 'cat' }, (p): Expression => {
-            return astAnd(
-                astOr(
-                    astEq(astOpMember('type'), astLiteral('expense')),
-                    astEq(astOpMember('type'), astLiteral('income'))
-                ),
-                {
-                    type: 'CallExpression',
-                    callee: {
-                        type: 'MemberExpression',
-                        object: astOpMember('categories'),
-                        property: astIdentifier('some'),
-                        computed: false,
-                        optional: false
-                    },
-                    arguments: [
-                        {
-                            type: 'ArrowFunctionExpression',
-                            expression: true,
-                            params: [astIdentifier('i')],
-                            body: astEq(
-                                {
-                                    type: 'MemberExpression',
-                                    object: astIdentifier('i'),
-                                    property: astIdentifier('name'),
-                                    computed: false,
-                                    optional: false
-                                },
-                                astLiteral(p.name)
-                            )
-                        }
-                    ],
-                    optional: false
-                }
-            )
+        .with({ type: 'cat' }, p => {
+            return op => (op.type === 'expense' || op.type === 'income') && op.categories.some(i => i.name === p.name)
         })
-        .with({ type: 'comment' }, (p): Expression => {
-            return {
-                type: 'BinaryExpression',
-                operator: '>=',
-                left: {
-                    type: 'ChainExpression',
-                    expression: {
-                        type: 'CallExpression',
-                        arguments: [astLiteral(p.search)],
-                        callee: {
-                            type: 'MemberExpression',
-                            object: astOpMember('comment'),
-                            property: astIdentifier('indexOf'),
-                            computed: false,
-                            optional: true
-                        },
-                        optional: false
-                    }
-                },
-                right: astLiteral(0)
-            }
+        .with({ type: 'comment' }, p => {
+            return op => op.comment?.includes(p.search) === true
         })
-        .with({ type: 'uncategorized' }, (p): Expression => {
-            return astAnd(
-                astOr(
-                    astEq(astOpMember('type'), astLiteral('expense')),
-                    astEq(astOpMember('type'), astLiteral('income'))
-                ),
-                astEq(
-                    {
-                        type: 'MemberExpression',
-                        object: astOpMember('categories'),
-                        property: astIdentifier('length'),
-                        computed: false,
-                        optional: false
-                    },
-                    astLiteral(0)
-                )
-            )
+        .with({ type: 'uncategorized' }, p => {
+            return op => (op.type === 'expense' || op.type === 'income') && op.categories.length === 0
         })
-        .with({ type: 'account' }, (p): Expression => {
-            return astOr(
-                astEq(
-                    {
-                        type: 'MemberExpression',
-                        object: astOpMember('account'),
-                        property: astIdentifier('name'),
-                        computed: false,
-                        optional: false
-                    },
-                    astLiteral(p.name)
-                ),
-                astAnd(
-                    astEq(
-                        astOpMember('type'),
-                        astLiteral('transfer')
-                    ),
-                    astEq(
-                        {
-                            type: 'MemberExpression',
-                            object: astOpMember('toAccount'),
-                            property: astIdentifier('name'),
-                            computed: false,
-                            optional: false
-                        },
-                        astLiteral(p.name)
-                    )
-                )
-            )
+        .with({ type: 'account' }, p => {
+            return op => op.account.name === p.name || (op.type === 'transfer' && op.toAccount.name === p.name)
         })
-        .with({ type: 'tag' }, (p): Expression => {
-            return {
-                type: 'CallExpression',
-                callee: {
-                    type: 'MemberExpression',
-                    object: astOpMember('tags'),
-                    property: astIdentifier('includes'),
-                    computed: false,
-                    optional: false
-                },
-                arguments: [astLiteral(p.tag)],
-                optional: false
-            }
+        .with({ type: 'tag' }, p => {
+            return op => op.tags.includes(p.tag)
         })
         .with({ type: 'any' }, () => {
-            return astLiteral(true)
+            return op => true
         })
         .otherwise(() => {
             throw Error('not implemented')
         })
-}
-
-export function predicateToBodyStr (predicate: Predicate): string {
-    const bodyAst: ReturnStatement = {
-        type: 'ReturnStatement',
-        argument: predicateToEstree(predicate)
-    }
-
-    return generate(bodyAst)
-}
-
-export function compilePredicate (predicate: Predicate): (op: NotDeletedOperation) => boolean {
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-    return new Function(
-        'op',
-        predicateToBodyStr(predicate)) as (op: NotDeletedOperation) => boolean
 }
 
 export const PE = {

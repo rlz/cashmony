@@ -3,58 +3,247 @@ import 'regenerator-runtime/runtime'
 import { DateTime } from 'luxon'
 
 import { utcToday } from '../helpers/dates'
-import { type ExpenseOperation, type TransferOperation } from './model'
-import { compilePredicate, PE, predicateToBodyStr } from './predicateExpression'
+import { type ExpenseOperation, type IncomeOperation, type TransferOperation } from './model'
+import { compilePredicate, PE } from './predicateExpression'
+
+test('Any predicate', () => {
+    const pe = compilePredicate(PE.any())
+    const expense: ExpenseOperation = {
+        id: '',
+        type: 'expense',
+        lastModified: DateTime.utc(),
+        date: utcToday(),
+        amount: -1,
+        currency: 'USD',
+        account: {
+            name: 'Test account',
+            amount: -1
+        },
+        categories: [],
+        tags: ['foo', 'bar'],
+        comment: null
+    }
+    const income: IncomeOperation = {
+        id: '',
+        type: 'income',
+        lastModified: DateTime.utc(),
+        date: utcToday(),
+        amount: 1,
+        currency: 'USD',
+        account: {
+            name: 'Test account',
+            amount: 1
+        },
+        categories: [],
+        tags: ['foo', 'bar'],
+        comment: null
+    }
+
+    expect(pe(expense)).toBe(true)
+    expect(pe(income)).toBe(true)
+})
 
 test('Type predicate', () => {
-    expect(predicateToBodyStr(PE.type('expense'))).toBe('return op.type === "expense";')
+    const expPe = compilePredicate(PE.type('expense'))
+    const incPe = compilePredicate(PE.type('income'))
+    const expense: ExpenseOperation = {
+        id: '',
+        type: 'expense',
+        lastModified: DateTime.utc(),
+        date: utcToday(),
+        amount: -1,
+        currency: 'USD',
+        account: {
+            name: 'Test account',
+            amount: -1
+        },
+        categories: [],
+        tags: ['foo', 'bar'],
+        comment: null
+    }
+    const income: IncomeOperation = {
+        id: '',
+        type: 'income',
+        lastModified: DateTime.utc(),
+        date: utcToday(),
+        amount: 1,
+        currency: 'USD',
+        account: {
+            name: 'Test account',
+            amount: 1
+        },
+        categories: [],
+        tags: ['foo', 'bar'],
+        comment: null
+    }
+
+    expect(expPe(expense)).toBe(true)
+    expect(expPe(income)).toBe(false)
+    expect(incPe(expense)).toBe(false)
+    expect(incPe(income)).toBe(true)
 })
 
 test('And predicate', () => {
-    expect(predicateToBodyStr(PE.and(PE.type('expense')))).toBe('return op.type === "expense";')
+    const expense: ExpenseOperation = {
+        id: '',
+        type: 'expense',
+        lastModified: DateTime.utc(),
+        date: utcToday(),
+        amount: -1,
+        currency: 'USD',
+        account: {
+            name: 'Test account',
+            amount: -1
+        },
+        categories: [],
+        tags: ['foo', 'bar'],
+        comment: null
+    }
+    const income: IncomeOperation = {
+        id: '',
+        type: 'income',
+        lastModified: DateTime.utc(),
+        date: utcToday(),
+        amount: 1,
+        currency: 'USD',
+        account: {
+            name: 'Test account',
+            amount: 1
+        },
+        categories: [],
+        tags: ['foo', 'bar'],
+        comment: null
+    }
 
-    expect(predicateToBodyStr(
+    const singleAnd = compilePredicate(PE.and(PE.type('expense')))
+    expect(singleAnd(expense)).toBe(true)
+    expect(singleAnd(income)).toBe(false)
+
+    const doubleAnd = compilePredicate(
         PE.and(
             PE.type('expense'),
-            PE.type('income')
+            PE.tag('foo')
         )
-    )).toBe('return op.type === "expense" && op.type === "income";')
+    )
+    expect(doubleAnd(expense)).toBe(true)
+    expect(doubleAnd(income)).toBe(false)
+    expect(doubleAnd({ ...expense, tags: ['foo'] })).toBe(true)
+    expect(doubleAnd({ ...expense, tags: ['bar'] })).toBe(false)
 
-    expect(predicateToBodyStr(
+    const tripleAnd = compilePredicate(
         PE.and(
             PE.type('expense'),
-            PE.type('income'),
-            PE.type('adjustment')
+            PE.tag('foo'),
+            PE.tag('bar')
         )
-    )).toBe('return op.type === "expense" && op.type === "income" && op.type === "adjustment";')
+    )
+    expect(tripleAnd(expense)).toBe(true)
+    expect(tripleAnd(income)).toBe(false)
+    expect(tripleAnd({ ...expense, tags: ['foo'] })).toBe(false)
+    expect(tripleAnd({ ...expense, tags: ['bar'] })).toBe(false)
 })
 
 test('Or predicate', () => {
-    expect(predicateToBodyStr(PE.or(PE.type('expense')))).toBe('return op.type === "expense";')
+    const expense: ExpenseOperation = {
+        id: '',
+        type: 'expense',
+        lastModified: DateTime.utc(),
+        date: utcToday(),
+        amount: -1,
+        currency: 'USD',
+        account: {
+            name: 'Test account',
+            amount: -1
+        },
+        categories: [],
+        tags: ['foo', 'bar'],
+        comment: null
+    }
+    const income: IncomeOperation = {
+        id: '',
+        type: 'income',
+        lastModified: DateTime.utc(),
+        date: utcToday(),
+        amount: 1,
+        currency: 'USD',
+        account: {
+            name: 'Test account',
+            amount: 1
+        },
+        categories: [],
+        tags: ['foo', 'bar'],
+        comment: null
+    }
 
-    expect(predicateToBodyStr(
+    const singleOr = compilePredicate(PE.or(PE.type('expense')))
+    expect(singleOr(expense)).toBe(true)
+    expect(singleOr(income)).toBe(false)
+
+    const doubleOr = compilePredicate(
         PE.or(
             PE.type('expense'),
-            PE.type('income')
+            PE.tag('foo')
         )
-    )).toBe('return op.type === "expense" || op.type === "income";')
+    )
+    expect(doubleOr(expense)).toBe(true)
+    expect(doubleOr(income)).toBe(true)
+    expect(doubleOr({ ...income, tags: ['foo'] })).toBe(true)
+    expect(doubleOr({ ...income, tags: ['bar'] })).toBe(false)
 
-    expect(predicateToBodyStr(
+    const tripleOr = compilePredicate(
         PE.or(
             PE.type('expense'),
-            PE.type('income'),
-            PE.type('adjustment')
+            PE.tag('foo'),
+            PE.tag('bar')
         )
-    )).toBe('return op.type === "expense" || op.type === "income" || op.type === "adjustment";')
+    )
+    expect(tripleOr(expense)).toBe(true)
+    expect(tripleOr(income)).toBe(true)
+    expect(tripleOr({ ...expense, tags: [] })).toBe(true)
+    expect(tripleOr({ ...expense, tags: ['foo'] })).toBe(true)
+    expect(tripleOr({ ...expense, tags: ['bar'] })).toBe(true)
+    expect(tripleOr({ ...income, tags: [] })).toBe(false)
 })
 
 test('Not predicate', () => {
-    expect(predicateToBodyStr(PE.not(PE.type('expense')))).toBe('return !(op.type === "expense");')
+    const expense: ExpenseOperation = {
+        id: '',
+        type: 'expense',
+        lastModified: DateTime.utc(),
+        date: utcToday(),
+        amount: -1,
+        currency: 'USD',
+        account: {
+            name: 'Test account',
+            amount: -1
+        },
+        categories: [],
+        tags: ['foo', 'bar'],
+        comment: null
+    }
+    const income: IncomeOperation = {
+        id: '',
+        type: 'income',
+        lastModified: DateTime.utc(),
+        date: utcToday(),
+        amount: 1,
+        currency: 'USD',
+        account: {
+            name: 'Test account',
+            amount: 1
+        },
+        categories: [],
+        tags: ['foo', 'bar'],
+        comment: null
+    }
+
+    const notExpense = compilePredicate(PE.not(PE.type('expense')))
+
+    expect(notExpense(expense)).toBe(false)
+    expect(notExpense(income)).toBe(true)
 })
 
 test('Cat predicate', () => {
-    expect(predicateToBodyStr(PE.cat('Food & Drinks'))).toBe('return (op.type === "expense" || op.type === "income") && op.categories.some(i => i.name === "Food & Drinks");')
-
     const f = compilePredicate(PE.cat('Food & Drinks'))
     const expense: ExpenseOperation = {
         id: '',
@@ -99,8 +288,6 @@ test('Cat predicate', () => {
 })
 
 test('Uncategorized predicate', () => {
-    expect(predicateToBodyStr(PE.uncat())).toBe('return (op.type === "expense" || op.type === "income") && op.categories.length === 0;')
-
     const f = compilePredicate(PE.uncat())
     const expense: ExpenseOperation = {
         id: '',
@@ -144,8 +331,6 @@ test('Uncategorized predicate', () => {
 })
 
 test('Comment predicate', () => {
-    expect(predicateToBodyStr(PE.comment('Foo'))).toBe('return op.comment?.indexOf("Foo") >= 0;')
-
     const f = compilePredicate(PE.comment('Foo'))
     const op: ExpenseOperation = {
         id: '',
@@ -176,8 +361,6 @@ test('Comment predicate', () => {
 })
 
 test('Account predicate', () => {
-    expect(predicateToBodyStr(PE.account('My account'))).toBe('return op.account.name === "My account" || op.type === "transfer" && op.toAccount.name === "My account";')
-
     const f = compilePredicate(PE.account('My account'))
     const expense: ExpenseOperation = {
         id: '',
@@ -222,8 +405,6 @@ test('Account predicate', () => {
 })
 
 test('Tag predicate', () => {
-    expect(predicateToBodyStr(PE.tag('foo'))).toBe('return op.tags.includes("foo");')
-
     const f = compilePredicate(PE.tag('foo'))
     const op: ExpenseOperation = {
         id: '',
