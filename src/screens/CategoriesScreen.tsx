@@ -10,6 +10,7 @@ import { match } from 'ts-pattern'
 import { run, showIf } from '../helpers/smallTools'
 import { AppState } from '../model/appState'
 import { CategoriesModel } from '../model/categories'
+import { PE } from '../model/predicateExpression'
 import { ExpensesStats, Operations } from '../model/stats'
 import { AddCategory } from '../widgets/expenses/editors/AddCategory'
 import { ExpensesCard } from '../widgets/expenses/ExpensesCard'
@@ -96,7 +97,7 @@ export function getTotalStats (): ExpensesStats {
     const appState = AppState.instance()
 
     return new ExpensesStats(
-        Operations.forFilter(appState.filter),
+        Operations.get(PE.filter(appState.filter)),
         match(appState.totalGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.totalGoalCurrency } })
     )
 }
@@ -105,7 +106,7 @@ export function getUncategorizedStats (): ExpensesStats {
     const appState = AppState.instance()
 
     return new ExpensesStats(
-        Operations.forFilter(appState.filter).onlyUncategorized(),
+        Operations.get(PE.and(PE.filter(appState.filter), PE.uncat())),
         match(appState.uncategorizedGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.uncategorizedGoalCurrency } })
     )
 }

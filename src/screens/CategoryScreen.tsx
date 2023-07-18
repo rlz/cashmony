@@ -14,6 +14,7 @@ import { AppState } from '../model/appState'
 import { CategoriesModel } from '../model/categories'
 import { CurrenciesModel } from '../model/currencies'
 import { type Category } from '../model/model'
+import { PE } from '../model/predicateExpression'
 import { ExpensesStats, Operations } from '../model/stats'
 import { CategoryEditor } from '../widgets/expenses/editors/CategoryEditor'
 import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
@@ -136,7 +137,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
         .with('_total', () => getTotalStats())
         .with('_', () => getUncategorizedStats())
         .otherwise(() => new ExpensesStats(
-            Operations.forFilter(appState.filter).keepTypes('expense', 'income').keepCategories(cat.name).skipUncategorized(),
+            Operations.get(PE.and(PE.filter(appState.filter), PE.cat(cat.name))),
             match(cat.perDayAmount).with(undefined, () => null).otherwise(v => { return { value: -v, currency: cat.currency ?? '' } })
         ))
 

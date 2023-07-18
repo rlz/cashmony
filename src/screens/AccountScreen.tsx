@@ -17,6 +17,7 @@ import { AccountsModel } from '../model/accounts'
 import { AppState } from '../model/appState'
 import { type Account, type Operation } from '../model/model'
 import { OperationsModel } from '../model/operations'
+import { PE } from '../model/predicateExpression'
 import { Operations } from '../model/stats'
 import { AccPlot } from '../widgets/AccountPlots'
 import { CurrencyInput } from '../widgets/CurrencyInput'
@@ -148,7 +149,7 @@ export const AccountScreenBody = observer(() => {
                                 onOpClick={(opId) => {
                                     navigate(`/accounts/${accName}/operations/${opId}`)
                                 }}
-                                operations={Operations.forFilter(appState.filter).forTimeSpan(appState.timeSpan).keepAccounts(acc.name)}
+                                operations={Operations.get(PE.and(PE.filter(appState.filter), PE.account(acc.name)), appState.timeSpan)}
                             />)
                             .otherwise(() => { throw Error('Unimplemented tab') })
                     }

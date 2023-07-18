@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { CategoriesModel } from '../model/categories'
 import { type NotDeletedOperation } from '../model/model'
 import { OperationsModel } from '../model/operations'
+import { PE } from '../model/predicateExpression'
 import { Operations } from '../model/stats'
 
 interface Props {
@@ -20,12 +21,7 @@ export function DeleteCategory ({ name, open, setOpen }: Props): ReactElement {
     const [delInProcess, setDelInProcess] = useState(false)
     const navigate = useNavigate()
 
-    const opsCount = Operations
-        .all()
-        .keepTypes('expense', 'income')
-        .keepCategories(name)
-        .skipUncategorized()
-        .count()
+    const opsCount = Operations.get(PE.cat(name)).count()
 
     return <Dialog
         open={open}
@@ -76,9 +72,7 @@ const categoriesModel = CategoriesModel.instance()
 async function deleteCategory (catName: string): Promise<void> {
     const ops: NotDeletedOperation[] = [
         ...Operations
-            .all()
-            .keepTypes('expense', 'income')
-            .keepCategories(catName)
+            .get(PE.cat(catName))
             .operations()
     ].map(op => {
         if (op.type !== 'income' && op.type !== 'expense') {

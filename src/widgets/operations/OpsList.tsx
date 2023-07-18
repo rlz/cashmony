@@ -9,6 +9,7 @@ import { run, showIf } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { type NotDeletedOperation } from '../../model/model'
 import { OperationsModel } from '../../model/operations'
+import { PE } from '../../model/predicateExpression'
 import { Operations } from '../../model/stats'
 import { Column } from '../generic/Containers'
 import { DivBody2 } from '../generic/Typography'
@@ -45,7 +46,7 @@ export const OpsList = observer((props: Props): ReactElement => {
         () => {
             const operations = props.operations ?? run(() => {
                 const appState = AppState.instance()
-                return Operations.forFilter(appState.filter).forTimeSpan(appState.timeSpan)
+                return Operations.get(PE.filter(appState.filter), appState.timeSpan)
             })
             setDisplayOps([...operations.groupByDate({ reverse: true })])
         },

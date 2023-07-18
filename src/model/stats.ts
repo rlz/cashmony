@@ -3,179 +3,40 @@ import { type DurationLikeObject } from 'luxon'
 import { type HumanTimeSpan, LastPeriodTimeSpan, utcToday } from '../helpers/dates'
 import { AppState } from './appState'
 import { CurrenciesModel } from './currencies'
-import { type Filter } from './filter'
 import { type Amount, type NotDeletedOperation } from './model'
 import { OperationsModel } from './operations'
+import { compilePredicate, PE, type Predicate } from './predicateExpression'
 
 const appState = AppState.instance()
 const currenciesModel = CurrenciesModel.instance()
 const operationsModel = OperationsModel.instance()
 
 export class Operations {
-    private readonly predicate: (op: NotDeletedOperation) => boolean
+    private readonly timeSpan?: HumanTimeSpan
+    private readonly filter: (op: NotDeletedOperation) => boolean
 
-    private constructor (predicate: (op: NotDeletedOperation) => boolean) {
+    readonly predicate: Predicate
+
+    private constructor (predicate: Predicate, timeSpan?: HumanTimeSpan) {
+        this.timeSpan = timeSpan
         this.predicate = predicate
+        this.filter = compilePredicate(predicate)
     }
 
-    static all (): Operations {
-        return new Operations(() => true)
-    }
-
-    static forFilter (filter: Filter): Operations {
-        let ops = Operations.all()
-
-        if (filter.search !== null) {
-            ops = ops.filterComment(filter.search)
-        }
-
-        if (filter.opTypeMode === 'selected') {
-            ops = ops.keepTypes(...filter.opType)
-        } else if (filter.opTypeMode === 'exclude') {
-            ops = ops.excludeTypes(...filter.opType)
-        }
-
-        if (filter.accountsMode === 'selected') {
-            ops = ops.keepAccounts(...filter.accounts)
-        } else if (filter.accountsMode === 'exclude') {
-            ops = ops.excludeAccounts(...filter.accounts)
-        }
-
-        if (filter.categoriesMode === 'selected') {
-            if (filter.categories.find(c => c === '') === undefined) {
-                ops = ops.skipUncategorized()
-            }
-            ops = ops.keepCategories(...filter.categories)
-        } else if (filter.categoriesMode === 'exclude') {
-            if (filter.categories.find(c => c === '') !== undefined) {
-                ops = ops.skipUncategorized()
-            }
-            ops = ops.excludeCategories(...filter.categories)
-        }
-
-        if (filter.tagsMode === 'selected') {
-            ops = ops.keepTags(...filter.tags)
-        } else if (filter.tagsMode === 'exclude') {
-            ops = ops.excludeTags(...filter.tags)
-        }
-
-        return ops
-    }
-
-    forTimeSpan (timeSpan?: HumanTimeSpan): Operations {
-        if (timeSpan === undefined) {
-            timeSpan = appState.timeSpan
-        }
-
-        const startDate = timeSpan.startDate
-        const endDate = timeSpan.endDate
-
-        return new Operations((op) => this.predicate(op) && op.date >= startDate && op.date <= endDate)
-    }
-
-    onlyUncategorized (): Operations {
-        return new Operations(
-            op => this.predicate(op) &&
-            (op.type === 'expense' || op.type === 'income') &&
-            op.categories.length === 0
-        )
-    }
-
-    skipUncategorized (): Operations {
-        return new Operations(
-            op => this.predicate(op) &&
-            (
-                (op.type !== 'expense' && op.type !== 'income') ||
-                op.categories.length > 0
-            )
-        )
-    }
-
-    filterComment (substring: string): Operations {
-        return new Operations(
-            op => this.predicate(op) &&
-            op.comment?.includes(substring) === true
-        )
+    static get (predicate: Predicate, timeSpan?: HumanTimeSpan): Operations {
+        return new Operations(predicate, timeSpan)
     }
 
     onlyExpenses (): Operations {
-        return new Operations(
-            op => this.predicate(op) && (
-                op.type === 'expense' ||
-                (op.type === 'income' && op.categories.length > 0)
-            )
+        const expensesPredicate = PE.or(PE.type('expense'), PE.and(PE.type('income'), PE.not(PE.uncat())))
+        return Operations.get(
+            this.predicate === null ? expensesPredicate : PE.and(this.predicate, expensesPredicate),
+            this.timeSpan
         )
     }
 
-    keepTypes (...types: Array<NotDeletedOperation['type']>): Operations {
-        const typesSet = new Set<typeof types[number]>(types)
-        return new Operations(
-            op => this.predicate(op) && typesSet.has(op.type)
-        )
-    }
-
-    excludeTypes (...types: Array<NotDeletedOperation['type']>): Operations {
-        const typesSet = new Set<typeof types[number]>(types)
-        return new Operations(
-            op => this.predicate(op) && !typesSet.has(op.type)
-        )
-    }
-
-    keepAccounts (...accounts: string[]): Operations {
-        const accountsSet = new Set(accounts)
-        return new Operations(
-            op =>
-                this.predicate(op) &&
-                (
-                    accountsSet.has(op.account.name) ||
-                    (op.type === 'transfer' && accountsSet.has(op.toAccount.name))
-                )
-        )
-    }
-
-    excludeAccounts (...accounts: string[]): Operations {
-        const accountsSet = new Set(accounts)
-        return new Operations(
-            op =>
-                this.predicate(op) &&
-                (
-                    !accountsSet.has(op.account.name) &&
-                    (op.type !== 'transfer' || !accountsSet.has(op.toAccount.name))
-                )
-        )
-    }
-
-    keepCategories (...categories: string[]): Operations {
-        const categoriesSet = new Set(categories)
-        return new Operations(
-            op => this.predicate(op) &&
-            (
-                (op.type !== 'expense' && op.type !== 'income') ||
-                op.categories.some(cat => categoriesSet.has(cat.name)) ||
-                op.categories.length === 0
-            )
-        )
-    }
-
-    excludeCategories (...categories: string[]): Operations {
-        const categoriesSet = new Set(categories)
-        return new Operations(
-            op => this.predicate(op) &&
-            (
-                (op.type !== 'expense' && op.type !== 'income') ||
-                !op.categories.some(cat => categoriesSet.has(cat.name))
-            )
-        )
-    }
-
-    keepTags (...tags: string[]): Operations {
-        const tagsSet = new Set(tags)
-        return new Operations(op => this.predicate(op) && op.tags.some(t => tagsSet.has(t)))
-    }
-
-    excludeTags (...tags: string[]): Operations {
-        const tagsSet = new Set(tags)
-        return new Operations(op => this.predicate(op) && !op.tags.some(t => tagsSet.has(t)))
+    forTimeSpan (timeSpan: HumanTimeSpan): Operations {
+        return Operations.get(this.predicate, timeSpan)
     }
 
     * operations (opts?: { reverse?: boolean }): Generator<NotDeletedOperation> {
@@ -183,10 +44,17 @@ export class Operations {
             ? [...operationsModel.operations].reverse()
             : operationsModel.operations
 
+        const startDate = this.timeSpan?.startDate
+        const endDate = this.timeSpan?.endDate
+
         for (const op of ops) {
             if (op.type === 'deleted') continue
 
-            if (this.predicate(op)) {
+            if (
+                (startDate === undefined || op.date >= startDate) &&
+                (endDate === undefined || op.date <= endDate) &&
+                this.filter(op)
+            ) {
                 yield op
             }
         }
@@ -204,10 +72,6 @@ export class Operations {
     sumOpExpenses (toCurrency: string): number {
         let sum = 0
         for (const op of this.onlyExpenses().operations()) {
-            if (op.type !== 'expense' && op.type !== 'income') {
-                continue
-            }
-
             sum += op.amount * currenciesModel.getRate(op.date, op.currency, toCurrency)
         }
         return sum

@@ -4,6 +4,7 @@ import { autorun, makeAutoObservable, observable, runInAction } from 'mobx'
 import { compareByStats } from '../helpers/stats'
 import { FinDataDb } from './finDataDb'
 import { type Category } from './model'
+import { PE } from './predicateExpression'
 import { Operations } from './stats'
 
 let categoriesModel: CategoriesModel | null = null
@@ -26,7 +27,7 @@ export class CategoriesModel {
 
             const stats = new Map<string, number>()
 
-            const ops = Operations.all().keepTypes('expense', 'income').skipUncategorized().operations()
+            const ops = Operations.get(PE.not(PE.uncat())).operations()
 
             for (const op of ops) {
                 if (op.type === 'transfer' || op.type === 'adjustment') continue

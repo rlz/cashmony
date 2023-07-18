@@ -12,6 +12,7 @@ import { FinDataDb } from './finDataDb'
 import { GoalsModel } from './goals'
 import { CURRENCY_RATES_SCHEMA, type CurrencyRates, type CurrencyRatesCache, ratesMonth } from './model'
 import { OperationsModel } from './operations'
+import { PE } from './predicateExpression'
 import { Operations } from './stats'
 
 const finDataDb = FinDataDb.instance()
@@ -93,14 +94,14 @@ export class CurrenciesModel {
                 }
             }
 
-            calcNeedRates(Operations.all(), masterCurrency)
+            calcNeedRates(Operations.get(PE.any()), masterCurrency)
 
             for (const cat of categoriesModel.categories.values()) {
                 if (cat.deleted === true || cat.currency === undefined) {
                     continue
                 }
 
-                const ops = Operations.all().keepTypes('expense', 'income').keepCategories(cat.name).skipUncategorized()
+                const ops = Operations.get(PE.cat(cat.name))
                 calcNeedRates(ops, cat.currency)
             }
 
@@ -109,7 +110,7 @@ export class CurrenciesModel {
                     continue
                 }
 
-                const ops = Operations.forFilter(goal.filter).keepTypes('expense', 'income')
+                const ops = Operations.get(PE.and(PE.or(PE.type('expense'), PE.type('income')), PE.filter(goal.filter)))
                 calcNeedRates(ops, goal.currency)
             }
 

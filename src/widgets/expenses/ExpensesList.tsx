@@ -6,6 +6,7 @@ import { match } from 'ts-pattern'
 import { AppState } from '../../model/appState'
 import { CurrenciesModel } from '../../model/currencies'
 import { type Category, type ExpensesGoal } from '../../model/model'
+import { PE } from '../../model/predicateExpression'
 import { ExpensesStats, Operations } from '../../model/stats'
 import { ExpensesCard, ExpensesCardSkeleton } from './ExpensesCard'
 
@@ -31,11 +32,11 @@ export const ExpensesList = observer(({ items }: ExpensesListProps): ReactElemen
                         .otherwise(v => `/categories/${encodeURIComponent(v.name)}`)
                     const stats = match(cat)
                         .with({ filter: {} }, v => new ExpensesStats(
-                            Operations.forFilter(v.filter),
+                            Operations.get(PE.filter(v.filter)),
                             { value: -v.perDayAmount, currency: v.currency }
                         ))
                         .otherwise(v => new ExpensesStats(
-                            Operations.forFilter(appState.filter).keepCategories(cat.name),
+                            Operations.get(PE.and(PE.cat(cat.name), PE.filter(appState.filter))),
                             v.perDayAmount !== undefined ? { value: -v.perDayAmount, currency: v.currency ?? '' } : null
                         ))
                     return <ExpensesCard url={url} key={cat.name} name={cat.name} stats={stats}/>
