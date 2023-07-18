@@ -28,9 +28,9 @@ export class Operations {
     }
 
     onlyExpenses (): Operations {
-        const expensesPredicate = PE.or(PE.type('expense'), PE.and(PE.type('income'), PE.not(PE.uncat())))
+        const expensesPredicate = PE.or(PE.type('expense'), PE.and(PE.type('income')))
         return Operations.get(
-            this.predicate === null ? expensesPredicate : PE.and(this.predicate, expensesPredicate),
+            PE.and(this.predicate, expensesPredicate),
             this.timeSpan
         )
     }
