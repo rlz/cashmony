@@ -97,7 +97,15 @@ export function getTotalStats (): ExpensesStats {
     const appState = AppState.instance()
 
     return new ExpensesStats(
-        Operations.get(PE.filter(appState.filter)),
+        Operations.get(
+            PE.and(
+                PE.filter(appState.filter),
+                PE.or(
+                    PE.type('expense'),
+                    PE.and(PE.type('income'), PE.not(PE.uncat()))
+                )
+            )
+        ),
         match(appState.totalGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.totalGoalCurrency } })
     )
 }
@@ -106,7 +114,7 @@ export function getUncategorizedStats (): ExpensesStats {
     const appState = AppState.instance()
 
     return new ExpensesStats(
-        Operations.get(PE.and(PE.filter(appState.filter), PE.uncat())),
+        Operations.get(PE.and(PE.filter(appState.filter), PE.type('expense'), PE.uncat())),
         match(appState.uncategorizedGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.uncategorizedGoalCurrency } })
     )
 }
