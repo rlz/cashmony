@@ -12,7 +12,7 @@ import { AppState } from '../model/appState'
 import { CurrenciesModel } from '../model/currencies'
 import { GoalsModel } from '../model/goals'
 import { type ExpensesGoal } from '../model/model'
-import { PE } from '../model/predicateExpression'
+import { expensesGoalPredicate } from '../model/predicateExpression'
 import { ExpensesStats, Operations } from '../model/stats'
 import { ExpensesGoalEditor } from '../widgets/expenses/editors/ExpensesGoalEditor'
 import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
@@ -107,7 +107,7 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
     }
 
     const stats = new ExpensesStats(
-        Operations.get(PE.and(PE.or(PE.type('expense'), PE.type('income')), PE.filter(newGoal.filter))),
+        Operations.get(expensesGoalPredicate(newGoal.filter)),
         { value: -newGoal.perDayAmount, currency: newGoal.currency }
     )
 

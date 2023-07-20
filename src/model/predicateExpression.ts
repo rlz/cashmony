@@ -224,3 +224,7 @@ export const PE = {
         return predicates.length === 0 ? PE.any() : PE.and(...predicates)
     }
 }
+
+export function expensesGoalPredicate (filter: Filter): Predicate {
+    return PE.and(PE.or(PE.type('expense'), PE.and(PE.type('income'), PE.not(PE.uncat()))), PE.filter(filter))
+}

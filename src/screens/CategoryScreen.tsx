@@ -137,7 +137,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
         .with('_total', () => getTotalStats())
         .with('_', () => getUncategorizedStats())
         .otherwise(() => new ExpensesStats(
-            Operations.get(PE.and(PE.filter(appState.filter), PE.cat(cat.name))),
+            Operations.get(PE.cat(cat.name)),
             match(cat.perDayAmount).with(undefined, () => null).otherwise(v => { return { value: -v, currency: cat.currency ?? '' } })
         ))
 
