@@ -48,6 +48,10 @@ export const OpsList = observer((props: Props): ReactElement => {
         () => {
             runAsync(async () => {
                 if (props.operations === undefined) {
+                    if (operationsModel.operations === null) {
+                        return
+                    }
+
                     const appState = AppState.instance()
                     const predicate = props.predicate ?? PE.filter(appState.filter)
                     const stats = await calcStats(predicate, appState.timeSpan, appState.today, {
