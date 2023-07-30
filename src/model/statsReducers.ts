@@ -25,22 +25,6 @@ export function countOpsReducer (interval: IntervalType): Reducer<number> {
     }
 }
 
-// TODO: this must accept predicate and add only expenses per category matched predicate
-export function sumExpensesReducer (interval: IntervalType, currency: string): Reducer<number> {
-    return {
-        interval,
-        async reduce (op, _interval, firstOp, _intervalKind, values: number[]) {
-            if (firstOp) {
-                values.push(0)
-            }
-            if (op !== null && (op.type === 'expense' || (op.type === 'income' && op.categories.length > 0))) {
-                const rate = currenciesModel.getRate(op.date, op.currency, currency)
-                values[values.length - 1] += op.amount * rate
-            }
-        }
-    }
-}
-
 export function sumCatExpensesReducer (interval: IntervalType, totalCurrency: string, uncatCurrency: string): Reducer<Record<string, number>> {
     const zero: Record<string, number> = {
         _total: 0,
@@ -62,16 +46,16 @@ export function sumCatExpensesReducer (interval: IntervalType, totalCurrency: st
 
             const amounts = values[values.length - 1]
 
-            const totalRate = currenciesModel.getRate(op.date, op.currency, totalCurrency)
+            const totalRate = await currenciesModel.getRate(op.date, op.currency, totalCurrency)
 
             if (op.categories.length === 0) {
-                const uncatRate = currenciesModel.getRate(op.date, op.currency, uncatCurrency)
+                const uncatRate = await currenciesModel.getRate(op.date, op.currency, uncatCurrency)
                 amounts._ += op.amount * uncatRate
                 amounts._total += op.amount * totalRate
             }
 
             for (const cat of op.categories) {
-                const rate = currenciesModel.getRate(op.date, op.currency, categoriesModel.get(cat.name).currency ?? appState.masterCurrency)
+                const rate = await currenciesModel.getRate(op.date, op.currency, categoriesModel.get(cat.name).currency ?? appState.masterCurrency)
                 amounts[cat.name] += cat.amount * rate
                 amounts._total += cat.amount * totalRate
             }
@@ -117,16 +101,16 @@ export function perCatTodayExpensesReducer (totalCurrency: string, uncatCurrency
                 return
             }
 
-            const totalRate = currenciesModel.getRate(op.date, op.currency, totalCurrency)
+            const totalRate = await currenciesModel.getRate(op.date, op.currency, totalCurrency)
             values[0]._total += op.amount * totalRate
 
             if (op.categories.length === 0) {
-                const uncatRate = currenciesModel.getRate(op.date, op.currency, uncatCurrency)
+                const uncatRate = await currenciesModel.getRate(op.date, op.currency, uncatCurrency)
                 values[0]._ += op.amount * uncatRate
             }
 
             for (const cat of op.categories) {
-                const rate = currenciesModel.getRate(op.date, op.currency, categoriesModel.get(cat.name).currency ?? appState.masterCurrency)
+                const rate = await currenciesModel.getRate(op.date, op.currency, categoriesModel.get(cat.name).currency ?? appState.masterCurrency)
                 values[0][cat.name] += cat.amount * rate
             }
         }
@@ -170,7 +154,7 @@ export function perPredicatePerIntervalSumExpenses (interval: IntervalType, pred
                     continue
                 }
 
-                const rate = currenciesModel.getRate(op.date, op.currency, filterWithCurrency.currency)
+                const rate = await currenciesModel.getRate(op.date, op.currency, filterWithCurrency.currency)
 
                 if (op.categories.length === 0) {
                     values[values.length - 1][key] += op.amount * rate
@@ -216,7 +200,7 @@ export function perPredicateTodaySumExpenses (predicates: Record<string, Predica
                     return
                 }
 
-                const rate = currenciesModel.getRate(op.date, op.currency, filterWithCurrency.currency)
+                const rate = await currenciesModel.getRate(op.date, op.currency, filterWithCurrency.currency)
 
                 if (op.categories.length === 0) {
                     values[values.length - 1][key] += op.amount * rate
@@ -258,7 +242,7 @@ export function perIntervalExpensesReducer (interval: IntervalType, predicate: P
                 return
             }
 
-            const rate = currenciesModel.getRate(op.date, op.currency, currency)
+            const rate = await currenciesModel.getRate(op.date, op.currency, currency)
 
             for (const cat of op.categories) {
                 const catOp = { ...op, categories: [cat] }
@@ -298,7 +282,7 @@ export function cumulativeIntervalExpensesReducer (interval: IntervalType, predi
                 return
             }
 
-            const rate = currenciesModel.getRate(op.date, op.currency, currency)
+            const rate = await currenciesModel.getRate(op.date, op.currency, currency)
 
             for (const cat of op.categories) {
                 const catOp = { ...op, categories: [cat] }
@@ -313,13 +297,13 @@ export function cumulativeIntervalExpensesReducer (interval: IntervalType, predi
     }
 }
 
-export function periodExpensesReducer (from: DateTime, predicate: Predicate, currency: string): Reducer<number> {
-    const fromMillis = from.toMillis()
+export function periodExpensesReducer (from: DateTime | null, predicate: Predicate, currency: string): Reducer<number> {
+    const fromMillis = from?.toMillis() ?? 0
     const currenciesModel = CurrenciesModel.instance()
     const filter = compilePredicate(predicate)
 
     return {
-        interval: 'day',
+        interval: null,
         reduce: async (op, _interval, _firstOp, _intervalKind, result) => {
             if (result.length === 0) {
                 result.push(0)
@@ -336,7 +320,7 @@ export function periodExpensesReducer (from: DateTime, predicate: Predicate, cur
                 return
             }
 
-            const rate = currenciesModel.getRate(op.date, op.currency, currency)
+            const rate = await currenciesModel.getRate(op.date, op.currency, currency)
 
             for (const cat of op.categories) {
                 const catOp = { ...op, categories: [cat] }

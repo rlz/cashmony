@@ -64,7 +64,7 @@ export class AccountsModel {
 
             const today = utcToday()
             const amounts = new Map<string, ReadonlyMap<string, number>>()
-            const currentAmounts = new Map(Array.from(this.accounts.values()).map(account => [account.name, 0]))
+            const currentAmounts = new Map(Array.from(this.accounts.values()).filter(a => a.deleted !== true).map(account => [account.name, 0]))
             let currentOpIndex = 0
             const operationsLength = operationsModel.operations.length
             for (let date = firstOp.date.minus({ day: 1 }); date <= today; date = date.plus({ day: 1 })) {

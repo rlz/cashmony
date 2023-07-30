@@ -6,7 +6,6 @@ import { Box, Fab } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
-import { match } from 'ts-pattern'
 
 import { runAsync } from '../helpers/smallTools'
 import { AppState } from '../model/appState'
@@ -14,7 +13,7 @@ import { CategoriesModel } from '../model/categories'
 import { type Category } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { PE } from '../model/predicateExpression'
-import { ExpensesStats, hasOperation, Operations } from '../model/stats'
+import { hasOperation } from '../model/stats'
 import { AddCategory } from '../widgets/expenses/editors/AddCategory'
 import { ExpensesList } from '../widgets/expenses/ExpensesList'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
@@ -112,26 +111,3 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
     </>
 })
 CategoriesScreenBody.displayName = 'CategoriesScreenBody'
-
-export function getTotalStats (): ExpensesStats {
-    const appState = AppState.instance()
-
-    return new ExpensesStats(
-        Operations.get(
-            PE.or(
-                PE.type('expense'),
-                PE.and(PE.type('income'), PE.not(PE.uncat()))
-            )
-        ),
-        match(appState.totalGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.totalGoalCurrency } })
-    )
-}
-
-export function getUncategorizedStats (): ExpensesStats {
-    const appState = AppState.instance()
-
-    return new ExpensesStats(
-        Operations.get(PE.and(PE.type('expense'), PE.uncat())),
-        match(appState.uncategorizedGoalAmount).with(null, () => null).otherwise(v => { return { value: v, currency: appState.uncategorizedGoalCurrency } })
-    )
-}

@@ -1,6 +1,5 @@
 import { DateTime, type DurationLike } from 'luxon'
 import { autorun, makeAutoObservable, observable, runInAction } from 'mobx'
-import { match } from 'ts-pattern'
 
 import { CURRENCIES } from '../helpers/currenciesList'
 import { nonNull, run, runAsync } from '../helpers/smallTools'
@@ -175,7 +174,7 @@ export class CurrenciesModel {
         })
     }
 
-    getFromUsdRate (date: DateTime, toCurrency: string): number {
+    async getFromUsdRate (date: DateTime, toCurrency: string): Promise<number> {
         if (this.rates === null) {
             throw Error('Rates not loaded')
         }
@@ -198,18 +197,14 @@ export class CurrenciesModel {
         return rates[ind]
     }
 
-    getRate (date: DateTime, fromCurrency: string, toCurrency: string): number {
+    async getRate (date: DateTime, fromCurrency: string, toCurrency: string): Promise<number> {
         if (fromCurrency === toCurrency) {
             return 1
         }
 
-        const toUsdRate = match(fromCurrency)
-            .with('USD', () => 1)
-            .otherwise(() => 1 / this.getFromUsdRate(date, fromCurrency))
+        const toUsdRate = fromCurrency === 'USD' ? 1 : 1 / await this.getFromUsdRate(date, fromCurrency)
 
-        return match(toCurrency)
-            .with('USD', () => toUsdRate)
-            .otherwise(() => toUsdRate * this.getFromUsdRate(date, toCurrency))
+        return toCurrency === 'USD' ? toUsdRate : toUsdRate * await this.getFromUsdRate(date, toCurrency)
     }
 
     static instance (): CurrenciesModel {

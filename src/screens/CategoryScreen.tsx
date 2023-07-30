@@ -7,7 +7,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
 
 import { formatCurrency } from '../helpers/currencies'
-import { utcToday } from '../helpers/dates'
 import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
 import { screenWidthIs } from '../helpers/useWidth'
 import { AppState } from '../model/appState'
@@ -17,7 +16,7 @@ import { type Category } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { EXPENSE_PREDICATE, PE, type Predicate } from '../model/predicateExpression'
 import { calcStats } from '../model/stats'
-import { sumExpensesReducer } from '../model/statsReducers'
+import { periodExpensesReducer } from '../model/statsReducers'
 import { CategoryEditor } from '../widgets/expenses/editors/CategoryEditor'
 import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
 import { ExpensesStatsWidget } from '../widgets/expenses/ExpensesStatsWidget'
@@ -143,7 +142,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
         () => {
             runAsync(async () => {
                 const stats = await calcStats(predicate, appState.timeSpan, appState.today, {
-                    total: sumExpensesReducer(null, currency)
+                    total: periodExpensesReducer(null, predicate, currency)
                 })
 
                 setStats({
@@ -179,7 +178,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
                     {cur(-stats.total)}
                 </Typography>
                 <Typography variant={'body2'} textAlign={'center'}>
-                    {'Goal (30d): '}{cat.perDayAmount !== undefined ? cur(-30 * cat.perDayAmount * currenciesModel.getRate(utcToday(), cat.currency ?? 'USD', currency)) : '-'}
+                    {'Goal (30d): '}{cat.perDayAmount !== undefined ? cur(-30 * cat.perDayAmount) : '-'}
                 </Typography>
                 <Tabs value={tabName} onChange={(_, tab) => { navigate(`/categories/${catName}/${tab as string}`) }} variant={'fullWidth'}>
                     <Tab value={'stats'} label={'Stats'}/>

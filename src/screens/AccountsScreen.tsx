@@ -6,7 +6,7 @@ import React, { type ReactElement, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { formatCurrency } from '../helpers/currencies'
-import { run } from '../helpers/smallTools'
+import { runAsync } from '../helpers/smallTools'
 import { AccountsModel } from '../model/accounts'
 import { AppState } from '../model/appState'
 import { CurrenciesModel } from '../model/currencies'
@@ -35,10 +35,31 @@ interface AccountsScreenBodyProps {
 export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps): ReactElement => {
     const [addAccount, setAddAccount] = useState(false)
     const [showHidden, setShowHidden] = useState(false)
+    const [total, setTotal] = useState(0)
 
     const appState = AppState.instance()
     const currenciesModel = CurrenciesModel.instance()
     const accountsModel = AccountsModel.instance()
+
+    useEffect(() => {
+        runAsync(async () => {
+            if (accountsModel.amounts === null || currenciesModel.rates === null) {
+                return
+            }
+
+            const results = [...accountsModel.getAmounts(appState.timeSpan.endDate).entries()].map(async ([accName, amount]) => {
+                const rate = await currenciesModel.getRate(
+                    appState.timeSpan.endDate,
+                    accountsModel.get(accName).currency,
+                    appState.masterCurrency
+                )
+
+                return amount * rate
+            })
+
+            setTotal((await Promise.all(results)).reduce((partialSum, a) => partialSum + a, 0))
+        })
+    }, [accountsModel.amounts, currenciesModel.rates])
 
     if (
         currenciesModel.rates === null ||
@@ -48,18 +69,6 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
     ) return <AccountsScreenSkeleton />
 
     const totalAmounts = [...appState.timeSpan.allDates({ includeDayBefore: true })].map(d => accountsModel.getAmounts(d))
-
-    const total = run((): number => {
-        let result = 0
-        for (const [accName, amount] of totalAmounts[totalAmounts.length - 1]) {
-            result += amount * currenciesModel.getRate(
-                appState.timeSpan.endDate,
-                accountsModel.get(accName).currency,
-                appState.masterCurrency
-            )
-        }
-        return result
-    })
 
     const visibleAccounts: Account[] = []
     const hiddenAccounts: Account[] = []

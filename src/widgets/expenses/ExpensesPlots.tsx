@@ -1,8 +1,9 @@
 import { useTheme } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useMemo } from 'react'
+import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 
 import { utcToday } from '../../helpers/dates'
+import { runAsync } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { CategoriesModel } from '../../model/categories'
 import { CurrenciesModel } from '../../model/currencies'
@@ -105,67 +106,69 @@ interface TotalCatPlotProps {
 export const ExpensesTotalPlot = observer((props: TotalCatPlotProps): ReactElement => {
     const theme = useTheme()
 
-    const series = (() => {
-        const allDates = [...appState.timeSpan.allDates({ includeDayBefore: true })]
+    const allDates = useMemo(
+        () => [...appState.timeSpan.allDates({ includeDayBefore: true })].map(d => d.toMillis() / 1000),
+        [appState.timeSpan]
+    )
 
-        if (operationsModel.operations === null || categoriesModel.categories === null) {
-            return {
-                xvalues: allDates.map(d => d.toMillis() / 1000),
-                series: []
+    const [series, setSeries] = useState<PlotSeries[]>([])
+
+    useEffect(() => {
+        runAsync(async () => {
+            if (operationsModel.operations === null || categoriesModel.categories === null) {
+                return
             }
-        }
 
-        const totalExpensesByDates = [0, ...props.expenses].map((v, i) => allDates[i] > appState.today ? undefined : -v)
+            const todaySeconds = appState.today.toMillis() / 1000
 
-        const series: PlotSeries[] = [{
-            type: 'line',
-            color: theme.palette.primary.main,
-            points: totalExpensesByDates
-        }]
+            const totalExpensesByDates = [0, ...props.expenses].map((v, i) => allDates[i] > todaySeconds ? undefined : -v)
 
-        if (appState.daysLeft > 0) {
-            const daysPass = appState.timeSpan.totalDays - appState.daysLeft + 1
-            const periodTotal = -props.expenses[props.expenses.length - 1]
-
-            series.push({
-                type: 'dash',
+            const series: PlotSeries[] = [{
+                type: 'line',
                 color: theme.palette.primary.main,
-                points: allDates.map((_, i) => i < daysPass ? undefined : periodTotal * i / daysPass)
-            })
-        }
+                points: totalExpensesByDates
+            }]
 
-        const dayGoal = props.perDayGoal
-        if (dayGoal !== null) {
-            const today = appState.today
-            const dayGoalInDestCur = dayGoal[0] * currenciesModel.getRate(utcToday(), dayGoal[1], props.currency)
+            if (appState.daysLeft > 0) {
+                const daysPass = appState.timeSpan.totalDays - appState.daysLeft + 1
+                const periodTotal = -props.expenses[props.expenses.length - 1]
 
-            series.push(
-                {
-                    type: 'line',
-                    color: theme.palette.info.main,
-                    points: allDates.map((d, i) => d <= today ? dayGoalInDestCur * i : null)
-                },
-                {
+                series.push({
                     type: 'dash',
-                    color: theme.palette.info.main,
-                    points: allDates.map((d, i) => d >= today ? dayGoalInDestCur * i : null)
-                }
-            )
-        }
+                    color: theme.palette.primary.main,
+                    points: allDates.map((_, i) => i < daysPass ? undefined : periodTotal * i / daysPass)
+                })
+            }
 
-        return {
-            xvalues: allDates.map(d => d.toMillis() / 1000),
-            series
-        }
-    })()
+            const dayGoal = props.perDayGoal
+            if (dayGoal !== null) {
+                const dayGoalInDestCur = dayGoal[0] * await currenciesModel.getRate(utcToday(), dayGoal[1], props.currency)
+
+                series.push(
+                    {
+                        type: 'line',
+                        color: theme.palette.info.main,
+                        points: allDates.map((d, i) => d <= todaySeconds ? dayGoalInDestCur * i : null)
+                    },
+                    {
+                        type: 'dash',
+                        color: theme.palette.info.main,
+                        points: allDates.map((d, i) => d >= todaySeconds ? dayGoalInDestCur * i : null)
+                    }
+                )
+            }
+
+            setSeries(series)
+        })
+    })
 
     return <Plot
         elevation={2}
         showAxes={true}
         currency={props.currency}
         height={250}
-        xvalues={series.xvalues}
-        series={series.series}
+        xvalues={allDates}
+        series={series}
         title={'Total Amount'}
         p={1}
     />

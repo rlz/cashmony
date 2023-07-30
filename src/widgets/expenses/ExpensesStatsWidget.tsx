@@ -116,7 +116,7 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
                                 match(leftPerDay)
                                     .with(null, () => '-')
                                     .with(P.number.gt(0), v => cur(v))
-                                    .otherwise(() => <Italic color={'warning.main'}>{'overspend'}</Italic>)
+                                    .otherwise(() => <Italic variant={'body2'} color={'warning.main'}>{'overspend'}</Italic>)
                             }
                         </td>
                     </tr>

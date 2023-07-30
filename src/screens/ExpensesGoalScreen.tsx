@@ -12,8 +12,10 @@ import { AppState } from '../model/appState'
 import { CurrenciesModel } from '../model/currencies'
 import { GoalsModel } from '../model/goals'
 import { type ExpensesGoal } from '../model/model'
-import { EXPENSE_PREDICATE, expensesGoalPredicate, PE } from '../model/predicateExpression'
-import { ExpensesStats, Operations } from '../model/stats'
+import { OperationsModel } from '../model/operations'
+import { EXPENSE_PREDICATE, PE } from '../model/predicateExpression'
+import { calcStats } from '../model/stats'
+import { periodExpensesReducer } from '../model/statsReducers'
 import { ExpensesGoalEditor } from '../widgets/expenses/editors/ExpensesGoalEditor'
 import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
 import { ExpensesStatsWidget } from '../widgets/expenses/ExpensesStatsWidget'
@@ -57,6 +59,7 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
     const appState = AppState.instance()
     const currenciesModel = CurrenciesModel.instance()
     const goalsModel = GoalsModel.instance()
+    const operationsModel = OperationsModel.instance()
 
     const [goalName, tabName, opId] = run(() => {
         const params = useParams()
@@ -74,6 +77,7 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
     const [goal, setGoal] = useState<ExpensesGoal | null>(null)
     const [newGoal, setNewGoal] = useState<ExpensesGoal | null>(null)
     const [opModalTitle, setOpModalTitle] = useState('')
+    const [total, setTotal] = useState<number>(0)
 
     const newGoalNameTrimmed = newGoal?.name.trim()
 
@@ -97,6 +101,26 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
         appState.setSubTitle(`Goals :: ${newGoal?.name ?? 'loading...'}`)
     }, [newGoal?.name])
 
+    useEffect(() => {
+        runAsync(async () => {
+            if (
+                newGoal === null ||
+                currenciesModel.rates === null ||
+                operationsModel.operations === null
+            ) {
+                return
+            }
+
+            const predicate = PE.filter(newGoal.filter)
+
+            const stats = await calcStats(predicate, appState.timeSpan, appState.today, {
+                total: periodExpensesReducer(null, predicate, newGoal.currency)
+            })
+
+            setTotal(stats.total[0])
+        })
+    }, [newGoal, currenciesModel.rates, operationsModel.operations])
+
     if (
         goal === null ||
         newGoal === null ||
@@ -106,14 +130,7 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
         return <Box p={1}><ExpensesGroupScreenSkeleton /></Box>
     }
 
-    const stats = new ExpensesStats(
-        Operations.get(expensesGoalPredicate(newGoal.filter)),
-        { value: -newGoal.perDayAmount, currency: newGoal.currency }
-    )
-
     const cur = (amount: number, compact = false): string => formatCurrency(amount, newGoal.currency, compact)
-
-    const goal30 = stats.goal(30)
 
     return <>
         <Column height={'100%'}>
@@ -122,10 +139,10 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
                     {newGoal.name.trim() === '' ? '-' : newGoal.name}
                 </Typography>
                 <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
-                    {cur(-stats.amountTotal(appState.timeSpan, newGoal.currency))}
+                    {cur(-total)}
                 </Typography>
                 <Typography variant={'body2'} textAlign={'center'}>
-                    {'Goal (30d): '}{goal30 !== null ? cur(-goal30.value) : '-'}
+                    {'Goal (30d): '}{cur(30 * newGoal.perDayAmount)}
                 </Typography>
                 <Tabs
                     value={tabName}

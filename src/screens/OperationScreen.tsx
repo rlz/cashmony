@@ -593,8 +593,8 @@ const BasicInfo = observer(({ opType, opDate, opAmount, opCurrency, opCategories
                         {'Cat.: '}{c.name}{' ('}
                         {
                             formatCurrency(
-                                c.amount * currenciesModel.getRate(opDate, opCurrency, appState.masterCurrency),
-                                appState.masterCurrency
+                                c.amount,
+                                opCurrency
                             )
                         }
                         {')'}
