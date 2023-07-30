@@ -139,6 +139,7 @@ export interface Reducer<T> {
         intervalKind: 'past' | 'future' | 'now',
         result: T[]
     ) => Promise<void>
+    done?: (result: T[]) => Promise<void>
 }
 
 type InferReturnType<Type> = Type extends Record<string, Reducer<infer X>> ? { [key in keyof Type]: X[] } : never
@@ -280,6 +281,13 @@ export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpa
 
         firstDay = false
     }
+
+    const promises = Object.entries(reducers as Record<string, Reducer<any>>).map(async ([key, reducer]) => {
+        if (reducer.done !== undefined) {
+            await reducer.done(values[key])
+        }
+    })
+    await Promise.all(promises)
 
     return values as any
 }
