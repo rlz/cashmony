@@ -4,101 +4,22 @@ import { match } from 'ts-pattern'
 import { type HumanTimeSpan } from '../helpers/dates'
 import { type NotDeletedOperation } from './model'
 import { OperationsModel } from './operations'
-import { compilePredicate, PE, type Predicate } from './predicateExpression'
+import { compilePredicate, type Predicate } from './predicateExpression'
 
 const operationsModel = OperationsModel.instance()
-
-export class Operations {
-    private readonly timeSpan?: HumanTimeSpan
-    private readonly filter: (op: NotDeletedOperation) => boolean
-
-    readonly predicate: Predicate
-
-    private constructor (predicate: Predicate, timeSpan?: HumanTimeSpan) {
-        this.timeSpan = timeSpan
-        this.predicate = predicate
-        this.filter = compilePredicate(predicate)
-    }
-
-    static get (predicate: Predicate, timeSpan?: HumanTimeSpan): Operations {
-        return new Operations(predicate, timeSpan)
-    }
-
-    onlyExpenses (): Operations {
-        const expensesPredicate = PE.or(PE.type('expense'), PE.and(PE.type('income')))
-        return Operations.get(
-            PE.and(this.predicate, expensesPredicate),
-            this.timeSpan
-        )
-    }
-
-    forTimeSpan (timeSpan: HumanTimeSpan): Operations {
-        return Operations.get(this.predicate, timeSpan)
-    }
-
-    * operations (opts?: { reverse?: boolean }): Generator<NotDeletedOperation> {
-        if (operationsModel.operations === null) {
-            throw Error('Operations not loaded')
-        }
-
-        const ops = opts?.reverse === true
-            ? [...operationsModel.operations].reverse()
-            : operationsModel.operations
-
-        const startDate = this.timeSpan?.startDate
-        const endDate = this.timeSpan?.endDate
-
-        for (const op of ops) {
-            if (op.type === 'deleted') continue
-
-            if (
-                (startDate === undefined || op.date >= startDate) &&
-                (endDate === undefined || op.date <= endDate) &&
-                this.filter(op)
-            ) {
-                yield op
-            }
-        }
-    }
-
-    count (): number {
-        let count = 0
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const _ of this.operations()) {
-            count += 1
-        }
-        return count
-    }
-
-    * groupByDate (opts?: { reverse?: boolean }): Generator<NotDeletedOperation[]> {
-        let operations: NotDeletedOperation[] = []
-        let currentMillis: number | null = null
-
-        for (const op of this.operations({ reverse: opts?.reverse })) {
-            const opMillis = op.date.toMillis()
-
-            if (currentMillis === null) {
-                currentMillis = opMillis
-            }
-
-            if (opMillis !== currentMillis) {
-                yield operations
-                operations = []
-                currentMillis = opMillis
-            }
-
-            operations.push(op)
-        }
-
-        if (operations.length > 0) {
-            yield operations
-        }
-    }
-}
 
 export function hasOperation (predicate: Predicate, timeSpan: HumanTimeSpan | null): boolean {
     const next = listOperations(predicate, timeSpan).next()
     return next.done !== true
+}
+
+export function countOperations (predicate: Predicate, timeSpan: HumanTimeSpan | null): number {
+    let count = 0
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const _op of listOperations(predicate, timeSpan)) {
+        count += 1
+    }
+    return count
 }
 
 export function * listOperations (predicate: Predicate, timeSpan: HumanTimeSpan | null): Generator<NotDeletedOperation> {

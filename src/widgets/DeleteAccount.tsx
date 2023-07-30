@@ -9,7 +9,7 @@ import { AccountsModel } from '../model/accounts'
 import { type DeletedOperation } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { PE } from '../model/predicateExpression'
-import { Operations } from '../model/stats'
+import { countOperations, listOperations } from '../model/stats'
 
 interface Props {
     name: string
@@ -21,7 +21,7 @@ export function DeleteAccount ({ name, open, setOpen }: Props): ReactElement {
     const [delInProcess, setDelInProcess] = useState(false)
     const navigate = useNavigate()
 
-    const opsCount = Operations.get(PE.account(name)).count()
+    const opsCount = countOperations(PE.account(name), null)
 
     return <Dialog
         open={open}
@@ -70,7 +70,7 @@ const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
 
 async function deleteAccount (accName: string): Promise<void> {
-    const ops: DeletedOperation[] = [...Operations.get(PE.account(accName)).operations()].map(op => {
+    const ops: DeletedOperation[] = [...listOperations(PE.account(accName), null)].map(op => {
         return {
             id: op.id,
             type: 'deleted'

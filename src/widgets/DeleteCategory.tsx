@@ -9,7 +9,7 @@ import { CategoriesModel } from '../model/categories'
 import { type NotDeletedOperation } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { PE } from '../model/predicateExpression'
-import { Operations } from '../model/stats'
+import { countOperations, listOperations } from '../model/stats'
 
 interface Props {
     name: string
@@ -21,7 +21,7 @@ export function DeleteCategory ({ name, open, setOpen }: Props): ReactElement {
     const [delInProcess, setDelInProcess] = useState(false)
     const navigate = useNavigate()
 
-    const opsCount = Operations.get(PE.cat(name)).count()
+    const opsCount = countOperations(PE.cat(name), null)
 
     return <Dialog
         open={open}
@@ -70,11 +70,7 @@ const operationsModel = OperationsModel.instance()
 const categoriesModel = CategoriesModel.instance()
 
 async function deleteCategory (catName: string): Promise<void> {
-    const ops: NotDeletedOperation[] = [
-        ...Operations
-            .get(PE.cat(catName))
-            .operations()
-    ].map(op => {
+    const ops: NotDeletedOperation[] = [...listOperations(PE.cat(catName), null)].map(op => {
         if (op.type !== 'income' && op.type !== 'expense') {
             throw Error('Expect only income and expenses here')
         }
