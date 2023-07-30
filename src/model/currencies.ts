@@ -36,6 +36,10 @@ export class CurrenciesModel {
         })
 
         autorun(() => {
+            if (operationsModel.operations === null) {
+                return
+            }
+
             const stats = new Map<string, number>()
 
             for (const op of operationsModel.operations) {

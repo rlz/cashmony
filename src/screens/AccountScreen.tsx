@@ -18,7 +18,6 @@ import { AppState } from '../model/appState'
 import { type Account, type Operation } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { PE } from '../model/predicateExpression'
-import { Operations } from '../model/stats'
 import { AccPlot } from '../widgets/AccountPlots'
 import { CurrencyInput } from '../widgets/CurrencyInput'
 import { DeleteAccount } from '../widgets/DeleteAccount'
@@ -149,7 +148,7 @@ export const AccountScreenBody = observer(() => {
                                 onOpClick={(opId) => {
                                     navigate(`/accounts/${accName}/operations/${opId}`)
                                 }}
-                                operations={Operations.get(PE.and(PE.filter(appState.filter), PE.account(acc.name)), appState.timeSpan)}
+                                predicate={PE.and(PE.filter(appState.filter), PE.account(acc.name))}
                             />)
                             .otherwise(() => { throw Error('Unimplemented tab') })
                     }
@@ -244,6 +243,10 @@ function Editor ({ acc, setAcc }: EditorProps): ReactElement {
 
             return async () => {
                 await accountsModel.put({ ...newAcc, name: trimmedName, lastModified: DateTime.utc() })
+
+                if (operationsModel.operations === null) {
+                    throw Error('Operations not loaded')
+                }
 
                 if (trimmedName !== acc.name) {
                     const changedOps: Operation[] = []

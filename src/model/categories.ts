@@ -11,7 +11,7 @@ let categoriesModel: CategoriesModel | null = null
 
 export class CategoriesModel {
     private readonly finDataDb = FinDataDb.instance()
-    categories: ReadonlyMap<string, Category> = new Map()
+    categories: ReadonlyMap<string, Category> | null = null
     categoriesSorted: readonly string[] = []
 
     private constructor () {
@@ -21,7 +21,7 @@ export class CategoriesModel {
         })
 
         autorun(() => {
-            if (this.categories.size === 0) {
+            if (this.categories === null) {
                 return
             }
 
@@ -42,6 +42,10 @@ export class CategoriesModel {
             }
 
             runInAction(() => {
+                if (this.categories === null) {
+                    return
+                }
+
                 this.categoriesSorted = [...this.categories.keys()].sort(compareByStats(stats))
             })
         })
@@ -58,6 +62,10 @@ export class CategoriesModel {
     }
 
     get (catName: string): Category {
+        if (this.categories === null) {
+            throw Error('Categories not loaded')
+        }
+
         const category = this.categories.get(catName)
 
         if (category === undefined) {

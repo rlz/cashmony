@@ -59,7 +59,7 @@ export const ExpensesGoalsScreenBody = observer(({ noFab }: ExpensesGoalsScreenB
         }
         <Box p={1} height={'100%'} overflow={'auto'}>
             <Box maxWidth={900} mx={'auto'}>
-                <ExpensesList items={goalsModel.goals.filter(i => i.deleted !== true)}/>
+                <ExpensesList goals={goalsModel.goals.filter(i => i.deleted !== true)}/>
                 <Box minHeight={144}/>
             </Box>
         </Box>

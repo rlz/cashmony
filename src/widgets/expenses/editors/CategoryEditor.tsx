@@ -43,7 +43,7 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
 
     const trimmedName = newCat.name.trim()
     const nameConflict = trimmedName !== cat.name &&
-        categoriesModel.categories.has(newCat.name) &&
+        categoriesModel.categories?.has(newCat.name) === true &&
         categoriesModel.get(newCat.name).deleted !== true
 
     const onSave = useMemo(
@@ -75,6 +75,10 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
 
                 if (trimmedName !== cat.name) {
                     const changedOps: Operation[] = []
+                    if (operationsModel.operations === null) {
+                        throw Error('Operations not loaded')
+                    }
+
                     for (const op of operationsModel.operations) {
                         if (
                             (op.type === 'expense' || op.type === 'income') &&

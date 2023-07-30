@@ -7,7 +7,7 @@ const finDataDb = FinDataDb.instance()
 let operationsModel: OperationsModel | null = null
 
 export class OperationsModel {
-    operations: readonly Operation[] = []
+    operations: readonly Operation[] | null = null
 
     private constructor () {
         makeAutoObservable(this, {
@@ -18,10 +18,26 @@ export class OperationsModel {
     }
 
     get firstOp (): NotDeletedOperation | undefined {
+        if (this.operations === null) {
+            throw Error('Operations not loaded')
+        }
+
         for (const op of this.operations) {
             if (op.type !== 'deleted') {
                 return op
             }
+        }
+    }
+
+    get lastOp (): NotDeletedOperation | undefined {
+        if (this.operations === null) {
+            throw Error('Operations not loaded')
+        }
+
+        const op = this.operations[this.operations.length - 1]
+
+        if (op.type !== 'deleted') {
+            return op
         }
     }
 

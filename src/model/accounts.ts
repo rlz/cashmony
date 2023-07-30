@@ -27,7 +27,7 @@ export class AccountsModel {
         })
 
         autorun(() => {
-            if (this.accounts === null) {
+            if (this.accounts === null || operationsModel.operations === null) {
                 return
             }
 
@@ -51,7 +51,7 @@ export class AccountsModel {
         })
 
         autorun(() => {
-            if (this.accounts === null) {
+            if (this.accounts === null || operationsModel.operations === null) {
                 return
             }
 

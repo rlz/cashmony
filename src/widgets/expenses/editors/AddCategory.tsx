@@ -23,6 +23,10 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
         navigate(`/categories/${encodeURIComponent(trimmedName)}/modify`)
     }
 
+    if (categoriesModel.categories === null) {
+        return <></>
+    }
+
     const cat = categoriesModel.categories.get(name.trim())
     const exists = cat !== undefined && cat.deleted !== true
 

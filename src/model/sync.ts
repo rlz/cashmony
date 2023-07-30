@@ -89,6 +89,10 @@ export async function syncAccounts (): Promise<SyncStats> {
 }
 
 export async function syncCategories (): Promise<SyncStats> {
+    if (categoriesModel.categories === null) {
+        throw Error('Categories not loaded')
+    }
+
     const googleCategories = await google.loadCategories()
     const localCategories = categoriesModel.categories
 
@@ -197,6 +201,10 @@ export async function syncGoals (): Promise<SyncStats> {
 }
 
 export async function syncOperations (): Promise<SyncStatsEx> {
+    if (operationsModel.operations === null) {
+        throw Error('Operations not loaded')
+    }
+
     const googleOps = await google.loadOperations()
     const localOps = operationsModel.operations
 

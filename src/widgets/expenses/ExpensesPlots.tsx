@@ -7,7 +7,6 @@ import { AppState } from '../../model/appState'
 import { CategoriesModel } from '../../model/categories'
 import { CurrenciesModel } from '../../model/currencies'
 import { OperationsModel } from '../../model/operations'
-import { type ExpensesStats } from '../../model/stats'
 import { Plot, type PlotSeries } from '../Plot'
 
 const appState = AppState.instance()
@@ -17,11 +16,13 @@ const categoriesModel = CategoriesModel.instance()
 
 interface AmountBarsCatPlotProps {
     currency: string
-    stats: ExpensesStats
+    perDayPace: number
+    leftPerDay: number | null
+    perDayExpenses: number[]
     sparkline?: boolean
 }
 
-export const ExpensesBarsPlot = observer(({ currency, stats, sparkline }: AmountBarsCatPlotProps): ReactElement => {
+export const ExpensesBarsPlot = observer((props: AmountBarsCatPlotProps): ReactElement => {
     const theme = useTheme()
 
     const series = useMemo(
@@ -29,41 +30,40 @@ export const ExpensesBarsPlot = observer(({ currency, stats, sparkline }: Amount
             const allDates = [...appState.timeSpan.allDates({ includeDayBefore: true })]
                 .map(d => d.toMillis() / 1000)
 
-            if (operationsModel.operations.length === 0 || categoriesModel.categories.size === 0) {
+            const todaySeconds = appState.today.toMillis() / 1000
+
+            if (operationsModel.operations === null || categoriesModel.categories === null) {
                 return {
                     xvalues: allDates,
                     series: []
                 }
             }
 
-            const expensesByDate = [undefined, ...stats.expensesByDate(currency)]
-            const perDay = -stats.avgUntilToday(1, appState.timeSpan, currency)
-
             const series: PlotSeries[] = [
                 {
                     type: 'bars',
                     color: theme.palette.error.main,
-                    points: expensesByDate.map(a => a === undefined || a >= 0 ? null : -a)
+                    points: [0, ...props.perDayExpenses.map(a => a === undefined || a >= 0 ? null : -a)]
                 },
                 {
                     type: 'bars',
                     color: theme.palette.success.main,
-                    points: expensesByDate.map(a => a === undefined || a <= 0 ? null : a)
+                    points: [0, ...props.perDayExpenses.map(a => a === undefined || a <= 0 ? null : a)]
                 },
                 {
                     type: 'line',
                     color: theme.palette.info.main,
-                    points: expensesByDate.map((a, i) => a !== undefined || i === 0 ? perDay : null)
+                    points: allDates.map(i => i < todaySeconds ? -props.perDayPace : null)
                 }
             ]
 
             const daysLeft = appState.daysLeft
-            if (daysLeft > 0 && stats.perDayGoal !== null) {
-                const leftPerDay = Math.max(-(stats.leftPerDay(appState.timeSpan, currency)?.value ?? 0), 0)
+            if (daysLeft > 0 && props.leftPerDay !== null) {
+                const leftPerDay = Math.max(props.leftPerDay, 0)
                 series.push({
                     type: 'dash',
                     color: theme.palette.info.main,
-                    points: expensesByDate.map((_, i, a) => a[i + 1] === undefined ? leftPerDay : null)
+                    points: allDates.map((_, i) => i === allDates.length - 1 || allDates[i + 1] >= todaySeconds ? leftPerDay : null)
                 })
             }
 
@@ -73,7 +73,9 @@ export const ExpensesBarsPlot = observer(({ currency, stats, sparkline }: Amount
             }
         },
         [
-            stats.operations,
+            props.perDayExpenses,
+            props.perDayPace,
+            props.leftPerDay,
             appState.timeSpanInfo,
             appState.today,
             operationsModel.operations,
@@ -82,92 +84,85 @@ export const ExpensesBarsPlot = observer(({ currency, stats, sparkline }: Amount
     )
 
     return <Plot
-        elevation={sparkline === true ? 0 : 2}
-        showAxes={sparkline !== true}
-        currency={currency}
-        height={sparkline === true ? 50 : 150}
+        elevation={props.sparkline === true ? 0 : 2}
+        showAxes={props.sparkline !== true}
+        currency={props.currency}
+        height={props.sparkline === true ? 50 : 150}
         xvalues={series.xvalues}
         series={series.series}
-        title={sparkline === true ? undefined : 'Daily Amount'}
-        p={sparkline === true ? 0 : 1}
+        title={props.sparkline === true ? undefined : 'Daily Amount'}
+        p={props.sparkline === true ? 0 : 1}
     />
 })
 
 interface TotalCatPlotProps {
     currency: string
-    stats: ExpensesStats
+    perDayGoal: [number, string] | null
+    perDayPace: number
+    expenses: number[]
 }
 
-export const ExpensesTotalPlot = observer(({ currency, stats }: TotalCatPlotProps): ReactElement => {
+export const ExpensesTotalPlot = observer((props: TotalCatPlotProps): ReactElement => {
     const theme = useTheme()
 
-    const series = useMemo(
-        () => {
-            const allDates = [...appState.timeSpan.allDates({ includeDayBefore: true })]
+    const series = (() => {
+        const allDates = [...appState.timeSpan.allDates({ includeDayBefore: true })]
 
-            if (operationsModel.operations.length === 0 || categoriesModel.categories.size === 0) {
-                return {
-                    xvalues: allDates.map(d => d.toMillis() / 1000),
-                    series: []
-                }
-            }
-
-            const totalExpensesByDates = [0, ...stats.totalExpensesByDates(currency)].map(a => a === undefined ? a : -a)
-
-            const series: PlotSeries[] = [{
-                type: 'line',
-                color: theme.palette.primary.main,
-                points: totalExpensesByDates
-            }]
-
-            if (appState.daysLeft > 0) {
-                const daysPass = appState.timeSpan.totalDays - appState.daysLeft + 1
-                const periodTotal = -stats.amountTotal(appState.timeSpan, currency)
-
-                series.push({
-                    type: 'dash',
-                    color: theme.palette.primary.main,
-                    points: allDates.map((_, i) => i < daysPass ? undefined : periodTotal * i / daysPass)
-                })
-            }
-
-            const dayGoal = stats.goal(1)
-            if (dayGoal !== null) {
-                const today = appState.today
-                const dayGoalInDestCur = dayGoal.value * currenciesModel.getRate(utcToday(), dayGoal.currency, currency)
-
-                series.push(
-                    {
-                        type: 'line',
-                        color: theme.palette.info.main,
-                        points: allDates.map((d, i) => d <= today ? -dayGoalInDestCur * i : null)
-                    },
-                    {
-                        type: 'dash',
-                        color: theme.palette.info.main,
-                        points: allDates.map((d, i) => d >= today ? -dayGoalInDestCur * i : null)
-                    }
-                )
-            }
-
+        if (operationsModel.operations === null || categoriesModel.categories === null) {
             return {
                 xvalues: allDates.map(d => d.toMillis() / 1000),
-                series
+                series: []
             }
-        },
-        [
-            stats.operations,
-            appState.timeSpanInfo,
-            appState.today,
-            operationsModel.operations,
-            categoriesModel.categories
-        ]
-    )
+        }
+
+        const totalExpensesByDates = [0, ...props.expenses].map((v, i) => allDates[i] > appState.today ? undefined : -v)
+
+        const series: PlotSeries[] = [{
+            type: 'line',
+            color: theme.palette.primary.main,
+            points: totalExpensesByDates
+        }]
+
+        if (appState.daysLeft > 0) {
+            const daysPass = appState.timeSpan.totalDays - appState.daysLeft + 1
+            const periodTotal = -props.expenses[props.expenses.length - 1]
+
+            series.push({
+                type: 'dash',
+                color: theme.palette.primary.main,
+                points: allDates.map((_, i) => i < daysPass ? undefined : periodTotal * i / daysPass)
+            })
+        }
+
+        const dayGoal = props.perDayGoal
+        if (dayGoal !== null) {
+            const today = appState.today
+            const dayGoalInDestCur = dayGoal[0] * currenciesModel.getRate(utcToday(), dayGoal[1], props.currency)
+
+            series.push(
+                {
+                    type: 'line',
+                    color: theme.palette.info.main,
+                    points: allDates.map((d, i) => d <= today ? dayGoalInDestCur * i : null)
+                },
+                {
+                    type: 'dash',
+                    color: theme.palette.info.main,
+                    points: allDates.map((d, i) => d >= today ? dayGoalInDestCur * i : null)
+                }
+            )
+        }
+
+        return {
+            xvalues: allDates.map(d => d.toMillis() / 1000),
+            series
+        }
+    })()
 
     return <Plot
         elevation={2}
         showAxes={true}
-        currency={currency}
+        currency={props.currency}
         height={250}
         xvalues={series.xvalues}
         series={series.series}

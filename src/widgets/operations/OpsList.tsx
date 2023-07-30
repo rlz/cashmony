@@ -5,12 +5,13 @@ import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { run, showIf } from '../../helpers/smallTools'
+import { runAsync, showIf } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { type NotDeletedOperation } from '../../model/model'
 import { OperationsModel } from '../../model/operations'
-import { PE } from '../../model/predicateExpression'
-import { Operations } from '../../model/stats'
+import { PE, type Predicate } from '../../model/predicateExpression'
+import { calcStats } from '../../model/stats'
+import { opsPerIterval } from '../../model/statsReducers'
 import { Column } from '../generic/Containers'
 import { DivBody2 } from '../generic/Typography'
 import { AdjustmentCard } from './cards/AdjustmentCard'
@@ -25,7 +26,8 @@ const operationsModel = OperationsModel.instance()
 interface Props {
     onOpClick?: (opId: string) => void
     noFab?: boolean
-    operations?: Operations
+    predicate?: Predicate
+    operations?: NotDeletedOperation[][]
     sx?: SxProps
 }
 
@@ -44,13 +46,20 @@ export const OpsList = observer((props: Props): ReactElement => {
 
     useEffect(
         () => {
-            const operations = props.operations ?? run(() => {
-                const appState = AppState.instance()
-                return Operations.get(PE.filter(appState.filter), appState.timeSpan)
+            runAsync(async () => {
+                if (props.operations === undefined) {
+                    const appState = AppState.instance()
+                    const predicate = props.predicate ?? PE.filter(appState.filter)
+                    const stats = await calcStats(predicate, appState.timeSpan, appState.today, {
+                        opsByDate: opsPerIterval('day', false)
+                    })
+                    setDisplayOps(stats.opsByDate.reverse())
+                    return
+                }
+                setDisplayOps(props.operations)
             })
-            setDisplayOps([...operations.groupByDate({ reverse: true })])
         },
-        [props.operations, operationsModel.operations, appState.filter, appState.timeSpan]
+        [props.operations, props.predicate, operationsModel.operations, appState.filter, appState.timeSpan]
     )
 
     if (displayOps === null) {

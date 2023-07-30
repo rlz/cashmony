@@ -8,14 +8,16 @@ import { match } from 'ts-pattern'
 
 import { formatCurrency } from '../helpers/currencies'
 import { utcToday } from '../helpers/dates'
-import { nonNull, run, showIfLazy } from '../helpers/smallTools'
+import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
 import { screenWidthIs } from '../helpers/useWidth'
 import { AppState } from '../model/appState'
 import { CategoriesModel } from '../model/categories'
 import { CurrenciesModel } from '../model/currencies'
 import { type Category } from '../model/model'
-import { PE } from '../model/predicateExpression'
-import { ExpensesStats, Operations } from '../model/stats'
+import { OperationsModel } from '../model/operations'
+import { EXPENSE_PREDICATE, PE, type Predicate } from '../model/predicateExpression'
+import { calcStats } from '../model/stats'
+import { sumExpensesReducer } from '../model/statsReducers'
 import { CategoryEditor } from '../widgets/expenses/editors/CategoryEditor'
 import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
 import { ExpensesStatsWidget } from '../widgets/expenses/ExpensesStatsWidget'
@@ -24,7 +26,7 @@ import { Column } from '../widgets/generic/Containers'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
-import { CategoriesScreenBody, getTotalStats, getUncategorizedStats } from './CategoriesScreen'
+import { CategoriesScreenBody } from './CategoriesScreen'
 import { OperationScreenBody } from './OperationScreen'
 
 export function CategoryScreen (): ReactElement {
@@ -57,6 +59,7 @@ export function CategoryScreen (): ReactElement {
 
 export const CategoryScreenBody = observer((): ReactElement => {
     const appState = AppState.instance()
+    const operationsModel = OperationsModel.instance()
     const currenciesModel = CurrenciesModel.instance()
     const categoriesModel = CategoriesModel.instance()
 
@@ -75,11 +78,16 @@ export const CategoryScreenBody = observer((): ReactElement => {
     const [cat, setCat] = useState<Category | null>(null)
     const navigate = useNavigate()
     const [opModalTitle, setOpModalTitle] = useState('')
+    const [stats, setStats] = useState<{ total: number } | null>(null)
 
     const currency = cat?.currency ?? appState.masterCurrency
 
     useEffect(() => {
-        if (cat === null) {
+        if (
+            cat === null ||
+            currenciesModel.rates === null ||
+            stats === null
+        ) {
             appState.setSubTitle('Category :: loading...')
         } else {
             const name = match(catName)
@@ -126,24 +134,34 @@ export const CategoryScreenBody = observer((): ReactElement => {
         ]
     )
 
+    const predicate = match<string, Predicate>(catName)
+        .with('_total', () => EXPENSE_PREDICATE)
+        .with('_', () => PE.and(PE.type('expense'), PE.uncat()))
+        .otherwise(() => PE.cat(catName))
+
+    useEffect(
+        () => {
+            runAsync(async () => {
+                const stats = await calcStats(predicate, appState.timeSpan, appState.today, {
+                    total: sumExpensesReducer(null, currency)
+                })
+
+                setStats({
+                    total: stats.total[0]
+                })
+            })
+        }, [operationsModel.operations, catName]
+    )
+
     if (
         cat === null ||
-        currenciesModel.rates === null
+        currenciesModel.rates === null ||
+        stats === null
     ) {
         return <ExpensesGroupScreenSkeleton />
     }
 
-    const stats = match<string, ExpensesStats>(catName)
-        .with('_total', () => getTotalStats())
-        .with('_', () => getUncategorizedStats())
-        .otherwise(() => new ExpensesStats(
-            Operations.get(PE.cat(cat.name)),
-            match(cat.perDayAmount).with(undefined, () => null).otherwise(v => { return { value: -v, currency: cat.currency ?? '' } })
-        ))
-
     const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
-
-    const goal = stats.goal(30)
 
     return <>
         <Column height={'100%'}>
@@ -158,10 +176,10 @@ export const CategoryScreenBody = observer((): ReactElement => {
                     }
                 </Typography>
                 <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
-                    {cur(-stats.amountTotal(appState.timeSpan, currency))}
+                    {cur(-stats.total)}
                 </Typography>
                 <Typography variant={'body2'} textAlign={'center'}>
-                    {'Goal (30d): '}{goal !== null ? cur(-goal.value * currenciesModel.getRate(utcToday(), goal.currency, currency)) : '-'}
+                    {'Goal (30d): '}{cat.perDayAmount !== undefined ? cur(-30 * cat.perDayAmount * currenciesModel.getRate(utcToday(), cat.currency ?? 'USD', currency)) : '-'}
                 </Typography>
                 <Tabs value={tabName} onChange={(_, tab) => { navigate(`/categories/${catName}/${tab as string}`) }} variant={'fullWidth'}>
                     <Tab value={'stats'} label={'Stats'}/>
@@ -173,7 +191,11 @@ export const CategoryScreenBody = observer((): ReactElement => {
                 <Box px={1}>
                     {
                         match(tabName)
-                            .with('stats', () => <ExpensesStatsWidget currency={currency} stats={stats} />)
+                            .with('stats', () => <ExpensesStatsWidget
+                                currency={currency}
+                                predicate={predicate}
+                                perDayGoal={cat.perDayAmount ?? null}
+                            />)
                             .with('modify', () => <CategoryEditor
                                 cat={cat}
                                 setCat={setCat}
@@ -183,7 +205,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
                                 onOpClick={(opId) => {
                                     navigate(`/categories/${catName}/operations/${opId}`)
                                 }}
-                                operations={stats.operations.forTimeSpan(appState.timeSpan)}
+                                predicate={predicate}
                             />)
                             .otherwise(() => { throw Error('Unimplenented tab') })
                     }

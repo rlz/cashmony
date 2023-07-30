@@ -1,70 +1,45 @@
 import { Box, Paper, Skeleton, type SxProps } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useEffect, useState } from 'react'
+import React, { type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { match, P } from 'ts-pattern'
 
 import { formatCurrency } from '../../helpers/currencies'
-import { utcToday } from '../../helpers/dates'
-import { runAsync } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { CurrenciesModel } from '../../model/currencies'
-import { type Amount } from '../../model/model'
-import { OperationsModel } from '../../model/operations'
-import { type ExpensesStats } from '../../model/stats'
 import { DivBody2, Italic, SpanBody1 } from '../generic/Typography'
 import { ExpensesBarsPlot } from './ExpensesPlots'
 
 interface Props {
     url: string
     name: string | ReactElement
-    stats: ExpensesStats
+    totalAmount: number
+    todayAmount: number
+    perDayGoal: number | null
+    perDayExpenses: number[]
+    currency: string
     sx?: SxProps
 }
 
 export const ExpensesCard = observer((props: Props): ReactElement => {
     const appState = AppState.instance()
     const currenciesModel = CurrenciesModel.instance()
-    const operationsModel = OperationsModel.instance()
-
-    const currency = props.stats.perDayGoal?.currency ?? appState.masterCurrency
 
     const navigate = useNavigate()
 
-    const [goal30, setGoal30] = useState<Amount | null>(null)
-    const [leftPerDay, setLeftPerDay] = useState<number | null>(null)
-    const [amountTotal, setAmountTotal] = useState<number | null>(null)
+    const timeSpan = appState.timeSpan
+    const daysLeft = appState.daysLeft
+    const totalDays = timeSpan.totalDays
 
-    useEffect(() => {
-        runAsync(async () => {
-            setGoal30(props.stats.goal(30))
-        })
+    const leftPerDay = props.perDayGoal === null || daysLeft === 0
+        ? null
+        : (props.perDayGoal * totalDays + props.totalAmount - props.todayAmount) / daysLeft
 
-        runAsync(async () => {
-            setLeftPerDay(
-                match(props.stats.leftPerDay(appState.timeSpan, currency))
-                    .with(null, () => null)
-                    .with({ value: P.select() }, v => -v)
-                    .otherwise(() => 0)
-            )
-        })
+    const periodPace = (props.totalAmount - props.todayAmount) * 30 / (totalDays - daysLeft)
 
-        runAsync(async () => {
-            setAmountTotal(
-                props.stats.amountTotal(appState.timeSpan, currency)
-            )
-        })
-    }, [
-        props.stats,
-        currency,
-        operationsModel.operations,
-        appState.today,
-        appState.timeSpanInfo
-    ])
+    const cur = (amount: number, compact = false): string => formatCurrency(amount, props.currency, compact)
 
-    const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
-
-    if (currenciesModel.rates === null || amountTotal === null) {
+    if (currenciesModel.rates === null) {
         return <ExpensesCardSkeleton name={props.name} sx={props.sx}/>
     }
 
@@ -78,7 +53,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                         flex={'1 1 0'}
                         textAlign={'right'}
                     >
-                        {cur(match(amountTotal).with(0, v => v).otherwise(v => -v))}
+                        {cur(match(props.totalAmount).with(0, v => v).otherwise(v => -v))}
                     </SpanBody1>
                 </Box>
                 <DivBody2 my={1}>
@@ -86,11 +61,11 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                         <tbody>
                             <tr>
                                 <th>{'Period pace (30d):'}</th>
-                                <td>{cur(match(props.stats.avgUntilToday(30, appState.timeSpan, currency)).with(0, () => 0).otherwise(v => -v))}</td>
+                                <td>{cur(match(periodPace).with(0, () => 0).otherwise(v => -v))}</td>
                             </tr>
                             <tr>
                                 <th>{'Goal (30d):'}</th>
-                                <td>{goal30 !== null ? cur(-goal30.value * currenciesModel.getRate(utcToday(), goal30.currency, currency)) : '-'}</td>
+                                <td>{props.perDayGoal !== null ? cur(30 * props.perDayGoal) : '-'}</td>
                             </tr>
                             <tr>
                                 <th>{'Left per day:'}</th>
@@ -106,7 +81,13 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                         </tbody>
                     </table>
                 </DivBody2>
-                <ExpensesBarsPlot currency={currency} sparkline stats={props.stats} />
+                <ExpensesBarsPlot
+                    currency={props.currency}
+                    sparkline
+                    perDayPace={periodPace / 30}
+                    leftPerDay={leftPerDay}
+                    perDayExpenses={props.perDayExpenses}
+                />
             </Paper>
         </a>
     </Box>

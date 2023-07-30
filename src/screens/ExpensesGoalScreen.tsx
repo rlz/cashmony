@@ -12,7 +12,7 @@ import { AppState } from '../model/appState'
 import { CurrenciesModel } from '../model/currencies'
 import { GoalsModel } from '../model/goals'
 import { type ExpensesGoal } from '../model/model'
-import { expensesGoalPredicate } from '../model/predicateExpression'
+import { EXPENSE_PREDICATE, expensesGoalPredicate, PE } from '../model/predicateExpression'
 import { ExpensesStats, Operations } from '../model/stats'
 import { ExpensesGoalEditor } from '../widgets/expenses/editors/ExpensesGoalEditor'
 import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
@@ -141,7 +141,11 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
                 <Box px={1}>
                     {
                         match(tabName)
-                            .with('stats', () => <ExpensesStatsWidget currency={newGoal.currency} stats={stats} />)
+                            .with('stats', () => <ExpensesStatsWidget
+                                currency={newGoal.currency}
+                                predicate={PE.filter(newGoal.filter)}
+                                perDayGoal={newGoal.perDayAmount}
+                            />)
                             .with('modify', () => {
                                 return <>
                                     <ExpensesGoalEditor goal={newGoal} onChange={setNewGoal} />
@@ -166,7 +170,7 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
                                 onOpClick={(opId) => {
                                     navigate(`/goals/${goalName}/operations/${opId}`)
                                 }}
-                                operations={stats.operations.forTimeSpan(appState.timeSpan)}
+                                predicate={PE.and(EXPENSE_PREDICATE, PE.filter(newGoal.filter))}
                             />)
                             .otherwise(() => { throw Error('Unimplenented tab') })
                     }

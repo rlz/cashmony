@@ -197,7 +197,6 @@ export const PE = {
         }
 
         if (filter.categoriesMode === 'selected') {
-            console.log(filter.categories)
             predicates.push(
                 PE.or(
                     PE.type('adjustment'),
@@ -225,6 +224,10 @@ export const PE = {
     }
 }
 
+export const EXPENSE_PREDICATE = PE.or(PE.type('expense'), PE.and(PE.type('income'), PE.not(PE.uncat())))
+
+export const isExpense = compilePredicate(EXPENSE_PREDICATE)
+
 export function expensesGoalPredicate (filter: Filter): Predicate {
-    return PE.and(PE.or(PE.type('expense'), PE.and(PE.type('income'), PE.not(PE.uncat()))), PE.filter(filter))
+    return PE.and(EXPENSE_PREDICATE, PE.filter(filter))
 }

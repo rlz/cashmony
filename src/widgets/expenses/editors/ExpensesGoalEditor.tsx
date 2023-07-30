@@ -57,6 +57,7 @@ export function ExpensesGoalEditor ({ goal, onChange }: Props): ReactElement {
                     navigate(`/goals/${encodeURIComponent(g.name)}`)
                 } else {
                     onChange(g)
+                    setNewGoal(g)
                 }
             }
         },
@@ -119,7 +120,7 @@ export function ExpensesGoalEditor ({ goal, onChange }: Props): ReactElement {
             showIf(editFilter, <FilterEditor
                 filter={newGoal.filter}
                 onClose={() => { setEditFilter(false) }}
-                onFilterChanged={f => { onChange({ ...newGoal, filter: f }) }}
+                onFilterChanged={f => { setNewGoal({ ...newGoal, filter: f }) }}
             />)
         }
     </Column>

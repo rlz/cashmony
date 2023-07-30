@@ -16,8 +16,12 @@ export class TagsModel {
     private constructor () {
         makeAutoObservable(this)
 
+        const ops = OperationsModel.instance()
+
         autorun(() => {
-            const ops = OperationsModel.instance()
+            if (ops.operations === null) {
+                return
+            }
 
             const tagsStats = {
                 expense: new Map<string, number>(),
