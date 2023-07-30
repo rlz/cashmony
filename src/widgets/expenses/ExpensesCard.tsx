@@ -6,7 +6,6 @@ import { match, P } from 'ts-pattern'
 
 import { formatCurrency } from '../../helpers/currencies'
 import { AppState } from '../../model/appState'
-import { CurrenciesModel } from '../../model/currencies'
 import { DivBody2, Italic, SpanBody1 } from '../generic/Typography'
 import { ExpensesBarsPlot } from './ExpensesPlots'
 
@@ -23,7 +22,6 @@ interface Props {
 
 export const ExpensesCard = observer((props: Props): ReactElement => {
     const appState = AppState.instance()
-    const currenciesModel = CurrenciesModel.instance()
 
     const navigate = useNavigate()
 
@@ -38,10 +36,6 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
     const periodPace = (props.totalAmount - props.todayAmount) * 30 / (totalDays - daysLeft)
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, props.currency, compact)
-
-    if (currenciesModel.rates === null) {
-        return <ExpensesCardSkeleton name={props.name} sx={props.sx}/>
-    }
 
     return <Box sx={props.sx}>
         <a onClick={() => { navigate(props.url) }}>

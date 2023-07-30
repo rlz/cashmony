@@ -6,7 +6,6 @@ import { match } from 'ts-pattern'
 import { runAsync } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { CategoriesModel } from '../../model/categories'
-import { CurrenciesModel } from '../../model/currencies'
 import { GoalsModel } from '../../model/goals'
 import { type Category, type ExpensesGoal } from '../../model/model'
 import { OperationsModel } from '../../model/operations'
@@ -23,7 +22,6 @@ interface ExpensesListProps {
 
 export const ExpensesList = observer(({ categories, goals }: ExpensesListProps): ReactElement => {
     const appState = AppState.instance()
-    const currenciesModel = CurrenciesModel.instance()
     const operationsModel = OperationsModel.instance()
     const categoriesModel = CategoriesModel.instance()
     const goalsModel = GoalsModel.instance()
@@ -33,7 +31,6 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
     useEffect(
         () => {
             if (
-                currenciesModel.rates === null ||
                 operationsModel.operations === null ||
                 categoriesModel.categories === null ||
                 goalsModel.goals === null
@@ -97,7 +94,6 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
             appState.uncategorizedGoalCurrency,
             appState.today,
             appState.timeSpanInfo,
-            currenciesModel.rates,
             operationsModel.operations,
             categoriesModel.categories,
             goalsModel.goals

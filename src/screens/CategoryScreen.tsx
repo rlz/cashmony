@@ -11,7 +11,6 @@ import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
 import { screenWidthIs } from '../helpers/useWidth'
 import { AppState } from '../model/appState'
 import { CategoriesModel } from '../model/categories'
-import { CurrenciesModel } from '../model/currencies'
 import { type Category } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { EXPENSE_PREDICATE, PE, type Predicate } from '../model/predicateExpression'
@@ -59,7 +58,6 @@ export function CategoryScreen (): ReactElement {
 export const CategoryScreenBody = observer((): ReactElement => {
     const appState = AppState.instance()
     const operationsModel = OperationsModel.instance()
-    const currenciesModel = CurrenciesModel.instance()
     const categoriesModel = CategoriesModel.instance()
 
     const [catName, tabName, opId] = run(() => {
@@ -84,7 +82,6 @@ export const CategoryScreenBody = observer((): ReactElement => {
     useEffect(() => {
         if (
             cat === null ||
-            currenciesModel.rates === null ||
             stats === null
         ) {
             appState.setSubTitle('Category :: loading...')
@@ -154,7 +151,6 @@ export const CategoryScreenBody = observer((): ReactElement => {
 
     if (
         cat === null ||
-        currenciesModel.rates === null ||
         stats === null
     ) {
         return <ExpensesGroupScreenSkeleton />

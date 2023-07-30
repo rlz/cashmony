@@ -1,38 +1,27 @@
-import { DateTime, type DurationLike } from 'luxon'
-import { autorun, makeAutoObservable, observable, runInAction } from 'mobx'
+import { DateTime } from 'luxon'
+import { autorun, makeAutoObservable, runInAction } from 'mobx'
 
 import { CURRENCIES } from '../helpers/currenciesList'
-import { nonNull, run, runAsync } from '../helpers/smallTools'
+import { nonNull } from '../helpers/smallTools'
 import { compareByStats } from '../helpers/stats'
-import { AccountsModel } from './accounts'
-import { AppState } from './appState'
-import { CategoriesModel } from './categories'
 import { FinDataDb } from './finDataDb'
-import { GoalsModel } from './goals'
 import { CURRENCY_RATES_SCHEMA, type CurrencyRates, type CurrencyRatesCache, ratesMonth } from './model'
 import { OperationsModel } from './operations'
-import { PE } from './predicateExpression'
-import { Operations } from './stats'
 
 const finDataDb = FinDataDb.instance()
-const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
-const categoriesModel = CategoriesModel.instance()
-const goalsModel = GoalsModel.instance()
-const accountsModel = AccountsModel.instance()
 
 let currenciesModel: CurrenciesModel | null = null
 const emptyStats: ReadonlyMap<string, number> = new Map()
 
 export class CurrenciesModel {
+    // key is year-month-cur as 2023-01-EUR
+    private rates: Record<string, CurrencyRatesCache> = {}
+
     currencies: readonly string[] = Object.values(CURRENCIES).map(c => c.code).sort(compareByStats(emptyStats))
-    rates: Record<string, readonly number[]> | null = null
-    firstDate = appState.timeSpan.endDate
 
     private constructor () {
-        makeAutoObservable(this, {
-            rates: observable.shallow
-        })
+        makeAutoObservable(this)
 
         autorun(() => {
             if (operationsModel.operations === null) {
@@ -55,146 +44,27 @@ export class CurrenciesModel {
                 this.currencies = [...this.currencies].sort(compareByStats(stats))
             })
         })
-
-        autorun(() => {
-            // (d.maslennikov): do we need this?
-
-            // runInAction(() => {
-            //     this.rates = null
-            // })
-
-            const masterCurrency = appState.masterCurrency
-            if (
-                operationsModel.operations === null ||
-                categoriesModel.categories === null ||
-                categoriesModel.categoriesSorted === null ||
-                goalsModel.goals === null ||
-                accountsModel.accounts === null
-            ) {
-                return
-            }
-
-            const needRates = new Set<string>()
-            const firstDate = run(() => {
-                const op = operationsModel.firstOp
-                if (op === undefined) {
-                    return appState.timeSpan.endDate
-                }
-                return op.date
-            })
-
-            const calcNeedRates = (ops: Operations, currency: string): void => {
-                for (const op of ops.operations()) {
-                    if (op.currency !== currency) {
-                        if (op.currency !== 'USD') {
-                            needRates.add(`${op.date.toFormat('yyyy/MM')}/${op.currency}`)
-                        }
-
-                        if (currency !== 'USD') {
-                            needRates.add(`${op.date.toFormat('yyyy/MM')}/${currency}`)
-                        }
-                    }
-                }
-            }
-
-            calcNeedRates(Operations.get(PE.any()), masterCurrency)
-
-            for (const cat of categoriesModel.categories.values()) {
-                if (cat.deleted === true || cat.currency === undefined) {
-                    continue
-                }
-
-                const ops = Operations.get(PE.cat(cat.name))
-                calcNeedRates(ops, cat.currency)
-            }
-
-            for (const goal of goalsModel.goals ?? []) {
-                if (goal.deleted === true) {
-                    continue
-                }
-
-                const ops = Operations.get(PE.and(PE.or(PE.type('expense'), PE.type('income')), PE.filter(goal.filter)))
-                calcNeedRates(ops, goal.currency)
-            }
-
-            // to calculate 'Total' on accounts screen
-            const date = run(() => {
-                const endDate = appState.timeSpan.endDate
-                const today = appState.today
-                return (endDate <= today ? endDate : today).toFormat('yyyy/MM')
-            })
-            for (const acc of accountsModel.accounts.values()) {
-                if (acc.currency !== 'USD') {
-                    needRates.add(`${date}/${acc.currency}`)
-                }
-            }
-            if (appState.masterCurrency !== 'USD') {
-                needRates.add(`${date}/${appState.masterCurrency}`)
-            }
-
-            runAsync(async () => {
-                const ratesRecord: Record<string, number[]> = {}
-
-                await Promise.all(
-                    [...needRates].map(async i => {
-                        const month = DateTime.fromFormat(i.substring(0, 7), 'yyyy/MM', { zone: 'utc' })
-                        const currency = i.substring(8)
-                        let rates = await finDataDb.getRates(month, currency)
-                        if (rates === null || (isPartialMonth(rates) && cacheOlderThen(rates, { hour: 1 }))) {
-                            const result = await fetch(`/currencies/${i}.json`)
-                            if (!result.ok) {
-                                console.log(`Can not load rates (${i}): ${result.status} ${result.statusText}`)
-                                return
-                            }
-                            rates = {
-                                ...CURRENCY_RATES_SCHEMA.parse(await result.json()),
-                                loadDate: DateTime.utc()
-                            }
-                            await finDataDb.putRates(rates)
-                        }
-
-                        if (!(currency in ratesRecord)) {
-                            ratesRecord[currency] = []
-                        }
-
-                        rates.rates.forEach((r, i) => {
-                            const date = month.plus({ days: i })
-                            if (date < firstDate) return
-                            const ind = date.diff(firstDate, 'days').days
-                            ratesRecord[currency][ind] = r
-                        })
-                    })
-                )
-
-                runInAction(() => {
-                    this.firstDate = firstDate
-                    this.rates = ratesRecord
-                })
-            })
-        })
     }
 
     async getFromUsdRate (date: DateTime, toCurrency: string): Promise<number> {
-        if (this.rates === null) {
-            throw Error('Rates not loaded')
-        }
-
         if (toCurrency === 'USD') return 1
-        if (date < this.firstDate) {
-            // throw Error(`Rate before firstDate requested (firstDate = ${this.firstDate.toISODate() ?? ''}, date = ${date.toISODate() ?? ''})`)
-            return 1
-        }
-        const ind = date.diff(this.firstDate, 'days').days
-        const rates = nonNull(
-            this.rates[toCurrency],
-            `Currency not loaded: ${toCurrency} (loaded: ${Object.keys(this.rates).join(', ')})`
-        )
 
-        if (ind >= rates.length) {
-            return rates[rates.length - 1]
+        const key = `${date.toFormat('yyyy-MM')}-${toCurrency}`
+
+        let rates = this.rates[key]
+
+        if (rates === undefined || (isPartialMonth(rates) && oldCache(rates))) {
+            rates = await loadRates(date, toCurrency)
+            this.rates[key] = rates
         }
 
-        return rates[ind]
+        const ind = date.day - 1
+
+        if (ind >= rates.rates.length) {
+            return rates.rates[rates.rates.length - 1]
+        }
+
+        return rates.rates[ind]
     }
 
     async getRate (date: DateTime, fromCurrency: string, toCurrency: string): Promise<number> {
@@ -221,6 +91,27 @@ function isPartialMonth (rates: CurrencyRates): boolean {
     return rates.rates.length < daysInMonth
 }
 
-function cacheOlderThen (cache: CurrencyRatesCache, duration: DurationLike): boolean {
-    return cache.loadDate < DateTime.utc().minus(duration)
+function oldCache (cache: CurrencyRatesCache): boolean {
+    return cache.loadDate < DateTime.utc().minus({ hours: 6 })
+}
+
+async function loadRates (month: DateTime, currency: string): Promise<CurrencyRatesCache> {
+    const cache = await finDataDb.getRates(month, currency)
+
+    if (cache !== null && (!isPartialMonth(cache) || !oldCache(cache))) {
+        return cache
+    }
+
+    const result = await fetch(`/currencies/${month.toFormat('yyyy')}/${month.toFormat('MM')}/${currency}.json`)
+    if (!result.ok) {
+        throw Error(`Can not load rates (${month.toFormat('yyyy-MM')}, ${currency}): ${result.status} ${result.statusText}`)
+    }
+
+    const loadedCache = {
+        ...CURRENCY_RATES_SCHEMA.parse(await result.json()),
+        loadDate: DateTime.utc()
+    }
+    await finDataDb.putRates(loadedCache)
+
+    return loadedCache
 }

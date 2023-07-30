@@ -9,7 +9,6 @@ import { formatCurrency } from '../helpers/currencies'
 import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
 import { screenWidthIs } from '../helpers/useWidth'
 import { AppState } from '../model/appState'
-import { CurrenciesModel } from '../model/currencies'
 import { GoalsModel } from '../model/goals'
 import { type ExpensesGoal } from '../model/model'
 import { OperationsModel } from '../model/operations'
@@ -57,7 +56,6 @@ export function ExpensesGoalScreen (): ReactElement {
 
 export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (): ReactElement {
     const appState = AppState.instance()
-    const currenciesModel = CurrenciesModel.instance()
     const goalsModel = GoalsModel.instance()
     const operationsModel = OperationsModel.instance()
 
@@ -105,7 +103,6 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
         runAsync(async () => {
             if (
                 newGoal === null ||
-                currenciesModel.rates === null ||
                 operationsModel.operations === null
             ) {
                 return
@@ -119,13 +116,12 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
 
             setTotal(stats.total[0])
         })
-    }, [newGoal, currenciesModel.rates, operationsModel.operations])
+    }, [newGoal, operationsModel.operations])
 
     if (
         goal === null ||
         newGoal === null ||
-        newGoalNameTrimmed === undefined ||
-        currenciesModel.rates === null
+        newGoalNameTrimmed === undefined
     ) {
         return <Box p={1}><ExpensesGroupScreenSkeleton /></Box>
     }

@@ -7,7 +7,6 @@ import { formatCurrency } from '../../helpers/currencies'
 import { LastPeriodTimeSpan } from '../../helpers/dates'
 import { runAsync } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
-import { CurrenciesModel } from '../../model/currencies'
 import { OperationsModel } from '../../model/operations'
 import { type Predicate } from '../../model/predicateExpression'
 import { calcStats } from '../../model/stats'
@@ -33,7 +32,6 @@ interface Stats {
 
 export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }: Props): ReactElement => {
     const appState = AppState.instance()
-    const currenciesModel = CurrenciesModel.instance()
     const operationsModel = OperationsModel.instance()
 
     const [stats, setStats] = useState<Stats | null>(null)
@@ -43,7 +41,6 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
     useEffect(
         () => {
             if (
-                currenciesModel.rates === null ||
                 operationsModel.operations === null
             ) {
                 return
@@ -82,7 +79,6 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
             predicate,
             appState.today,
             appState.timeSpanInfo,
-            currenciesModel.rates,
             operationsModel.operations
         ]
     )

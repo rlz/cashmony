@@ -49,7 +49,6 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
     const onSave = useMemo(
         () => {
             if (
-                currenciesModel.rates === null ||
                 deepEqual(cat, newCat) ||
                 trimmedName === '' ||
                 newCat.perDayAmount === 0 ||

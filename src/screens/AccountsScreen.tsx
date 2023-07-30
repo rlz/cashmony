@@ -43,7 +43,7 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
 
     useEffect(() => {
         runAsync(async () => {
-            if (accountsModel.amounts === null || currenciesModel.rates === null) {
+            if (accountsModel.amounts === null) {
                 return
             }
 
@@ -59,10 +59,9 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
 
             setTotal((await Promise.all(results)).reduce((partialSum, a) => partialSum + a, 0))
         })
-    }, [accountsModel.amounts, currenciesModel.rates])
+    }, [appState.masterCurrency, accountsModel.amounts])
 
     if (
-        currenciesModel.rates === null ||
         accountsModel.accounts === null ||
         accountsModel.accountsSorted === null ||
         accountsModel.amounts === null
