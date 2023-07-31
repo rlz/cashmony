@@ -1,6 +1,12 @@
+import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
+import { AccountsModel } from './model/accounts'
+import { CategoriesModel } from './model/categories'
+import { CurrenciesModel } from './model/currencies'
+import { GoalsModel } from './model/goals'
+import { OperationsModel } from './model/operations'
 import { AccountScreen } from './screens/AccountScreen'
 import { AccountsScreen } from './screens/AccountsScreen'
 import { AuthScreen } from './screens/AuthScreen'
@@ -9,6 +15,7 @@ import { CategoryScreen } from './screens/CategoryScreen'
 import { ExpensesGoalScreen } from './screens/ExpensesGoalScreen'
 import { ExpensesGoalsScreen } from './screens/ExpensesGoalsScreen'
 import { GoogleSyncScreen } from './screens/GoogleSyncScreen'
+import { LoadingScreen } from './screens/LoadingScreen'
 import { OperationScreen } from './screens/OperationScreen'
 import { OperationsScreen } from './screens/OperationsScreen'
 
@@ -101,10 +108,27 @@ const router = createBrowserRouter([
 
 window.routerNavigate = router.navigate
 
-const App = (): ReactElement => {
-    return (
-        <RouterProvider router={router}/>
-    )
-}
+const App = observer(function App (): ReactElement {
+    const operationsModel = OperationsModel.instance()
+    const accountsModel = AccountsModel.instance()
+    const categoriesModel = CategoriesModel.instance()
+    const currenciesModel = CurrenciesModel.instance()
+    const goalsModel = GoalsModel.instance()
+
+    if (
+        operationsModel.operations === null ||
+        accountsModel.accounts === null ||
+        accountsModel.accountsSorted === null ||
+        accountsModel.amounts === null ||
+        categoriesModel.categories === null ||
+        categoriesModel.categoriesSorted === null ||
+        currenciesModel.currencies === null ||
+        goalsModel.goals === null
+    ) {
+        return <LoadingScreen />
+    }
+
+    return <RouterProvider router={router}/>
+})
 
 export default App
