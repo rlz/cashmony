@@ -79,7 +79,9 @@ export function opsPerIterval (interval: IntervalType, keepEmpty: boolean): Redu
             }
         },
         async done (values) {
-            values[values.length - 1].reverse()
+            if (values.length > 0) {
+                values[values.length - 1].reverse()
+            }
         }
     }
 }
