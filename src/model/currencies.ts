@@ -51,10 +51,13 @@ export class CurrenciesModel {
 
         const key = `${date.toFormat('yyyy-MM')}-${toCurrency}`
 
-        let rates = this.rates[key]
+        let rates: CurrencyRatesCache | undefined = this.rates[key]
 
         if (rates === undefined || (isPartialMonth(rates) && oldCache(rates))) {
             rates = await loadRates(date, toCurrency)
+            if (rates === undefined) {
+                return await this.getFromUsdRate(date.set({ day: 1 }).minus({ day: 1 }), toCurrency)
+            }
             this.rates[key] = rates
         }
 
@@ -95,7 +98,7 @@ function oldCache (cache: CurrencyRatesCache): boolean {
     return cache.loadDate < DateTime.utc().minus({ hours: 6 })
 }
 
-async function loadRates (month: DateTime, currency: string): Promise<CurrencyRatesCache> {
+async function loadRates (month: DateTime, currency: string): Promise<CurrencyRatesCache | undefined> {
     const cache = await finDataDb.getRates(month, currency)
 
     if (cache !== null && (!isPartialMonth(cache) || !oldCache(cache))) {
@@ -104,7 +107,8 @@ async function loadRates (month: DateTime, currency: string): Promise<CurrencyRa
 
     const result = await fetch(`/currencies/${month.toFormat('yyyy')}/${month.toFormat('MM')}/${currency}.json`)
     if (!result.ok) {
-        throw Error(`Can not load rates (${month.toFormat('yyyy-MM')}, ${currency}): ${result.status} ${result.statusText}`)
+        console.warn(`Can not load rates (${month.toFormat('yyyy-MM')}, ${currency}): ${result.status} ${result.statusText}`)
+        return
     }
 
     const loadedCache = {
