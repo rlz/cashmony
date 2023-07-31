@@ -1,5 +1,6 @@
 import { type DateTime } from 'luxon'
 
+import { AccountsModel } from './accounts'
 import { AppState } from './appState'
 import { CategoriesModel } from './categories'
 import { CurrenciesModel } from './currencies'
@@ -338,6 +339,44 @@ export function periodExpensesReducer (from: DateTime | null, predicate: Predica
                 }
 
                 result[result.length - 1] += cat.amount * rate
+            }
+        }
+    }
+}
+
+interface Amounts {
+    interval: DateTime
+    amounts: Record<string, number>
+}
+
+export function cumulativeIntervalPerAccountReducer (interval: IntervalType): Reducer<Amounts> {
+    const accountsModel = AccountsModel.instance()
+
+    const zero: Record<string, number> = {};
+
+    (accountsModel.accounts ?? new Map()).forEach(i => { if (i.deleted !== true) zero[i.name] = 0 })
+
+    return {
+        interval,
+        reduce: async (op, interval, firstOp, _intervalKind, result) => {
+            if (firstOp) {
+                if (result.length === 0) {
+                    result.push({ interval, amounts: zero })
+                } else {
+                    result.push({ interval, amounts: { ...result[result.length - 1].amounts } })
+                }
+            }
+
+            if (
+                op === null
+            ) {
+                return
+            }
+
+            result[result.length - 1].amounts[op.account.name] += op.account.amount
+
+            if (op.type === 'transfer') {
+                result[result.length - 1].amounts[op.toAccount.name] += op.toAccount.amount
             }
         }
     }

@@ -47,7 +47,7 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
                 return
             }
 
-            const results = [...accountsModel.getAmounts(appState.timeSpan.endDate).entries()].map(async ([accName, amount]) => {
+            const results = [...Object.entries(accountsModel.getAmounts(appState.timeSpan.endDate))].map(async ([accName, amount]) => {
                 const rate = await currenciesModel.getRate(
                     appState.timeSpan.endDate,
                     accountsModel.get(accName).currency,
@@ -116,7 +116,7 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
                         visibleAccounts.map(account => <AccountCard
                             key={account.name}
                             account={account}
-                            totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
+                            totalAmount={totalAmounts.map(a => a[account.name] ?? 0)}
                         />)
                     }
                     { hiddenAccounts.length > 0
@@ -124,7 +124,7 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
                             ? hiddenAccounts.map(account => <AccountCard
                                 key={account.name}
                                 account={account}
-                                totalAmount={totalAmounts.map(a => a.get(account.name) ?? 0)}
+                                totalAmount={totalAmounts.map(a => a[account.name] ?? 0)}
                             />)
                             : <Typography color={'primary.main'} textAlign={'center'}>
                                 <a onClick={() => { setShowHidden(true) }}>{'Show '}{hiddenAccounts.length}{' hidden'}</a>

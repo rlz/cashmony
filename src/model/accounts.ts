@@ -1,12 +1,15 @@
 import { DateTime } from 'luxon'
 import { autorun, makeAutoObservable, observable, runInAction, toJS } from 'mobx'
 
-import { utcToday } from '../helpers/dates'
+import { runAsync } from '../helpers/smallTools'
 import { compareByStats } from '../helpers/stats'
 import { AppState } from './appState'
 import { FinDataDb } from './finDataDb'
-import { type Account, type NotDeletedOperation } from './model'
+import { type Account } from './model'
 import { OperationsModel } from './operations'
+import { PE } from './predicateExpression'
+import { calcStats } from './stats'
+import { cumulativeIntervalPerAccountReducer } from './statsReducers'
 
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
@@ -17,7 +20,7 @@ export class AccountsModel {
     private readonly finDataDb = FinDataDb.instance()
     accounts: ReadonlyMap<string, Account> | null = null
     accountsSorted: readonly string[] | null = null
-    amounts: ReadonlyMap<string, ReadonlyMap<string, number>> | null = null
+    amounts: ReadonlyMap<string, Readonly<Record<string, number>>> | null = null
 
     private constructor () {
         makeAutoObservable(this, {
@@ -55,56 +58,22 @@ export class AccountsModel {
                 return
             }
 
-            const firstOp = operationsModel.operations.find(o => o.type !== 'deleted') as NotDeletedOperation
+            const today = appState.today
 
-            if (firstOp === undefined) {
-                this.amounts = new Map([[utcToday().toISODate() ?? '', new Map(Array.from(this.accounts.values()).map(account => [account.name, 0]))]])
-                return
-            }
+            runAsync(async () => {
+                const stats = await calcStats(PE.any(), null, today, {
+                    amounts: cumulativeIntervalPerAccountReducer('day')
+                })
 
-            const today = utcToday()
-            const amounts = new Map<string, ReadonlyMap<string, number>>()
-            const currentAmounts = new Map(Array.from(this.accounts.values()).filter(a => a.deleted !== true).map(account => [account.name, 0]))
-            let currentOpIndex = 0
-            const operationsLength = operationsModel.operations.length
-            for (let date = firstOp.date.minus({ day: 1 }); date <= today; date = date.plus({ day: 1 })) {
-                while (currentOpIndex < operationsLength) {
-                    const currentOp = operationsModel.operations[currentOpIndex]
+                const amounts = new Map<string, Readonly<Record<string, number>>>()
 
-                    if (currentOp.type === 'deleted') {
-                        currentOpIndex++
-                        continue
-                    }
-
-                    if (currentOp.date > date) {
-                        break
-                    }
-
-                    const amount = currentAmounts.get(currentOp.account.name)
-
-                    if (amount === undefined) {
-                        throw Error(`Unknown account: ${currentOp.account.name}`)
-                    }
-
-                    currentAmounts.set(currentOp.account.name, amount + currentOp.account.amount)
-
-                    if (currentOp.type === 'transfer') {
-                        const amount = currentAmounts.get(currentOp.toAccount.name)
-
-                        if (amount === undefined) {
-                            throw Error(`Unknown account: ${currentOp.account.name}`)
-                        }
-
-                        currentAmounts.set(currentOp.toAccount.name, amount + currentOp.toAccount.amount)
-                    }
-
-                    currentOpIndex++
+                for (const i of stats.amounts) {
+                    amounts.set(i.interval.toISODate() ?? '', i.amounts)
                 }
-                amounts.set(date.toISODate() ?? '', new Map(currentAmounts))
-            }
 
-            runInAction(() => {
-                this.amounts = amounts
+                runInAction(() => {
+                    this.amounts = amounts
+                })
             })
         })
 
@@ -140,13 +109,21 @@ export class AccountsModel {
         return account
     }
 
-    getAmounts (date: DateTime): ReadonlyMap<string, number> {
+    getAmounts (date: DateTime): Readonly<Record<string, number>> {
         if (this.amounts === null) {
             throw Error('Amounts have not been calculated')
         }
 
-        if (date > appState.today) {
-            const amounts = this.amounts.get(appState.today.toISODate() ?? '')
+        if (operationsModel.operations === null) {
+            throw Error('Operations have not been calculated')
+        }
+
+        if (operationsModel.operations.length === 0) {
+            return this.zeroAmounts()
+        }
+
+        if (date > operationsModel.lastOp!.date) {
+            const amounts = this.amounts.get(operationsModel.lastOp!.date.toISODate() ?? '')
             if (amounts === undefined) {
                 throw Error('Always expected amount here')
             }
@@ -171,7 +148,17 @@ export class AccountsModel {
         })
     }
 
-    private zeroAmounts (): Map<string, number> {
-        return new Map([...this.accounts?.values() ?? []].map(i => [i.name, 0]))
+    private zeroAmounts (): Record<string, number> {
+        if (this.accounts === null) {
+            throw Error('Accounts not loaded')
+        }
+
+        const z: Record<string, number> = {}
+
+        for (const a of this.accounts.values()) {
+            z[a.name] = 0
+        }
+
+        return z
     }
 }

@@ -101,7 +101,7 @@ export const AccountScreenBody = observer(() => {
 
         const allDates = [...timeSpan.allDates({ includeDayBefore: true })]
 
-        const totalAmount = allDates.map((d) => accountsModel.getAmounts(d).get(accName) ?? 0)
+        const totalAmount = allDates.map((d) => accountsModel.getAmounts(d)[accName] ?? 0)
 
         const perDayAmount = totalAmount.map((a, i, arr) => i === 0 ? 0 : a - arr[i - 1])
 
@@ -216,7 +216,7 @@ interface EditorProps {
 
 function Editor ({ acc, setAcc }: EditorProps): ReactElement {
     const navigate = useNavigate()
-    const amount = accountsModel.getAmounts(appState.today).get(acc.name) ?? 0
+    const amount = accountsModel.getAmounts(appState.today)[acc.name] ?? 0
 
     const [adjustedAmount, setAdjustedAmount] = useState(amount)
 
