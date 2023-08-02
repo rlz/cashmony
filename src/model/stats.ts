@@ -28,18 +28,12 @@ export function * listOperations (predicate: Predicate, timeSpan: HumanTimeSpan 
     }
 
     const filter = compilePredicate(predicate)
-    const [startDate, endDate] = (() => {
-        if (timeSpan !== null) {
-            return [timeSpan.startDate, timeSpan.endDate]
-        }
-        return [operationsModel.firstOp!.date, operationsModel.lastOp!.date]
-    })()
 
     for (const op of operationsModel.operations) {
         if (
             op.type === 'deleted' ||
-            op.date < startDate ||
-            op.date > endDate ||
+            (timeSpan !== null && op.date < timeSpan.startDate) ||
+            (timeSpan !== null && op.date > timeSpan.endDate) ||
             !filter(op)
         ) {
             continue

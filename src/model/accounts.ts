@@ -58,6 +58,13 @@ export class AccountsModel {
                 return
             }
 
+            if (operationsModel.operations.length === 0) {
+                runInAction(() => {
+                    this.amounts = new Map([[appState.today.toISODate() ?? '', this.zeroAmounts()]])
+                })
+                return
+            }
+
             const today = appState.today
 
             runAsync(async () => {
