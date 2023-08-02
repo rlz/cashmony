@@ -17,7 +17,7 @@ const categoriesModel = CategoriesModel.instance()
 
 interface AmountBarsCatPlotProps {
     currency: string
-    perDayPace: number
+    perDayPace: number | null
     leftPerDay: number | null
     perDayExpenses: number[]
     sparkline?: boolean
@@ -50,13 +50,17 @@ export const ExpensesBarsPlot = observer((props: AmountBarsCatPlotProps): ReactE
                     type: 'bars',
                     color: theme.palette.success.main,
                     points: [0, ...props.perDayExpenses.map(a => a === undefined || a <= 0 ? null : a)]
-                },
-                {
-                    type: 'line',
-                    color: theme.palette.info.main,
-                    points: allDates.map(i => i < todaySeconds ? -props.perDayPace : null)
                 }
             ]
+
+            const perDayPace = props.perDayPace
+            if (perDayPace !== null) {
+                series.push({
+                    type: 'line',
+                    color: theme.palette.info.main,
+                    points: allDates.map(i => i < todaySeconds ? -perDayPace : null)
+                })
+            }
 
             const daysLeft = appState.daysLeft
             if (daysLeft > 0 && props.leftPerDay !== null) {
@@ -99,7 +103,6 @@ export const ExpensesBarsPlot = observer((props: AmountBarsCatPlotProps): ReactE
 interface TotalCatPlotProps {
     currency: string
     perDayGoal: [number, string] | null
-    perDayPace: number
     expenses: number[]
 }
 

@@ -33,7 +33,9 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
         ? null
         : (props.perDayGoal * totalDays + props.totalAmount - props.todayAmount) / daysLeft
 
-    const periodPace = (props.totalAmount - props.todayAmount) * 30 / (totalDays - daysLeft)
+    const periodPace = totalDays - daysLeft === 0
+        ? null
+        : (props.totalAmount - props.todayAmount) * 30 / (totalDays - daysLeft)
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, props.currency, compact)
 
@@ -55,7 +57,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                         <tbody>
                             <tr>
                                 <th>{'Period pace (30d):'}</th>
-                                <td>{cur(match(periodPace).with(0, () => 0).otherwise(v => -v))}</td>
+                                <td>{match(periodPace).with(null, () => '-').otherwise(v => cur(-v))}</td>
                             </tr>
                             <tr>
                                 <th>{'Goal (30d):'}</th>
@@ -78,7 +80,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                 <ExpensesBarsPlot
                     currency={props.currency}
                     sparkline
-                    perDayPace={periodPace / 30}
+                    perDayPace={periodPace === null ? null : periodPace / 30}
                     leftPerDay={leftPerDay}
                     perDayExpenses={props.perDayExpenses}
                 />

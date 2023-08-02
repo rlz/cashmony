@@ -95,7 +95,9 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
         ? null
         : (perDayGoal * totalDays + stats.total - stats.today) / daysLeft
 
-    const periodPace = (stats.total - stats.today) * 30 / (totalDays - daysLeft)
+    const periodPace = totalDays - daysLeft === 0
+        ? null
+        : (stats.total - stats.today) * 30 / (totalDays - daysLeft)
 
     return <Box display={'flex'} flexDirection={'column'} gap={1} pb={1}>
         <DivBody2 mt={1} py={1}>
@@ -103,7 +105,7 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
                 <tbody>
                     <tr>
                         <th>{'Period pace (30d):'}</th>
-                        <td>{cur(match(periodPace).with(0, () => 0).otherwise(v => -v))}</td>
+                        <td>{match(periodPace).with(null, () => '-').otherwise(v => cur(-v))}</td>
                     </tr>
                     <tr>
                         <th>{'Left per day:'}</th>
@@ -141,13 +143,12 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
         <ExpensesBarsPlot
             currency={currency}
             leftPerDay={leftPerDay}
-            perDayPace={periodPace / 30}
+            perDayPace={periodPace === null ? null : periodPace / 30}
             perDayExpenses={stats.perDay}
         />
         <ExpensesTotalPlot
             currency={currency}
             perDayGoal={perDayGoal === null ? null : [perDayGoal, currency]}
-            perDayPace={periodPace / 30}
             expenses={stats.cumulative}
         />
     </Box>
