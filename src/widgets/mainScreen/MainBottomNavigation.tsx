@@ -6,12 +6,17 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { match, P } from 'ts-pattern'
 
 import { screenWidthIs } from '../../helpers/useWidth'
+import { AccountsModel } from '../../model/accounts'
+import { CategoriesModel } from '../../model/categories'
 
 type Tabs = 'o' | 'c' | 'g' | 'a' | null
 
 const FIXED_BOTTON_NAVIGATION_STYLE: SxProps = { position: 'fixed', bottom: 0, left: 0, right: 0 }
 
 export function MainBottomNavigation (): ReactElement {
+    const accountsModel = AccountsModel.instance()
+    const categoriesModel = CategoriesModel.instance()
+
     const loc = useLocation()
     const nav = useNavigate()
     const smallScreen = screenWidthIs('xs', 'sm')
@@ -29,24 +34,39 @@ export function MainBottomNavigation (): ReactElement {
         value={active}
         sx={smallScreen ? FIXED_BOTTON_NAVIGATION_STYLE : undefined}
     >
-        <BottomNavigationAction
-            value={'o'}
-            label={'Operations'}
-            icon={<FontAwesomeIcon size={'lg'} icon={faList} />}
-            onClick={() => { nav('/operations') }}
-        />
-        <BottomNavigationAction
-            value={'c'}
-            label={'Categories'}
-            icon={<FontAwesomeIcon size={'lg'} icon={faShapes} />}
-            onClick={() => { nav('/categories') }}
-        />
-        <BottomNavigationAction
-            value={'g'}
-            label={'Goals'}
-            icon={<FontAwesomeIcon size={'lg'} icon={faBullseye} />}
-            onClick={() => { nav('/goals') }}
-        />
+        {
+            accountsModel.accounts?.size === 0 || categoriesModel.categories?.size === 0
+                ? undefined
+                : <BottomNavigationAction
+                    value={'o'}
+                    label={'Operations'}
+                    disabled={accountsModel.accounts?.size === 0}
+                    icon={<FontAwesomeIcon size={'lg'} icon={faList} />}
+                    onClick={() => { nav('/operations') }}
+                />
+        }
+        {
+            accountsModel.accounts?.size === 0
+                ? undefined
+                : <BottomNavigationAction
+                    value={'c'}
+                    label={'Categories'}
+                    disabled={accountsModel.accounts?.size === 0}
+                    icon={<FontAwesomeIcon size={'lg'} icon={faShapes} />}
+                    onClick={() => { nav('/categories') }}
+                />
+        }
+        {
+            accountsModel.accounts?.size === 0 || categoriesModel.categories?.size === 0
+                ? undefined
+                : <BottomNavigationAction
+                    value={'g'}
+                    label={'Goals'}
+                    disabled={accountsModel.accounts?.size === 0}
+                    icon={<FontAwesomeIcon size={'lg'} icon={faBullseye} />}
+                    onClick={() => { nav('/goals') }}
+                />
+        }
         <BottomNavigationAction
             value={'a'}
             label={'Accounts'}

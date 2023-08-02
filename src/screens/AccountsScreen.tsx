@@ -35,7 +35,7 @@ interface AccountsScreenBodyProps {
 export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps): ReactElement => {
     const [addAccount, setAddAccount] = useState(false)
     const [showHidden, setShowHidden] = useState(false)
-    const [total, setTotal] = useState(0)
+    const [total, setTotal] = useState<number | null>(null)
 
     const appState = AppState.instance()
     const currenciesModel = CurrenciesModel.instance()
@@ -61,10 +61,37 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
         })
     }, [appState.masterCurrency, accountsModel.amounts])
 
+    if (accountsModel.accounts?.size === 0) {
+        return <>
+            {
+                addAccount
+                    ? <AddAccount
+                        onClose={() => { setAddAccount(false) }}
+                    />
+                    : undefined
+            }
+            {
+                addAccount || noFab === true
+                    ? undefined
+                    : <Fab
+                        color={'primary'}
+                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                        onClick={() => { setAddAccount(true) }}
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                    </Fab>
+            }
+            <Column textAlign={'center'} mt={3}>
+                {'Before start tracking your finances you need to create an account'}<br/>
+                {'Account is your bank account or cash'}<br/>
+                {'You can create as many accounts as you need'}
+            </Column>
+        </>
+    }
+
     if (
-        accountsModel.accounts === null ||
         accountsModel.accountsSorted === null ||
-        accountsModel.amounts === null
+        total === null
     ) return <AccountsScreenSkeleton />
 
     const totalAmounts = [...appState.timeSpan.allDates({ includeDayBefore: true })].map(d => accountsModel.getAmounts(d))

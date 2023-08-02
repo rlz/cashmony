@@ -109,6 +109,8 @@ const router = createBrowserRouter([
 window.routerNavigate = router.navigate
 
 const App = observer(function App (): ReactElement {
+    const location = window.location
+
     const operationsModel = OperationsModel.instance()
     const accountsModel = AccountsModel.instance()
     const categoriesModel = CategoriesModel.instance()
@@ -126,6 +128,11 @@ const App = observer(function App (): ReactElement {
         goalsModel.goals === null
     ) {
         return <LoadingScreen />
+    }
+
+    if (accountsModel.accounts.size === 0 && !location.pathname.startsWith('/accounts')) {
+        window.location.assign('/accounts')
+        return <></>
     }
 
     return <RouterProvider router={router}/>

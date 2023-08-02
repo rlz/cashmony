@@ -16,6 +16,7 @@ import { PE } from '../model/predicateExpression'
 import { hasOperation } from '../model/stats'
 import { AddCategory } from '../widgets/expenses/editors/AddCategory'
 import { ExpensesList } from '../widgets/expenses/ExpensesList'
+import { Column } from '../widgets/generic/Containers'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 export const CategoriesScreen = observer(function CategoriesScreen (): ReactElement {
@@ -60,6 +61,34 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
             operationsModel.operations
         ]
     )
+
+    if (categoriesModel.categories?.size === 0) {
+        return <>
+            {
+                addCategory
+                    ? <AddCategory
+                        onClose={() => { setAddCategory(false) }}
+                    />
+                    : undefined
+            }
+            {
+                addCategory || noFab === true
+                    ? null
+                    : <Fab
+                        color={'primary'}
+                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                        onClick={() => { setAddCategory(true) }}
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                    </Fab>
+            }
+            <Column textAlign={'center'} mt={3}>
+                {'Before start tracking your finances you need to create a category'}<br/>
+                {'You will mark all your expenses as related to one or another category'}<br/>
+                {'You can create as many categories as you need'}
+            </Column>
+        </>
+    }
 
     const cats: Category[] = [
         {
