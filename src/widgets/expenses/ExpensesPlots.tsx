@@ -113,54 +113,58 @@ export const ExpensesTotalPlot = observer((props: TotalCatPlotProps): ReactEleme
 
     const [series, setSeries] = useState<PlotSeries[]>([])
 
-    useEffect(() => {
-        runAsync(async () => {
-            if (operationsModel.operations === null || categoriesModel.categories === null) {
-                return
-            }
+    useEffect(
+        () => {
+            runAsync(async () => {
+                const todaySeconds = appState.today.toMillis() / 1000
 
-            const todaySeconds = appState.today.toMillis() / 1000
+                const totalExpensesByDates = [0, ...props.expenses].map((v, i) => allDates[i] > todaySeconds ? undefined : -v)
 
-            const totalExpensesByDates = [0, ...props.expenses].map((v, i) => allDates[i] > todaySeconds ? undefined : -v)
-
-            const series: PlotSeries[] = [{
-                type: 'line',
-                color: theme.palette.primary.main,
-                points: totalExpensesByDates
-            }]
-
-            if (appState.daysLeft > 0) {
-                const daysPass = appState.timeSpan.totalDays - appState.daysLeft + 1
-                const periodTotal = -props.expenses[props.expenses.length - 1]
-
-                series.push({
-                    type: 'dash',
+                const series: PlotSeries[] = [{
+                    type: 'line',
                     color: theme.palette.primary.main,
-                    points: allDates.map((_, i) => i < daysPass ? undefined : periodTotal * i / daysPass)
-                })
-            }
+                    points: totalExpensesByDates
+                }]
 
-            const dayGoal = props.perDayGoal
-            if (dayGoal !== null) {
-                const dayGoalInDestCur = dayGoal[0] * await currenciesModel.getRate(utcToday(), dayGoal[1], props.currency)
+                if (appState.daysLeft > 0) {
+                    const daysPass = appState.timeSpan.totalDays - appState.daysLeft + 1
+                    const periodTotal = -props.expenses[props.expenses.length - 1]
 
-                series.push(
-                    {
-                        type: 'line',
-                        color: theme.palette.info.main,
-                        points: allDates.map((d, i) => d <= todaySeconds ? dayGoalInDestCur * i : null)
-                    },
-                    {
+                    series.push({
                         type: 'dash',
-                        color: theme.palette.info.main,
-                        points: allDates.map((d, i) => d >= todaySeconds ? dayGoalInDestCur * i : null)
-                    }
-                )
-            }
+                        color: theme.palette.primary.main,
+                        points: allDates.map((_, i) => i < daysPass ? undefined : periodTotal * i / daysPass)
+                    })
+                }
 
-            setSeries(series)
-        })
-    })
+                const dayGoal = props.perDayGoal
+                if (dayGoal !== null) {
+                    const dayGoalInDestCur = dayGoal[0] * await currenciesModel.getRate(utcToday(), dayGoal[1], props.currency)
+
+                    series.push(
+                        {
+                            type: 'line',
+                            color: theme.palette.info.main,
+                            points: allDates.map((d, i) => d <= todaySeconds ? dayGoalInDestCur * i : null)
+                        },
+                        {
+                            type: 'dash',
+                            color: theme.palette.info.main,
+                            points: allDates.map((d, i) => d >= todaySeconds ? dayGoalInDestCur * i : null)
+                        }
+                    )
+                }
+
+                setSeries(series)
+            })
+        },
+        [
+            appState.today,
+            appState.timeSpan,
+            operationsModel.operations,
+            props.expenses
+        ]
+    )
 
     return <Plot
         elevation={2}

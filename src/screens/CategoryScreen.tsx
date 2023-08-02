@@ -93,7 +93,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
 
             appState.setSubTitle(`Category :: ${name}`)
         }
-    }, [cat])
+    }, [cat, stats])
 
     useEffect(
         () => {
