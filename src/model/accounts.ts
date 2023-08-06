@@ -129,8 +129,9 @@ export class AccountsModel {
             return this.zeroAmounts()
         }
 
-        if (date > operationsModel.lastOp!.date) {
-            const amounts = this.amounts.get(operationsModel.lastOp!.date.toISODate() ?? '')
+        const lastOpDate = operationsModel.lastOp?.date ?? appState.today
+        if (date > lastOpDate) {
+            const amounts = this.amounts.get(lastOpDate.toISODate() ?? '')
             if (amounts === undefined) {
                 throw Error('Always expected amount here')
             }

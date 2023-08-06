@@ -5,7 +5,9 @@ import { type HumanTimeSpan } from '../helpers/dates'
 import { type NotDeletedOperation } from './model'
 import { OperationsModel } from './operations'
 import { compilePredicate, type Predicate } from './predicateExpression'
+import { AppState } from './appState'
 
+const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 
 export function hasOperation (predicate: Predicate, timeSpan: HumanTimeSpan | null): boolean {
@@ -69,7 +71,7 @@ export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpa
         if (timeSpan !== null) {
             return [timeSpan.startDate, timeSpan.endDate]
         }
-        return [operationsModel.firstOp!.date, operationsModel.lastOp!.date]
+        return [operationsModel.firstOp?.date ?? appState.today, operationsModel.lastOp?.date ?? appState.today]
     })()
 
     const values: Record<string, any[]> = {}
