@@ -21,6 +21,8 @@ export class AccountsModel {
     accounts: ReadonlyMap<string, Account> | null = null
     accountsSorted: readonly string[] | null = null
     amounts: ReadonlyMap<string, Readonly<Record<string, number>>> | null = null
+    amountsStartDate: DateTime | null = null
+    amountsEndDate: DateTime | null = null
 
     private constructor () {
         makeAutoObservable(this, {
@@ -80,6 +82,8 @@ export class AccountsModel {
 
                 runInAction(() => {
                     this.amounts = amounts
+                    this.amountsStartDate = stats.amounts[0].interval
+                    this.amountsEndDate = stats.amounts[stats.amounts.length - 1].interval
                 })
             })
         })
@@ -117,7 +121,7 @@ export class AccountsModel {
     }
 
     getAmounts (date: DateTime): Readonly<Record<string, number>> {
-        if (this.amounts === null) {
+        if (this.amounts === null || this.amountsEndDate === null) {
             throw Error('Amounts have not been calculated')
         }
 
@@ -129,11 +133,10 @@ export class AccountsModel {
             return this.zeroAmounts()
         }
 
-        const lastOpDate = operationsModel.lastOp?.date ?? appState.today
-        if (date > lastOpDate) {
-            const amounts = this.amounts.get(lastOpDate.toISODate() ?? '')
+        if (date > this.amountsEndDate) {
+            const amounts = this.amounts.get(this.amountsEndDate.toISODate() ?? '')
             if (amounts === undefined) {
-                throw Error('Always expected amount here')
+                throw Error('Always expected amounts here')
             }
             return amounts
         }
