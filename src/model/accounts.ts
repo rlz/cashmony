@@ -63,6 +63,8 @@ export class AccountsModel {
             if (operationsModel.operations.length === 0) {
                 runInAction(() => {
                     this.amounts = new Map([[appState.today.toISODate() ?? '', this.zeroAmounts()]])
+                    this.amountsStartDate = appState.today
+                    this.amountsEndDate = appState.today
                 })
                 return
             }
