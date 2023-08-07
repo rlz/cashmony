@@ -1,6 +1,6 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Box, Fab, Paper, Skeleton, Typography } from '@mui/material'
+import { Box, Button, Fab, Paper, Skeleton, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -11,6 +11,7 @@ import { AccountsModel } from '../model/accounts'
 import { AppState } from '../model/appState'
 import { CurrenciesModel } from '../model/currencies'
 import { type Account } from '../model/model'
+import { initGoogleSync } from '../model/sync'
 import { AccPlot } from '../widgets/AccountPlots'
 import { AddAccount } from '../widgets/AddAccount'
 import { Column } from '../widgets/generic/Containers'
@@ -91,6 +92,13 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
                 {'Before start tracking your finances you need to create an account'}<br/>
                 {'Account is your bank account or cash'}<br/>
                 {'You can create as many accounts as you need'}
+                <Box my={2}>{'OR'}</Box>
+                {'If you have sync your data with Google before'}
+                <Box my={1}>
+                    <Button variant={'contained'} onClick={() => { void initGoogleSync() }}>
+                        {'Import data from Google'}
+                    </Button>
+                </Box>
             </Column>
         </>
     }
