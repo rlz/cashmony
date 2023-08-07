@@ -14,9 +14,7 @@ interface Props {
 }
 
 const regExps = [
-    /^[0-9]*$/,
-    /^[0-9]+\.$/,
-    /^[0-9]+\.[0-9]+$/
+    /^[0-9]*\.?[0-9]*$/
 ]
 
 export function CurrencyInput (props: Props): ReactElement {
@@ -33,14 +31,30 @@ export function CurrencyInput (props: Props): ReactElement {
 
     useEffect(() => {
         if (
-            (amountText !== '' && props.amount !== mult * a) ||
-            (amountText === '' && props.amount !== 0)
+            !Number.isNaN(a) &&
+            (
+                (amountText !== '' && props.amount !== mult * a) ||
+                (amountText === '' && props.amount !== 0)
+            )
         ) {
             setAmountText((props.amount / mult).toFixed(2))
         }
     }, [props.amount, mult, a, amountText])
 
-    const error = props.allowZero !== true && (Number.isNaN(a) || a === 0)
+    const error = props.allowZero !== true && a === 0 ||
+        (Number.isNaN(a) && amountText !== '')
+
+    const helperText = (() => {
+        if (props.allowZero !== true && a === 0) {
+            return 'Zero not allowed'
+        }
+
+        if (Number.isNaN(a) && amountText !== '') {
+            return 'Not a number in #.## format'
+        }
+
+        return 'ok'
+    })()
 
     return <TextField
         autoFocus={props.autoFocus}
@@ -50,6 +64,7 @@ export function CurrencyInput (props: Props): ReactElement {
         size={'small'}
         value={amountText}
         error={error}
+        helperText={helperText}
         InputProps={{
             startAdornment: <InputAdornment position={'start'}>{getCurrencySymbol(props.currency)}</InputAdornment>
         }}
@@ -57,15 +72,14 @@ export function CurrencyInput (props: Props): ReactElement {
             const text = ev.target.value
             for (const re of regExps) {
                 if (re.test(text)) {
-                    const amountText = ev.target.value
-                    setAmountText(amountText)
+                    setAmountText(text)
 
-                    if (amountText === '') {
+                    if (text === '') {
                         props.onAmountChange(0)
                         break
                     }
 
-                    const a = parseFloat(amountText)
+                    const a = parseFloat(text)
                     if (!Number.isNaN(a)) {
                         props.onAmountChange(mult * a)
                         break
