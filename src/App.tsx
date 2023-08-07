@@ -130,7 +130,12 @@ const App = observer(function App (): ReactElement {
         return <LoadingScreen />
     }
 
-    if (accountsModel.accounts.size === 0 && !location.pathname.startsWith('/accounts')) {
+    if (
+        accountsModel.accounts.size === 0 && 
+        !location.pathname.startsWith('/accounts') &&
+        !location.pathname.startsWith('/auth') &&
+        !location.pathname.startsWith('/google-sync')
+    ) {
         window.location.assign('/accounts')
         return <></>
     }
