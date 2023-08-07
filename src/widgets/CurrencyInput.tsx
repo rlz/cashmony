@@ -41,7 +41,7 @@ export function CurrencyInput (props: Props): ReactElement {
         }
     }, [props.amount, mult, a, amountText])
 
-    const error = props.allowZero !== true && a === 0 ||
+    const error = (props.allowZero !== true && a === 0) ||
         (Number.isNaN(a) && amountText !== '')
 
     const helperText = (() => {

@@ -2,10 +2,10 @@ import { DateTime } from 'luxon'
 import { match } from 'ts-pattern'
 
 import { type HumanTimeSpan } from '../helpers/dates'
+import { AppState } from './appState'
 import { type NotDeletedOperation } from './model'
 import { OperationsModel } from './operations'
 import { compilePredicate, type Predicate } from './predicateExpression'
-import { AppState } from './appState'
 
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()

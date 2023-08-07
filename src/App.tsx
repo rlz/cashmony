@@ -131,7 +131,7 @@ const App = observer(function App (): ReactElement {
     }
 
     if (
-        accountsModel.accounts.size === 0 && 
+        accountsModel.accounts.size === 0 &&
         !location.pathname.startsWith('/accounts') &&
         !location.pathname.startsWith('/auth') &&
         !location.pathname.startsWith('/google-sync')
