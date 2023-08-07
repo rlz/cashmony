@@ -47,9 +47,15 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
                 return
             }
 
-            const results = [...Object.entries(accountsModel.getAmounts(appState.timeSpan.endDate))].map(async ([accName, amount]) => {
+            const lastDate = (() => {
+                const dt = appState.timeSpan.endDate
+                return dt > appState.today ? appState.today : dt
+            })()
+            const amounts = accountsModel.getAmounts(lastDate)
+
+            const results = [...Object.entries(amounts)].map(async ([accName, amount]) => {
                 const rate = await currenciesModel.getRate(
-                    appState.timeSpan.endDate,
+                    lastDate,
                     accountsModel.get(accName).currency,
                     appState.masterCurrency
                 )
