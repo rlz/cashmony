@@ -7,7 +7,7 @@ import React, { type ReactElement } from 'react'
 import ReactDOM from 'react-dom/client'
 import { match } from 'ts-pattern'
 
-import App from './App'
+import { App } from './App'
 import { AppState } from './model/appState'
 import reportWebVitals from './reportWebVitals'
 

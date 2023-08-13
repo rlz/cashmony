@@ -1,7 +1,9 @@
+import { Box } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement } from 'react'
+import React, { type ReactElement, useEffect, useState } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
+import { runAsync, showIf } from './helpers/smallTools'
 import { AccountsModel } from './model/accounts'
 import { CategoriesModel } from './model/categories'
 import { CurrenciesModel } from './model/currencies'
@@ -18,6 +20,7 @@ import { GoogleSyncScreen } from './screens/GoogleSyncScreen'
 import { LoadingScreen } from './screens/LoadingScreen'
 import { OperationScreen } from './screens/OperationScreen'
 import { OperationsScreen } from './screens/OperationsScreen'
+import { DivBody2 } from './widgets/generic/Typography'
 
 declare global {
     interface Window { routerNavigate: (to: string) => Promise<void> }
@@ -108,7 +111,20 @@ const router = createBrowserRouter([
 
 window.routerNavigate = router.navigate
 
-const App = observer(function App (): ReactElement {
+export const App = observer(function App (): ReactElement {
+    const [update, setUpdate] = useState(false)
+
+    useEffect(() => {
+        runAsync(async () => {
+            const currentVersion = getCurrentVersion()
+            const serverVersion = await getServerVersion()
+
+            if (currentVersion !== null && serverVersion !== null && currentVersion !== serverVersion) {
+                setUpdate(true)
+            }
+        })
+    }, [])
+
     const location = window.location
 
     const operationsModel = OperationsModel.instance()
@@ -140,7 +156,53 @@ const App = observer(function App (): ReactElement {
         return <></>
     }
 
-    return <RouterProvider router={router}/>
+    return <>
+        {
+            showIf(
+                update,
+                <Box my={1}>
+                    <DivBody2 textAlign={'center'}>
+                        {'New version is available'}<br/>
+                    </DivBody2>
+                    <DivBody2 textAlign={'center'} color={'secondary'}>
+                        <a onClick={() => { window.location.reload() }}>{'Update'}</a>
+                    </DivBody2>
+                </Box>
+            )
+        }
+        <RouterProvider router={router}/>
+    </>
 })
 
-export default App
+function getCurrentVersion (): string | null {
+    const scripts = document.getElementsByTagName('script')
+    for (let i = 0; i < scripts.length; ++i) {
+        const script = scripts[i]
+        const src = script.getAttribute('src')
+        if (src?.startsWith('/assets/index-') === true) {
+            return src.substring(14, 22)
+        }
+    }
+
+    return null
+}
+
+async function getServerVersion (): Promise<string | null> {
+    const resp = await fetch('/')
+
+    if (!resp.ok) {
+        console.warn(`Can not get server version (response: ${resp.status})`)
+        return null
+    }
+
+    const body = await resp.text()
+
+    const extracts = /<script [^>]*src="\/assets\/index-([a-z0-9]+).js"><\/script>/.exec(body)
+
+    if (extracts === null) {
+        console.warn('Can not get server version (no script in body)')
+        return null
+    }
+
+    return extracts[1]
+}
