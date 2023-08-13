@@ -88,7 +88,7 @@ export const MainAppBar = observer(function MainAppBar (): ReactElement {
                     onOpen={() => { setShowSettings(true) }}
                     onClose={() => { setShowSettings(false) }}
                 >
-                    <AppStateSettings height={'100vh'} width={'90vw'} maxWidth={'20rem'}/>
+                    <AppStateSettings height={'100%'} width={'90vw'} maxWidth={'20rem'}/>
                 </SwipeableDrawer>
             )
         }
