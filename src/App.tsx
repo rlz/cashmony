@@ -124,7 +124,7 @@ export const App = observer(function App (): ReactElement {
                     setUpdate(true)
                 }
             })
-        }, 1000 * 60 * 60) // check every hour
+        }, 1000 * 60) // check every hour
     }, [])
 
     const location = window.location
@@ -190,7 +190,7 @@ function getCurrentVersion (): string | null {
 }
 
 async function getServerVersion (): Promise<string | null> {
-    const resp = await fetch('/')
+    const resp = await fetch('/', { cache: 'no-store' })
 
     if (!resp.ok) {
         console.warn(`Can not get server version (response: ${resp.status})`)
