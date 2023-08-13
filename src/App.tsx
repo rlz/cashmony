@@ -124,7 +124,7 @@ export const App = observer(function App (): ReactElement {
                     setUpdate(true)
                 }
             })
-        }, 1000 * 60) // check every hour
+        }, 1000 * 60 * 60) // check every hour
     }, [])
 
     const location = window.location
