@@ -38,7 +38,7 @@ export const AmountEditor = observer((props: Props): ReactElement => {
                         <Box display={'flex'} gap={1}>
                             <IconButton
                                 color={'primary'}
-                                sx={{ width: 48 }}
+                                sx={{ width: 48, height: 48 }}
                                 onClick={() => { setCurSelOpen(true) }}
                             >
                                 {getCurrencySymbol(props.currency)}
