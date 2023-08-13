@@ -18,9 +18,10 @@ const regExps = [
 ]
 
 export function CurrencyInput (props: Props): ReactElement {
-    const [amountText, setAmountText] = useState('')
-
     const mult = props.mult ?? 1
+
+    const [amountText, setAmountText] = useState((props.amount / mult).toFixed(2))
+
     const a = parseFloat(amountText)
 
     useEffect(() => {
