@@ -1,3 +1,4 @@
+import { faGithub, faTelegram } from '@fortawesome/free-brands-svg-icons'
 import { faCloudArrowUp, faFilter } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ToggleButton, ToggleButtonGroup } from '@mui/material'
@@ -101,6 +102,24 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                         <FontAwesomeIcon icon={faCloudArrowUp} fixedWidth/>
                     </ListItemIcon>
                     <ListItemText primary={'Sync with Google'} />
+                </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+                <ListItemButton href={'https://t.me/+kBQ5Uy5y13UzNjk0'} target={'_blank'}>
+                    <ListItemIcon>
+                        <FontAwesomeIcon icon={faTelegram} fixedWidth/>
+                    </ListItemIcon>
+                    <ListItemText>{'Discuss'}</ListItemText>
+                </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+                <ListItemButton href={'https://github.com/rlz/cashmony/issues'} target={'_blank'}>
+                    <ListItemIcon>
+                        <FontAwesomeIcon icon={faGithub} fixedWidth/>
+                    </ListItemIcon>
+                    <ListItemText>
+                        {'Report issue'}
+                    </ListItemText>
                 </ListItemButton>
             </ListItem>
         </List>
