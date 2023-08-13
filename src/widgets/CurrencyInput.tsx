@@ -20,11 +20,15 @@ const regExps = [
 export function CurrencyInput (props: Props): ReactElement {
     const mult = props.mult ?? 1
 
-    const [amountText, setAmountText] = useState((props.amount / mult).toFixed(2))
+    const [amountText, setAmountText] = useState('')
 
     const a = parseFloat(amountText)
 
     useEffect(() => {
+        if (props.amount !== 0) {
+            setAmountText((props.amount / mult).toFixed(2))
+        }
+
         if (props.allowZero === true && amountText === '' && props.amount === 0) {
             setAmountText('0.00')
         }
@@ -42,11 +46,15 @@ export function CurrencyInput (props: Props): ReactElement {
         }
     }, [props.amount, mult, a, amountText])
 
-    const error = (props.allowZero !== true && a === 0) ||
+    const error = (props.allowZero !== true && props.amount === 0) ||
         (Number.isNaN(a) && amountText !== '')
 
     const helperText = (() => {
-        if (props.allowZero !== true && a === 0) {
+        if (props.allowZero !== true && amountText === '') {
+            return 'Empty value not allowed'
+        }
+
+        if (props.allowZero !== true && props.amount === 0) {
             return 'Zero not allowed'
         }
 
