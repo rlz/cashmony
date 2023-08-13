@@ -22,7 +22,7 @@
         "react": "^18.2.0",
         "react-calendar": "^4.2.1",
         "react-dom": "^18.2.0",
-        "react-resizable-panels": "^0.0.54",
+        "react-resizable-panels": "^0.0.55",
         "react-resize-detector": "^9.1.0",
         "react-router-dom": "^6.11.1",
         "ts-pattern": "^5.0.1",
@@ -104,7 +104,7 @@
         ]
     },
     "devDependencies": {
-        "@testing-library/jest-dom": "^5.16.5",
+        "@testing-library/jest-dom": "^6.0.0",
         "@testing-library/react": "^14.0.0",
         "@testing-library/user-event": "^14.4.3",
         "@types/jest": "^29.5.1",
@@ -123,7 +123,7 @@
         "eslint-plugin-react": "^7.32.2",
         "eslint-plugin-simple-import-sort": "^10.0.0",
         "jest": "^29.6.1",
-        "regenerator-runtime": "^0.13.11",
+        "regenerator-runtime": "^0.14.0",
         "sass": "^1.62.1",
         "ts-jest": "^29.1.1",
         "tsx": "^3.12.7",
