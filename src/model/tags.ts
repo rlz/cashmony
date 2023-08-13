@@ -94,13 +94,20 @@ export class TagsModel {
     }
 }
 
-export function mergeTags (catTags: readonly string[], opTypeTags: readonly string[], allTags: readonly string[]): string[] {
+export function mergeTags (
+    addedTags: readonly string[],
+    catTags: readonly string[],
+    opTypeTags: readonly string[],
+    allTags: readonly string[]
+): string[] {
+    const atSet = new Set(addedTags)
     const ctSet = new Set<string>(catTags)
     const ottSet = new Set<string>(opTypeTags)
 
     return [
-        ...catTags,
-        ...opTypeTags.filter(i => !ctSet.has(i)),
-        ...allTags.filter(i => !(ctSet.has(i) || ottSet.has(i)))
+        ...addedTags,
+        ...catTags.filter(i => !atSet.has(i)),
+        ...opTypeTags.filter(i => !(atSet.has(i) || ctSet.has(i))),
+        ...allTags.filter(i => !(atSet.has(i) || ctSet.has(i) || ottSet.has(i)))
     ]
 }

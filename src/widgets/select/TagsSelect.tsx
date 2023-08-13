@@ -23,14 +23,12 @@ export const TagsSelect = observer((props: Props) => {
 
     useEffect(
         () => {
-            const newTags = [
-                ...props.addedTags,
-                ...mergeTags(
-                    props.categories.reduce<readonly string[]>((tags, cat) => [...tags, ...tagsModel.byCat.get(cat) ?? []], []),
-                    props.opType !== null ? tagsModel[props.opType] : [],
-                    tagsModel.all
-                )
-            ]
+            const newTags = mergeTags(
+                props.addedTags,
+                props.categories.reduce<readonly string[]>((tags, cat) => [...tags, ...tagsModel.byCat.get(cat) ?? []], []),
+                props.opType !== null ? tagsModel[props.opType] : [],
+                tagsModel.all
+            )
             if (!deepEqual(tags, newTags)) {
                 setTags(newTags)
             }

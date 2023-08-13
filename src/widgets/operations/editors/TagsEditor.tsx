@@ -17,7 +17,7 @@ interface Props {
 
 export function TagsEditor (props: Props): ReactElement {
     const [newTag, setNewTag] = useState('')
-    const [newTags, setNewTags] = useState<readonly string[]>([])
+    const [addedTags, setAddedTags] = useState<readonly string[]>([])
 
     return <Accordion
         disableGutters
@@ -31,7 +31,7 @@ export function TagsEditor (props: Props): ReactElement {
             <TagsSelect
                 opType={props.opType}
                 categories={props.categories}
-                addedTags={newTags}
+                addedTags={addedTags}
                 selected={props.tags}
                 onSelectedChange={props.onTagsChanged}
             />
@@ -43,12 +43,13 @@ export function TagsEditor (props: Props): ReactElement {
                 size={'small'}
                 label={'New tag'}
                 value={newTag}
-                onChange={(ev) => { setNewTag(ev.target.value.trim()) }}
+                onChange={(ev) => { setNewTag(ev.target.value) }}
             />
             <Button onClick={() => {
+                const t = newTag.trim()
+                setAddedTags([t, ...addedTags])
+                props.onTagsChanged([...props.tags, t])
                 setNewTag('')
-                setNewTags([newTag, ...newTags])
-                props.onTagsChanged([...props.tags, newTag])
             }}>{'Add'}</Button>
         </AccordionActions>
     </Accordion>
