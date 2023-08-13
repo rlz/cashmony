@@ -2,7 +2,7 @@ import './CategoriesScreen.scss'
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Box, Fab } from '@mui/material'
+import { Box, Button, Fab, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
@@ -17,6 +17,7 @@ import { hasOperation } from '../model/stats'
 import { AddCategory } from '../widgets/expenses/editors/AddCategory'
 import { ExpensesList } from '../widgets/expenses/ExpensesList'
 import { Column } from '../widgets/generic/Containers'
+import { DivBody2 } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 
 export const CategoriesScreen = observer(function CategoriesScreen (): ReactElement {
@@ -35,6 +36,20 @@ export const CategoriesScreen = observer(function CategoriesScreen (): ReactElem
 interface CategoriesScreenBodyProps {
     noFab?: boolean
 }
+
+const DEFAULT_CATEGORIES: Category[] = [
+    'Food & Drinks',
+    'Shopping',
+    'Housing',
+    'Transportation',
+    'Entertainment',
+    'Electronics',
+    'Financial',
+    'Investment',
+    'Education',
+    'Health',
+    'Travel'
+].map(i => { return { name: i, lastModified: DateTime.utc() } })
 
 export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyProps): ReactElement => {
     const appState = AppState.instance()
@@ -82,10 +97,31 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
                         <FontAwesomeIcon icon={faPlus} />
                     </Fab>
             }
-            <Column textAlign={'center'} mt={3}>
-                {'Before start tracking your finances you need to create a category'}<br/>
-                {'You will mark all your expenses as related to one or another category'}<br/>
-                {'You can create as many categories as you need'}
+            <Column textAlign={'center'} alignItems={'center'} mt={3}>
+                <Box>
+                    {'Before start tracking your finances you need to create a category'}<br/>
+                    {'You will mark all your expenses as related to one or another category'}<br/>
+                    {'You can create as many categories as you need'}
+                </Box>
+                <Typography my={2} fontSize={'1.5rem'}>
+                    {'or'}
+                </Typography>
+                <Box>
+                    {'Create start with predefined set of categories'}
+                </Box>
+                <DivBody2 mb={1}>
+                    {'(you can always change it later)'}
+                </DivBody2>
+                <Button
+                    variant={'contained'}
+                    onClick={() => {
+                        runAsync(async () => {
+                            await Promise.all(DEFAULT_CATEGORIES.map(async c => { await categoriesModel.put(c) }))
+                        })
+                    }}
+                >
+                    {'Predefined categories'}
+                </Button>
             </Column>
         </>
     }
