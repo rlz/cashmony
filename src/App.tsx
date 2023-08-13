@@ -115,14 +115,16 @@ export const App = observer(function App (): ReactElement {
     const [update, setUpdate] = useState(false)
 
     useEffect(() => {
-        runAsync(async () => {
-            const currentVersion = getCurrentVersion()
-            const serverVersion = await getServerVersion()
+        setInterval(() => {
+            runAsync(async () => {
+                const currentVersion = getCurrentVersion()
+                const serverVersion = await getServerVersion()
 
-            if (currentVersion !== null && serverVersion !== null && currentVersion !== serverVersion) {
-                setUpdate(true)
-            }
-        })
+                if (currentVersion !== null && serverVersion !== null && currentVersion !== serverVersion) {
+                    setUpdate(true)
+                }
+            })
+        }, 1000 * 60 * 60) // check every hour
     }, [])
 
     const location = window.location
