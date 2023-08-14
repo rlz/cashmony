@@ -150,7 +150,7 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
                     <Tab value={'operations'} label={'Operations'}/>
                 </Tabs>
             </Box>
-            <Box overflow={'scroll'} flex={'1 1 auto'}>
+            <Box overflow={'auto'} flex={'1 1 auto'}>
                 <Box px={1}>
                     {
                         match(tabName)

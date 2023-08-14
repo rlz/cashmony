@@ -167,7 +167,7 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
                     <FontAwesomeIcon icon={faPlus} />
                 </Fab>
         }
-        <Box p={1} height={'100%'} overflow={'scroll'}>
+        <Box p={1} height={'100%'} overflow={'auto'}>
             <Box maxWidth={900} mx={'auto'}>
                 <ExpensesList categories={cats}/>
                 <Box minHeight={144}/>

@@ -35,7 +35,7 @@ export const CurrencySelector = observer((props: Props): ReactElement => {
             <TextField variant={'filled'} size={'small'} label={'Search'} value={search} onChange={ev => {
                 setSearch(ev.target.value)
             }} />
-            <Box overflow={'scroll'} flex={'1 1 auto'}>
+            <Box overflow={'auto'} flex={'1 1 auto'}>
                 <List>
                     {currenciesModel.currencies
                         .map(c => CURRENCIES[c])

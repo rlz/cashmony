@@ -140,7 +140,7 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
                     <FontAwesomeIcon icon={faPlus} />
                 </Fab>
         }
-        <Box p={1} height={'100%'} overflow={'scroll'}>
+        <Box p={1} height={'100%'} overflow={'auto'}>
             <Box maxWidth={900} mx={'auto'}>
                 <Typography component={'div'} variant={'h6'} textAlign={'center'} my={1}>
                     {'Total'}

@@ -14,7 +14,7 @@ export const MainScreen = observer(function MainScreen ({ children }: PropsWithC
         <Box
             display={'flex'}
             flexDirection={'column'}
-            overflow={'scroll'}
+            overflow={'auto'}
             flex={'1 0 0'}
             bgcolor={theme.palette.background.default}
         >
