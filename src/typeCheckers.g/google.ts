@@ -1,7 +1,7 @@
 import typia from 'typia';
-import { type GoogleOperationCategoryRow, type GoogleDeletedOperationRow, type GoogleNonDeletedOperationRow, type GoogleAccountRow } from "../google/googleDataSchema";
+import { type GoogleAccountRow, type GoogleDeletedOperationRow, type GoogleNonDeletedOperationRow, type GoogleOperationCategoryRow } from "../google/googleDataSchema";
 import { type RowsType } from "../google/load";
-import { type PutReplyBody, type ClearReplyBody } from "../google/store";
+import { type ClearReplyBody, type PutReplyBody } from "../google/store";
 export const isGoogleNonDeletedOperationRow = (input: any): input is GoogleNonDeletedOperationRow => {
     return Array.isArray(input) && (8 <= input.length && 10 >= input.length && "string" === typeof input[0] && ("adjustment" === input[1] || "transfer" === input[1] || "income" === input[1] || "expense" === input[1]) && "number" === typeof input[2] && "number" === typeof input[3] && "number" === typeof input[4] && "string" === typeof input[5] && "string" === typeof input[6] && "number" === typeof input[7] && (undefined === input[8] || "string" === typeof input[8]) && (undefined === input[9] || "string" === typeof input[9]));
 };
@@ -132,8 +132,7 @@ export const assertClearReplyBody = (input: any): ClearReplyBody => {
 };
 export const assertPutReplyBody = (input: any): PutReplyBody => {
     const __is = (input: any): input is PutReplyBody => {
-        const $io0 = (input: any): boolean => "string" === typeof input.spreadsheetId && ("number" === typeof input.updatedCells && parseInt(input.updatedCells) === input.updatedCells && 0 <= input.updatedCells) && ("number" === typeof input.updatedColumns && parseInt(input.updatedColumns) === input.updatedColumns && 0 <= input.updatedColumns) && "string" === typeof input.updatedRange && ("number" === typeof input.updatedRows && parseInt(input.updatedRows) === input.updatedRows && 0 <= input.updatedRows);
-        return "object" === typeof input && null !== input && $io0(input);
+        return "object" === typeof input && null !== input && ("string" === typeof (input as any).spreadsheetId && ("number" === typeof (input as any).updatedCells && (Math.floor((input as any).updatedCells) === (input as any).updatedCells && 0 <= (input as any).updatedCells && (input as any).updatedCells <= 4294967295)) && ("number" === typeof (input as any).updatedColumns && (Math.floor((input as any).updatedColumns) === (input as any).updatedColumns && 0 <= (input as any).updatedColumns && (input as any).updatedColumns <= 4294967295)) && "string" === typeof (input as any).updatedRange && ("number" === typeof (input as any).updatedRows && (Math.floor((input as any).updatedRows) === (input as any).updatedRows && 0 <= (input as any).updatedRows && (input as any).updatedRows <= 4294967295)));
     };
     if (false === __is(input))
         ((input: any, _path: string, _exceptionable: boolean = true): input is PutReplyBody => {
@@ -142,45 +141,33 @@ export const assertPutReplyBody = (input: any): PutReplyBody => {
                 path: _path + ".spreadsheetId",
                 expected: "string",
                 value: input.spreadsheetId
-            })) && ("number" === typeof input.updatedCells && (parseInt(input.updatedCells) === input.updatedCells || $guard(_exceptionable, {
+            })) && ("number" === typeof input.updatedCells && (Math.floor(input.updatedCells) === input.updatedCells && 0 <= input.updatedCells && input.updatedCells <= 4294967295 || $guard(_exceptionable, {
                 path: _path + ".updatedCells",
-                expected: "number (@type uint)",
-                value: input.updatedCells
-            })) && (0 <= input.updatedCells || $guard(_exceptionable, {
-                path: _path + ".updatedCells",
-                expected: "number (@type uint)",
+                expected: "number & Type<\"uint32\">",
                 value: input.updatedCells
             })) || $guard(_exceptionable, {
                 path: _path + ".updatedCells",
-                expected: "number",
+                expected: "(number & Type<\"uint32\">)",
                 value: input.updatedCells
-            })) && ("number" === typeof input.updatedColumns && (parseInt(input.updatedColumns) === input.updatedColumns || $guard(_exceptionable, {
+            })) && ("number" === typeof input.updatedColumns && (Math.floor(input.updatedColumns) === input.updatedColumns && 0 <= input.updatedColumns && input.updatedColumns <= 4294967295 || $guard(_exceptionable, {
                 path: _path + ".updatedColumns",
-                expected: "number (@type uint)",
-                value: input.updatedColumns
-            })) && (0 <= input.updatedColumns || $guard(_exceptionable, {
-                path: _path + ".updatedColumns",
-                expected: "number (@type uint)",
+                expected: "number & Type<\"uint32\">",
                 value: input.updatedColumns
             })) || $guard(_exceptionable, {
                 path: _path + ".updatedColumns",
-                expected: "number",
+                expected: "(number & Type<\"uint32\">)",
                 value: input.updatedColumns
             })) && ("string" === typeof input.updatedRange || $guard(_exceptionable, {
                 path: _path + ".updatedRange",
                 expected: "string",
                 value: input.updatedRange
-            })) && ("number" === typeof input.updatedRows && (parseInt(input.updatedRows) === input.updatedRows || $guard(_exceptionable, {
+            })) && ("number" === typeof input.updatedRows && (Math.floor(input.updatedRows) === input.updatedRows && 0 <= input.updatedRows && input.updatedRows <= 4294967295 || $guard(_exceptionable, {
                 path: _path + ".updatedRows",
-                expected: "number (@type uint)",
-                value: input.updatedRows
-            })) && (0 <= input.updatedRows || $guard(_exceptionable, {
-                path: _path + ".updatedRows",
-                expected: "number (@type uint)",
+                expected: "number & Type<\"uint32\">",
                 value: input.updatedRows
             })) || $guard(_exceptionable, {
                 path: _path + ".updatedRows",
-                expected: "number",
+                expected: "(number & Type<\"uint32\">)",
                 value: input.updatedRows
             }));
             return ("object" === typeof input && null !== input || $guard(true, {
