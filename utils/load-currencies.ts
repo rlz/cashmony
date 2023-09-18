@@ -6,7 +6,7 @@ import makeUrl from '../src/google/makeUrl'
 import { CURRENCIES } from '../src/helpers/currenciesList'
 
 const currencies = Object.keys(CURRENCIES).filter(i => i !== 'USD')
-const startDate = DateTime.utc(2000, 1, 1)
+const startDate = DateTime.utc(2010, 1, 1)
 const endDate = DateTime.utc().minus({ day: 1 })
 
 const FcaRespSchema = z.object({
