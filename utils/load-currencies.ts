@@ -59,7 +59,7 @@ async function loadIntervals (...intervals: Array<[DateTime, DateTime]>): Promis
         for (const cur of currencies) {
             const rates = curRateRecord[cur]
             const rate = dateCurRateRecord[d.toISODate() ?? ''][cur]
-            rates.push(rate !== undefined ? rate : rates[rates.length - 1])
+            rates.push(rate ?? rates[rates.length - 1])
         }
     }
 
