@@ -4,7 +4,7 @@ import { Box, Button, FormControl, IconButton, InputAdornment, InputLabel, Outli
 import React, { Fragment, type ReactElement, useState } from 'react'
 
 import { deepEqual } from '../helpers/deepEqual'
-import { showIf } from '../helpers/smallTools'
+import { showIf, showIfLazy } from '../helpers/smallTools'
 import { type Filter } from '../model/filter'
 import { FullScreenModal } from './FullScreenModal'
 import { Column, Row } from './generic/Containers'
@@ -246,6 +246,15 @@ function TagsFilter ({ filter, setFilter }: EditorProps): ReactElement {
             showIf(
                 filter.tagsMode !== 'all',
                 <>
+                    {
+                        showIfLazy(
+                            filter.tagsMode !== 'all' && filter.tags.length > 0,
+                            () =>
+                                <Button onClick={() => { setFilter({ ...filter, tags: [] }) }}>
+                                    {'Clear'}
+                                </Button>
+                        )
+                    }
                     <DivBody2 mt={1}>
                         {
                             filter.tagsMode !== 'all'
