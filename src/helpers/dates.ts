@@ -26,18 +26,31 @@ export function utcDate (date: Date | DateTime): DateTime {
 }
 
 export abstract class HumanTimeSpan {
+    private datesCache: DateTime[] | null = null
+
     abstract get startDate (): DateTime
     abstract get endDate (): DateTime
 
-    * allDates (opts?: { includeDayBefore?: boolean }): Generator<DateTime> {
-        const startDate = opts?.includeDayBefore === true
-            ? this.startDate.minus({ day: 1 })
-            : this.startDate
+    private makeAllDates (): DateTime[] {
+        const dates: DateTime[] = []
 
+        const startDate = this.startDate.minus({ day: 1 })
         const endDate = this.endDate
 
         for (let date = startDate; date <= endDate; date = date.plus({ day: 1 })) {
-            yield date
+            dates.push(date)
+        }
+
+        return dates
+    }
+
+    * allDates (opts?: { includeDayBefore?: boolean }): Generator<DateTime> {
+        if (this.datesCache === null) {
+            this.datesCache = this.makeAllDates()
+        }
+
+        for (let i = opts?.includeDayBefore === true ? 0 : 1; i < this.datesCache.length; ++i) {
+            yield this.datesCache[i]
         }
     }
 

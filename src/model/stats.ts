@@ -30,12 +30,14 @@ export function * listOperations (predicate: Predicate, timeSpan: HumanTimeSpan 
     }
 
     const filter = compilePredicate(predicate)
+    const startDateMillis = timeSpan?.startDate.toMillis() ?? 0
+    const endDateMillis = timeSpan?.endDate.toMillis() ?? 0
 
     for (const op of operationsModel.operations) {
         if (
             op.type === 'deleted' ||
-            (timeSpan !== null && op.date < timeSpan.startDate) ||
-            (timeSpan !== null && op.date > timeSpan.endDate) ||
+            (timeSpan !== null && op.date.toMillis() < startDateMillis) ||
+            (timeSpan !== null && op.date.toMillis() > endDateMillis) ||
             !filter(op)
         ) {
             continue
@@ -62,6 +64,9 @@ export interface Reducer<T> {
 type InferReturnType<Type> = Type extends Record<string, Reducer<infer X>> ? { [key in keyof Type]: X[] } : never
 
 export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpan | null, today: DateTime, reducers: T): Promise<InferReturnType<T>> {
+    // const timer = performance.now()
+    // console.trace('Start calcStats')
+
     if (operationsModel.operations === null) {
         throw Error('Operations not loaded')
     }
@@ -128,31 +133,37 @@ export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpa
             if (op.date.equals(date)) {
                 index += 1
                 const promises = Object.entries(reducers as Record<string, Reducer<any>>).map(async ([key, reducer]) => {
-                    const interval = match(reducer.interval)
-                        .with('day', () => date)
-                        .with('s-week', () => sWeekInterval)
-                        .with('m-week', () => mWeekInterval)
-                        .with('month', () => monthInterval)
-                        .with('year', () => yearInterval)
-                        .with(null, () => startDate)
-                        .exhaustive()
-                    const firstOpInInterval = match(reducer.interval)
-                        .with('day', () => firstOp)
-                        .with('s-week', () => sWeekStart && firstOp)
-                        .with('m-week', () => mWeekStart && firstOp)
-                        .with('month', () => monthStart && firstOp)
-                        .with('year', () => yearStart && firstOp)
-                        .with(null, () => firstDay && firstOp)
-                        .exhaustive()
-                    const intervalKind = match<IntervalType, 'past' | 'future' | 'now'>(reducer.interval)
-                        .with('day', () => dayKind)
-                        .with('s-week', () => sWeekKind)
-                        .with('m-week', () => mWeekKind)
-                        .with('month', () => monthKind)
-                        .with('year', () => yearKind)
-                        .with(null, () => 'now')
-                        .exhaustive()
-                    await reducer.reduce(op, interval, firstOpInInterval, intervalKind, values[key])
+                    if (reducer.interval === 'day') {
+                        const interval = date
+                        const firstOpInInterval = firstOp
+                        const intervalKind = dayKind
+                        await reducer.reduce(op, interval, firstOpInInterval, intervalKind, values[key])
+                    } else if (reducer.interval === 's-week') {
+                        const interval = sWeekInterval
+                        const firstOpInInterval = sWeekStart && firstOp
+                        const intervalKind = sWeekKind
+                        await reducer.reduce(op, interval, firstOpInInterval, intervalKind, values[key])
+                    } else if (reducer.interval === 'm-week') {
+                        const interval = mWeekInterval
+                        const firstOpInInterval = mWeekStart && firstOp
+                        const intervalKind = mWeekKind
+                        await reducer.reduce(op, interval, firstOpInInterval, intervalKind, values[key])
+                    } else if (reducer.interval === 'month') {
+                        const interval = monthInterval
+                        const firstOpInInterval = monthStart
+                        const intervalKind = monthKind
+                        await reducer.reduce(op, interval, firstOpInInterval, intervalKind, values[key])
+                    } else if (reducer.interval === 'year') {
+                        const interval = yearInterval
+                        const firstOpInInterval = yearStart && firstOp
+                        const intervalKind = yearKind
+                        await reducer.reduce(op, interval, firstOpInInterval, intervalKind, values[key])
+                    } else {
+                        const interval = startDate
+                        const firstOpInInterval = firstDay && firstOp
+                        const intervalKind = 'now'
+                        await reducer.reduce(op, interval, firstOpInInterval, intervalKind, values[key])
+                    }
                 })
                 await Promise.all(promises)
                 firstOp = false
@@ -206,5 +217,6 @@ export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpa
     })
     await Promise.all(promises)
 
+    // console.log('Finish calcStats', performance.now() - timer)
     return values as any
 }

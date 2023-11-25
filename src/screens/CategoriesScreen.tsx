@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Button, Fab, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useEffect, useState } from 'react'
+import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 
 import { runAsync } from '../helpers/smallTools'
 import { AppState } from '../model/appState'
@@ -77,6 +77,41 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
         ]
     )
 
+    const cats = useMemo(
+        () => {
+            const cats: Category[] = [
+                {
+                    name: '_total',
+                    lastModified: DateTime.utc(),
+                    perDayAmount: appState.totalGoalAmount ?? undefined,
+                    currency: appState.totalGoalAmount === null ? undefined : appState.totalGoalCurrency
+                },
+                ...categoriesModel
+                    .categoriesSorted
+                    .map(c => categoriesModel.get(c))
+                    .filter(c => c.deleted !== true)
+            ]
+
+            if (hasUncat) {
+                cats.push({
+                    name: '_',
+                    lastModified: DateTime.utc(),
+                    perDayAmount: appState.uncategorizedGoalAmount ?? undefined,
+                    currency: appState.uncategorizedGoalAmount === null ? undefined : appState.uncategorizedGoalCurrency
+                })
+            }
+
+            return cats
+        },
+        [
+            appState.totalGoalAmount,
+            appState.totalGoalCurrency,
+            appState.uncategorizedGoalAmount,
+            appState.uncategorizedGoalCurrency,
+            categoriesModel.categories
+        ]
+    )
+
     if (categoriesModel.categories?.size === 0) {
         return <>
             {
@@ -124,28 +159,6 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
                 </Button>
             </Column>
         </>
-    }
-
-    const cats: Category[] = [
-        {
-            name: '_total',
-            lastModified: DateTime.utc(),
-            perDayAmount: appState.totalGoalAmount ?? undefined,
-            currency: appState.totalGoalAmount === null ? undefined : appState.totalGoalCurrency
-        },
-        ...categoriesModel
-            .categoriesSorted
-            .map(c => categoriesModel.get(c))
-            .filter(c => c.deleted !== true)
-    ]
-
-    if (hasUncat) {
-        cats.push({
-            name: '_',
-            lastModified: DateTime.utc(),
-            perDayAmount: appState.uncategorizedGoalAmount ?? undefined,
-            currency: appState.uncategorizedGoalAmount === null ? undefined : appState.uncategorizedGoalCurrency
-        })
     }
 
     return <>

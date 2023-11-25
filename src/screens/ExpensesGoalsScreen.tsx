@@ -2,7 +2,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Fab } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useEffect, useState } from 'react'
+import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 
 import { AppState } from '../model/appState'
 import { GoalsModel } from '../model/goals'
@@ -34,6 +34,13 @@ export const ExpensesGoalsScreenBody = observer(({ noFab }: ExpensesGoalsScreenB
 
     const [add, setAdd] = useState(false)
 
+    const goals = useMemo(
+        () => {
+            return goalsModel.goals?.filter(i => i.deleted !== true) ?? []
+        },
+        [goalsModel.goals]
+    )
+
     if (goalsModel.goals === null) {
         return <GoalsScreenSkeleton />
     }
@@ -59,7 +66,7 @@ export const ExpensesGoalsScreenBody = observer(({ noFab }: ExpensesGoalsScreenB
         }
         <Box p={1} height={'100%'} overflow={'auto'}>
             <Box maxWidth={900} mx={'auto'}>
-                <ExpensesList goals={goalsModel.goals.filter(i => i.deleted !== true)}/>
+                <ExpensesList goals={goals}/>
                 <Box minHeight={144}/>
             </Box>
         </Box>
