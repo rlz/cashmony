@@ -36,9 +36,7 @@
         "start": "vite",
         "build": "vite build",
         "preview": "vite preview",
-        "gen-type-checkers": "rm -rf ./src/typeCheckers.g; typia generate --input ./src/typeCheckers/ --output ./src/typeCheckers.g/",
         "load-currencies": "tsx ./utils/load-currencies.ts",
-        "load-currencies-t": "tsx ./utils/load-currencies.t.ts",
         "test": "jest",
         "test-coverage": "jest --coverage"
     },
