@@ -47,6 +47,8 @@ export class CurrenciesModel {
     }
 
     async getFromUsdRate (date: DateTime, toCurrency: string): Promise<number> {
+        // console.log('getFromUsdRate', date.toISODate(), toCurrency)
+
         if (toCurrency === 'USD') return 1
 
         const key = `${date.toFormat('yyyy-MM')}-${toCurrency}`
@@ -106,8 +108,8 @@ async function loadRates (month: DateTime, currency: string): Promise<CurrencyRa
     }
 
     const result = await fetch(`/currencies/${month.toFormat('yyyy')}/${month.toFormat('MM')}/${currency}.json`)
-    if (!result.ok) {
-        console.warn(`Can not load rates (${month.toFormat('yyyy-MM')}, ${currency}): ${result.status} ${result.statusText}`)
+    if (!result.ok || result.headers.get('Content-Type') !== 'application/json') {
+        console.warn(`Can not load rates (${month.toFormat('yyyy-MM')}, ${currency}): ${result.status} ${result.statusText} Content-Type: ${result.headers.get('Content-Type')}`)
         return
     }
 
