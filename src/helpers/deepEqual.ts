@@ -1,3 +1,5 @@
+import { type DateTime } from 'luxon'
+
 export function deepEqual (a: unknown, b: unknown): boolean {
     if (a === b) return true
 
@@ -31,6 +33,14 @@ export function deepEqual (a: unknown, b: unknown): boolean {
         const keys = new Set<string>(Object.keys(a))
         for (const key of Object.keys(b)) {
             keys.add(key)
+        }
+
+        if (keys.has('isLuxonDateTime')) {
+            return (
+                (a as any).isLuxonDateTime === true &&
+                (b as any).isLuxonDateTime === true &&
+                (a as DateTime).toMillis() === (b as DateTime).toMillis()
+            )
         }
 
         for (const key of keys) {
