@@ -1,12 +1,15 @@
+import { z } from 'zod'
+
 import { type Account, type Category, type ExpensesGoal, type Operation } from '../model/model'
-import { assertRowsType } from '../typeCheckers.g/google'
 import { type Google, isOk } from './google'
 import { accsFromGoogle, catsFromGoogle, goalsFromGoogle, opsFromGoogle } from './googleDataSchema'
 import makeUrl from './makeUrl'
 
-export interface RowsType {
-    values?: unknown[]
-}
+const RowsTypeSchema = z.object({
+    values: z.array(z.unknown()).optional()
+})
+
+export type RowsType = z.infer<typeof RowsTypeSchema>
 
 async function loadRows (google: Google, tabName: string): Promise<unknown[]> {
     console.log(`Loading ${google.spreadsheetName}:${tabName}`)
@@ -24,7 +27,7 @@ async function loadRows (google: Google, tabName: string): Promise<unknown[]> {
     )
     if (isOk(reply)) {
         console.log('Reply', reply)
-        const rows = assertRowsType(reply.body).values ?? []
+        const rows = RowsTypeSchema.parse(reply.body).values ?? []
 
         console.log(`${rows.length} rows loaded`)
 

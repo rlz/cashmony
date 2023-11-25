@@ -1,13 +1,16 @@
+import { z } from 'zod'
+
 import { type Account, type Category, type ExpensesGoal, type Operation } from '../model/model'
-import { assertClearReplyBody, assertPutReplyBody } from '../typeCheckers.g/google'
 import { type Google, isOk } from './google'
 import { accsToGoogle, catsToGoogle, goalsToGoogle, opsToGoogle } from './googleDataSchema'
 import makeUrl from './makeUrl'
 
-export interface ClearReplyBody {
-    clearedRange: string
-    spreadsheetId: string
-}
+const ClearReplyBodySchema = z.object({
+    clearedRange: z.string(),
+    spreadsheetId: z.string()
+})
+
+export type ClearReplyBody = z.infer<typeof ClearReplyBodySchema>
 
 async function clearData (google: Google, tabName: string): Promise<void> {
     if (google.finDataSpreadsheetId === null) {
@@ -24,35 +27,23 @@ async function clearData (google: Google, tabName: string): Promise<void> {
         }
     )
     if (isOk(reply)) {
-        const replyBody = assertClearReplyBody(reply.body)
+        const replyBody = ClearReplyBodySchema.parse(reply.body)
 
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         console.log(`Cleared Google Spreadsheet ${replyBody.spreadsheetId}:${tabName} (range: ${replyBody.clearedRange})`)
     } else {
         console.warn('Unauthorized!')
     }
 }
 
-export interface PutReplyBody {
-    spreadsheetId: string
+const PutReplyBodySchema = z.object({
+    spreadsheetId: z.string(),
+    updatedCells: z.number().positive(),
+    updatedColumns: z.number().positive(),
+    updatedRange: z.string(),
+    updatedRows: z.number().positive()
+})
 
-    /**
-     * @type uint
-     */
-    updatedCells: number
-
-    /**
-     * @type uint
-     */
-    updatedColumns: number
-
-    updatedRange: string
-
-    /**
-     * @type uint
-     */
-    updatedRows: number
-}
+export type PutReplyBody = z.infer<typeof PutReplyBodySchema>
 
 export async function storeRows (google: Google, tabName: string, range: string, rows: unknown[][]): Promise<void> {
     console.log(`Store ${rows.length} rows in ${google.spreadsheetName}:${tabName}`)
@@ -83,9 +74,8 @@ export async function storeRows (google: Google, tabName: string, range: string,
         }
     )
     if (isOk(reply)) {
-        const replyBody = assertPutReplyBody(reply.body)
+        const replyBody = PutReplyBodySchema.parse(reply.body)
 
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         console.log(`Rows stored in ${replyBody.spreadsheetId} Spreadsheet (range: ${replyBody.updatedRange}, cells: ${replyBody.updatedCells})`)
     } else {
         console.warn('Unauthorized!')

@@ -4,33 +4,76 @@ import { z } from 'zod'
 import { fromGoogleDateTime, toGoogleDateTime } from '../helpers/dates'
 import { filterSchema } from '../model/filter'
 import { type Account, type Category, type ExpensesGoal, type Operation } from '../model/model'
-import { assertGoogleNonDeletedOperationRow, isGoogleAccountRow, isGoogleDeletedOperationRow, isGoogleNonDeletedOperationRow, isGoogleOperationCategoryRow } from '../typeCheckers.g/google'
 
-export type GoogleNonDeletedOperationRow = [
-    string, // opId
-    'adjustment' | 'transfer' | 'income' | 'expense', // opType
-    number, // modified
-    number, // date
-    number, // amount
-    string, // currency
-    string, // account
-    number, // account amount
-    string?, // tags
-    string? // comment
-]
+const GoogleNonDeletedOperationRowSchema = z.union([
+    z.tuple([
+        z.string(), // opId
+        z.union([
+            z.literal('adjustment'),
+            z.literal('transfer'),
+            z.literal('income'),
+            z.literal('expense')
+        ]), // opType
+        z.number(), // modified
+        z.number(), // date
+        z.number(), // amount
+        z.string(), // currency
+        z.string(), // account
+        z.number() // account amount
+    ]),
+    z.tuple([
+        z.string(), // opId
+        z.union([
+            z.literal('adjustment'),
+            z.literal('transfer'),
+            z.literal('income'),
+            z.literal('expense')
+        ]), // opType
+        z.number(), // modified
+        z.number(), // date
+        z.number(), // amount
+        z.string(), // currency
+        z.string(), // account
+        z.number(), // account amount
+        z.string() // tags
+    ]),
+    z.tuple([
+        z.string(), // opId
+        z.union([
+            z.literal('adjustment'),
+            z.literal('transfer'),
+            z.literal('income'),
+            z.literal('expense')
+        ]), // opType
+        z.number(), // modified
+        z.number(), // date
+        z.number(), // amount
+        z.string(), // currency
+        z.string(), // account
+        z.number(), // account amount
+        z.string().optional(), // tags
+        z.string() // comment
+    ])
+])
 
-export type GoogleDeletedOperationRow = [
-    string, // opId
-    'deleted' // opType
-]
+export type GoogleNonDeletedOperationRow = z.infer<typeof GoogleNonDeletedOperationRowSchema>
+
+const GoogleDeletedOperationRowSchema = z.tuple([
+    z.string(), // opId
+    z.literal('deleted') // opType
+])
+
+export type GoogleDeletedOperationRow = z.infer<typeof GoogleDeletedOperationRowSchema>
 
 type GoogleOperationRow = GoogleNonDeletedOperationRow | GoogleDeletedOperationRow
 
-export type GoogleOperationCategoryRow = [
-    string, // opId
-    string, // categoryName
-    number // categoryAmount
-]
+const GoogleOperationCategoryRowSchema = z.tuple([
+    z.string(), // opId
+    z.string(), // categoryName
+    z.number() // categoryAmount
+])
+
+export type GoogleOperationCategoryRow = z.infer<typeof GoogleOperationCategoryRowSchema>
 
 const GoogleCategoryRowSchemaV1 = z.union([
     z.tuple([
@@ -74,13 +117,23 @@ const googleGoalRowSchema = z.tuple([
 
 type GoogleGoalRow = z.infer<typeof googleGoalRowSchema>
 
-export type GoogleAccountRow = [
-    string, // name
-    string, // currency
-    number, // lastModified
-    'yes' | 'no', // hidden
-    ('yes' | 'no')? // deleted
-]
+const GoogleAccountRowSchema = z.union([
+    z.tuple([
+        z.string(), // name
+        z.string(), // currency
+        z.number(), // lastModified
+        z.union([z.literal('yes'), z.literal('no')]) // hidden
+    ]),
+    z.tuple([
+        z.string(), // name
+        z.string(), // currency
+        z.number(), // lastModified
+        z.union([z.literal('yes'), z.literal('no')]), // hidden
+        z.union([z.literal('yes'), z.literal('no')]).optional() // deleted
+    ])
+])
+
+export type GoogleAccountRow = z.infer<typeof GoogleAccountRowSchema>
 
 export interface GoogleOperationsInfo {
     operations: GoogleOperationRow[]
@@ -143,9 +196,9 @@ export function opsFromGoogle (googleRows: { operations: unknown[], categories: 
     const categories = new Map<string, Array<{ name: string, amount: number }>>()
 
     for (const row of googleRows.categories) {
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-        if (isGoogleOperationCategoryRow(row)) {
-            const [opId, name, amount] = row
+        const r = GoogleOperationCategoryRowSchema.safeParse(row)
+        if (r.success) {
+            const [opId, name, amount] = r.data
             let cats = categories.get(opId)
             if (cats === undefined) {
                 cats = []
@@ -161,80 +214,82 @@ export function opsFromGoogle (googleRows: { operations: unknown[], categories: 
     for (let i = 0; i < googleRows.operations.length; ++i) {
         const row = googleRows.operations[i]
 
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-        if (isGoogleDeletedOperationRow(row)) {
+        const dr = GoogleDeletedOperationRowSchema.safeParse(row)
+        if (dr.success) {
             result.push({
-                id: row[0],
+                id: dr.data[0],
                 type: 'deleted'
             })
             continue
         }
 
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-        if (!isGoogleNonDeletedOperationRow(row)) {
+        const ndr = GoogleNonDeletedOperationRowSchema.safeParse(row)
+        if (!ndr.success) {
             throw Error(`Unexpected data in row (Operation): ${JSON.stringify(row)}`)
         }
 
-        if (row[1] === 'transfer') {
+        if (ndr.data[1] === 'transfer') {
             i += 1
-            const toAccountRow = assertGoogleNonDeletedOperationRow(googleRows.operations[i])
-            if (row[0] !== toAccountRow[0]) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                throw Error(`Transfer row should go one by one, but found:\n${row.join(', ')}\n${toAccountRow.join(', ')}`)
+            const toAccountRow = GoogleNonDeletedOperationRowSchema.safeParse(googleRows.operations[i])
+            if (!toAccountRow.success) {
+                throw Error(`Unexpected data in row (Operation) - after transfer row: ${JSON.stringify(googleRows.operations[i])}`)
+            }
+            if (ndr.data[0] !== toAccountRow.data[0]) {
+                throw Error(`Transfer row should go one by one, but found:\n${ndr.data.join(', ')}\n${toAccountRow.data.join(', ')}`)
             }
             result.push({
-                id: row[0],
+                id: ndr.data[0],
                 type: 'transfer',
-                lastModified: fromGoogleDateTime(row[2]),
-                date: fromGoogleDateTime(row[3]),
-                amount: row[4],
-                currency: row[5],
+                lastModified: fromGoogleDateTime(ndr.data[2]),
+                date: fromGoogleDateTime(ndr.data[3]),
+                amount: ndr.data[4],
+                currency: ndr.data[5],
                 account: {
-                    name: row[6],
-                    amount: row[7]
+                    name: ndr.data[6],
+                    amount: ndr.data[7]
                 },
                 toAccount: {
-                    name: toAccountRow[6],
-                    amount: toAccountRow[7]
+                    name: toAccountRow.data[6],
+                    amount: toAccountRow.data[7]
                 },
-                tags: (row[8] ?? '').split(',').map(t => t.trim()).filter(t => t !== ''),
-                comment: (row[9] === undefined || row[9] === '') ? null : row[9]
+                tags: (ndr.data[8] ?? '').split(',').map(t => t.trim()).filter(t => t !== ''),
+                comment: (ndr.data[9] === undefined || ndr.data[9] === '') ? null : ndr.data[9]
             })
             continue
         }
 
-        if (row[1] === 'adjustment') {
+        if (ndr.data[1] === 'adjustment') {
             result.push({
-                id: row[0],
+                id: ndr.data[0],
                 type: 'adjustment',
-                lastModified: fromGoogleDateTime(row[2]),
-                date: fromGoogleDateTime(row[3]),
-                amount: row[4],
-                currency: row[5],
+                lastModified: fromGoogleDateTime(ndr.data[2]),
+                date: fromGoogleDateTime(ndr.data[3]),
+                amount: ndr.data[4],
+                currency: ndr.data[5],
                 account: {
-                    name: row[6],
-                    amount: row[7]
+                    name: ndr.data[6],
+                    amount: ndr.data[7]
                 },
-                tags: (row[8] ?? '').split(',').map(t => t.trim()).filter(t => t !== ''),
-                comment: (row[9] === undefined || row[9] === '') ? null : row[9]
+                tags: (ndr.data[8] ?? '').split(',').map(t => t.trim()).filter(t => t !== ''),
+                comment: (ndr.data[9] === undefined || ndr.data[9] === '') ? null : ndr.data[9]
             })
             continue
         }
 
         result.push({
-            id: row[0],
-            type: row[1],
-            lastModified: fromGoogleDateTime(row[2]),
-            date: fromGoogleDateTime(row[3]),
-            amount: row[4],
-            currency: row[5],
+            id: ndr.data[0],
+            type: ndr.data[1],
+            lastModified: fromGoogleDateTime(ndr.data[2]),
+            date: fromGoogleDateTime(ndr.data[3]),
+            amount: ndr.data[4],
+            currency: ndr.data[5],
             account: {
-                name: row[6],
-                amount: row[7]
+                name: ndr.data[6],
+                amount: ndr.data[7]
             },
-            categories: categories.get(row[0]) ?? [],
-            tags: (row[8] ?? '').split(',').map(t => t.trim()).filter(t => t !== ''),
-            comment: (row[9] === undefined || row[9] === '') ? null : row[9]
+            categories: categories.get(ndr.data[0]) ?? [],
+            tags: (ndr.data[8] ?? '').split(',').map(t => t.trim()).filter(t => t !== ''),
+            comment: (ndr.data[9] === undefined || ndr.data[9] === '') ? null : ndr.data[9]
         })
     }
 
@@ -298,7 +353,6 @@ export function goalsToGoogle (goals: readonly ExpensesGoal[]): GoogleGoalRow[] 
 
 export function goalsFromGoogle (rows: unknown[]): ExpensesGoal[] {
     return rows.map(row => {
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         const parsed = googleGoalRowSchema.parse(row)
 
         return {
@@ -327,17 +381,17 @@ export function accsToGoogle (accounts: readonly Account[]): GoogleAccountRow[] 
 
 export function accsFromGoogle (rows: unknown[]): Account[] {
     return rows.map(row => {
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-        if (!isGoogleAccountRow(row)) {
+        const r = GoogleAccountRowSchema.safeParse(row)
+        if (!r.success) {
             throw Error(`Unexpected data in row (Category): ${JSON.stringify(row)}`)
         }
 
         return {
-            name: row[0],
-            currency: row[1],
-            lastModified: fromGoogleDateTime(row[2]),
-            hidden: row[3] === 'yes',
-            deleted: row[4] === 'yes' ? true : (row[4] === 'no' ? false : undefined)
+            name: r.data[0],
+            currency: r.data[1],
+            lastModified: fromGoogleDateTime(r.data[2]),
+            hidden: r.data[3] === 'yes',
+            deleted: r.data[4] === 'yes' ? true : (r.data[4] === 'no' ? false : undefined)
         }
     })
 }
