@@ -94,7 +94,7 @@ export function ExpensesCardSkeleton ({ name, sx }: { name?: string | ReactEleme
         <Paper sx={{ p: 1 }}>
             <Box display={'flex'} gap={1}>
                 <SpanBody1 flex={'1 1 0'}>
-                    { name !== undefined ? name : <Skeleton sx={{ maxWidth: 60 }}/> }
+                    { name ?? <Skeleton sx={{ maxWidth: 60 }}/> }
                 </SpanBody1>
                 <SpanBody1>
                     <Skeleton sx={{ minWidth: 55 }}/>
