@@ -1,6 +1,6 @@
 import { Box, Button, Tab, Tabs, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useEffect, useState } from 'react'
+import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
 import { useNavigate, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
@@ -118,6 +118,8 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
         })
     }, [newGoal, operationsModel.operations])
 
+    const statsFilter = useMemo(() => newGoal !== null ? PE.filter(newGoal.filter) : null, [newGoal])
+
     if (
         goal === null ||
         newGoal === null ||
@@ -156,7 +158,7 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
                         match(tabName)
                             .with('stats', () => <ExpensesStatsWidget
                                 currency={newGoal.currency}
-                                predicate={PE.filter(newGoal.filter)}
+                                predicate={statsFilter!}
                                 perDayGoal={newGoal.perDayAmount}
                             />)
                             .with('modify', () => {

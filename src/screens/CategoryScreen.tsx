@@ -1,7 +1,7 @@
 import { Box, Tab, Tabs, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useEffect, useState } from 'react'
+import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
 import { useNavigate, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
@@ -106,7 +106,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
                             .with('_', () => appState.uncategorizedGoalAmount ?? undefined)
                             .with('_total', () => appState.totalGoalAmount ?? undefined)
                             .exhaustive()
-                        return v !== undefined ? v : undefined
+                        return v ?? undefined
                     }),
                     currency: match(catName)
                         .with('_', () => appState.uncategorizedGoalAmount !== null ? appState.uncategorizedGoalCurrency ?? undefined : undefined)
@@ -130,10 +130,12 @@ export const CategoryScreenBody = observer((): ReactElement => {
         ]
     )
 
-    const predicate = match<string, Predicate>(catName)
-        .with('_total', () => EXPENSE_PREDICATE)
-        .with('_', () => PE.and(PE.type('expense'), PE.uncat()))
-        .otherwise(() => PE.cat(catName))
+    const predicate = useMemo(() => {
+        return match<string, Predicate>(catName)
+            .with('_total', () => EXPENSE_PREDICATE)
+            .with('_', () => PE.and(PE.type('expense'), PE.uncat()))
+            .otherwise(() => PE.cat(catName))
+    }, [catName])
 
     useEffect(
         () => {
