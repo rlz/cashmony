@@ -47,7 +47,7 @@ export class CurrenciesModel {
     }
 
     async getFromUsdRate (date: DateTime, toCurrency: string): Promise<number> {
-        console.log('getFromUsdRate', date.toISODate(), toCurrency)
+        // console.log('getFromUsdRate', date.toISODate(), toCurrency)
 
         if (toCurrency === 'USD') return 1
 
@@ -107,15 +107,14 @@ async function loadRates (month: DateTime, currency: string): Promise<CurrencyRa
         return cache
     }
 
-    console.log('Need load', `/currencies/${month.toFormat('yyyy')}/${month.toFormat('MM')}/${currency}.json`)
+    // console.log('Need load', `/currencies/${month.toFormat('yyyy')}/${month.toFormat('MM')}/${currency}.json`)
 
     const result = await fetch(`/currencies/${month.toFormat('yyyy')}/${month.toFormat('MM')}/${currency}.json`)
 
-    console.log('Load result', result)
+    // console.log('Load result', result)
 
-    if (!result.ok || result.headers.get('Content-Type') !== 'application/json') {
-        console.log('contenttype', result.headers.get('Content-Type'))
-        // if (!result.ok) {
+    if (!result.ok || result.headers.get('Content-Type')?.startsWith('application/json') !== true) {
+        // console.log('contenttype', result.headers.get('Content-Type'))
         console.warn(`Can not load rates (${month.toFormat('yyyy-MM')}, ${currency}): ${result.status} ${result.statusText} Content-Type: ${result.headers.get('Content-Type')}`)
         return
     }
