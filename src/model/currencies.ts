@@ -114,6 +114,8 @@ async function loadRates (month: DateTime, currency: string): Promise<CurrencyRa
     console.log('Load result', result)
 
     if (!result.ok || result.headers.get('Content-Type') !== 'application/json') {
+        console.log('contenttype', result.headers.get('Content-Type'))
+        // if (!result.ok) {
         console.warn(`Can not load rates (${month.toFormat('yyyy-MM')}, ${currency}): ${result.status} ${result.statusText} Content-Type: ${result.headers.get('Content-Type')}`)
         return
     }
