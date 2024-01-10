@@ -37,6 +37,8 @@
         "build": "vite build",
         "preview": "vite preview",
         "load-currencies": "tsx ./utils/load-currencies.ts",
+        "load-currencies2": "tsx ./utils/load-currencies2.ts",
+        "load-currencies3": "tsx ./utils/load-currencies3.ts",
         "test": "jest",
         "test-coverage": "jest --coverage"
     },
@@ -121,6 +123,7 @@
         "eslint-plugin-react": "^7.32.2",
         "eslint-plugin-simple-import-sort": "^10.0.0",
         "jest": "^29.6.1",
+        "lodash": "^4.17.21",
         "regenerator-runtime": "^0.14.0",
         "sass": "^1.62.1",
         "ts-jest": "^29.1.1",
