@@ -148,7 +148,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
                     total: stats.total[0]
                 })
             })
-        }, [operationsModel.operations, catName]
+        }, [operationsModel.operations, catName, appState.timeSpanInfo]
     )
 
     if (

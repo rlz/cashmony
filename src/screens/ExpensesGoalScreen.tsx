@@ -116,7 +116,7 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
 
             setTotal(stats.total[0])
         })
-    }, [newGoal, operationsModel.operations])
+    }, [newGoal, operationsModel.operations, appState.timeSpanInfo])
 
     const statsFilter = useMemo(() => newGoal !== null ? PE.filter(newGoal.filter) : null, [newGoal])
 
