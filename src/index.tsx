@@ -8,11 +8,12 @@ import ReactDOM from 'react-dom/client'
 import { match } from 'ts-pattern'
 
 import { App } from './App'
+import { nonNull } from './helpers/smallTools'
 import { AppState } from './model/appState'
 import reportWebVitals from './reportWebVitals'
 
 const root = ReactDOM.createRoot(
-    document.getElementById('root') as HTMLElement
+    nonNull(document.getElementById('root'), 'Root element not found')
 )
 
 const darkTheme = createTheme({
