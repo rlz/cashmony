@@ -206,7 +206,7 @@ export function perPredicateTodaySumExpenses (predicates: Record<string, Predica
 
             for (const [key, filterWithCurrency] of Object.entries(filters)) {
                 if (!filterWithCurrency.filter(op)) {
-                    return
+                    continue
                 }
 
                 const rate = await currenciesModel.getRate(op.date, op.currency, filterWithCurrency.currency)
