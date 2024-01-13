@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { match, P } from 'ts-pattern'
 
 import { type Filter } from './filter'
@@ -89,7 +90,8 @@ export function compilePredicate (predicate: Predicate): (op: NotDeletedOperatio
             return op => (op.type === 'expense' || op.type === 'income') && op.categories.some(i => i.name === p.name)
         })
         .with({ type: 'comment' }, p => {
-            return op => op.comment?.includes(p.search) === true
+            const re = new RegExp(_.escapeRegExp(p.search), 'i')
+            return op => re.test(op.comment ?? '')
         })
         .with({ type: 'uncategorized' }, p => {
             return op => (op.type === 'expense' || op.type === 'income') && op.categories.length === 0
