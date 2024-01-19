@@ -23,7 +23,7 @@
         "react-calendar": "^4.2.1",
         "react-dom": "^18.2.0",
         "react-resizable-panels": "^1.0.8",
-        "react-resize-detector": "^9.1.0",
+        "react-resize-detector": "^10.0.1",
         "react-router-dom": "^6.11.1",
         "ts-pattern": "^5.0.1",
         "uplot": "^1.6.24",

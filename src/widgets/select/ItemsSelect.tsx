@@ -1,7 +1,7 @@
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Chip, FilledInput, FormControl, IconButton, InputAdornment, InputLabel, type SxProps } from '@mui/material'
-import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react'
+import useEmblaCarousel from 'embla-carousel-react'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import React, { type ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
@@ -26,7 +26,7 @@ const aStyle = { fontSize: '0' }
 
 export function ItemsSelect (props: Props): ReactElement {
     const { height, ref } = useResizeDetector()
-    const [carouselRef, carouselApi] = useEmblaCarousel({}, [WheelGesturesPlugin() as any] /* (d.maslennikov) it works but types are wrong */)
+    const [carouselRef, carouselApi] = useEmblaCarousel({}, [WheelGesturesPlugin()])
 
     const selected = new Set(props.selected)
     const pageHeight = (24 + 8) * 4
@@ -36,7 +36,7 @@ export function ItemsSelect (props: Props): ReactElement {
 
     const [filter, setFilter] = useState<string | null>(null)
 
-    const onSelect = useCallback((api: EmblaCarouselType) => {
+    const onSelect = useCallback((api: Exclude<typeof carouselApi, undefined>) => {
         setPage(api.selectedScrollSnap())
     }, [pages])
 
