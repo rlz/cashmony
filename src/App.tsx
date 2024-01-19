@@ -10,16 +10,12 @@ import { CurrenciesModel } from './model/currencies'
 import { GoalsModel } from './model/goals'
 import { OperationsModel } from './model/operations'
 import { AccountScreen } from './screens/AccountScreen'
-import { AccountsScreen } from './screens/AccountsScreen'
 import { AuthScreen } from './screens/AuthScreen'
-import { CategoriesScreen } from './screens/CategoriesScreen'
 import { CategoryScreen } from './screens/CategoryScreen'
 import { ExpensesGoalScreen } from './screens/ExpensesGoalScreen'
-import { ExpensesGoalsScreen } from './screens/ExpensesGoalsScreen'
 import { GoogleSyncScreen } from './screens/GoogleSyncScreen'
 import { LoadingScreen } from './screens/LoadingScreen'
 import { OperationScreen } from './screens/OperationScreen'
-import { OperationsScreen } from './screens/OperationsScreen'
 import { DivBody2 } from './widgets/generic/Typography'
 
 declare global {
@@ -33,19 +29,19 @@ const router = createBrowserRouter([
     },
     {
         path: '/operations',
-        element: <OperationsScreen />
+        element: <OperationScreen />
     },
     {
         path: '/categories',
-        element: <CategoriesScreen />
+        element: <CategoryScreen />
     },
     {
         path: '/accounts',
-        element: <AccountsScreen />
+        element: <AccountScreen />
     },
     {
         path: '/goals',
-        element: <ExpensesGoalsScreen />
+        element: <ExpensesGoalScreen />
     },
     {
         path: '/google-sync',
@@ -109,7 +105,7 @@ const router = createBrowserRouter([
     }
 ])
 
-window.routerNavigate = router.navigate
+window.routerNavigate = router.navigate.bind(router)
 
 export const App = observer(function App (): ReactElement {
     const [update, setUpdate] = useState(false)

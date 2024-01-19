@@ -1,8 +1,10 @@
-import { Box, Button, Tab, Tabs, Typography } from '@mui/material'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Box, Button, Fab, Tab, Tabs, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
 
 import { formatCurrency } from '../helpers/currencies'
@@ -15,43 +17,126 @@ import { OperationsModel } from '../model/operations'
 import { EXPENSE_PREDICATE, PE } from '../model/predicateExpression'
 import { calcStats } from '../model/stats'
 import { periodExpensesReducer } from '../model/statsReducers'
+import { AddExpensesGoalModal } from '../widgets/expenses/editors/AddExpensesGoalModal'
 import { ExpensesGoalEditor } from '../widgets/expenses/editors/ExpensesGoalEditor'
+import { ExpensesCardSkeleton } from '../widgets/expenses/ExpensesCard'
 import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
+import { ExpensesList } from '../widgets/expenses/ExpensesList'
 import { ExpensesStatsWidget } from '../widgets/expenses/ExpensesStatsWidget'
 import { FullScreenModal } from '../widgets/FullScreenModal'
 import { Column } from '../widgets/generic/Containers'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
-import { ExpensesGoalsScreenBody } from './ExpensesGoalsScreen'
 import { OperationScreenBody } from './OperationScreen'
 
 export function ExpensesGoalScreen (): ReactElement {
     const appState = AppState.instance()
+    const params = useParams()
     const smallScreen = screenWidthIs('xs', 'sm')
     const navigate = useNavigate()
 
     useEffect(() => {
+        if (params.goalName === undefined) return
+
         appState.setOnClose(() => {
             navigate('/goals')
         })
-    }, [])
+    }, [params.goalName])
 
     return <MainScreen>
         {
             smallScreen
-                ? <ExpensesGoalScreenBody/>
+                ? <>
+                    <ExpensesGoalsScreenBody hide={params.goalName !== undefined}/>
+                    {
+                        showIfLazy(params.goalName !== undefined, () => {
+                            return <ExpensesGoalScreenBody/>
+                        })
+                    }
+                </>
                 : <PanelGroup direction={'horizontal'}>
                     <Panel>
-                        <ExpensesGoalsScreenBody noFab />
+                        <ExpensesGoalsScreenBody noFab={params.goalName !== undefined} />
                     </Panel>
-                    <ResizeHandle />
-                    <Panel>
-                        <ExpensesGoalScreenBody/>
-                    </Panel>
+                    {
+                        showIfLazy(params.goalName !== undefined, () => {
+                            return <>
+                                <ResizeHandle />
+                                <Panel>
+                                    <ExpensesGoalScreenBody/>
+                                </Panel>
+                            </>
+                        })
+                    }
                 </PanelGroup>
         }
     </MainScreen>
+}
+
+interface ExpensesGoalsScreenBodyProps {
+    noFab?: boolean
+    hide?: boolean
+}
+
+export const ExpensesGoalsScreenBody = observer(({ noFab, hide }: ExpensesGoalsScreenBodyProps): ReactElement => {
+    const appState = AppState.instance()
+    const goalsModel = GoalsModel.instance()
+
+    const [add, setAdd] = useState(false)
+    const location = useLocation()
+
+    useEffect(() => {
+        if (location.pathname === '/goals') {
+            appState.setSubTitle('Goals')
+        }
+    }, [location.pathname])
+
+    const goals = useMemo(
+        () => {
+            return goalsModel.goals?.filter(i => i.deleted !== true) ?? []
+        },
+        [goalsModel.goals]
+    )
+
+    if (goalsModel.goals === null) {
+        return <EspensesGoalsScreenBodySkeleton />
+    }
+
+    return <>
+        {
+            add
+                ? <AddExpensesGoalModal
+                    onClose={() => { setAdd(false) }}
+                />
+                : undefined
+        }
+        {
+            add || noFab === true
+                ? undefined
+                : <Fab
+                    color={'primary'}
+                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                    onClick={() => { setAdd(true) }}
+                >
+                    <FontAwesomeIcon icon={faPlus} />
+                </Fab>
+        }
+        <Box p={1} height={'100%'} overflow={'auto'} display={hide === true ? 'none' : 'block'}>
+            <Box maxWidth={900} mx={'auto'}>
+                <ExpensesList goals={goals}/>
+                <Box minHeight={144}/>
+            </Box>
+        </Box>
+    </>
+})
+
+function EspensesGoalsScreenBodySkeleton (): ReactElement {
+    return <Column gap={1} p={1}>
+        <ExpensesCardSkeleton />
+        <ExpensesCardSkeleton />
+        <ExpensesCardSkeleton />
+    </Column>
 }
 
 export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (): ReactElement {

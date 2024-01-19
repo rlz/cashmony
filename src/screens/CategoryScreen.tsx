@@ -1,9 +1,13 @@
-import { Box, Tab, Tabs, Typography } from '@mui/material'
+import './CategoryScreen.scss'
+
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Box, Button, Fab, Tab, Tabs, Typography, useTheme } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
 
 import { formatCurrency } from '../helpers/currencies'
@@ -14,42 +18,70 @@ import { CategoriesModel } from '../model/categories'
 import { type Category } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { EXPENSE_PREDICATE, PE, type Predicate } from '../model/predicateExpression'
-import { calcStats } from '../model/stats'
+import { calcStats, hasOperation } from '../model/stats'
 import { periodExpensesReducer } from '../model/statsReducers'
+import { AddCategory } from '../widgets/expenses/editors/AddCategory'
 import { CategoryEditor } from '../widgets/expenses/editors/CategoryEditor'
 import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
+import { ExpensesList } from '../widgets/expenses/ExpensesList'
 import { ExpensesStatsWidget } from '../widgets/expenses/ExpensesStatsWidget'
 import { FullScreenModal } from '../widgets/FullScreenModal'
 import { Column } from '../widgets/generic/Containers'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
+import { DivBody2 } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
-import { CategoriesScreenBody } from './CategoriesScreen'
 import { OperationScreenBody } from './OperationScreen'
 
 export function CategoryScreen (): ReactElement {
     const appState = AppState.instance()
-    const navigate = useNavigate()
     const smallScreen = screenWidthIs('xs', 'sm')
+    const location = useLocation()
+    const theme = useTheme()
+    const noCatSelected = location.pathname === '/categories'
 
     useEffect(() => {
-        appState.setOnClose(() => {
-            navigate('/categories')
-        })
-    }, [])
+        if (noCatSelected) {
+            appState.setSubTitle('Categories')
+        }
+    }, [noCatSelected])
 
     return <MainScreen>
         {
             smallScreen
-                ? <CategoryScreenBody />
+                ? <Box height={'100%'} position={'relative'}>
+                    <Box height={'100%'}>
+                        <CategoriesScreenBody />
+                    </Box>
+                    {
+                        showIfLazy(!noCatSelected, () => {
+                            return <Box
+                                position={'absolute'}
+                                top={0}
+                                left={0}
+                                height={'100%'}
+                                width={'100%'}
+                                bgcolor={theme.palette.background.default}
+                            >
+                                <CategoryScreenBody />
+                            </Box>
+                        })
+                    }
+                </Box>
                 : <PanelGroup direction={'horizontal'}>
                     <Panel>
-                        <CategoriesScreenBody noFab/>
+                        <CategoriesScreenBody noFab={!noCatSelected}/>
                     </Panel>
-                    <ResizeHandle />
-                    <Panel>
-                        <CategoryScreenBody />
-                    </Panel>
+                    {
+                        showIfLazy(!noCatSelected, () => {
+                            return <>
+                                <ResizeHandle />
+                                <Panel>
+                                    <CategoryScreenBody />
+                                </Panel>
+                            </>
+                        })
+                    }
                 </PanelGroup>
         }
     </MainScreen>
@@ -78,6 +110,12 @@ export const CategoryScreenBody = observer((): ReactElement => {
     const [stats, setStats] = useState<{ total: number } | null>(null)
 
     const currency = cat?.currency ?? appState.masterCurrency
+
+    useEffect(() => {
+        appState.setOnClose(() => {
+            navigate('/categories')
+        })
+    }, [])
 
     useEffect(() => {
         if (
@@ -229,3 +267,160 @@ export const CategoryScreenBody = observer((): ReactElement => {
     </>
 })
 CategoryScreenBody.displayName = 'CategoryScreenBody'
+
+interface CategoriesScreenBodyProps {
+    noFab?: boolean
+}
+
+const DEFAULT_CATEGORIES: Category[] = [
+    'Food & Drinks',
+    'Shopping',
+    'Housing',
+    'Transportation',
+    'Entertainment',
+    'Electronics',
+    'Financial',
+    'Investment',
+    'Education',
+    'Health',
+    'Travel'
+].map(i => { return { name: i, lastModified: DateTime.utc() } })
+
+export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyProps): ReactElement => {
+    const appState = AppState.instance()
+    const operationsModel = OperationsModel.instance()
+    const categoriesModel = CategoriesModel.instance()
+
+    const [addCategory, setAddCategory] = useState(false)
+    const [hasUncat, setHasUncat] = useState(false)
+
+    useEffect(
+        () => {
+            runAsync(async () => {
+                if (operationsModel.operations === null) {
+                    return
+                }
+
+                setHasUncat(
+                    hasOperation(PE.and(PE.type('expense'), PE.uncat()), appState.timeSpan)
+                )
+            })
+        },
+        [
+            appState.timeSpanInfo,
+            operationsModel.operations
+        ]
+    )
+
+    const cats = useMemo(
+        () => {
+            const cats: Category[] = [
+                {
+                    name: '_total',
+                    lastModified: DateTime.utc(),
+                    perDayAmount: appState.totalGoalAmount ?? undefined,
+                    currency: appState.totalGoalAmount === null ? undefined : appState.totalGoalCurrency
+                },
+                ...categoriesModel
+                    .categoriesSorted
+                    .map(c => categoriesModel.get(c))
+                    .filter(c => c.deleted !== true)
+            ]
+
+            if (hasUncat) {
+                cats.push({
+                    name: '_',
+                    lastModified: DateTime.utc(),
+                    perDayAmount: appState.uncategorizedGoalAmount ?? undefined,
+                    currency: appState.uncategorizedGoalAmount === null ? undefined : appState.uncategorizedGoalCurrency
+                })
+            }
+
+            return cats
+        },
+        [
+            appState.totalGoalAmount,
+            appState.totalGoalCurrency,
+            appState.uncategorizedGoalAmount,
+            appState.uncategorizedGoalCurrency,
+            categoriesModel.categories
+        ]
+    )
+
+    if (categoriesModel.categories?.size === 0) {
+        return <>
+            {
+                addCategory
+                    ? <AddCategory
+                        onClose={() => { setAddCategory(false) }}
+                    />
+                    : undefined
+            }
+            {
+                addCategory || noFab === true
+                    ? null
+                    : <Fab
+                        color={'primary'}
+                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                        onClick={() => { setAddCategory(true) }}
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                    </Fab>
+            }
+            <Column textAlign={'center'} alignItems={'center'} mt={3}>
+                <Box>
+                    {'Before start tracking your finances you need to create a category'}<br/>
+                    {'You will mark all your expenses as related to one or another category'}<br/>
+                    {'You can create as many categories as you need'}
+                </Box>
+                <Typography my={2} fontSize={'1.5rem'}>
+                    {'or'}
+                </Typography>
+                <Box>
+                    {'Create start with predefined set of categories'}
+                </Box>
+                <DivBody2 mb={1}>
+                    {'(you can always change it later)'}
+                </DivBody2>
+                <Button
+                    variant={'contained'}
+                    onClick={() => {
+                        runAsync(async () => {
+                            await Promise.all(DEFAULT_CATEGORIES.map(async c => { await categoriesModel.put(c) }))
+                        })
+                    }}
+                >
+                    {'Predefined categories'}
+                </Button>
+            </Column>
+        </>
+    }
+
+    return <>
+        {
+            addCategory
+                ? <AddCategory
+                    onClose={() => { setAddCategory(false) }}
+                />
+                : undefined
+        }
+        {
+            addCategory || noFab === true
+                ? null
+                : <Fab
+                    color={'primary'}
+                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                    onClick={() => { setAddCategory(true) }}
+                >
+                    <FontAwesomeIcon icon={faPlus} />
+                </Fab>
+        }
+        <Box p={1} height={'100%'} overflow={'auto'}>
+            <Box maxWidth={900} mx={'auto'}>
+                <ExpensesList categories={cats}/>
+                <Box minHeight={144}/>
+            </Box>
+        </Box>
+    </>
+})
+CategoriesScreenBody.displayName = 'CategoriesScreenBody'

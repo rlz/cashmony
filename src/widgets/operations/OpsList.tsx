@@ -1,6 +1,6 @@
 import { faCreditCard, faHandHoldingDollar, faMoneyBillTransfer } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Backdrop, Box, Portal, Skeleton, SpeedDial, SpeedDialAction, SpeedDialIcon, type SxProps, Typography } from '@mui/material'
+import { Backdrop, Box, Portal, Skeleton, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -28,7 +28,6 @@ interface Props {
     noFab?: boolean
     predicate?: Predicate
     operations?: NotDeletedOperation[][]
-    sx?: SxProps
 }
 
 export const OpsList = observer((props: Props): ReactElement => {
@@ -67,7 +66,7 @@ export const OpsList = observer((props: Props): ReactElement => {
     )
 
     if (displayOps === null) {
-        return <Box sx={props.sx}>
+        return <Box height={'100%'} overflow={'hidden'}>
             <DivBody2 pt={2}>
                 <Skeleton width={80} sx={{ maxWidth: '100%' }}/>
             </DivBody2>
@@ -79,7 +78,7 @@ export const OpsList = observer((props: Props): ReactElement => {
         </Box>
     }
 
-    return <Box sx={props.sx}>
+    return <Box height={'100%'} overflow={'auto'}>
         {displayOps.slice(0, displayDays).map(group =>
             <Box key={group[0].date.toISODate()}>
                 <DivBody2 pt={2}>

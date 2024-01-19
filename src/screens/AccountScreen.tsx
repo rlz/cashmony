@@ -1,33 +1,36 @@
-import { faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Box, Button, FormControlLabel, Skeleton, Switch, Tab, Tabs, TextField, Typography } from '@mui/material'
+import { Box, Button, Fab, FormControlLabel, Paper, Skeleton, Switch, Tab, Tabs, TextField, Typography, useTheme } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
 import { v1 as uuid } from 'uuid'
 
 import { formatCurrency } from '../helpers/currencies'
 import { deepEqual } from '../helpers/deepEqual'
-import { nonNull, run, showIfLazy } from '../helpers/smallTools'
+import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
 import { screenWidthIs } from '../helpers/useWidth'
 import { AccountsModel } from '../model/accounts'
 import { AppState } from '../model/appState'
+import { CurrenciesModel } from '../model/currencies'
 import { type Account, type Operation } from '../model/model'
 import { OperationsModel } from '../model/operations'
 import { PE } from '../model/predicateExpression'
+import { initGoogleSync } from '../model/sync'
 import { AccPlot } from '../widgets/AccountPlots'
+import { AddAccount } from '../widgets/AddAccount'
 import { CurrencyInput } from '../widgets/CurrencyInput'
 import { DeleteAccount } from '../widgets/DeleteAccount'
 import { FullScreenModal } from '../widgets/FullScreenModal'
 import { ActionButton, ActionFab } from '../widgets/generic/ActionButton'
 import { Column } from '../widgets/generic/Containers'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
+import { DivBody1 } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
-import { AccountsScreenBody } from './AccountsScreen'
 import { OperationScreenBody } from './OperationScreen'
 
 const appState = AppState.instance()
@@ -35,28 +38,56 @@ const accountsModel = AccountsModel.instance()
 const operationsModel = OperationsModel.instance()
 
 export function AccountScreen (): ReactElement {
-    const navigate = useNavigate()
+    const appState = AppState.instance()
     const smallScreen = screenWidthIs('xs', 'sm')
+    const location = useLocation()
+    const theme = useTheme()
+    const accSelected = location.pathname !== '/accounts'
 
     useEffect(() => {
-        appState.setOnClose(() => {
-            navigate('/accounts')
-        })
-    }, [])
+        if (!accSelected) {
+            appState.setSubTitle('Accounts')
+        }
+    }, [accSelected])
 
     return <MainScreen>
         {
             !smallScreen
                 ? <PanelGroup direction={'horizontal'}>
                     <Panel>
-                        <AccountsScreenBody noFab/>
+                        <AccountsScreenBody noFab={accSelected}/>
                     </Panel>
-                    <ResizeHandle />
-                    <Panel>
-                        <AccountScreenBody />
-                    </Panel>
+                    {
+                        showIfLazy(accSelected, () => {
+                            return <>
+                                <ResizeHandle />
+                                <Panel>
+                                    <AccountScreenBody />
+                                </Panel>
+                            </>
+                        })
+                    }
                 </PanelGroup>
-                : <AccountScreenBody />
+                : <Box height={'100%'} position={'relative'}>
+                    <Box height={'100%'}>
+                        <AccountsScreenBody />
+                    </Box>
+                    {
+                        showIfLazy(accSelected, () => {
+                            return <Box
+                                position={'absolute'}
+                                top={0}
+                                left={0}
+                                height={'100%'}
+                                width={'100%'}
+                                bgcolor={theme.palette.background.default}
+                            >
+                                <AccountScreenBody />
+                            </Box>
+                        })
+                    }
+                </Box>
+
         }
     </MainScreen>
 }
@@ -78,6 +109,12 @@ export const AccountScreenBody = observer(() => {
     const navigate = useNavigate()
 
     const [opModalTitle, setOpModalTitle] = useState('')
+
+    useEffect(() => {
+        appState.setOnClose(() => {
+            navigate('/accounts')
+        })
+    }, [])
 
     useEffect(() => {
         if (accountsModel.accounts === null) {
@@ -356,4 +393,215 @@ function Editor ({ acc, setAcc }: EditorProps): ReactElement {
         </Button>
         <DeleteAccount name={acc.name} open={delOpen} setOpen={setDelOpen} />
     </Box>
+}
+
+interface AccountsScreenBodyProps {
+    noFab?: boolean
+}
+
+export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps): ReactElement => {
+    const [addAccount, setAddAccount] = useState(false)
+    const [showHidden, setShowHidden] = useState(false)
+    const [total, setTotal] = useState<number | null>(null)
+
+    const appState = AppState.instance()
+    const currenciesModel = CurrenciesModel.instance()
+    const accountsModel = AccountsModel.instance()
+
+    useEffect(() => {
+        runAsync(async () => {
+            if (accountsModel.amounts === null) {
+                return
+            }
+
+            const lastDate = (() => {
+                const dt = appState.timeSpan.endDate
+                return dt > appState.today ? appState.today : dt
+            })()
+            const amounts = accountsModel.getAmounts(lastDate)
+
+            const results = [...Object.entries(amounts)].map(async ([accName, amount]) => {
+                const rate = await currenciesModel.getRate(
+                    lastDate,
+                    accountsModel.get(accName).currency,
+                    appState.masterCurrency
+                )
+
+                return amount * rate
+            })
+
+            setTotal((await Promise.all(results)).reduce((partialSum, a) => partialSum + a, 0))
+        })
+    }, [appState.masterCurrency, accountsModel.amounts])
+
+    if (accountsModel.accounts?.size === 0) {
+        return <>
+            {
+                addAccount
+                    ? <AddAccount
+                        onClose={() => { setAddAccount(false) }}
+                    />
+                    : undefined
+            }
+            {
+                addAccount || noFab === true
+                    ? undefined
+                    : <Fab
+                        color={'primary'}
+                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                        onClick={() => { setAddAccount(true) }}
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                    </Fab>
+            }
+            <Column textAlign={'center'} mt={3}>
+                {'Before start tracking your finances you need to create an account'}<br/>
+                {'Account is your bank account or cash'}<br/>
+                {'You can create as many accounts as you need'}
+                <Box my={2}>{'OR'}</Box>
+                {'If you have sync your data with Google before'}
+                <Box my={1}>
+                    <Button variant={'contained'} onClick={() => { void initGoogleSync() }}>
+                        {'Import data from Google'}
+                    </Button>
+                </Box>
+            </Column>
+        </>
+    }
+
+    if (
+        accountsModel.accountsSorted === null ||
+        total === null
+    ) return <AccountsScreenSkeleton />
+
+    const totalAmounts = [...appState.timeSpan.allDates({ includeDayBefore: true })].map(d => accountsModel.getAmounts(d))
+
+    const visibleAccounts: Account[] = []
+    const hiddenAccounts: Account[] = []
+
+    for (const a of accountsModel.accountsSorted.map(i => accountsModel.get(i))) {
+        if (a.deleted === true) {
+            continue
+        }
+
+        (a.hidden ? hiddenAccounts : visibleAccounts).push(a)
+    }
+
+    return <>
+        {
+            addAccount
+                ? <AddAccount
+                    onClose={() => { setAddAccount(false) }}
+                />
+                : undefined
+        }
+        {
+            addAccount || noFab === true
+                ? undefined
+                : <Fab
+                    color={'primary'}
+                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                    onClick={() => { setAddAccount(true) }}
+                >
+                    <FontAwesomeIcon icon={faPlus} />
+                </Fab>
+        }
+        <Box p={1} height={'100%'} overflow={'auto'}>
+            <Box maxWidth={900} mx={'auto'}>
+                <Typography component={'div'} variant={'h6'} textAlign={'center'} my={1}>
+                    {'Total'}
+                    <Typography variant={'body1'} color={'primary.main'}>
+                        {formatCurrency(total, appState.masterCurrency)}
+                    </Typography>
+                </Typography>
+                <Box
+                    display={'flex'}
+                    flexDirection={'column'}
+                    gap={1}
+                >
+                    {
+                        visibleAccounts.map(account => <AccountCard
+                            key={account.name}
+                            account={account}
+                            totalAmount={totalAmounts.map(a => a[account.name] ?? 0)}
+                        />)
+                    }
+                    { hiddenAccounts.length > 0
+                        ? (showHidden
+                            ? hiddenAccounts.map(account => <AccountCard
+                                key={account.name}
+                                account={account}
+                                totalAmount={totalAmounts.map(a => a[account.name] ?? 0)}
+                            />)
+                            : <Typography color={'primary.main'} textAlign={'center'}>
+                                <a onClick={() => { setShowHidden(true) }}>{'Show '}{hiddenAccounts.length}{' hidden'}</a>
+                            </Typography>)
+                        : null
+                    }
+                </Box>
+                <Box minHeight={144}/>
+            </Box>
+        </Box>
+    </>
+})
+
+function AccountsScreenSkeleton (): ReactElement {
+    return <Column width={'100%'} p={1}>
+        <Typography component={'div'} variant={'h6'} textAlign={'center'} my={1}>
+            <Skeleton sx={{ maxWidth: 85, mx: 'auto' }}/>
+            <Typography variant={'body1'} color={'primary.main'}>
+                <Skeleton sx={{ maxWidth: 65, mx: 'auto' }}/>
+            </Typography>
+        </Typography>
+        <Box
+            display={'flex'}
+            flexDirection={'column'}
+            gap={1}
+            width={'100%'}
+        >
+            {[1, 1, 1].map((_, i) => <AccountCardSkeleton key={i}/>)}
+        </Box>
+    </Column>
+}
+
+interface AccountPanelProps {
+    account: Account
+    totalAmount: number[]
+}
+
+function AccountCard ({ account, totalAmount }: AccountPanelProps): ReactElement {
+    const navigate = useNavigate()
+
+    return <a onClick={() => { navigate(`/accounts/${encodeURIComponent(account.name)}`) }}>
+        <Paper
+            sx={{ p: 1 }}
+        >
+            <Box display={'flex'} mb={1}>
+                <DivBody1>{account.name}</DivBody1>
+                <DivBody1 flex={'1 1 0'} textAlign={'right'} color={'primary.main'}>
+                    {
+                        formatCurrency(totalAmount[totalAmount.length - 1], account.currency)
+                    }
+                </DivBody1>
+            </Box>
+            <AccPlot
+                sparkline
+                account={account}
+                perDayAmount={totalAmount.map((a, i, arr) => i === 0 ? 0 : a - arr[i - 1])}
+                totalAmount={totalAmount}
+            />
+        </Paper>
+    </a>
+}
+
+function AccountCardSkeleton (): ReactElement {
+    return <Paper sx={{ p: 1, maxWidth: 900, mx: 'auto', width: '100%' }}>
+        <Box display={'flex'} mb={1}>
+            <DivBody1 flex={'1 1 0'}><Skeleton sx={{ maxWidth: 85 }}/></DivBody1>
+            <DivBody1 textAlign={'right'} color={'primary.main'}>
+                <Skeleton sx={{ minWidth: 55 }} />
+            </DivBody1>
+        </Box>
+        <Skeleton variant={'rectangular'} height={50}/>
+    </Paper>
 }

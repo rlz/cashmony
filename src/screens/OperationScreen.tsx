@@ -12,7 +12,7 @@ import { v1 as uuid } from 'uuid'
 import { formatCurrency } from '../helpers/currencies'
 import { utcToday } from '../helpers/dates'
 import { deepEqual } from '../helpers/deepEqual'
-import { nonNull, run, runAsync } from '../helpers/smallTools'
+import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
 import { screenWidthIs } from '../helpers/useWidth'
 import { AccountsModel } from '../model/accounts'
 import { AppState } from '../model/appState'
@@ -31,8 +31,6 @@ import { DateEditor } from '../widgets/operations/editors/DateEditor'
 import { TagsEditor } from '../widgets/operations/editors/TagsEditor'
 import { OpsList } from '../widgets/operations/OpsList'
 
-const OPS_LIST_SX = { p: 1, overflow: 'auto', height: '100%' }
-
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
@@ -43,12 +41,7 @@ export function OperationScreen (): ReactElement {
     const navigate = useNavigate()
     const pathParams = useParams()
     const smallScreen = screenWidthIs('xs', 'sm')
-
-    useEffect(() => {
-        appState.setOnClose(() => {
-            navigate('/operations')
-        })
-    }, [])
+    const theme = useTheme()
 
     const opId = match(location.pathname)
         .with('/new-op/expense', () => 'new-expense')
@@ -56,27 +49,58 @@ export function OperationScreen (): ReactElement {
         .with('/new-op/transfer', () => 'new-transfer')
         .otherwise(() => pathParams.opId ?? '')
 
-    const body = <OperationScreenBody urlOpId={opId}/>
+    useEffect(() => {
+        if (opId === '') {
+            appState.setSubTitle('Operations')
+            return
+        }
+
+        appState.setOnClose(() => {
+            navigate('/operations')
+        })
+    }, [opId])
 
     return <MainScreen>
         {
             !smallScreen
                 ? <PanelGroup direction={'horizontal'}>
                     <Panel>
-                        <OpsList
-                            sx={OPS_LIST_SX} /* no re-render here */
-                            noFab
-                        />
-                    </Panel>
-                    <ResizeHandle/>
-                    <Panel>
-                        <Box p={1} overflow={'auto'} height={'100%'}>
-                            {body}
+                        <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
+                            <OpsList
+                                noFab={opId !== ''}
+                            />
                         </Box>
                     </Panel>
+                    {
+                        showIfLazy(opId !== '', () => <>
+                            <ResizeHandle/>
+                            <Panel>
+                                <Box p={1} overflow={'auto'} height={'100%'}>
+                                    <OperationScreenBody urlOpId={opId}/>
+                                </Box>
+                            </Panel>
+                        </>)
+                    }
+
                 </PanelGroup>
-                : <Box p={1}>
-                    {body}
+                : <Box position={'relative'} height={'100%'}>
+                    <Box p={1} height={'100%'}>
+                        <OpsList />
+                    </Box>
+                    {
+                        showIfLazy(opId !== '', () => {
+                            return <Box
+                                p={1}
+                                position={'absolute'}
+                                top={0}
+                                left={0}
+                                height={'100%'}
+                                bgcolor={theme.palette.background.default}
+                            >
+                                <OperationScreenBody urlOpId={opId}/>
+                            </Box>
+                        })
+                    }
                 </Box>
         }
     </MainScreen>
@@ -160,7 +184,7 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ urlO
     useEffect(() => {
         clearOpState()
 
-        const setTitle = setModalTitle !== undefined ? setModalTitle : appState.setSubTitle
+        const setTitle = setModalTitle ?? appState.setSubTitle
 
         if (urlOpId.startsWith('new-')) {
             setOpId(uuid())
@@ -633,6 +657,7 @@ const BasicInfo = observer(({ opType, opDate, opAmount, opCurrency, opCategories
                 ? <Typography variant={'body2'}>
                     {'To acc.: '}{opToAccount?.name ?? '-'}
                     {
+                        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
                         opToAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
                             ? null
                             : ` (${formatCurrency(opToAccount.amount, toAccountCurrency)})`
