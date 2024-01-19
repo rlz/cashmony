@@ -6,8 +6,8 @@ import z from 'zod'
 import makeUrl from '../src/google/makeUrl'
 import { CURRENCIES } from '../src/helpers/currenciesList'
 
-const YEAR = 2023
-const MONTH = 12
+const YEAR = 2024
+const MONTH = 1
 
 const currencies = Object.keys(CURRENCIES).filter(i => i !== 'USD')
 const startDate = DateTime.utc(YEAR, MONTH, 1)
@@ -41,7 +41,7 @@ async function loadData (currencies: string[]): Promise<RespType['widget']> {
         start_date: startDate.toFormat('yyyy-L-d'),
         end_date: endDate.toFormat('yyyy-L-d'),
         period: 'daily',
-        price: 'bid',
+        price: 'mid',
         view: 'graph',
         ...curs
     })
