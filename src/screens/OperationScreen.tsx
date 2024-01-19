@@ -85,7 +85,7 @@ export function OperationScreen (): ReactElement {
                 </PanelGroup>
                 : <Box position={'relative'} height={'100%'}>
                     <Box p={1} height={'100%'}>
-                        <OpsList />
+                        <OpsList noFab={opId !== ''}/>
                     </Box>
                     {
                         showIfLazy(opId !== '', () => {

@@ -51,7 +51,7 @@ export function CategoryScreen (): ReactElement {
             smallScreen
                 ? <Box height={'100%'} position={'relative'}>
                     <Box height={'100%'}>
-                        <CategoriesScreenBody />
+                        <CategoriesScreenBody noFab={!noCatSelected}/>
                     </Box>
                     {
                         showIfLazy(!noCatSelected, () => {

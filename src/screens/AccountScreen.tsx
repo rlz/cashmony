@@ -70,7 +70,7 @@ export function AccountScreen (): ReactElement {
                 </PanelGroup>
                 : <Box height={'100%'} position={'relative'}>
                     <Box height={'100%'}>
-                        <AccountsScreenBody />
+                        <AccountsScreenBody noFab={accSelected} />
                     </Box>
                     {
                         showIfLazy(accSelected, () => {

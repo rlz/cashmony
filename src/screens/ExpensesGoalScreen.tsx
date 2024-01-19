@@ -48,7 +48,10 @@ export function ExpensesGoalScreen (): ReactElement {
         {
             smallScreen
                 ? <>
-                    <ExpensesGoalsScreenBody hide={params.goalName !== undefined}/>
+                    <ExpensesGoalsScreenBody
+                        noFab={params.goalName !== undefined}
+                        hide={params.goalName !== undefined}
+                    />
                     {
                         showIfLazy(params.goalName !== undefined, () => {
                             return <ExpensesGoalScreenBody/>

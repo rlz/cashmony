@@ -89,7 +89,7 @@ export function ActionFab (props: PropsWithChildren<ActionFabProps>): ReactEleme
     return <Fab
         color={'primary'}
         disabled={props.action === null || inProgress}
-        sx={{ position: 'absolute', bottom: props.bottom ?? '70px', right: '20px' }}
+        sx={{ position: 'fixed', bottom: props.bottom ?? '70px', right: '20px' }}
         onClick={() => {
             setInProgress(true)
             runAsync(async () => {
