@@ -310,6 +310,7 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ urlO
                 clearOpDiff()
 
                 if (urlOpId.startsWith('new-')) {
+                    appState.setOnClose(null)
                     if (smallScreen) {
                         navigate('/operations')
                     } else {
