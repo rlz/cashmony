@@ -22,7 +22,7 @@
         "react": "^18.2.0",
         "react-calendar": "^4.2.1",
         "react-dom": "^18.2.0",
-        "react-resizable-panels": "^1.0.8",
+        "react-resizable-panels": "^2.0.2",
         "react-resize-detector": "^10.0.1",
         "react-router-dom": "^6.11.1",
         "ts-pattern": "^5.0.1",
