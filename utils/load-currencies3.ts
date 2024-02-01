@@ -7,7 +7,7 @@ import makeUrl from '../src/google/makeUrl'
 import { CURRENCIES } from '../src/helpers/currenciesList'
 
 const YEAR = 2024
-const MONTH = 1
+const MONTH = 2
 
 const currencies = Object.keys(CURRENCIES).filter(i => i !== 'USD')
 const startDate = DateTime.utc(YEAR, MONTH, 1)
