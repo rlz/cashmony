@@ -57,7 +57,7 @@ export class CurrenciesModel {
 
         if (rates === undefined || (isPartialMonth(rates) && oldCache(rates))) {
             rates = await loadRates(date, toCurrency)
-            if (rates === undefined) {
+            if (rates === undefined || rates.rates.length === 0) {
                 return await this.getFromUsdRate(date.set({ day: 1 }).minus({ day: 1 }), toCurrency)
             }
             this.rates[key] = rates
