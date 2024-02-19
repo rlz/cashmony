@@ -107,9 +107,9 @@ async function loadRates (month: DateTime, currency: string): Promise<CurrencyRa
         return cache
     }
 
-    // console.log('Need load', `/currencies/${month.toFormat('yyyy')}/${month.toFormat('MM')}/${currency}.json`)
+    // console.log('Need load', `https://rlz.github.io/exchange-rates/rates/${month.toFormat('yyyy')}/${month.toFormat('MM')}/${currency}.json`)
 
-    const result = await fetch(`/currencies/${month.toFormat('yyyy')}/${month.toFormat('MM')}/${currency}.json`)
+    const result = await fetch(`https://rlz.github.io/exchange-rates/rates/${month.toFormat('yyyy')}/${month.toFormat('MM')}/${currency}.json`)
 
     // console.log('Load result', result)
 
