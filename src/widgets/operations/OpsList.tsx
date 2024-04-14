@@ -1,16 +1,17 @@
 import { AddCard as AddCardIcon, CreditCard as CreditCardIcon, CurrencyExchange as CurrencyExchangeIcon } from '@mui/icons-material'
-import { Backdrop, Box, Portal, Skeleton, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography } from '@mui/material'
+import { Backdrop, Box, Portal, Skeleton, SpeedDial, SpeedDialAction, SpeedDialIcon, Stack, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { formatCurrency } from '../../helpers/currencies'
 import { runAsync, showIf } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { type NotDeletedOperation } from '../../model/model'
 import { OperationsModel } from '../../model/operations'
 import { PE, type Predicate } from '../../model/predicateExpression'
 import { calcStats } from '../../model/stats'
-import { opsPerIterval } from '../../model/statsReducers'
+import { opsPerIterval, perIntervalExpensesReducer } from '../../model/statsReducers'
 import { Column } from '../generic/Containers'
 import { DivBody2 } from '../generic/Typography'
 import { AdjustmentCard } from './cards/AdjustmentCard'
@@ -32,7 +33,10 @@ interface Props {
 export const OpsList = observer((props: Props): ReactElement => {
     const navigate = useNavigate()
     const [displayOps, setDisplayOps] = useState<NotDeletedOperation[][] | null>(null)
+    const [perDayExpenses, setPerDayExpenses] = useState<number[] | null>(null)
     const [displayDays, setDisplayDays] = useState(30)
+
+    const masterCurrency = appState.masterCurrency
 
     useEffect(() => {
         if (displayOps === null) {
@@ -53,9 +57,11 @@ export const OpsList = observer((props: Props): ReactElement => {
                     const appState = AppState.instance()
                     const predicate = props.predicate ?? PE.filter(appState.filter)
                     const stats = await calcStats(predicate, appState.timeSpan, appState.today, {
-                        opsByDate: opsPerIterval('day', false)
+                        opsByDate: opsPerIterval('day', false),
+                        perDayExpenses: perIntervalExpensesReducer('day', PE.any(), masterCurrency)
                     })
                     setDisplayOps(stats.opsByDate.reverse())
+                    setPerDayExpenses(stats.perDayExpenses.slice(0, stats.opsByDate.length).reverse())
                     return
                 }
                 setDisplayOps(props.operations)
@@ -78,11 +84,16 @@ export const OpsList = observer((props: Props): ReactElement => {
     }
 
     return <Box height={'100%'} overflow={'auto'}>
-        {displayOps.slice(0, displayDays).map(group =>
+        {displayOps.slice(0, displayDays).map((group, i) =>
             <Box key={group[0].date.toISODate()}>
-                <DivBody2 pt={2}>
-                    {group[0].date.toLocaleString({ dateStyle: 'full' })}
-                </DivBody2>
+                <Stack direction={'row'} spacing={1} justifyContent={'space-between'} pt={2}>
+                    <DivBody2>
+                        {group[0].date.toLocaleString({ dateStyle: 'full' })}
+                    </DivBody2>
+                    <DivBody2 color={'primary.main'}>
+                        {perDayExpenses === null ? undefined : formatCurrency(-perDayExpenses[i], masterCurrency)}
+                    </DivBody2>
+                </Stack>
                 <Column gap={1}>
                     {group.map(op => <a
                         key={op.id}
