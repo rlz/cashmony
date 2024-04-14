@@ -37,7 +37,10 @@ export function ExpensesGoalScreen (): ReactElement {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (params.goalName === undefined) return
+        if (params.goalName === undefined) {
+            appState.setOnClose(null)
+            return
+        }
 
         appState.setOnClose(() => {
             navigate('/goals')

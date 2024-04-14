@@ -47,6 +47,7 @@ export function AccountScreen (): ReactElement {
     useEffect(() => {
         if (!accSelected) {
             appState.setSubTitle('Accounts')
+            appState.setOnClose(null)
         }
     }, [accSelected])
 

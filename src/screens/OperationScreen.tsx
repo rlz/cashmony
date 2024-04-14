@@ -52,6 +52,7 @@ export function OperationScreen (): ReactElement {
     useEffect(() => {
         if (opId === '') {
             appState.setSubTitle('Operations')
+            appState.setOnClose(null)
             return
         }
 

@@ -43,6 +43,7 @@ export function CategoryScreen (): ReactElement {
     useEffect(() => {
         if (noCatSelected) {
             appState.setSubTitle('Categories')
+            appState.setOnClose(null)
         }
     }, [noCatSelected])
 
