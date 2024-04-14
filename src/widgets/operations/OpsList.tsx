@@ -1,4 +1,5 @@
 import { faCreditCard, faHandHoldingDollar, faMoneyBillTransfer } from '@fortawesome/free-solid-svg-icons'
+import { CreditCard as CreditCardIcon, CurrencyExchange as CurrencyExchangeIcon, AddCard as AddCardIcon } from '@mui/icons-material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Backdrop, Box, Portal, Skeleton, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
@@ -147,21 +148,21 @@ const Fab = (): ReactElement => {
             onClose={() => { setOpen(false) }}
         >
             <SpeedDialAction
-                icon={<FontAwesomeIcon icon={faCreditCard}/>}
+                icon={<CreditCardIcon />}
                 tooltipOpen
                 tooltipTitle={'Expence'}
                 FabProps={{ color: 'error', size: 'medium' }}
                 onClick={() => { navigate('/new-op/expense') }}
             />
             <SpeedDialAction
-                icon={<FontAwesomeIcon icon={faHandHoldingDollar} />}
+                icon={<AddCardIcon />}
                 tooltipOpen
                 tooltipTitle={'Income'}
                 FabProps={{ color: 'success', size: 'medium' }}
                 onClick={() => { navigate('/new-op/income') }}
             />
             <SpeedDialAction
-                icon={<FontAwesomeIcon icon={faMoneyBillTransfer} />}
+                icon={<CurrencyExchangeIcon />}
                 tooltipOpen
                 tooltipTitle={'Transfer'}
                 FabProps={{ color: 'info', size: 'medium' }}
