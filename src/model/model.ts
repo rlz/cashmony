@@ -81,7 +81,7 @@ const OP_WEIGHTS = {
     adjustment: 3
 }
 
-export function operationComparator (o1: Operation, o2: Operation): number {
+export function operationComparator(o1: Operation, o2: Operation): number {
     if (o1.type === 'deleted' && o2.type === 'deleted') {
         return o1.id < o2.id ? -1 : 1
     }
@@ -128,6 +128,6 @@ export interface CurrencyRatesCache extends CurrencyRates {
     loadDate: DateTime
 }
 
-export function ratesMonth (rates: CurrencyRates): DateTime {
+export function ratesMonth(rates: CurrencyRates): DateTime {
     return DateTime.fromFormat(rates.month, 'yyyy-MM', { zone: 'utc' })
 }

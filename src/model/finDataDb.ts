@@ -15,7 +15,7 @@ const GOALS_STORE_NAME = 'goals'
 let FIN_DATA_DB: FinDataDb | null = null
 
 export class FinDataDb {
-    static instance (): FinDataDb {
+    static instance(): FinDataDb {
         if (FIN_DATA_DB === null) {
             FIN_DATA_DB = new FinDataDb()
         }
@@ -23,9 +23,9 @@ export class FinDataDb {
         return FIN_DATA_DB
     }
 
-    private async openDb (): Promise<IDBPDatabase> {
+    private async openDb(): Promise<IDBPDatabase> {
         return await openDB('FinData', 4, {
-            upgrade: (database, oldVersion, newVersion) => {
+            upgrade: (database, oldVersion, _newVersion) => {
                 if (oldVersion < 1) {
                     const opStore = database.createObjectStore(OPERATIONS_STORE_NAME, { keyPath: 'id' })
                     opStore.createIndex(OPERATIONS_DATE_INDEX_NAME, 'date', {})
@@ -65,7 +65,7 @@ export class FinDataDb {
         })
     }
 
-    async getRates (month: DateTime, currency: string): Promise<CurrencyRatesCache | null> {
+    async getRates(month: DateTime, currency: string): Promise<CurrencyRatesCache | null> {
         const db = await this.openDb()
 
         const cache = await db.get(RATES_STORE_NAME, ratesKey(month, currency))
@@ -78,7 +78,7 @@ export class FinDataDb {
         }
     }
 
-    async putRates (rates: CurrencyRatesCache): Promise<void> {
+    async putRates(rates: CurrencyRatesCache): Promise<void> {
         const month = ratesMonth(rates)
 
         const db = await this.openDb()
@@ -89,16 +89,16 @@ export class FinDataDb {
         })
     }
 
-    async readAllOperations (): Promise<Operation[]> {
+    async readAllOperations(): Promise<Operation[]> {
         const db = await this.openDb()
         return (await db.getAll(OPERATIONS_STORE_NAME)).map(storeToOp)
     }
 
-    async readAllAccounts (): Promise<Account[]> {
+    async readAllAccounts(): Promise<Account[]> {
         const db = await this.openDb()
         return (
             (await db.getAll(ACCOUNTS_STORE_NAME))
-                .map(a => {
+                .map((a) => {
                     return {
                         ...a,
                         lastModified: DateTime.fromMillis(a.lastModified ?? 0, { zone: 'utc' })
@@ -107,7 +107,7 @@ export class FinDataDb {
         ) as Account[]
     }
 
-    async putAccount (account: Account): Promise<void> {
+    async putAccount(account: Account): Promise<void> {
         const db = await this.openDb()
         await db.put(
             ACCOUNTS_STORE_NAME,
@@ -115,22 +115,22 @@ export class FinDataDb {
         )
     }
 
-    async readAllCategories (): Promise<Category[]> {
+    async readAllCategories(): Promise<Category[]> {
         const db = await this.openDb()
         return (await db.getAll(CATEGORIES_STORE_NAME)).map(c => catFromIdb(c))
     }
 
-    async putCategory (category: Category): Promise<void> {
+    async putCategory(category: Category): Promise<void> {
         const db = await this.openDb()
         await db.put(CATEGORIES_STORE_NAME, catToIdb(category))
     }
 
-    async getOperation (id: string): Promise<Operation> {
+    async getOperation(id: string): Promise<Operation> {
         const db = await this.openDb()
         return storeToOp(await db.get(OPERATIONS_STORE_NAME, id))
     }
 
-    async getOperations (lower: DateTime, upper: DateTime): Promise<NotDeletedOperation[]> {
+    async getOperations(lower: DateTime, upper: DateTime): Promise<NotDeletedOperation[]> {
         const db = await this.openDb()
         return (await db.getAllFromIndex(
             OPERATIONS_STORE_NAME,
@@ -139,7 +139,7 @@ export class FinDataDb {
         )).map(storeToOpNoDeleted)
     }
 
-    async putOperations (operations: Operation[]): Promise<void> {
+    async putOperations(operations: Operation[]): Promise<void> {
         const db = await this.openDb()
 
         const tx = db.transaction(OPERATIONS_STORE_NAME, 'readwrite')
@@ -147,17 +147,17 @@ export class FinDataDb {
         await tx.done
     }
 
-    async clearOperations (): Promise<void> {
+    async clearOperations(): Promise<void> {
         const db = await this.openDb()
 
         await db.clear(OPERATIONS_STORE_NAME)
     }
 
-    async readAllExpensesGoals (): Promise<ExpensesGoal[]> {
+    async readAllExpensesGoals(): Promise<ExpensesGoal[]> {
         const db = await this.openDb()
         return (
             (await db.getAll(GOALS_STORE_NAME))
-                .map(i => {
+                .map((i) => {
                     return {
                         ...i,
                         lastModified: DateTime.fromMillis(i.lastModified ?? 0, { zone: 'utc' })
@@ -166,7 +166,7 @@ export class FinDataDb {
         ) as ExpensesGoal[]
     }
 
-    async putExpensesGoal (goal: ExpensesGoal): Promise<void> {
+    async putExpensesGoal(goal: ExpensesGoal): Promise<void> {
         const db = await this.openDb()
         await db.put(
             GOALS_STORE_NAME,
@@ -175,7 +175,8 @@ export class FinDataDb {
     }
 }
 
-function opToStore (o: Operation): any {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function opToStore(o: Operation): any {
     if (o.type === 'deleted') {
         return o
     }
@@ -187,7 +188,8 @@ function opToStore (o: Operation): any {
     }
 }
 
-function storeToOpNoDeleted (o: any): NotDeletedOperation {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function storeToOpNoDeleted(o: any): NotDeletedOperation {
     return {
         ...o,
         lastModified: DateTime.fromMillis(o.lastModified, { zone: 'utc' }),
@@ -195,7 +197,8 @@ function storeToOpNoDeleted (o: any): NotDeletedOperation {
     }
 }
 
-function storeToOp (o: any): Operation {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function storeToOp(o: any): Operation {
     if (o.type === 'deleted') {
         return o
     }
@@ -203,7 +206,7 @@ function storeToOp (o: any): Operation {
     return storeToOpNoDeleted(o)
 }
 
-function ratesKey (month: DateTime, currency: string): string {
+function ratesKey(month: DateTime, currency: string): string {
     return `${month.toFormat('yyyy-MM')}-${currency}`
 }
 
@@ -220,7 +223,7 @@ interface IdbCategory {
     readonly hidden?: boolean
 }
 
-function catToIdb (category: Category): IdbCategory {
+function catToIdb(category: Category): IdbCategory {
     return {
         name: category.name,
         lastModified: category.lastModified.toMillis(),
@@ -230,7 +233,7 @@ function catToIdb (category: Category): IdbCategory {
     }
 }
 
-function catFromIdb (category: IdbCategory): Category {
+function catFromIdb(category: IdbCategory): Category {
     const perDayAmount = match<IdbCategory, [number | undefined, string | undefined]>(category)
         .with({ perDayAmount: P.number, currency: P.string }, v => [v.perDayAmount, v.currency])
         .with({ yearGoalUsd: P.number }, v => [-v.yearGoalUsd / 365, 'USD'])

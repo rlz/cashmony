@@ -9,7 +9,7 @@ import { Column } from '../../generic/Containers'
 
 const categoriesModel = CategoriesModel.instance()
 
-export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement {
+export function AddCategory({ onClose }: { onClose: () => void }): ReactElement {
     const navigate = useNavigate()
     const [name, setName] = useState('')
 
@@ -37,13 +37,13 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
                 variant={'filled'}
                 size={'small'}
                 value={name}
-                error={name.trim() === '' || exists }
+                error={name.trim() === '' || exists}
                 helperText={
                     name.trim() === ''
                         ? 'Empty'
                         : (exists ? 'Already exists' : undefined)
                 }
-                onChange={ev => {
+                onChange={(ev) => {
                     setName(ev.target.value)
                 }}
                 sx={{ flex: '1 0 0' }}
@@ -51,7 +51,7 @@ export function AddCategory ({ onClose }: { onClose: () => void }): ReactElement
             <Button
                 fullWidth
                 variant={'contained'}
-                disabled={ name.trim() === '' || exists }
+                disabled={name.trim() === '' || exists}
                 onClick={() => { void save() }}
             >
                 {'Create'}

@@ -27,7 +27,7 @@ export const CategoriesSelect = observer((props: Props) => {
         })
     }
 
-    categories.push(...categoriesModel.categoriesSorted.filter(catName => {
+    categories.push(...categoriesModel.categoriesSorted.filter((catName) => {
         const cat = categoriesModel.get(catName)
         return cat.deleted !== true
     }))
@@ -39,5 +39,5 @@ export const CategoriesSelect = observer((props: Props) => {
         selectMany={props.selectMany}
         selectZero={props.selectZero}
         sx={props.sx}
-    />
+           />
 })

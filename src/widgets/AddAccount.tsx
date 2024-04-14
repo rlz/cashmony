@@ -17,7 +17,7 @@ const currenciesModel = CurrenciesModel.instance()
 const accountsModel = AccountsModel.instance()
 const operationsModel = OperationsModel.instance()
 
-export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement {
+export function AddAccount({ onClose }: { onClose: () => void }): ReactElement {
     const [name, setName] = useState('')
     const [currency, setCurrency] = useState(currenciesModel.currencies[0])
     const [initialAmount, setInitialAmount] = useState(0)
@@ -75,7 +75,7 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
                             ? 'Empty'
                             : (exists ? 'Already exists' : undefined)
                     }
-                    onChange={ev => {
+                    onChange={(ev) => {
                         setName(ev.target.value)
                     }}
                     sx={{ flex: '1 0 0' }}
@@ -86,23 +86,25 @@ export function AddAccount ({ onClose }: { onClose: () => void }): ReactElement 
                 label={'Initial amount'}
                 currency={currency}
                 amount={initialAmount}
-                onAmountChange={a => { setInitialAmount(a) }}
+                onAmountChange={(a) => { setInitialAmount(a) }}
             />
             <Button
                 fullWidth
                 variant={'contained'}
                 onClick={() => { void save() }}
                 disabled={name.trim() === '' || exists}
-            >{'Create'}</Button>
+            >
+                {'Create'}
+            </Button>
             {curSelOpen
                 ? <CurrencySelector
-                    currency={currency}
-                    onClose={() => { setCurSelOpen(false) }}
-                    onCurrencySelected={c => {
-                        setCurrency(c)
-                        setCurSelOpen(false)
-                    }}
-                />
+                        currency={currency}
+                        onClose={() => { setCurSelOpen(false) }}
+                        onCurrencySelected={(c) => {
+                            setCurrency(c)
+                            setCurSelOpen(false)
+                        }}
+                  />
                 : undefined}
         </Column>
     </FullScreenModal>

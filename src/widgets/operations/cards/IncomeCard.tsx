@@ -9,7 +9,7 @@ interface Props {
     operation: IncomeOperation
 }
 
-export function IncomeCard ({ operation }: Props): ReactElement {
+export function IncomeCard({ operation }: Props): ReactElement {
     let categoryName = 'No categories'
     let categoryGrey = true
 
@@ -24,7 +24,7 @@ export function IncomeCard ({ operation }: Props): ReactElement {
     return <BaseOpCard
         opId={operation.id}
         color={'success'}
-        icon={<FontAwesomeIcon icon={faHandHoldingDollar}/>}
+        icon={<FontAwesomeIcon icon={faHandHoldingDollar} />}
         categoryName={categoryName}
         categoryGrey={categoryGrey}
         amount={operation.amount}

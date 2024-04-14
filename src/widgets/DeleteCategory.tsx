@@ -17,7 +17,7 @@ interface Props {
     setOpen: (open: boolean) => void
 }
 
-export function DeleteCategory ({ name, open, setOpen }: Props): ReactElement {
+export function DeleteCategory({ name, open, setOpen }: Props): ReactElement {
     const [delInProcess, setDelInProcess] = useState(false)
     const navigate = useNavigate()
 
@@ -26,7 +26,7 @@ export function DeleteCategory ({ name, open, setOpen }: Props): ReactElement {
     return <Dialog
         open={open}
         onClose={() => { setOpen(false) }}
-    >
+           >
         <DialogTitle>{'Delete category?'}</DialogTitle>
         <DialogContent>
             <DialogContentText>
@@ -60,7 +60,8 @@ export function DeleteCategory ({ name, open, setOpen }: Props): ReactElement {
             >
                 { delInProcess
                     ? <FontAwesomeIcon icon={faSpinner} pulse />
-                    : null}{' Delete'}
+                    : null}
+                {' Delete'}
             </Button>
         </DialogActions>
     </Dialog>
@@ -69,8 +70,8 @@ export function DeleteCategory ({ name, open, setOpen }: Props): ReactElement {
 const operationsModel = OperationsModel.instance()
 const categoriesModel = CategoriesModel.instance()
 
-async function deleteCategory (catName: string): Promise<void> {
-    const ops: NotDeletedOperation[] = [...listOperations(PE.cat(catName), null)].map(op => {
+async function deleteCategory(catName: string): Promise<void> {
+    const ops: NotDeletedOperation[] = [...listOperations(PE.cat(catName), null)].map((op) => {
         if (op.type !== 'income' && op.type !== 'expense') {
             throw Error('Expect only income and expenses here')
         }

@@ -1,6 +1,4 @@
-import { faCreditCard, faHandHoldingDollar, faMoneyBillTransfer } from '@fortawesome/free-solid-svg-icons'
-import { CreditCard as CreditCardIcon, CurrencyExchange as CurrencyExchangeIcon, AddCard as AddCardIcon } from '@mui/icons-material'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { AddCard as AddCardIcon, CreditCard as CreditCardIcon, CurrencyExchange as CurrencyExchangeIcon } from '@mui/icons-material'
 import { Backdrop, Box, Portal, Skeleton, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
@@ -69,7 +67,7 @@ export const OpsList = observer((props: Props): ReactElement => {
     if (displayOps === null) {
         return <Box height={'100%'} overflow={'hidden'}>
             <DivBody2 pt={2}>
-                <Skeleton width={80} sx={{ maxWidth: '100%' }}/>
+                <Skeleton width={80} sx={{ maxWidth: '100%' }} />
             </DivBody2>
             <Column gap={1}>
                 <OpCardSkeleton />
@@ -95,8 +93,8 @@ export const OpsList = observer((props: Props): ReactElement => {
                             }
                             navigate(`/operations/${op.id}`)
                         }}
-                    >
-                        <Transaction op={op}/>
+                                     >
+                        <Transaction op={op} />
                     </a>)}
                 </Column>
             </Box>
@@ -105,11 +103,13 @@ export const OpsList = observer((props: Props): ReactElement => {
             ? <Typography color={'text.primary'} textAlign={'center'} mt={2}>
                 <a onClick={() => {
                     setDisplayDays(Math.min(displayOps.length, displayDays + 10))
-                }}>{'Show more'}</a>
+                }}
+                >
+                    {'Show more'}
+                </a>
             </Typography>
-            : null
-        }
-        <Box minHeight={144}/>
+            : null}
+        <Box minHeight={144} />
         {
             showIf(props.noFab !== true, <Fab />)
         }
@@ -119,18 +119,18 @@ OpsList.displayName = 'OpsList'
 
 const Transaction = ({ op }: { op: NotDeletedOperation }): ReactElement => {
     if (op.type === 'adjustment') {
-        return <AdjustmentCard operation={op}/>
+        return <AdjustmentCard operation={op} />
     }
 
     if (op.type === 'transfer') {
-        return <TransferCard operation={op}/>
+        return <TransferCard operation={op} />
     }
 
     if (op.type === 'income') {
-        return <IncomeCard operation={op}/>
+        return <IncomeCard operation={op} />
     }
 
-    return <ExpenseCard operation={op}/>
+    return <ExpenseCard operation={op} />
 }
 
 const Fab = (): ReactElement => {

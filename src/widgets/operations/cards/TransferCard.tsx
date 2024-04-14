@@ -11,11 +11,11 @@ interface Props {
     operation: TransferOperation
 }
 
-export function TransferCard ({ operation }: Props): ReactElement {
+export function TransferCard({ operation }: Props): ReactElement {
     return <BaseOpCard
         opId={operation.id}
         color={'info'}
-        icon={<FontAwesomeIcon icon={faMoneyBillTransfer}/>}
+        icon={<FontAwesomeIcon icon={faMoneyBillTransfer} />}
         categoryName={'Transfer'}
         categoryGrey
         amount={operation.amount}

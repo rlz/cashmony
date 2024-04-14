@@ -1,4 +1,4 @@
-export function compareByStats (stats: ReadonlyMap<string, number>): (s1: string, s2: string) => number {
+export function compareByStats(stats: ReadonlyMap<string, number>): (s1: string, s2: string) => number {
     return (s1: string, s2: string) => {
         const s1Stats = stats.get(s1) ?? 0
         const s2Stats = stats.get(s2) ?? 0

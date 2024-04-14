@@ -32,11 +32,11 @@ export const PeriodSelector = observer((): ReactElement => {
                     }
                 })
             }}
-        />
+                   />
     } else if (showSelector === 'year') {
         selector = <YearSelector
             onClose={() => { setShowSelector(null) }}
-            onYearSelected={year => {
+            onYearSelected={(year) => {
                 runInAction(() => {
                     appState.timeSpanInfo = {
                         type: 'year',
@@ -44,7 +44,7 @@ export const PeriodSelector = observer((): ReactElement => {
                     }
                 })
             }}
-        />
+                   />
     } else if (showSelector === 'custom') {
         selector = <CustomSelector
             onClose={() => { setShowSelector(null) }}
@@ -65,7 +65,7 @@ export const PeriodSelector = observer((): ReactElement => {
                     }
                 })
             }}
-        />
+                   />
     }
 
     return <Box display={'flex'} flexDirection={'column'} gap={1}>
@@ -74,7 +74,9 @@ export const PeriodSelector = observer((): ReactElement => {
             <Typography variant={'h6'} textAlign={'center'}>{'Period'}</Typography>
             <Typography variant={'body1'} textAlign={'center'}>
                 {appState.timeSpan.startDate.toISODate()}
-                {' '}<FontAwesomeIcon icon={faArrowRightLong}/>{' '}
+                {' '}
+                <FontAwesomeIcon icon={faArrowRightLong} />
+                {' '}
                 {appState.timeSpan.endDate.toISODate()}
             </Typography>
         </Box>
@@ -170,7 +172,7 @@ interface MonthSelectorProps {
     onMonthSelected: (year: number, month: number) => void
 }
 
-function MonthSelector (props: MonthSelectorProps): ReactElement {
+function MonthSelector(props: MonthSelectorProps): ReactElement {
     const today = appState.today
 
     return <FullScreenModal title={'Select month'} onClose={props.onClose}>
@@ -193,7 +195,7 @@ interface YearSelectorProps {
     onYearSelected: (year: number) => void
 }
 
-function YearSelector (props: YearSelectorProps): ReactElement {
+function YearSelector(props: YearSelectorProps): ReactElement {
     const today = appState.today
 
     return <FullScreenModal title={'Select year'} onClose={props.onClose}>
@@ -216,7 +218,7 @@ interface CustomSelectorProps {
     onPeriodSelected: (from: DateTime, to: DateTime) => void
 }
 
-function CustomSelector (props: CustomSelectorProps): ReactElement {
+function CustomSelector(props: CustomSelectorProps): ReactElement {
     const today = appState.today
     const [period, setPeriod] = useState<[DateTime, DateTime] | null>(null)
     const smallScreen = screenWidthIs('xs', 'sm')
@@ -224,7 +226,7 @@ function CustomSelector (props: CustomSelectorProps): ReactElement {
     return <FullScreenModal
         title={'Select period'}
         onClose={props.onClose}
-    >
+           >
         <Box p={1} mb={1}>
             <Calendar
                 selectRange
@@ -235,7 +237,7 @@ function CustomSelector (props: CustomSelectorProps): ReactElement {
                 }}
             />
         </Box>
-        { showIf(!smallScreen, <Divider/>) }
+        { showIf(!smallScreen, <Divider />) }
         <Row p={1} justifyContent={smallScreen ? 'center' : 'end'}>
             <Button
                 color={'primary'}

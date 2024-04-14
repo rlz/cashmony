@@ -20,7 +20,7 @@ interface Props {
     transferElement?: ReactElement
 }
 
-export function BaseOpCard (props: Props): ReactElement {
+export function BaseOpCard(props: Props): ReactElement {
     const color = props.color + '.light'
 
     return <Paper elevation={1} sx={{ p: 1, display: 'flex', gap: 2 }}>
@@ -37,19 +37,22 @@ export function BaseOpCard (props: Props): ReactElement {
                 >
                     {props.categoryName}
                 </DivBody1>
-                <DivBody1 color={color} noWrap >
+                <DivBody1 color={color} noWrap>
                     { formatCurrency(props.amount, props.currency) }
                 </DivBody1>
             </Row>
             {props.transferElement}
             <Row gap={1}>
-                <DivBody2 flex={'1 1 0'} minWidth={30} noWrap >
+                <DivBody2 flex={'1 1 0'} minWidth={30} noWrap>
                     {props.tags.join(', ')}
                 </DivBody2>
                 {
                     showIf(
                         props.accountName !== null,
-                        <DivBody2 noWrap>{'Acc.: '}{props.accountName}</DivBody2>
+                        <DivBody2 noWrap>
+                            {'Acc.: '}
+                            {props.accountName}
+                        </DivBody2>
                     )
                 }
             </Row>
@@ -60,10 +63,10 @@ export function BaseOpCard (props: Props): ReactElement {
     </Paper>
 }
 
-export function OpCardSkeleton (): ReactElement {
+export function OpCardSkeleton(): ReactElement {
     return <Paper elevation={1} sx={{ p: 1, display: 'flex', gap: 2 }}>
         <Box>
-            <Skeleton variant={'circular'} width={40} height={40}/>
+            <Skeleton variant={'circular'} width={40} height={40} />
         </Box>
         <Box flex={'1 1 0'} minWidth={0}>
             <Row gap={1}>
@@ -71,22 +74,22 @@ export function OpCardSkeleton (): ReactElement {
                     flex={'1 1 0'}
                     minWidth={30}
                 >
-                    <Skeleton width={90} sx={{ maxWidth: '100%' }}/>
+                    <Skeleton width={90} sx={{ maxWidth: '100%' }} />
                 </DivBody1>
                 <DivBody1 flex={'0 1 auto'} minWidth={0}>
-                    <Skeleton width={70} sx={{ maxWidth: '100%' }}/>
+                    <Skeleton width={70} sx={{ maxWidth: '100%' }} />
                 </DivBody1>
             </Row>
             <Row gap={1}>
                 <DivBody2 flex={'1 1 0'} minWidth={30}>
-                    <Skeleton width={110} sx={{ maxWidth: '100%' }}/>
+                    <Skeleton width={110} sx={{ maxWidth: '100%' }} />
                 </DivBody2>
                 <DivBody2 flex={'0 1 auto'} minWidth={0}>
-                    <Skeleton width={140} sx={{ maxWidth: '100%' }}/>
+                    <Skeleton width={140} sx={{ maxWidth: '100%' }} />
                 </DivBody2>
             </Row>
             <DivBody2>
-                <Skeleton width={80} sx={{ maxWidth: '100%' }}/>
+                <Skeleton width={80} sx={{ maxWidth: '100%' }} />
             </DivBody2>
         </Box>
     </Paper>

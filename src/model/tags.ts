@@ -13,7 +13,7 @@ export class TagsModel {
     all: readonly string[] = []
     byCat: ReadonlyMap<string, readonly string[]> = new Map()
 
-    private constructor () {
+    private constructor() {
         makeAutoObservable(this)
 
         const ops = OperationsModel.instance()
@@ -86,7 +86,7 @@ export class TagsModel {
         })
     }
 
-    static instance (): TagsModel {
+    static instance(): TagsModel {
         if (tagsModel === null) {
             tagsModel = new TagsModel()
         }
@@ -94,7 +94,7 @@ export class TagsModel {
     }
 }
 
-export function mergeTags (
+export function mergeTags(
     addedTags: readonly string[],
     catTags: readonly string[],
     opTypeTags: readonly string[],

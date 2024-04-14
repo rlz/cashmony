@@ -127,15 +127,18 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
             </Typography>
             <Box display={'flex'} mb={1}>
                 <Typography variant={'body2'} textAlign={'center'} flex={'1 1 0'} noWrap minWidth={0}>
-                    {'1 month'}<br/>
+                    {'1 month'}
+                    <br />
                     {cur(stats.lastMonth, true)}
                 </Typography>
                 <Typography variant={'body2'} textAlign={'center'} flex={'1 1 0'} noWrap minWidth={0}>
-                    {'3 month'}<br/>
+                    {'3 month'}
+                    <br />
                     {cur(stats.last3Month, true)}
                 </Typography>
                 <Typography variant={'body2'} textAlign={'center'} flex={'1 1 0'} noWrap minWidth={0}>
-                    {'1 year'}<br/>
+                    {'1 year'}
+                    <br />
                     {cur(stats.lastYear, true)}
                 </Typography>
             </Box>

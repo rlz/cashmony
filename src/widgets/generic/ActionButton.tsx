@@ -12,7 +12,7 @@ type Props = Omit<PropsWithChildren<ButtonProps>, 'action' | 'disabled'> & {
     action: (() => Promise<void>) | null
 }
 
-export function ActionButton ({ confirmationTitle, confirmation, action, children, ...btnProps }: Props): ReactElement {
+export function ActionButton({ confirmationTitle, confirmation, action, children, ...btnProps }: Props): ReactElement {
     const [inProgress, setInProgress] = useState(false)
     const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -44,7 +44,12 @@ export function ActionButton ({ confirmationTitle, confirmation, action, childre
             }}
             sx={{ ...btnProps.sx ?? {}, gap: 1 }}
         >
-            {inProgress ? <><FontAwesomeIcon icon={faSpinner} pulse/>{children}</> : children}
+            {inProgress
+                ? <>
+                    <FontAwesomeIcon icon={faSpinner} pulse />
+                    {children}
+                </>
+                : children}
         </Button>
         {
             showIf(
@@ -69,8 +74,9 @@ export function ActionButton ({ confirmationTitle, confirmation, action, childre
     </>
 }
 
-const Transition = React.forwardRef(function Transition (
+const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         children: React.ReactElement<any, any>
     },
     ref: React.Ref<unknown>
@@ -83,7 +89,7 @@ interface ActionFabProps {
     bottom?: string
 }
 
-export function ActionFab (props: PropsWithChildren<ActionFabProps>): ReactElement {
+export function ActionFab(props: PropsWithChildren<ActionFabProps>): ReactElement {
     const [inProgress, setInProgress] = useState(false)
 
     return <Fab
@@ -101,7 +107,7 @@ export function ActionFab (props: PropsWithChildren<ActionFabProps>): ReactEleme
                 setInProgress(false)
             })
         }}
-    >
-        {inProgress ? <FontAwesomeIcon icon={faSpinner} pulse/> : props.children}
+           >
+        {inProgress ? <FontAwesomeIcon icon={faSpinner} pulse /> : props.children}
     </Fab>
 }

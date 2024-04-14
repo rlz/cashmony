@@ -31,7 +31,7 @@ export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void
             <Column gap={1} p={1} overflow={'auto'}>
                 <ExpensesGoalEditor goal={goal} onChange={setGoal} />
             </Column>
-            <Box height={'80px'}/>
+            <Box height={'80px'} />
         </FullScreenModal>
     </>
 })

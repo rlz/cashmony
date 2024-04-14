@@ -15,7 +15,7 @@ interface Props {
     onTagsChanged: (newTags: readonly string[]) => void
 }
 
-export function TagsEditor (props: Props): ReactElement {
+export function TagsEditor(props: Props): ReactElement {
     const [newTag, setNewTag] = useState('')
     const [addedTags, setAddedTags] = useState<readonly string[]>([])
 
@@ -23,8 +23,8 @@ export function TagsEditor (props: Props): ReactElement {
         disableGutters
         expanded={props.expanded}
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
-    >
-        <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
+           >
+        <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />}>
             <Typography>{'Tags'}</Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -50,7 +50,10 @@ export function TagsEditor (props: Props): ReactElement {
                 setAddedTags([t, ...addedTags])
                 props.onTagsChanged([...props.tags, t])
                 setNewTag('')
-            }}>{'Add'}</Button>
+            }}
+            >
+                {'Add'}
+            </Button>
         </AccordionActions>
     </Accordion>
 }

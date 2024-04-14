@@ -25,8 +25,8 @@ export const CategoriesEditor = observer((props: Props): ReactElement => {
         disableGutters
         expanded={props.expanded}
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
-    >
-        <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
+           >
+        <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />}>
             <Typography>{'Category'}</Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -38,7 +38,7 @@ export const CategoriesEditor = observer((props: Props): ReactElement => {
                         .otherwise(() => { throw Error('TODO: more then one category is not supported') })
                 }
                 onSelectedChange={(selected) => {
-                    props.onCategoriesChange(selected.map(name => {
+                    props.onCategoriesChange(selected.map((name) => {
                         return {
                             name,
                             amount: props.categories[0]?.amount ?? 0

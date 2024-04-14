@@ -11,7 +11,7 @@ const RowsTypeSchema = z.object({
 
 export type RowsType = z.infer<typeof RowsTypeSchema>
 
-async function loadRows (google: Google, tabName: string): Promise<unknown[]> {
+async function loadRows(google: Google, tabName: string): Promise<unknown[]> {
     console.log(`Loading ${google.spreadsheetName}:${tabName}`)
 
     if (google.finDataSpreadsheetId === null) {
@@ -39,7 +39,7 @@ async function loadRows (google: Google, tabName: string): Promise<unknown[]> {
     }
 }
 
-export async function loadOperations (google: Google): Promise<Operation[]> {
+export async function loadOperations(google: Google): Promise<Operation[]> {
     console.log('Loading operations from Google Spreadsheet')
     const operations = await loadRows(google, google.tabNames.operations)
     const categories = await loadRows(google, google.tabNames.operationsCategories)
@@ -51,7 +51,7 @@ export async function loadOperations (google: Google): Promise<Operation[]> {
     return ops
 }
 
-export async function loadAccounts (google: Google): Promise<Account[]> {
+export async function loadAccounts(google: Google): Promise<Account[]> {
     console.log('Loading accounts from Google Spreadsheet')
     const rows = await loadRows(google, google.tabNames.accounts)
 
@@ -62,7 +62,7 @@ export async function loadAccounts (google: Google): Promise<Account[]> {
     return accounts
 }
 
-export async function loadCategories (google: Google): Promise<Category[]> {
+export async function loadCategories(google: Google): Promise<Category[]> {
     console.log('Loading categories from Google Spreadsheet')
     const rows = await loadRows(google, google.tabNames.categories)
 
@@ -73,7 +73,7 @@ export async function loadCategories (google: Google): Promise<Category[]> {
     return categories
 }
 
-export async function loadGoals (google: Google): Promise<ExpensesGoal[]> {
+export async function loadGoals(google: Google): Promise<ExpensesGoal[]> {
     console.log('Loading goals from Google Spreadsheet')
     const rows = await loadRows(google, google.tabNames.goals)
 

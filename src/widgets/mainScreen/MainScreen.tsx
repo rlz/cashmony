@@ -6,7 +6,7 @@ import { Column } from '../generic/Containers'
 import { MainAppBar } from './MainAppBar'
 import { MainBottomNavigation } from './MainBottomNavigation'
 
-export const MainScreen = observer(function MainScreen ({ children }: PropsWithChildren): ReactElement {
+export const MainScreen = observer(function MainScreen({ children }: PropsWithChildren): ReactElement {
     const theme = useTheme()
 
     return <Column width={'100vw'} height={'100vh'}>

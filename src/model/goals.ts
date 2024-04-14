@@ -9,7 +9,7 @@ export class GoalsModel {
     private readonly finDataDb = FinDataDb.instance()
     goals: readonly ExpensesGoal[] | null = null
 
-    private constructor () {
+    private constructor() {
         makeAutoObservable(this, {
             goals: observable.shallow
         })
@@ -17,7 +17,7 @@ export class GoalsModel {
         void this.readAll()
     }
 
-    static instance (): GoalsModel {
+    static instance(): GoalsModel {
         if (goalsModel === null) {
             goalsModel = new GoalsModel()
         }
@@ -25,7 +25,7 @@ export class GoalsModel {
         return goalsModel
     }
 
-    get (goalName: string): ExpensesGoal | null {
+    get(goalName: string): ExpensesGoal | null {
         if (this.goals === null) {
             throw Error('Goals not loaded')
         }
@@ -39,12 +39,12 @@ export class GoalsModel {
         return null
     }
 
-    async put (goal: ExpensesGoal): Promise<void> {
+    async put(goal: ExpensesGoal): Promise<void> {
         await this.finDataDb.putExpensesGoal(goal)
         await this.readAll()
     }
 
-    private async readAll (): Promise<void> {
+    private async readAll(): Promise<void> {
         const goals = (await this.finDataDb.readAllExpensesGoals()).sort((i1, i2) => i1.name.localeCompare(i2.name))
 
         runInAction(() => {

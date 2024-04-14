@@ -23,7 +23,7 @@ const MULT = {
     year: 1 / 365
 }
 
-export function GoalInput (props: Props): ReactElement {
+export function GoalInput(props: Props): ReactElement {
     const [period, setPeriod] = useState<PeriodType>('month')
     const [currencySelector, setCurrecySelector] = useState(false)
 
@@ -61,7 +61,7 @@ export function GoalInput (props: Props): ReactElement {
                     mult={MULT[period]}
                     amount={props.perDayAmount}
                     currency={props.currency}
-                    onAmountChange={a => { props.onPerDayAmountChange(a) }}
+                    onAmountChange={(a) => { props.onPerDayAmountChange(a) }}
                 />
             </Row>
         </Column>
@@ -70,7 +70,7 @@ export function GoalInput (props: Props): ReactElement {
                 currency={props.currency}
                 onClose={() => { setCurrecySelector(false) }}
                 onCurrencySelected={props.onCurrencyChange}
-            />)
+                                     />)
         }
     </>
 }

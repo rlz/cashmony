@@ -20,7 +20,7 @@ export class CurrenciesModel {
 
     currencies: readonly string[] = Object.values(CURRENCIES).map(c => c.code).sort(compareByStats(emptyStats))
 
-    private constructor () {
+    private constructor() {
         makeAutoObservable(this)
 
         autorun(() => {
@@ -46,7 +46,7 @@ export class CurrenciesModel {
         })
     }
 
-    async getFromUsdRate (date: DateTime, toCurrency: string): Promise<number> {
+    async getFromUsdRate(date: DateTime, toCurrency: string): Promise<number> {
         // console.log('getFromUsdRate', date.toISODate(), toCurrency)
 
         if (toCurrency === 'USD') return 1
@@ -72,7 +72,7 @@ export class CurrenciesModel {
         return rates.rates[ind]
     }
 
-    async getRate (date: DateTime, fromCurrency: string, toCurrency: string): Promise<number> {
+    async getRate(date: DateTime, fromCurrency: string, toCurrency: string): Promise<number> {
         if (fromCurrency === toCurrency) {
             return 1
         }
@@ -82,7 +82,7 @@ export class CurrenciesModel {
         return toCurrency === 'USD' ? toUsdRate : toUsdRate * await this.getFromUsdRate(date, toCurrency)
     }
 
-    static instance (): CurrenciesModel {
+    static instance(): CurrenciesModel {
         if (currenciesModel === null) {
             currenciesModel = new CurrenciesModel()
         }
@@ -91,16 +91,16 @@ export class CurrenciesModel {
     }
 }
 
-function isPartialMonth (rates: CurrencyRates): boolean {
+function isPartialMonth(rates: CurrencyRates): boolean {
     const daysInMonth = nonNull(ratesMonth(rates).daysInMonth, `Can not get daysInMonth for ${rates.month}`)
     return rates.rates.length < daysInMonth
 }
 
-function oldCache (cache: CurrencyRatesCache): boolean {
+function oldCache(cache: CurrencyRatesCache): boolean {
     return cache.loadDate < DateTime.utc().minus({ hours: 6 })
 }
 
-async function loadRates (month: DateTime, currency: string): Promise<CurrencyRatesCache | undefined> {
+async function loadRates(month: DateTime, currency: string): Promise<CurrencyRatesCache | undefined> {
     const cache = await finDataDb.getRates(month, currency)
 
     if (cache !== null && (!isPartialMonth(cache) || !oldCache(cache))) {

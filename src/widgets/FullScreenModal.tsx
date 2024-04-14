@@ -17,7 +17,7 @@ export const FullScreenModal = (props: Props): ReactElement => {
     return <Modal
         open={true}
         onClose={props.onClose}
-    >
+           >
         <Box>
             <Row
                 justifyContent={'center'}

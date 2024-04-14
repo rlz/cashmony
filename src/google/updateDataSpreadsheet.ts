@@ -12,7 +12,7 @@ const getSpreadsheetReplySchema = z.object({
     }))
 })
 
-export async function updateDataSpreadsheet (google: Google): Promise<void> {
+export async function updateDataSpreadsheet(google: Google): Promise<void> {
     const finDataSpreadsheetId = nonNull(google.finDataSpreadsheetId, 'google.finDataSpreadsheetId expected here')
 
     const reply = await google.fetch(
@@ -29,7 +29,7 @@ export async function updateDataSpreadsheet (google: Google): Promise<void> {
             console.log(`Needs to create sheets: ${[...sheetsDefs.keys()].join(', ')}`)
 
             const defs = [...sheetsDefs.values()]
-            await Promise.all(defs.map(async def => {
+            await Promise.all(defs.map(async (def) => {
                 await addSheets(google, def)
                 await addFirstRow(google, def)
             }))
@@ -39,7 +39,7 @@ export async function updateDataSpreadsheet (google: Google): Promise<void> {
     }
 }
 
-async function addSheets (google: Google, def: GoogleSheetProperties): Promise<void> {
+async function addSheets(google: Google, def: GoogleSheetProperties): Promise<void> {
     const finDataSpreadsheetId = nonNull(google.finDataSpreadsheetId, 'google.finDataSpreadsheetId expected here')
 
     const id = encodeURIComponent(finDataSpreadsheetId)
@@ -69,6 +69,6 @@ async function addSheets (google: Google, def: GoogleSheetProperties): Promise<v
     }
 }
 
-async function addFirstRow (google: Google, def: GoogleSheetProperties): Promise<void> {
+async function addFirstRow(google: Google, def: GoogleSheetProperties): Promise<void> {
     await storeRows(google, google.tabNames.goals, 'A1:Z1', [def.data[0].rowData[0].values.map(i => i.userEnteredValue.stringValue)])
 }

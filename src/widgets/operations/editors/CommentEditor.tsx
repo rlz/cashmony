@@ -15,8 +15,8 @@ export const CommentEditor = (props: Props): ReactElement => {
         disableGutters
         expanded={props.expanded}
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
-    >
-        <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
+           >
+        <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />}>
             <Typography>{'Comment'}</Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -26,7 +26,7 @@ export const CommentEditor = (props: Props): ReactElement => {
                 fullWidth
                 variant={'filled'}
                 value={props.comment ?? ''}
-                onChange={ev => {
+                onChange={(ev) => {
                     const comment = ev.target.value
                     props.onCommentChange(comment !== '' ? comment : null)
                 }}

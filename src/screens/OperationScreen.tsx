@@ -36,7 +36,7 @@ const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
 const currenciesModel = CurrenciesModel.instance()
 
-export function OperationScreen (): ReactElement {
+export function OperationScreen(): ReactElement {
     const location = useLocation()
     const navigate = useNavigate()
     const pathParams = useParams()
@@ -74,10 +74,10 @@ export function OperationScreen (): ReactElement {
                     </Panel>
                     {
                         showIfLazy(opId !== '', () => <>
-                            <ResizeHandle/>
+                            <ResizeHandle />
                             <Panel>
                                 <Box p={1} overflow={'auto'} height={'100%'}>
-                                    <OperationScreenBody urlOpId={opId}/>
+                                    <OperationScreenBody urlOpId={opId} />
                                 </Box>
                             </Panel>
                         </>)
@@ -86,7 +86,7 @@ export function OperationScreen (): ReactElement {
                 </PanelGroup>
                 : <Box position={'relative'} height={'100%'}>
                     <Box p={1} height={'100%'}>
-                        <OpsList noFab={opId !== ''}/>
+                        <OpsList noFab={opId !== ''} />
                     </Box>
                     {
                         showIfLazy(opId !== '', () => {
@@ -97,8 +97,8 @@ export function OperationScreen (): ReactElement {
                                 left={0}
                                 height={'100%'}
                                 bgcolor={theme.palette.background.default}
-                            >
-                                <OperationScreenBody urlOpId={opId}/>
+                                   >
+                                <OperationScreenBody urlOpId={opId} />
                             </Box>
                         })
                     }
@@ -112,7 +112,7 @@ interface BodyProps {
     setModalTitle?: (title: string) => void
 }
 
-export const OperationScreenBody = observer(function OperationScreenBody ({ urlOpId, setModalTitle }: BodyProps): ReactElement {
+export const OperationScreenBody = observer(function OperationScreenBody({ urlOpId, setModalTitle }: BodyProps): ReactElement {
     const navigate = useNavigate()
     const smallScreen = screenWidthIs('xs', 'sm')
 
@@ -168,14 +168,14 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ urlO
     }
 
     const isChanged = (): boolean => (
-        opDate?.toMillis() !== origOpDate?.toMillis() ||
-        opAmount !== origOpAmount ||
-        opCurrency !== origOpCurrency ||
-        !deepEqual(opAccount, origOpAccount) ||
-        !deepEqual(opToAccount, origOpToAccount) ||
-        !deepEqual(opCategories, origOpCategories) ||
-        !deepEqual(opTags, origOpTags) ||
-        !deepEqual(opComment, origOpComment)
+        opDate?.toMillis() !== origOpDate?.toMillis()
+        || opAmount !== origOpAmount
+        || opCurrency !== origOpCurrency
+        || !deepEqual(opAccount, origOpAccount)
+        || !deepEqual(opToAccount, origOpToAccount)
+        || !deepEqual(opCategories, origOpCategories)
+        || !deepEqual(opTags, origOpTags)
+        || !deepEqual(opComment, origOpComment)
     )
 
     const [expanded, setExpanded] = useState<
@@ -258,27 +258,27 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ urlO
     const onSave = useMemo(
         () => {
             if (
-                opType === 'deleted' ||
-                opAmount === 0 ||
-                opAccount === null ||
-                opAccount.amount === 0 ||
-                (opType === 'transfer' && (opToAccount === null || opToAccount.amount === 0)) ||
-                (!isChanged())
+                opType === 'deleted'
+                || opAmount === 0
+                || opAccount === null
+                || opAccount.amount === 0
+                || (opType === 'transfer' && (opToAccount === null || opToAccount.amount === 0))
+                || (!isChanged())
             ) {
                 return null
             }
 
             return async () => {
                 if (
-                    opId === null ||
-                    opType === null ||
-                    opDate === null ||
-                    opAmount === null ||
-                    opCurrency === null ||
-                    opAccount === null ||
-                    (opType === 'transfer' && opToAccount === null) ||
-                    ((opType === 'expense' || opType === 'income') && opCategories === null) ||
-                    opTags === null
+                    opId === null
+                    || opType === null
+                    || opDate === null
+                    || opAmount === null
+                    || opCurrency === null
+                    || opAccount === null
+                    || (opType === 'transfer' && opToAccount === null)
+                    || ((opType === 'expense' || opType === 'income') && opCategories === null)
+                    || opTags === null
                 ) {
                     throw Error('Not null fields expected here')
                 }
@@ -344,15 +344,15 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ urlO
     )
 
     if (
-        opId === null ||
-        opType === null ||
-        opType === 'deleted' ||
-        opDate === null ||
-        opAmount === null ||
-        opCurrency === null ||
-        opTags === null ||
-        accountsModel.accounts === null ||
-        accountsModel.amounts === null
+        opId === null
+        || opType === null
+        || opType === 'deleted'
+        || opDate === null
+        || opAmount === null
+        || opCurrency === null
+        || opTags === null
+        || accountsModel.accounts === null
+        || accountsModel.amounts === null
     ) {
         if (opType === 'deleted') {
             return <Typography variant={'h5'} mt={10} textAlign={'center'}>{'This operation was deleted'}</Typography>
@@ -401,10 +401,10 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ urlO
             negative={opType === 'expense'}
             currency={opCurrency}
             expanded={expanded === 'amount'}
-            onCurrencyChange={currency => {
+            onCurrencyChange={(currency) => {
                 propagateAndSave(opAmount, currency, opCategories, opAccount, opToAccount)
             }}
-            onAmountChange={amount => {
+            onAmountChange={(amount) => {
                 propagateAndSave(amount, opCurrency, opCategories, opAccount, opToAccount)
             }}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'amount' : null) }}
@@ -423,7 +423,7 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ urlO
             expanded={expanded === 'account'}
             onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : null) }}
             account={opAccount}
-            onAccountChange={account => { propagateAndSave(opAmount, opCurrency, opCategories, account, opToAccount) }}
+            onAccountChange={(account) => { propagateAndSave(opAmount, opCurrency, opCategories, account, opToAccount) }}
             hideAccount={opType === 'transfer' ? opToAccount?.name : undefined}
         />
         {
@@ -437,26 +437,27 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ urlO
                         expanded={expanded === 'toAccount'}
                         onExpandedChange={(expanded) => { setExpanded(expanded ? 'toAccount' : null) }}
                         account={opToAccount}
-                        onAccountChange={toAccount => {
+                        onAccountChange={(toAccount) => {
                             propagateAndSave(opAmount, opCurrency, opCategories, opAccount, toAccount)
                         }}
                         hideAccount={opAccount?.name}
-                    /></>
+                    />
+                </>
                 : null
         }
         {
             opType === 'expense' || opType === 'income'
                 ? <CategoriesEditor
-                    expanded={expanded === 'categories'}
-                    onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
-                    opAmount={opAmount}
-                    negative={opType === 'expense'}
-                    opCurrency={opCurrency}
-                    categories={nonNull(opCategories, 'non null opCAtegories expected here')}
-                    onCategoriesChange={categories => {
-                        propagateAndSave(opAmount, opCurrency, categories, opAccount, opToAccount)
-                    }}
-                />
+                        expanded={expanded === 'categories'}
+                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
+                        opAmount={opAmount}
+                        negative={opType === 'expense'}
+                        opCurrency={opCurrency}
+                        categories={nonNull(opCategories, 'non null opCAtegories expected here')}
+                        onCategoriesChange={(categories) => {
+                            propagateAndSave(opAmount, opCurrency, categories, opAccount, opToAccount)
+                        }}
+                  />
                 : null
         }
         <TagsEditor
@@ -477,37 +478,37 @@ export const OperationScreenBody = observer(function OperationScreenBody ({ urlO
             action={onSave}
             bottom={setModalTitle !== undefined ? '20px' : undefined}
         >
-            <FontAwesomeIcon icon={faCheck}/>
+            <FontAwesomeIcon icon={faCheck} />
         </ActionFab>
         {
             location.pathname.startsWith('/new-op/')
                 ? null
                 : <ActionButton
-                    variant={'contained'}
-                    fullWidth
-                    color={'error'}
-                    sx={{ mt: 4 }}
-                    confirmation={'Are you sure that you want to delete this operation?'}
-                    action={async () => {
-                        clearOpState()
-                        setOpId(urlOpId)
-                        setOpType('deleted')
-                        await operationsModel.put([{ id: urlOpId, type: 'deleted' }])
+                        variant={'contained'}
+                        fullWidth
+                        color={'error'}
+                        sx={{ mt: 4 }}
+                        confirmation={'Are you sure that you want to delete this operation?'}
+                        action={async () => {
+                            clearOpState()
+                            setOpId(urlOpId)
+                            setOpType('deleted')
+                            await operationsModel.put([{ id: urlOpId, type: 'deleted' }])
 
-                        if (smallScreen && setModalTitle === undefined) {
+                            if (smallScreen && setModalTitle === undefined) {
                             // todo: fix navigation from non operation screens
-                            navigate('/operations')
-                        }
-                    }}
-                >
+                                navigate('/operations')
+                            }
+                        }}
+                  >
                     {'Delete'}
                 </ActionButton>
         }
-        <Box minHeight={128}/>
+        <Box minHeight={128} />
     </Box>
 })
 
-function SkeletonBody (): ReactElement {
+function SkeletonBody(): ReactElement {
     const theme = useTheme()
 
     return <Box px={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
@@ -535,7 +536,7 @@ function SkeletonBody (): ReactElement {
     </Box>
 }
 
-function propagateAmount (
+function propagateAmount(
     opType: string,
     opAmount: number,
     opCurrency: string,
@@ -544,9 +545,9 @@ function propagateAmount (
     opToAccount: BaseTransaction | null
 ): [readonly BaseTransaction[] | null, BaseTransaction | null, BaseTransaction | null] {
     if (
-        opAccount !== null &&
-        opAmount !== opAccount.amount &&
-        opCurrency === accountsModel.get(opAccount.name).currency
+        opAccount !== null
+        && opAmount !== opAccount.amount
+        && opCurrency === accountsModel.get(opAccount.name).currency
     ) {
         opAccount = {
             ...opAccount,
@@ -555,10 +556,10 @@ function propagateAmount (
     }
 
     if (
-        opType === 'transfer' &&
-        opToAccount !== null &&
-        opAmount !== opToAccount.amount &&
-        opCurrency === accountsModel.get(opToAccount.name).currency
+        opType === 'transfer'
+        && opToAccount !== null
+        && opAmount !== opToAccount.amount
+        && opCurrency === accountsModel.get(opToAccount.name).currency
     ) {
         opToAccount = {
             ...opToAccount,
@@ -567,9 +568,9 @@ function propagateAmount (
     }
 
     if (
-        opCategories !== null &&
-        opCategories.length === 1 &&
-        opCategories[0].amount !== opAmount
+        opCategories !== null
+        && opCategories.length === 1
+        && opCategories[0].amount !== opAmount
     ) {
         opCategories = [{
             ...opCategories[0],
@@ -612,10 +613,13 @@ const BasicInfo = observer(({ opType, opDate, opAmount, opCurrency, opCategories
         if (opCats.length === 0) {
             categoryInfo = <Typography variant={'body2'}>{'Cat.: -'}</Typography>
         } else {
-            categoryInfo = <>{
+            categoryInfo = <>
+                {
                 opCats
                     .map(c => <Typography key={c.name} variant={'body2'}>
-                        {'Cat.: '}{c.name}{' ('}
+                        {'Cat.: '}
+                        {c.name}
+                        {' ('}
                         {
                             formatCurrency(
                                 c.amount,
@@ -624,7 +628,8 @@ const BasicInfo = observer(({ opType, opDate, opAmount, opCurrency, opCategories
                         }
                         {')'}
                     </Typography>)
-            }</>
+            }
+            </>
         }
     }
 
@@ -657,9 +662,10 @@ const BasicInfo = observer(({ opType, opDate, opAmount, opCurrency, opCategories
         {
             opType === 'transfer'
                 ? <Typography variant={'body2'}>
-                    {'To acc.: '}{opToAccount?.name ?? '-'}
+                    {'To acc.: '}
+                    {opToAccount?.name ?? '-'}
                     {
-                        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
+
                         opToAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
                             ? null
                             : ` (${formatCurrency(opToAccount.amount, toAccountCurrency)})`

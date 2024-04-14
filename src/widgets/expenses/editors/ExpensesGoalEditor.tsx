@@ -20,7 +20,7 @@ interface Props {
     onChange: (goal: ExpensesGoal) => void
 }
 
-export function ExpensesGoalEditor ({ goal, onChange }: Props): ReactElement {
+export function ExpensesGoalEditor({ goal, onChange }: Props): ReactElement {
     const [editFilter, setEditFilter] = useState(false)
     const [newGoal, setNewGoal] = useState(goal)
     const navigate = useNavigate()
@@ -39,12 +39,12 @@ export function ExpensesGoalEditor ({ goal, onChange }: Props): ReactElement {
     const onSave = useMemo(
         () => {
             if (
-                goal === null ||
-                newGoal === null ||
-                deepEqual(goal, newGoal) ||
-                newNameTrimmed === '' ||
-                newGoal.perDayAmount === 0 ||
-                nameCollision
+                goal === null
+                || newGoal === null
+                || deepEqual(goal, newGoal)
+                || newNameTrimmed === ''
+                || newGoal.perDayAmount === 0
+                || nameCollision
             ) {
                 return null
             }
@@ -75,14 +75,14 @@ export function ExpensesGoalEditor ({ goal, onChange }: Props): ReactElement {
             variant={'filled'}
             size={'small'}
             value={newGoal.name}
-            error={newNameTrimmed === '' || nameCollision }
+            error={newNameTrimmed === '' || nameCollision}
             helperText={
                 match([newNameTrimmed, nameCollision])
                     .with(['', P._], () => 'Empty')
                     .with([P._, true], () => 'Already exists')
                     .otherwise(() => 'ok')
             }
-            onChange={ev => {
+            onChange={(ev) => {
                 setNewGoal({ ...newGoal, name: ev.target.value })
             }}
         />
@@ -91,22 +91,25 @@ export function ExpensesGoalEditor ({ goal, onChange }: Props): ReactElement {
             variant={'contained'}
             onClick={() => { setEditFilter(true) }}
             sx={{ gap: 1 }}
-        ><FontAwesomeIcon icon={faFilter}/>{'Filter'}</Button>
+        >
+            <FontAwesomeIcon icon={faFilter} />
+            {'Filter'}
+        </Button>
         <FormControlLabel
             label={'Regular expenses'}
             control={<Switch
                 checked={newGoal.isRegular}
                 onChange={(_, v) => { setNewGoal({ ...newGoal, isRegular: v }) }}
-            />}
+                     />}
             sx={{ mb: 2 }}
         />
         <GoalInput
             currency={newGoal.currency}
-            onCurrencyChange={currency => {
+            onCurrencyChange={(currency) => {
                 setNewGoal({ ...newGoal, currency })
             }}
             perDayAmount={newGoal.perDayAmount}
-            onPerDayAmountChange={perDayAmount => {
+            onPerDayAmountChange={(perDayAmount) => {
                 setNewGoal({ ...newGoal, perDayAmount })
             }}
         />
@@ -114,14 +117,14 @@ export function ExpensesGoalEditor ({ goal, onChange }: Props): ReactElement {
             action={onSave}
             bottom={goal.name === '' ? '20px' : undefined}
         >
-            <FontAwesomeIcon icon={faCheck}/>
+            <FontAwesomeIcon icon={faCheck} />
         </ActionFab>
         {
             showIf(editFilter, <FilterEditor
                 filter={newGoal.filter}
                 onClose={() => { setEditFilter(false) }}
-                onFilterChanged={f => { setNewGoal({ ...newGoal, filter: f }) }}
-            />)
+                onFilterChanged={(f) => { setNewGoal({ ...newGoal, filter: f }) }}
+                               />)
         }
     </Column>
 }

@@ -4,21 +4,21 @@ import { type OperationsModel } from '../model/operations'
 
 const GOOGLE_EPOCH = DateTime.utc(1899, 12, 30)
 
-export function fromGoogleDateTime (date: number): DateTime {
+export function fromGoogleDateTime(date: number): DateTime {
     const millis = GOOGLE_EPOCH.plus({ days: date }).toMillis()
     return DateTime.fromMillis(Math.round(millis), { zone: 'utc' })
 }
 
-export function toGoogleDateTime (date: DateTime): number {
+export function toGoogleDateTime(date: DateTime): number {
     return date.diff(GOOGLE_EPOCH, 'days').days
 }
 
-export function utcToday (): DateTime {
+export function utcToday(): DateTime {
     const now = DateTime.now()
     return utcDate(now)
 }
 
-export function utcDate (date: Date | DateTime): DateTime {
+export function utcDate(date: Date | DateTime): DateTime {
     if (date instanceof Date) {
         date = DateTime.fromJSDate(date)
     }
@@ -28,10 +28,10 @@ export function utcDate (date: Date | DateTime): DateTime {
 export abstract class HumanTimeSpan {
     private datesCache: DateTime[] | null = null
 
-    abstract get startDate (): DateTime
-    abstract get endDate (): DateTime
+    abstract get startDate(): DateTime
+    abstract get endDate(): DateTime
 
-    private makeAllDates (): DateTime[] {
+    private makeAllDates(): DateTime[] {
         const dates: DateTime[] = []
 
         const startDate = this.startDate.minus({ day: 1 })
@@ -44,7 +44,7 @@ export abstract class HumanTimeSpan {
         return dates
     }
 
-    * allDates (opts?: { includeDayBefore?: boolean }): Generator<DateTime> {
+    * allDates(opts?: { includeDayBefore?: boolean }): Generator<DateTime> {
         if (this.datesCache === null) {
             this.datesCache = this.makeAllDates()
         }
@@ -54,28 +54,28 @@ export abstract class HumanTimeSpan {
         }
     }
 
-    get totalDays (): number {
+    get totalDays(): number {
         return this.endDate.diff(this.startDate, 'days').days + 1
     }
 }
 
 export class ThisMonthTimeSpan extends HumanTimeSpan {
-    get startDate (): DateTime {
+    get startDate(): DateTime {
         return utcToday().set({ day: 1 })
     }
 
-    get endDate (): DateTime {
+    get endDate(): DateTime {
         const today = utcToday()
         return today.set({ day: today.daysInMonth })
     }
 }
 
 export class ThisYearTimeSpan extends HumanTimeSpan {
-    get startDate (): DateTime {
+    get startDate(): DateTime {
         return utcToday().set({ day: 1, month: 1 })
     }
 
-    get endDate (): DateTime {
+    get endDate(): DateTime {
         return utcToday().set({ day: 31, month: 12 })
     }
 }
@@ -84,17 +84,17 @@ export class MonthTimeSpan extends HumanTimeSpan {
     readonly year: number
     readonly month: number
 
-    constructor (year: number, month: number) {
+    constructor(year: number, month: number) {
         super()
         this.year = year
         this.month = month
     }
 
-    get startDate (): DateTime {
+    get startDate(): DateTime {
         return DateTime.utc(this.year, this.month)
     }
 
-    get endDate (): DateTime {
+    get endDate(): DateTime {
         const date = DateTime.utc(this.year, this.month)
         return date.set({ day: date.daysInMonth })
     }
@@ -103,16 +103,16 @@ export class MonthTimeSpan extends HumanTimeSpan {
 export class YearTimeSpan extends HumanTimeSpan {
     readonly year: number
 
-    constructor (year: number) {
+    constructor(year: number) {
         super()
         this.year = year
     }
 
-    get startDate (): DateTime {
+    get startDate(): DateTime {
         return DateTime.utc(this.year)
     }
 
-    get endDate (): DateTime {
+    get endDate(): DateTime {
         return DateTime.utc(this.year, 12, 31)
     }
 }
@@ -120,16 +120,16 @@ export class YearTimeSpan extends HumanTimeSpan {
 export class LastPeriodTimeSpan extends HumanTimeSpan {
     readonly duration: DurationLike
 
-    constructor (duration: DurationLike) {
+    constructor(duration: DurationLike) {
         super()
         this.duration = duration
     }
 
-    get startDate (): DateTime {
+    get startDate(): DateTime {
         return utcToday().minus(this.duration)
     }
 
-    get endDate (): DateTime {
+    get endDate(): DateTime {
         return utcToday()
     }
 }
@@ -138,17 +138,17 @@ export class CustomTimeSpan extends HumanTimeSpan {
     private readonly _start: DateTime
     private readonly _end: DateTime
 
-    constructor (start: DateTime, end: DateTime) {
+    constructor(start: DateTime, end: DateTime) {
         super()
         this._start = start
         this._end = end
     }
 
-    get startDate (): DateTime {
+    get startDate(): DateTime {
         return this._start
     }
 
-    get endDate (): DateTime {
+    get endDate(): DateTime {
         return this._end
     }
 }
@@ -156,17 +156,17 @@ export class CustomTimeSpan extends HumanTimeSpan {
 export class AllHistoryTimeSpan extends HumanTimeSpan {
     private readonly _operationsModel: OperationsModel
 
-    constructor (operationsModel: OperationsModel) {
+    constructor(operationsModel: OperationsModel) {
         super()
         this._operationsModel = operationsModel
     }
 
-    get startDate (): DateTime {
+    get startDate(): DateTime {
         const firstOp = this._operationsModel.firstOp
         return firstOp?.date ?? utcToday()
     }
 
-    get endDate (): DateTime {
+    get endDate(): DateTime {
         return utcToday()
     }
 }

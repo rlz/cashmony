@@ -58,9 +58,9 @@ interface CustomTimeSpanInfo {
 }
 
 type TimeSpanInfo = ThisMonthTimeSpanInfo |
-ThisYearTimeSpanInfo | MonthTimeSpanInfo | YearTimeSpanInfo |
-LastMonthTimeSpanInfo | LastQuarterTimeSpanInfo | LastYearTimeSpanInfo |
-AllHistoryTimeSpanInfo | CustomTimeSpanInfo
+    ThisYearTimeSpanInfo | MonthTimeSpanInfo | YearTimeSpanInfo |
+    LastMonthTimeSpanInfo | LastQuarterTimeSpanInfo | LastYearTimeSpanInfo |
+    AllHistoryTimeSpanInfo | CustomTimeSpanInfo
 
 const TIME_SPAN_INFO_LS_KEY = 'AppState.timeSpanInfo'
 const THEME_LS_KEY = 'AppState.theme'
@@ -123,7 +123,7 @@ export class AppState {
         showGlobalFilterEditor: false
     }
 
-    private constructor () {
+    private constructor() {
         makeAutoObservable(this)
 
         setInterval(() => {
@@ -176,7 +176,7 @@ export class AppState {
         })
     }
 
-    get timeSpan (): HumanTimeSpan {
+    get timeSpan(): HumanTimeSpan {
         if (this.timeSpanInfo.type === 'thisMonth') {
             return new ThisMonthTimeSpan()
         }
@@ -212,7 +212,7 @@ export class AppState {
         return new CustomTimeSpan(makeDate(this.timeSpanInfo.from), makeDate(this.timeSpanInfo.to))
     }
 
-    get daysLeft (): number {
+    get daysLeft(): number {
         const timeSpan = this.timeSpan
         const today = this.today
         if (timeSpan.endDate < today) return 0
@@ -220,7 +220,7 @@ export class AppState {
         return timeSpan.endDate.diff(today, 'days').days + 1
     }
 
-    static instance (): AppState {
+    static instance(): AppState {
         if (appState === null) {
             appState = new AppState()
         }
@@ -249,6 +249,6 @@ export class AppState {
     }
 }
 
-function makeDate (dateInfo: DateInfo): DateTime {
+function makeDate(dateInfo: DateInfo): DateTime {
     return DateTime.utc(dateInfo.year, dateInfo.month, dateInfo.day)
 }

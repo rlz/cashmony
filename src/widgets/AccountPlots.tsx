@@ -57,5 +57,5 @@ export const AccPlot = observer(({ title, account, sparkline, perDayAmount, tota
         series={series}
         title={sparkline === true ? undefined : title}
         p={sparkline === true ? 0 : 1}
-    />
+           />
 })

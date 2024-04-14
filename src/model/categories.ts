@@ -14,7 +14,7 @@ export class CategoriesModel {
     categories: ReadonlyMap<string, Category> | null = null
     categoriesSorted: readonly string[] = []
 
-    private constructor () {
+    private constructor() {
         makeAutoObservable(this, {
             categories: observable.shallow,
             categoriesSorted: observable.shallow
@@ -53,7 +53,7 @@ export class CategoriesModel {
         void this.readAll()
     }
 
-    static instance (): CategoriesModel {
+    static instance(): CategoriesModel {
         if (categoriesModel === null) {
             categoriesModel = new CategoriesModel()
         }
@@ -61,7 +61,7 @@ export class CategoriesModel {
         return categoriesModel
     }
 
-    get (catName: string): Category {
+    get(catName: string): Category {
         if (this.categories === null) {
             throw Error('Categories not loaded')
         }
@@ -80,15 +80,15 @@ export class CategoriesModel {
         return category
     }
 
-    async put (category: Category): Promise<void> {
+    async put(category: Category): Promise<void> {
         await this.finDataDb.putCategory(category)
         await this.readAll()
     }
 
-    private async readAll (): Promise<void> {
+    private async readAll(): Promise<void> {
         const categories = new Map<string, Category>();
 
-        (await this.finDataDb.readAllCategories()).forEach(c => { categories.set(c.name, c) })
+        (await this.finDataDb.readAllCategories()).forEach((c) => { categories.set(c.name, c) })
 
         runInAction(() => {
             this.categories = categories

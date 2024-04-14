@@ -17,7 +17,7 @@ const regExps = [
     /^[0-9]*\.?[0-9]*$/
 ]
 
-export function CurrencyInput (props: Props): ReactElement {
+export function CurrencyInput(props: Props): ReactElement {
     const mult = props.mult ?? 1
 
     const [amountText, setAmountText] = useState('')
@@ -36,18 +36,18 @@ export function CurrencyInput (props: Props): ReactElement {
 
     useEffect(() => {
         if (
-            !Number.isNaN(a) &&
-            (
-                (amountText !== '' && props.amount !== mult * a) ||
-                (amountText === '' && props.amount !== 0)
+            !Number.isNaN(a)
+            && (
+                (amountText !== '' && props.amount !== mult * a)
+                || (amountText === '' && props.amount !== 0)
             )
         ) {
             setAmountText((props.amount / mult).toFixed(2))
         }
     }, [props.amount, mult, a, amountText])
 
-    const error = (props.allowZero !== true && props.amount === 0) ||
-        (Number.isNaN(a) && amountText !== '')
+    const error = (props.allowZero !== true && props.amount === 0)
+        || (Number.isNaN(a) && amountText !== '')
 
     const helperText = (() => {
         if (props.allowZero !== true && amountText === '') {

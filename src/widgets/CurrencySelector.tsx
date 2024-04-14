@@ -32,20 +32,26 @@ export const CurrencySelector = observer((props: Props): ReactElement => {
                     }
                 </Typography>
             </Box>
-            <TextField variant={'filled'} size={'small'} label={'Search'} value={search} onChange={ev => {
-                setSearch(ev.target.value)
-            }} />
+            <TextField
+                variant={'filled'}
+                size={'small'}
+                label={'Search'}
+                value={search}
+                onChange={(ev) => {
+                    setSearch(ev.target.value)
+                }}
+            />
             <Box overflow={'auto'} flex={'1 1 auto'}>
                 <List>
                     {currenciesModel.currencies
                         .map(c => CURRENCIES[c])
-                        .filter(c => {
+                        .filter((c) => {
                             const s = search.trim().toLocaleLowerCase()
 
                             if (s === '') return true
 
-                            return c.name.toLocaleLowerCase().includes(s) ||
-                            c.code.toLocaleLowerCase().includes(s)
+                            return c.name.toLocaleLowerCase().includes(s)
+                                || c.code.toLocaleLowerCase().includes(s)
                         })
                         .map((c, i, arr) => {
                             return [
@@ -63,7 +69,7 @@ export const CurrencySelector = observer((props: Props): ReactElement => {
                                         <ListItemText primary={c.name} secondary={c.code} />
                                     </ListItem>
                                 </ListItemButton>,
-                                i + 1 < arr.length ? <Divider key={c.code + 'd'}/> : null
+                                i + 1 < arr.length ? <Divider key={c.code + 'd'} /> : null
                             ]
                         })}
                 </List>

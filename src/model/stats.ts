@@ -10,21 +10,21 @@ import { compilePredicate, type Predicate } from './predicateExpression'
 const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 
-export function hasOperation (predicate: Predicate, timeSpan: HumanTimeSpan | null): boolean {
+export function hasOperation(predicate: Predicate, timeSpan: HumanTimeSpan | null): boolean {
     const next = listOperations(predicate, timeSpan).next()
     return next.done !== true
 }
 
-export function countOperations (predicate: Predicate, timeSpan: HumanTimeSpan | null): number {
+export function countOperations(predicate: Predicate, timeSpan: HumanTimeSpan | null): number {
     let count = 0
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     for (const _op of listOperations(predicate, timeSpan)) {
         count += 1
     }
     return count
 }
 
-export function * listOperations (predicate: Predicate, timeSpan: HumanTimeSpan | null): Generator<NotDeletedOperation> {
+export function * listOperations(predicate: Predicate, timeSpan: HumanTimeSpan | null): Generator<NotDeletedOperation> {
     if (operationsModel.operations === null) {
         throw Error('Operations not loaded')
     }
@@ -35,10 +35,10 @@ export function * listOperations (predicate: Predicate, timeSpan: HumanTimeSpan 
 
     for (const op of operationsModel.operations) {
         if (
-            op.type === 'deleted' ||
-            (timeSpan !== null && op.date.toMillis() < startDateMillis) ||
-            (timeSpan !== null && op.date.toMillis() > endDateMillis) ||
-            !filter(op)
+            op.type === 'deleted'
+            || (timeSpan !== null && op.date.toMillis() < startDateMillis)
+            || (timeSpan !== null && op.date.toMillis() > endDateMillis)
+            || !filter(op)
         ) {
             continue
         }
@@ -63,7 +63,7 @@ export interface Reducer<T> {
 
 type InferReturnType<Type> = Type extends Record<string, Reducer<infer X>> ? { [key in keyof Type]: X[] } : never
 
-export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpan | null, today: DateTime, reducers: T): Promise<InferReturnType<T>> {
+export async function calcStats<T>(predicate: Predicate, timeSpan: HumanTimeSpan | null, today: DateTime, reducers: T): Promise<InferReturnType<T>> {
     // const timer = performance.now()
     // console.trace('Start calcStats')
 
@@ -79,6 +79,7 @@ export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpa
         return [operationsModel.firstOp?.date ?? appState.today, operationsModel.lastOp?.date ?? appState.today]
     })()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const values: Record<string, any[]> = {}
     for (const key of Object.keys(reducers as Record<string, unknown>)) {
         values[key] = []
@@ -121,10 +122,10 @@ export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpa
             const op = operationsModel.operations[index]
 
             if (
-                op.type === 'deleted' ||
-                (startDate !== null && op.date < startDate) ||
-                (endDate !== null && op.date > endDate) ||
-                !filter(op)
+                op.type === 'deleted'
+                || (startDate !== null && op.date < startDate)
+                || (endDate !== null && op.date > endDate)
+                || !filter(op)
             ) {
                 index += 1
                 continue
@@ -132,6 +133,7 @@ export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpa
 
             if (op.date.equals(date)) {
                 index += 1
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const promises = Object.entries(reducers as Record<string, Reducer<any>>).map(async ([key, reducer]) => {
                     if (reducer.interval === 'day') {
                         const interval = date
@@ -175,6 +177,7 @@ export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpa
         }
 
         if (firstOp) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const promises = Object.entries(reducers as Record<string, Reducer<any>>).map(async ([key, reducer]) => {
                 const interval = match(reducer.interval)
                     .with('day', () => date)
@@ -210,6 +213,7 @@ export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpa
         firstDay = false
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const promises = Object.entries(reducers as Record<string, Reducer<any>>).map(async ([key, reducer]) => {
         if (reducer.done !== undefined) {
             await reducer.done(values[key])
@@ -218,5 +222,6 @@ export async function calcStats<T> (predicate: Predicate, timeSpan: HumanTimeSpa
     await Promise.all(promises)
 
     // console.log('Finish calcStats', performance.now() - timer)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return values as any
 }

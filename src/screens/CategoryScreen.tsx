@@ -33,7 +33,7 @@ import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
 import { OperationScreenBody } from './OperationScreen'
 
-export function CategoryScreen (): ReactElement {
+export function CategoryScreen(): ReactElement {
     const appState = AppState.instance()
     const smallScreen = screenWidthIs('xs', 'sm')
     const location = useLocation()
@@ -52,7 +52,7 @@ export function CategoryScreen (): ReactElement {
             smallScreen
                 ? <Box height={'100%'} position={'relative'}>
                     <Box height={'100%'}>
-                        <CategoriesScreenBody noFab={!noCatSelected}/>
+                        <CategoriesScreenBody noFab={!noCatSelected} />
                     </Box>
                     {
                         showIfLazy(!noCatSelected, () => {
@@ -63,7 +63,7 @@ export function CategoryScreen (): ReactElement {
                                 height={'100%'}
                                 width={'100%'}
                                 bgcolor={theme.palette.background.default}
-                            >
+                                   >
                                 <CategoryScreenBody />
                             </Box>
                         })
@@ -71,7 +71,7 @@ export function CategoryScreen (): ReactElement {
                 </Box>
                 : <PanelGroup direction={'horizontal'}>
                     <Panel>
-                        <CategoriesScreenBody noFab={!noCatSelected}/>
+                        <CategoriesScreenBody noFab={!noCatSelected} />
                     </Panel>
                     {
                         showIfLazy(!noCatSelected, () => {
@@ -120,8 +120,8 @@ export const CategoryScreenBody = observer((): ReactElement => {
 
     useEffect(() => {
         if (
-            cat === null ||
-            stats === null
+            cat === null
+            || stats === null
         ) {
             appState.setSubTitle('Category :: loading...')
         } else {
@@ -191,8 +191,8 @@ export const CategoryScreenBody = observer((): ReactElement => {
     )
 
     if (
-        cat === null ||
-        stats === null
+        cat === null
+        || stats === null
     ) {
         return <ExpensesGroupScreenSkeleton />
     }
@@ -215,12 +215,13 @@ export const CategoryScreenBody = observer((): ReactElement => {
                     {cur(-stats.total)}
                 </Typography>
                 <Typography variant={'body2'} textAlign={'center'}>
-                    {'Goal (30d): '}{cat.perDayAmount !== undefined ? cur(30 * cat.perDayAmount) : '-'}
+                    {'Goal (30d): '}
+                    {cat.perDayAmount !== undefined ? cur(30 * cat.perDayAmount) : '-'}
                 </Typography>
                 <Tabs value={tabName} onChange={(_, tab) => { navigate(`/categories/${catName}/${tab as string}`) }} variant={'fullWidth'}>
-                    <Tab value={'stats'} label={'Stats'}/>
-                    <Tab value={'modify'} label={'Modify'}/>
-                    <Tab value={'operations'} label={'Operations'}/>
+                    <Tab value={'stats'} label={'Stats'} />
+                    <Tab value={'modify'} label={'Modify'} />
+                    <Tab value={'operations'} label={'Operations'} />
                 </Tabs>
             </Box>
             <Box overflow={'auto'} flex={'1 1 auto'}>
@@ -231,21 +232,21 @@ export const CategoryScreenBody = observer((): ReactElement => {
                                 currency={currency}
                                 predicate={predicate}
                                 perDayGoal={cat.perDayAmount ?? null}
-                            />)
+                                                 />)
                             .with('modify', () => <CategoryEditor
                                 cat={cat}
                                 setCat={setCat}
-                            />)
+                                                  />)
                             .with('operations', () => <OpsList
                                 noFab
                                 onOpClick={(opId) => {
                                     navigate(`/categories/${catName}/operations/${opId}`)
                                 }}
                                 predicate={predicate}
-                            />)
+                                                      />)
                             .otherwise(() => { throw Error('Unimplenented tab') })
                     }
-                    <Box minHeight={72}/>
+                    <Box minHeight={72} />
                 </Box>
             </Box>
         </Column>
@@ -255,7 +256,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
                     width={'850px'}
                     title={opModalTitle}
                     onClose={() => { navigate(`/categories/${catName}/operations`) }}
-                >
+                       >
                     <Box p={1}>
                         <OperationScreenBody
                             urlOpId={opId ?? ''}
@@ -285,7 +286,7 @@ const DEFAULT_CATEGORIES: Category[] = [
     'Education',
     'Health',
     'Travel'
-].map(i => { return { name: i, lastModified: DateTime.utc() } })
+].map((i) => { return { name: i, lastModified: DateTime.utc() } })
 
 export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyProps): ReactElement => {
     const appState = AppState.instance()
@@ -353,25 +354,27 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
             {
                 addCategory
                     ? <AddCategory
-                        onClose={() => { setAddCategory(false) }}
-                    />
+                            onClose={() => { setAddCategory(false) }}
+                      />
                     : undefined
             }
             {
                 addCategory || noFab === true
                     ? null
                     : <Fab
-                        color={'primary'}
-                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                        onClick={() => { setAddCategory(true) }}
-                    >
+                            color={'primary'}
+                            sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                            onClick={() => { setAddCategory(true) }}
+                      >
                         <FontAwesomeIcon icon={faPlus} />
                     </Fab>
             }
             <Column textAlign={'center'} alignItems={'center'} mt={3}>
                 <Box>
-                    {'Before start tracking your finances you need to create a category'}<br/>
-                    {'You will mark all your expenses as related to one or another category'}<br/>
+                    {'Before start tracking your finances you need to create a category'}
+                    <br />
+                    {'You will mark all your expenses as related to one or another category'}
+                    <br />
                     {'You can create as many categories as you need'}
                 </Box>
                 <Typography my={2} fontSize={'1.5rem'}>
@@ -387,7 +390,7 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
                     variant={'contained'}
                     onClick={() => {
                         runAsync(async () => {
-                            await Promise.all(DEFAULT_CATEGORIES.map(async c => { await categoriesModel.put(c) }))
+                            await Promise.all(DEFAULT_CATEGORIES.map(async (c) => { await categoriesModel.put(c) }))
                         })
                     }}
                 >
@@ -401,25 +404,25 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
         {
             addCategory
                 ? <AddCategory
-                    onClose={() => { setAddCategory(false) }}
-                />
+                        onClose={() => { setAddCategory(false) }}
+                  />
                 : undefined
         }
         {
             addCategory || noFab === true
                 ? null
                 : <Fab
-                    color={'primary'}
-                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                    onClick={() => { setAddCategory(true) }}
-                >
+                        color={'primary'}
+                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                        onClick={() => { setAddCategory(true) }}
+                  >
                     <FontAwesomeIcon icon={faPlus} />
                 </Fab>
         }
         <Box p={1} height={'100%'} overflow={'auto'}>
             <Box maxWidth={900} mx={'auto'}>
-                <ExpensesList categories={cats}/>
-                <Box minHeight={144}/>
+                <ExpensesList categories={cats} />
+                <Box minHeight={144} />
             </Box>
         </Box>
     </>

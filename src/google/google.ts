@@ -45,7 +45,7 @@ export class Google {
         makeSheet(this.tabNames.goals, ['name', 'lastModified', 'deleted', 'isRegular', 'filter', 'perDayGoal.value', 'perDayGoal.currency'])
     ].map(i => [i.properties.title, i]))
 
-    static instance (): Google {
+    static instance(): Google {
         if (google === null) {
             google = new Google()
         }
@@ -53,7 +53,7 @@ export class Google {
         return google
     }
 
-    async fetch (input: RequestInfo | URL, init?: RequestInit): Promise<GoogleReply> {
+    async fetch(input: RequestInfo | URL, init?: RequestInit): Promise<GoogleReply> {
         const accessToken = this.accessToken
         if (accessToken === null) {
             throw Error('Access token expected here')
@@ -87,7 +87,7 @@ export class Google {
         throw Error(`Error call Google API: ${reply.status} ${reply.statusText}\n### Body ###\n${await reply.text()}\n### End of body ###`)
     }
 
-    async authenticate (): Promise<void> {
+    async authenticate(): Promise<void> {
         console.log('Authenticating')
         const url = makeUrl(
             'https://accounts.google.com/o/oauth2/v2/auth',
@@ -109,7 +109,7 @@ export class Google {
         })
     }
 
-    finishAuth (accessToken: string): void {
+    finishAuth(accessToken: string): void {
         this.accessToken = accessToken
         localStorage.setItem(ACCESS_TOKEN, accessToken)
         console.log('Authenticated')
@@ -119,7 +119,7 @@ export class Google {
         }
     }
 
-    async searchOrCreateDataSpreadsheet (): Promise<void> {
+    async searchOrCreateDataSpreadsheet(): Promise<void> {
         console.log('Searching for data spreadsheet')
 
         const reply = await this.fetch(
@@ -166,11 +166,11 @@ export interface GoogleOkReply extends GoogleReply {
 export interface GoogleUnauthenticatedReply extends GoogleReply {
 }
 
-export function isOk (reply: GoogleReply): reply is GoogleOkReply {
+export function isOk(reply: GoogleReply): reply is GoogleOkReply {
     return reply.status === OK
 }
 
-export function isUnauthenticated (reply: GoogleReply): reply is GoogleUnauthenticatedReply {
+export function isUnauthenticated(reply: GoogleReply): reply is GoogleUnauthenticatedReply {
     return reply.status === UNAUTHENTICATED
 }
 
@@ -196,7 +196,7 @@ export interface GoogleSheetProperties {
     }]
 }
 
-function makeSheet (tabName: string, columns: string[]): GoogleSheetProperties {
+function makeSheet(tabName: string, columns: string[]): GoogleSheetProperties {
     return {
         properties: {
             title: tabName
@@ -207,7 +207,7 @@ function makeSheet (tabName: string, columns: string[]): GoogleSheetProperties {
                 startColumn: 0,
                 rowData: [
                     {
-                        values: columns.map(i => {
+                        values: columns.map((i) => {
                             return {
                                 userEnteredValue: {
                                     stringValue: i

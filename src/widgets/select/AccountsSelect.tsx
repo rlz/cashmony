@@ -17,7 +17,7 @@ interface Props {
 }
 
 export const AccountsSelect = observer((props: Props) => {
-    const accounts = accountsModel.accountsSorted?.filter(accName => {
+    const accounts = accountsModel.accountsSorted?.filter((accName) => {
         const acc = accountsModel.get(accName)
         return acc.deleted !== true && (!acc.hidden || props.showHidden)
     }) ?? []
@@ -29,5 +29,5 @@ export const AccountsSelect = observer((props: Props) => {
         selectMany={props.selectMany}
         selectZero={props.selectZero}
         sx={props.sx}
-    />
+           />
 })

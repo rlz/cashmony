@@ -30,7 +30,7 @@ import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
 import { OperationScreenBody } from './OperationScreen'
 
-export function ExpensesGoalScreen (): ReactElement {
+export function ExpensesGoalScreen(): ReactElement {
     const appState = AppState.instance()
     const params = useParams()
     const smallScreen = screenWidthIs('xs', 'sm')
@@ -57,7 +57,7 @@ export function ExpensesGoalScreen (): ReactElement {
                     />
                     {
                         showIfLazy(params.goalName !== undefined, () => {
-                            return <ExpensesGoalScreenBody/>
+                            return <ExpensesGoalScreenBody />
                         })
                     }
                 </>
@@ -70,7 +70,7 @@ export function ExpensesGoalScreen (): ReactElement {
                             return <>
                                 <ResizeHandle />
                                 <Panel>
-                                    <ExpensesGoalScreenBody/>
+                                    <ExpensesGoalScreenBody />
                                 </Panel>
                             </>
                         })
@@ -113,31 +113,31 @@ export const ExpensesGoalsScreenBody = observer(({ noFab, hide }: ExpensesGoalsS
         {
             add
                 ? <AddExpensesGoalModal
-                    onClose={() => { setAdd(false) }}
-                />
+                        onClose={() => { setAdd(false) }}
+                  />
                 : undefined
         }
         {
             add || noFab === true
                 ? undefined
                 : <Fab
-                    color={'primary'}
-                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                    onClick={() => { setAdd(true) }}
-                >
+                        color={'primary'}
+                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                        onClick={() => { setAdd(true) }}
+                  >
                     <FontAwesomeIcon icon={faPlus} />
                 </Fab>
         }
         <Box p={1} height={'100%'} overflow={'auto'} display={hide === true ? 'none' : 'block'}>
             <Box maxWidth={900} mx={'auto'}>
-                <ExpensesList goals={goals}/>
-                <Box minHeight={144}/>
+                <ExpensesList goals={goals} />
+                <Box minHeight={144} />
             </Box>
         </Box>
     </>
 })
 
-function EspensesGoalsScreenBodySkeleton (): ReactElement {
+function EspensesGoalsScreenBodySkeleton(): ReactElement {
     return <Column gap={1} p={1}>
         <ExpensesCardSkeleton />
         <ExpensesCardSkeleton />
@@ -145,7 +145,7 @@ function EspensesGoalsScreenBodySkeleton (): ReactElement {
     </Column>
 }
 
-export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (): ReactElement {
+export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody(): ReactElement {
     const appState = AppState.instance()
     const goalsModel = GoalsModel.instance()
     const operationsModel = OperationsModel.instance()
@@ -193,8 +193,8 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
     useEffect(() => {
         runAsync(async () => {
             if (
-                newGoal === null ||
-                operationsModel.operations === null
+                newGoal === null
+                || operationsModel.operations === null
             ) {
                 return
             }
@@ -212,9 +212,9 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
     const statsFilter = useMemo(() => newGoal !== null ? PE.filter(newGoal.filter) : null, [newGoal])
 
     if (
-        goal === null ||
-        newGoal === null ||
-        newGoalNameTrimmed === undefined
+        goal === null
+        || newGoal === null
+        || newGoalNameTrimmed === undefined
     ) {
         return <Box p={1}><ExpensesGroupScreenSkeleton /></Box>
     }
@@ -231,16 +231,17 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
                     {cur(-total)}
                 </Typography>
                 <Typography variant={'body2'} textAlign={'center'}>
-                    {'Goal (30d): '}{cur(30 * newGoal.perDayAmount)}
+                    {'Goal (30d): '}
+                    {cur(30 * newGoal.perDayAmount)}
                 </Typography>
                 <Tabs
                     value={tabName}
                     onChange={(_, tab) => { navigate(`/goals/${encodeURIComponent(goal.name)}/${tab as string}`) }}
                     variant={'fullWidth'}
                 >
-                    <Tab value={'stats'} label={'Stats'}/>
-                    <Tab value={'modify'} label={'Modify'}/>
-                    <Tab value={'operations'} label={'Operations'}/>
+                    <Tab value={'stats'} label={'Stats'} />
+                    <Tab value={'modify'} label={'Modify'} />
+                    <Tab value={'operations'} label={'Operations'} />
                 </Tabs>
             </Box>
             <Box overflow={'auto'} flex={'1 1 auto'}>
@@ -251,7 +252,7 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
                                 currency={newGoal.currency}
                                 predicate={statsFilter!}
                                 perDayGoal={newGoal.perDayAmount}
-                            />)
+                                                 />)
                             .with('modify', () => {
                                 return <>
                                     <ExpensesGoalEditor goal={newGoal} onChange={setNewGoal} />
@@ -277,10 +278,10 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
                                     navigate(`/goals/${goalName}/operations/${opId}`)
                                 }}
                                 predicate={PE.and(EXPENSE_PREDICATE, PE.filter(newGoal.filter))}
-                            />)
+                                                      />)
                             .otherwise(() => { throw Error('Unimplenented tab') })
                     }
-                    <Box minHeight={80}/>
+                    <Box minHeight={80} />
                 </Box>
             </Box>
         </Column>
@@ -290,7 +291,7 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody (
                     width={'850px'}
                     title={opModalTitle}
                     onClose={() => { navigate(`/goals/${goalName}/operations`) }}
-                >
+                       >
                     <Box p={1}>
                         <OperationScreenBody
                             urlOpId={opId ?? ''}

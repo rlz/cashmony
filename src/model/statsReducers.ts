@@ -12,10 +12,10 @@ const appState = AppState.instance()
 const currenciesModel = CurrenciesModel.instance()
 const categoriesModel = CategoriesModel.instance()
 
-export function countOpsReducer (interval: IntervalType): Reducer<number> {
+export function countOpsReducer(interval: IntervalType): Reducer<number> {
     return {
         interval,
-        async reduce (op, _interval, firstOp, _intervalKind, values: number[]) {
+        async reduce(op, _interval, firstOp, _intervalKind, values: number[]) {
             if (firstOp) {
                 values.push(0)
             }
@@ -26,17 +26,17 @@ export function countOpsReducer (interval: IntervalType): Reducer<number> {
     }
 }
 
-export function sumCatExpensesReducer (interval: IntervalType, totalCurrency: string, uncatCurrency: string): Reducer<Record<string, number>> {
+export function sumCatExpensesReducer(interval: IntervalType, totalCurrency: string, uncatCurrency: string): Reducer<Record<string, number>> {
     const zero: Record<string, number> = {
         _total: 0,
         _: 0
     };
 
-    (categoriesModel.categories ?? new Map()).forEach(i => { if (i.deleted !== true) zero[i.name] = 0 })
+    (categoriesModel.categories ?? new Map()).forEach((i) => { if (i.deleted !== true) zero[i.name] = 0 })
 
     return {
         interval,
-        async reduce (op, _interval, firstOp, _intervalKind, values: Array<Record<string, number>>) {
+        async reduce(op, _interval, firstOp, _intervalKind, values: Array<Record<string, number>>) {
             if (firstOp) {
                 values.push({ ...zero })
             }
@@ -64,10 +64,10 @@ export function sumCatExpensesReducer (interval: IntervalType, totalCurrency: st
     }
 }
 
-export function opsPerIterval (interval: IntervalType, keepEmpty: boolean): Reducer<NotDeletedOperation[]> {
+export function opsPerIterval(interval: IntervalType, keepEmpty: boolean): Reducer<NotDeletedOperation[]> {
     return {
         interval,
-        async reduce (op, _interval, firstOp, _intervalKind, values) {
+        async reduce(op, _interval, firstOp, _intervalKind, values) {
             if (firstOp && (op !== null || keepEmpty)) {
                 if (values.length > 0) {
                     values[values.length - 1].reverse()
@@ -79,7 +79,7 @@ export function opsPerIterval (interval: IntervalType, keepEmpty: boolean): Redu
                 values[values.length - 1].push(op)
             }
         },
-        async done (values) {
+        async done(values) {
             if (values.length > 0) {
                 values[values.length - 1].reverse()
             }
@@ -87,7 +87,7 @@ export function opsPerIterval (interval: IntervalType, keepEmpty: boolean): Redu
     }
 }
 
-export function perCatTodayExpensesReducer (totalCurrency: string, uncatCurrency: string): Reducer<Record<string, number>> {
+export function perCatTodayExpensesReducer(totalCurrency: string, uncatCurrency: string): Reducer<Record<string, number>> {
     const appState = AppState.instance()
     const categoriesModel = CategoriesModel.instance()
     const currenciesModel = CurrenciesModel.instance()
@@ -97,11 +97,11 @@ export function perCatTodayExpensesReducer (totalCurrency: string, uncatCurrency
         _: 0
     };
 
-    (categoriesModel.categories ?? new Map()).forEach(i => { if (i.deleted !== true) zero[i.name] = 0 })
+    (categoriesModel.categories ?? new Map()).forEach((i) => { if (i.deleted !== true) zero[i.name] = 0 })
 
     return {
         interval: 'day',
-        async reduce (op, _interval, firstOp, intervalKind, values: Array<Record<string, number>>) {
+        async reduce(op, _interval, _firstOp, intervalKind, values: Array<Record<string, number>>) {
             if (values.length === 0) {
                 values.push({ ...zero })
             }
@@ -136,10 +136,10 @@ interface FilterWithCurrency {
     filter: (op: NotDeletedOperation) => boolean
 }
 
-export function perPredicatePerIntervalSumExpenses (interval: IntervalType, predicates: Record<string, PredicateWithCurrency>): Reducer<Record<string, number>> {
+export function perPredicatePerIntervalSumExpenses(interval: IntervalType, predicates: Record<string, PredicateWithCurrency>): Reducer<Record<string, number>> {
     const zero: Record<string, number> = {}
 
-    Object.keys(predicates).forEach(k => { zero[k] = 0 })
+    Object.keys(predicates).forEach((k) => { zero[k] = 0 })
 
     const filters: Record<string, FilterWithCurrency> = {}
 
@@ -149,7 +149,7 @@ export function perPredicatePerIntervalSumExpenses (interval: IntervalType, pred
 
     return {
         interval,
-        async reduce (op, _interval, firstOp, intervalKind, values: Array<Record<string, number>>) {
+        async reduce(op, _interval, firstOp, _intervalKind, values: Array<Record<string, number>>) {
             if (firstOp) {
                 values.push({ ...zero })
             }
@@ -184,10 +184,10 @@ export function perPredicatePerIntervalSumExpenses (interval: IntervalType, pred
     }
 }
 
-export function perPredicateTodaySumExpenses (predicates: Record<string, PredicateWithCurrency>): Reducer<Record<string, number>> {
+export function perPredicateTodaySumExpenses(predicates: Record<string, PredicateWithCurrency>): Reducer<Record<string, number>> {
     const zero: Record<string, number> = {}
 
-    Object.keys(predicates).forEach(k => { zero[k] = 0 })
+    Object.keys(predicates).forEach((k) => { zero[k] = 0 })
 
     const filters: Record<string, FilterWithCurrency> = {}
 
@@ -195,7 +195,7 @@ export function perPredicateTodaySumExpenses (predicates: Record<string, Predica
 
     return {
         interval: 'day',
-        async reduce (op, _interval, firstOp, intervalKind, values: Array<Record<string, number>>) {
+        async reduce(op, _interval, _firstOp, intervalKind, values: Array<Record<string, number>>) {
             if (values.length === 0) {
                 values.push({ ...zero })
             }
@@ -230,7 +230,7 @@ export function perPredicateTodaySumExpenses (predicates: Record<string, Predica
     }
 }
 
-export function perIntervalExpensesReducer (interval: IntervalType, predicate: Predicate, currency: string): Reducer<number> {
+export function perIntervalExpensesReducer(interval: IntervalType, predicate: Predicate, currency: string): Reducer<number> {
     const currenciesModel = CurrenciesModel.instance()
     const filter = compilePredicate(predicate)
 
@@ -242,10 +242,10 @@ export function perIntervalExpensesReducer (interval: IntervalType, predicate: P
             }
 
             if (
-                op === null ||
-                (
-                    op.type !== 'expense' &&
-                    (op.type !== 'income' || op.categories.length === 0)
+                op === null
+                || (
+                    op.type !== 'expense'
+                    && (op.type !== 'income' || op.categories.length === 0)
                 )
             ) {
                 return
@@ -266,7 +266,7 @@ export function perIntervalExpensesReducer (interval: IntervalType, predicate: P
     }
 }
 
-export function cumulativeIntervalExpensesReducer (interval: IntervalType, predicate: Predicate, currency: string): Reducer<number> {
+export function cumulativeIntervalExpensesReducer(interval: IntervalType, predicate: Predicate, currency: string): Reducer<number> {
     const currenciesModel = CurrenciesModel.instance()
     const filter = compilePredicate(predicate)
 
@@ -282,10 +282,10 @@ export function cumulativeIntervalExpensesReducer (interval: IntervalType, predi
             }
 
             if (
-                op === null ||
-                (
-                    op.type !== 'expense' &&
-                    (op.type !== 'income' || op.categories.length === 0)
+                op === null
+                || (
+                    op.type !== 'expense'
+                    && (op.type !== 'income' || op.categories.length === 0)
                 )
             ) {
                 return
@@ -306,7 +306,7 @@ export function cumulativeIntervalExpensesReducer (interval: IntervalType, predi
     }
 }
 
-export function periodExpensesReducer (from: DateTime | null, predicate: Predicate, currency: string): Reducer<number> {
+export function periodExpensesReducer(from: DateTime | null, predicate: Predicate, currency: string): Reducer<number> {
     const fromMillis = from?.toMillis() ?? 0
     const currenciesModel = CurrenciesModel.instance()
     const filter = compilePredicate(predicate)
@@ -319,12 +319,12 @@ export function periodExpensesReducer (from: DateTime | null, predicate: Predica
             }
 
             if (
-                op === null ||
-                (
-                    op.type !== 'expense' &&
-                    (op.type !== 'income' || op.categories.length === 0)
-                ) ||
-                op.date.toMillis() < fromMillis
+                op === null
+                || (
+                    op.type !== 'expense'
+                    && (op.type !== 'income' || op.categories.length === 0)
+                )
+                || op.date.toMillis() < fromMillis
             ) {
                 return
             }
@@ -349,12 +349,12 @@ interface Amounts {
     amounts: Record<string, number>
 }
 
-export function cumulativeIntervalPerAccountReducer (interval: IntervalType): Reducer<Amounts> {
+export function cumulativeIntervalPerAccountReducer(interval: IntervalType): Reducer<Amounts> {
     const accountsModel = AccountsModel.instance()
 
     const zero: Record<string, number> = {};
 
-    (accountsModel.accounts ?? new Map()).forEach(i => { if (i.deleted !== true) zero[i.name] = 0 })
+    (accountsModel.accounts ?? new Map()).forEach((i) => { if (i.deleted !== true) zero[i.name] = 0 })
 
     return {
         interval,

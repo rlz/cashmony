@@ -1,4 +1,4 @@
-export function getCurrencySymbol (currency: string): string {
+export function getCurrencySymbol(currency: string): string {
     return Intl.NumberFormat(undefined, {
         style: 'currency',
         currency,
@@ -9,7 +9,7 @@ export function getCurrencySymbol (currency: string): string {
         .value
 }
 
-export function formatCurrency (amount: number, currency: string, compact: boolean = false): string {
+export function formatCurrency(amount: number, currency: string, compact: boolean = false): string {
     if (amount === 0 && amount.toLocaleString() === '-0') {
         amount = -amount
     }
@@ -22,7 +22,7 @@ export function formatCurrency (amount: number, currency: string, compact: boole
     })
 }
 
-export function formatExchangeRate (from: number, to: number): string {
+export function formatExchangeRate(from: number, to: number): string {
     if (from === 0 || to === 0) {
         return 'Exc. rate: _.__'
     }

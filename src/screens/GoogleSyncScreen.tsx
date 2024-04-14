@@ -14,7 +14,7 @@ const google = Google.instance()
 
 let syncInProgress = false
 
-export function GoogleSyncScreen (): ReactElement {
+export function GoogleSyncScreen(): ReactElement {
     const location = useLocation()
     const navigate = useNavigate()
     const [spreadsheet, setSpreadsheet] = useState(false)
@@ -66,22 +66,21 @@ export function GoogleSyncScreen (): ReactElement {
     return <FullScreenModal
         title={'Sync with Google'}
         onClose={() => { navigate(searchParams.get('redirect') ?? '/') }}
-    >
+           >
         <Box p={1}>
             <Row>
                 <Box>{'Search/create spreadsheet'}</Box>
                 <Box flex={'1 1 0'} textAlign={'right'}>
                     {spreadsheet
                         ? 'ok'
-                        : <FontAwesomeIcon icon={faSpinner} pulse/>
-                    }
+                        : <FontAwesomeIcon icon={faSpinner} pulse />}
                 </Box>
             </Row>
             <Typography component={'div'} variant={'body2'}>
-                <Stats title={'Accounts'} stats={accStats}/>
-                <Stats title={'Categories'} stats={catStats}/>
-                <Stats title={'Goals'} stats={goalsStats}/>
-                <Stats title={'Operations'} stats={opsStats} extended/>
+                <Stats title={'Accounts'} stats={accStats} />
+                <Stats title={'Categories'} stats={catStats} />
+                <Stats title={'Goals'} stats={goalsStats} />
+                <Stats title={'Operations'} stats={opsStats} extended />
             </Typography>
         </Box>
     </FullScreenModal>
@@ -93,7 +92,7 @@ interface StatsProps {
     stats: SyncStats | SyncStatsEx | null
 }
 
-function Stats ({ title, extended, stats }: StatsProps): ReactElement {
+function Stats({ title, extended, stats }: StatsProps): ReactElement {
     const primary = (value: number): ReactElement => {
         return <Typography component={'span'} color={value === 0 ? undefined : 'info.main'}>
             {value}
@@ -107,8 +106,7 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
             <Box flex={'1 1 0'} textAlign={'right'}>
                 {stats !== null
                     ? primary(stats.matched)
-                    : <FontAwesomeIcon icon={faSpinner} pulse/>
-                }
+                    : <FontAwesomeIcon icon={faSpinner} pulse />}
             </Box>
         </Box>
         <Box display={'flex'} gap={2}>
@@ -116,20 +114,20 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
             <Box flex={'1 1 0'} textAlign={'right'}>
                 {stats !== null
                     ? <>
-                        <FontAwesomeIcon icon={faArrowUpLong}/>
-                        {' '}{primary(stats.latestInLocal)}
+                        <FontAwesomeIcon icon={faArrowUpLong} />
+                        {' '}
+                        {primary(stats.latestInLocal)}
                     </>
-                    : null
-                }
+                    : null}
             </Box>
             <Box>
                 {stats !== null
                     ? <>
-                        <FontAwesomeIcon icon={faArrowDownLong}/>
-                        {' '}{primary(stats.latestInGoogle)}
+                        <FontAwesomeIcon icon={faArrowDownLong} />
+                        {' '}
+                        {primary(stats.latestInGoogle)}
                     </>
-                    : <FontAwesomeIcon icon={faSpinner} pulse/>
-                }
+                    : <FontAwesomeIcon icon={faSpinner} pulse />}
             </Box>
         </Box>
         <Box display={'flex'} gap={2}>
@@ -137,20 +135,20 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
             <Box flex={'1 1 0'} textAlign={'right'}>
                 {stats !== null
                     ? <>
-                        <FontAwesomeIcon icon={faArrowUpLong}/>
-                        {' '}{primary(stats.missedInGoogle)}
+                        <FontAwesomeIcon icon={faArrowUpLong} />
+                        {' '}
+                        {primary(stats.missedInGoogle)}
                     </>
-                    : null
-                }
+                    : null}
             </Box>
             <Box>
                 {stats !== null
                     ? <>
-                        <FontAwesomeIcon icon={faArrowDownLong}/>
-                        {' '}{primary(stats.missedInLocal)}
+                        <FontAwesomeIcon icon={faArrowDownLong} />
+                        {' '}
+                        {primary(stats.missedInLocal)}
                     </>
-                    : <FontAwesomeIcon icon={faSpinner} pulse/>
-                }
+                    : <FontAwesomeIcon icon={faSpinner} pulse />}
             </Box>
         </Box>
         {
@@ -160,20 +158,20 @@ function Stats ({ title, extended, stats }: StatsProps): ReactElement {
                     <Box flex={'1 1 0'} textAlign={'right'}>
                         {stats !== null && 'deletedInGoogle' in stats
                             ? <>
-                                <FontAwesomeIcon icon={faArrowUpLong}/>
-                                {' '}{primary(stats.deletedInLocal)}
+                                <FontAwesomeIcon icon={faArrowUpLong} />
+                                {' '}
+                                {primary(stats.deletedInLocal)}
                             </>
-                            : null
-                        }
+                            : null}
                     </Box>
                     <Box>
                         {stats !== null && 'deletedInGoogle' in stats
                             ? <>
-                                <FontAwesomeIcon icon={faArrowDownLong}/>
-                                {' '}{primary(stats.deletedInGoogle)}
+                                <FontAwesomeIcon icon={faArrowDownLong} />
+                                {' '}
+                                {primary(stats.deletedInGoogle)}
                             </>
-                            : <FontAwesomeIcon icon={faSpinner} pulse/>
-                        }
+                            : <FontAwesomeIcon icon={faSpinner} pulse />}
                     </Box>
                 </Box>
                 : null

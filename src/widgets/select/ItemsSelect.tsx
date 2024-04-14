@@ -24,7 +24,7 @@ interface Props {
 
 const aStyle = { fontSize: '0' }
 
-export function ItemsSelect (props: Props): ReactElement {
+export function ItemsSelect(props: Props): ReactElement {
     const { height, ref } = useResizeDetector()
     const [carouselRef, carouselApi] = useEmblaCarousel({}, [WheelGesturesPlugin()])
 
@@ -72,9 +72,9 @@ export function ItemsSelect (props: Props): ReactElement {
         return items.map((i) => {
             const v = match(i).with(P.string, v => v).otherwise(v => v.value)
             const label = match(i).with(P.string, v => v).otherwise(v => v.label)
-            const fontStyle = match(i).with(P.string, v => undefined).otherwise(v => v.fontStyle)
+            const fontStyle = match(i).with(P.string, _v => undefined).otherwise(v => v.fontStyle)
             if (selected.has(v)) {
-                const chip = <Chip key={v} color={'primary'} size={'small'} label={label} sx={{ fontStyle }}/>
+                const chip = <Chip key={v} color={'primary'} size={'small'} label={label} sx={{ fontStyle }} />
 
                 if (props.selectZero || (props.selectMany && selected.size > 1)) {
                     return <a
@@ -83,7 +83,7 @@ export function ItemsSelect (props: Props): ReactElement {
                         onClick={() => {
                             onSelectedChangeContainer.v(props.selected.filter(s => s !== v))
                         }}
-                    >
+                           >
                         {chip}
                     </a>
                 }
@@ -100,8 +100,8 @@ export function ItemsSelect (props: Props): ReactElement {
                         onSelectedChangeContainer.v([v])
                     }
                 }}
-            >
-                <Chip size={'small'} label={label} sx={{ fontStyle }}/>
+                   >
+                <Chip size={'small'} label={label} sx={{ fontStyle }} />
             </a>
         })
     }, [props.items, props.selected, filter, props.selectMany])
@@ -113,7 +113,7 @@ export function ItemsSelect (props: Props): ReactElement {
                 fullWidth
                 size={'small'}
                 value={filter ?? ''}
-                onChange={ev => {
+                onChange={(ev) => {
                     setFilter(ev.target.value === '' ? null : ev.target.value)
                 }}
                 endAdornment={
@@ -123,7 +123,7 @@ export function ItemsSelect (props: Props): ReactElement {
                             onClick={() => { setFilter(null) }}
                             edge={'end'}
                         >
-                            <FontAwesomeIcon icon={faTimes}/>
+                            <FontAwesomeIcon icon={faTimes} />
                         </IconButton>
                     </InputAdornment>
                 }
@@ -132,12 +132,12 @@ export function ItemsSelect (props: Props): ReactElement {
         <Box overflow={'hidden'} ref={carouselRef}>
             <Row>
                 <Box height={pageHeight} overflow={'hidden'} flex={'0 0 100%'}>
-                    <Box display={'flex'} ref={ref} flexWrap={'wrap'} gap={1} >
+                    <Box display={'flex'} ref={ref} flexWrap={'wrap'} gap={1}>
                         { items }
                     </Box>
                 </Box>
                 {
-                    times(pages ?? 0).map(p => {
+                    times(pages ?? 0).map((p) => {
                         if (p === 0) {
                             return undefined
                         }
@@ -155,7 +155,7 @@ export function ItemsSelect (props: Props): ReactElement {
         <Row justifyContent={'center'} gap={1} mt={1} height={10}>
             {
                 pages > 1
-                    ? times(pages ?? 0).map(p => {
+                    ? times(pages ?? 0).map((p) => {
                         return <a key={p} style={aStyle} onClick={() => { carouselApi?.scrollTo(p) }}>
                             <Box
                                 width={10}

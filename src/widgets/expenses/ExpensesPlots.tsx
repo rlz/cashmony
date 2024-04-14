@@ -97,7 +97,7 @@ export const ExpensesBarsPlot = observer((props: AmountBarsCatPlotProps): ReactE
         series={series.series}
         title={props.sparkline === true ? undefined : 'Daily Amount'}
         p={props.sparkline === true ? 0 : 1}
-    />
+           />
 })
 
 interface TotalCatPlotProps {
@@ -178,5 +178,5 @@ export const ExpensesTotalPlot = observer((props: TotalCatPlotProps): ReactEleme
         series={series}
         title={'Total Amount'}
         p={1}
-    />
+           />
 })

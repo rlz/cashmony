@@ -19,14 +19,14 @@ interface Props {
     onFilterChanged: (filter: Filter) => void
 }
 
-export function FilterEditor (props: Props): ReactElement {
+export function FilterEditor(props: Props): ReactElement {
     const [filter, setFilter] = useState(props.filter)
 
     return <FullScreenModal
         width={'600px'}
         title={'Global filter'}
         onClose={props.onClose}
-    >
+           >
         <Column height={'100%'} width={'100%'}>
             <Column gap={1} p={1} overflow={'auto'}>
                 <SearchFilter filter={filter} setFilter={setFilter} />
@@ -41,7 +41,7 @@ export function FilterEditor (props: Props): ReactElement {
                     fullWidth
                     variant={'contained'}
                     disabled={deepEqual(props.filter, filter)}
-                    onClick={() => { props.onFilterChanged(filter); props.onClose() } }
+                    onClick={() => { props.onFilterChanged(filter); props.onClose() }}
                 >
                     {'Apply'}
                 </Button>
@@ -55,7 +55,7 @@ interface EditorProps {
     setFilter: (filter: Filter) => void
 }
 
-function SearchFilter ({ filter, setFilter }: EditorProps): ReactElement {
+function SearchFilter({ filter, setFilter }: EditorProps): ReactElement {
     return <FormControl variant={'outlined'} fullWidth>
         <InputLabel size={'small'}>{'Comment search'}</InputLabel>
         <OutlinedInput
@@ -78,6 +78,7 @@ function SearchFilter ({ filter, setFilter }: EditorProps): ReactElement {
                             <FontAwesomeIcon icon={faXmark} />
                         </IconButton>
                     </InputAdornment>
+                // eslint-disable-next-line @stylistic/jsx-indent
                 )
             }
             label={'Search'}
@@ -85,7 +86,7 @@ function SearchFilter ({ filter, setFilter }: EditorProps): ReactElement {
     </FormControl>
 }
 
-function OpTypeFilter ({ filter, setFilter }: EditorProps): ReactElement {
+function OpTypeFilter({ filter, setFilter }: EditorProps): ReactElement {
     return <Paper sx={{ p: 1 }}>
         <PBody2 mb={1} flex={'1 1 0'}>{'Op. type:'}</PBody2>
         <ToggleButtonGroup
@@ -105,7 +106,7 @@ function OpTypeFilter ({ filter, setFilter }: EditorProps): ReactElement {
     </Paper>
 }
 
-function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
+function CategoriesFilter({ filter, setFilter }: EditorProps): ReactElement {
     return <Paper sx={{ p: 1 }}>
         <Row alignItems={'center'} gap={1}>
             <SpanBody2 flex={'1 1 0'}>{'Categories:'}</SpanBody2>
@@ -136,13 +137,17 @@ function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
                                     const el = <SpanBody2
                                         key={i}
                                         color={'secondary.main'}
-                                        fontStyle={i === '' ? 'italic' : undefined}>
+                                        fontStyle={i === '' ? 'italic' : undefined}
+                                               >
                                         {i === '' ? 'Uncategorized' : i}
                                     </SpanBody2>
                                     if (index === 0) {
                                         return el
                                     }
-                                    return <Fragment key={`c-${i}`}>{', '}{el}</Fragment>
+                                    return <Fragment key={`c-${i}`}>
+                                        {', '}
+                                        {el}
+                                    </Fragment>
                                 })
                                 : null
                         }
@@ -150,7 +155,7 @@ function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
                     <CategoriesSelect
                         sx={{ my: 1 }}
                         selected={filter.categories}
-                        onSelectedChange={selected => {
+                        onSelectedChange={(selected) => {
                             setFilter({
                                 ...filter,
                                 categories: selected
@@ -166,7 +171,7 @@ function CategoriesFilter ({ filter, setFilter }: EditorProps): ReactElement {
     </Paper>
 }
 
-function AccountsFilter ({ filter, setFilter }: EditorProps): ReactElement {
+function AccountsFilter({ filter, setFilter }: EditorProps): ReactElement {
     return <Paper sx={{ p: 1 }}>
         <Row alignItems={'center'}>
             <SpanBody2 flex={'1 1 0'}>{'Accounts:'}</SpanBody2>
@@ -198,7 +203,10 @@ function AccountsFilter ({ filter, setFilter }: EditorProps): ReactElement {
                                     if (index === 0) {
                                         return el
                                     }
-                                    return <Fragment key={`c-${i}`}>{', '}{el}</Fragment>
+                                    return <Fragment key={`c-${i}`}>
+                                        {', '}
+                                        {el}
+                                    </Fragment>
                                 })
                                 : null
                         }
@@ -206,7 +214,7 @@ function AccountsFilter ({ filter, setFilter }: EditorProps): ReactElement {
                     <AccountsSelect
                         sx={{ my: 1 }}
                         selected={filter.accounts}
-                        onSelectedChange={selected => {
+                        onSelectedChange={(selected) => {
                             setFilter({
                                 ...filter,
                                 accounts: selected
@@ -222,7 +230,7 @@ function AccountsFilter ({ filter, setFilter }: EditorProps): ReactElement {
     </Paper>
 }
 
-function TagsFilter ({ filter, setFilter }: EditorProps): ReactElement {
+function TagsFilter({ filter, setFilter }: EditorProps): ReactElement {
     return <Paper sx={{ p: 1 }}>
         <Row alignItems={'center'}>
             <SpanBody2 flex={'1 1 0'}>{'Tags:'}</SpanBody2>
@@ -263,7 +271,10 @@ function TagsFilter ({ filter, setFilter }: EditorProps): ReactElement {
                                     if (index === 0) {
                                         return el
                                     }
-                                    return <Fragment key={`c-${i}`}>{', '}{el}</Fragment>
+                                    return <Fragment key={`c-${i}`}>
+                                        {', '}
+                                        {el}
+                                    </Fragment>
                                 })
                                 : null
                         }
@@ -274,7 +285,7 @@ function TagsFilter ({ filter, setFilter }: EditorProps): ReactElement {
                         categories={[]}
                         addedTags={[]}
                         selected={filter.tags}
-                        onSelectedChange={selected => {
+                        onSelectedChange={(selected) => {
                             setFilter({
                                 ...filter,
                                 tags: selected

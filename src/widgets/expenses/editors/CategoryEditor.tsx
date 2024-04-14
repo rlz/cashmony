@@ -42,17 +42,17 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
     }, [cat])
 
     const trimmedName = newCat.name.trim()
-    const nameConflict = trimmedName !== cat.name &&
-        categoriesModel.categories?.has(newCat.name) === true &&
-        categoriesModel.get(newCat.name).deleted !== true
+    const nameConflict = trimmedName !== cat.name
+        && categoriesModel.categories?.has(newCat.name) === true
+        && categoriesModel.get(newCat.name).deleted !== true
 
     const onSave = useMemo(
         () => {
             if (
-                deepEqual(cat, newCat) ||
-                trimmedName === '' ||
-                newCat.perDayAmount === 0 ||
-                nameConflict
+                deepEqual(cat, newCat)
+                || trimmedName === ''
+                || newCat.perDayAmount === 0
+                || nameConflict
             ) {
                 return null
             }
@@ -80,13 +80,13 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
 
                     for (const op of operationsModel.operations) {
                         if (
-                            (op.type === 'expense' || op.type === 'income') &&
-                            op.categories.find((c) => c.name === cat.name) !== undefined
+                            (op.type === 'expense' || op.type === 'income')
+                            && op.categories.find(c => c.name === cat.name) !== undefined
                         ) {
                             changedOps.push({
                                 ...op,
                                 lastModified: DateTime.utc(),
-                                categories: op.categories.map(c => {
+                                categories: op.categories.map((c) => {
                                     return {
                                         ...c,
                                         name: c.name === cat.name ? trimmedName : c.name
@@ -114,18 +114,17 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
             showIf(
                 !virtual,
                 <TextField
-                    error={ trimmedName === '' || nameConflict }
+                    error={trimmedName === '' || nameConflict}
                     helperText={match(null)
                         .when(() => trimmedName === '', () => 'Blank name')
                         .when(() => nameConflict, () => 'Already exists')
-                        .otherwise(() => 'Ok')
-                    }
+                        .otherwise(() => 'Ok')}
                     label={'Name'}
                     size={'small'}
                     fullWidth
                     variant={'filled'}
                     value={newCat.name}
-                    onChange={ev => {
+                    onChange={(ev) => {
                         setNewCat({ ...newCat, name: ev.target.value })
                     }}
                 />
@@ -149,21 +148,21 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
         {
             newCat.perDayAmount !== undefined
                 ? <GoalInput
-                    perDayAmount={newCat.perDayAmount}
-                    onPerDayAmountChange={perDayAmount => {
-                        setNewCat({ ...newCat, perDayAmount })
-                    }}
-                    currency={newCat.currency ?? ''}
-                    onCurrencyChange={currency => {
-                        setNewCat({ ...newCat, currency })
-                    }}
-                />
+                        perDayAmount={newCat.perDayAmount}
+                        onPerDayAmountChange={(perDayAmount) => {
+                            setNewCat({ ...newCat, perDayAmount })
+                        }}
+                        currency={newCat.currency ?? ''}
+                        onCurrencyChange={(currency) => {
+                            setNewCat({ ...newCat, currency })
+                        }}
+                  />
                 : null
         }
         <ActionFab
             action={onSave}
         >
-            <FontAwesomeIcon icon={faCheck}/>
+            <FontAwesomeIcon icon={faCheck} />
         </ActionFab>
         {
             showIf(
@@ -188,7 +187,7 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
                 <CurrencySelector
                     currency={newCat.currency ?? ''}
                     onClose={() => { setCurrencySelector(false) }}
-                    onCurrencySelected={c => {
+                    onCurrencySelected={(c) => {
                         setNewCat({
                             ...newCat,
                             currency: c

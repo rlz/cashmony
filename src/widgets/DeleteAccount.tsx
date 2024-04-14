@@ -17,7 +17,7 @@ interface Props {
     setOpen: (open: boolean) => void
 }
 
-export function DeleteAccount ({ name, open, setOpen }: Props): ReactElement {
+export function DeleteAccount({ name, open, setOpen }: Props): ReactElement {
     const [delInProcess, setDelInProcess] = useState(false)
     const navigate = useNavigate()
 
@@ -26,7 +26,7 @@ export function DeleteAccount ({ name, open, setOpen }: Props): ReactElement {
     return <Dialog
         open={open}
         onClose={() => { setOpen(false) }}
-    >
+           >
         <DialogTitle>{'Delete account?'}</DialogTitle>
         <DialogContent>
             <DialogContentText>
@@ -60,7 +60,8 @@ export function DeleteAccount ({ name, open, setOpen }: Props): ReactElement {
             >
                 { delInProcess
                     ? <FontAwesomeIcon icon={faSpinner} pulse />
-                    : null}{' Delete'}
+                    : null}
+                {' Delete'}
             </Button>
         </DialogActions>
     </Dialog>
@@ -69,8 +70,8 @@ export function DeleteAccount ({ name, open, setOpen }: Props): ReactElement {
 const operationsModel = OperationsModel.instance()
 const accountsModel = AccountsModel.instance()
 
-async function deleteAccount (accName: string): Promise<void> {
-    const ops: DeletedOperation[] = [...listOperations(PE.account(accName), null)].map(op => {
+async function deleteAccount(accName: string): Promise<void> {
+    const ops: DeletedOperation[] = [...listOperations(PE.account(accName), null)].map((op) => {
         return {
             id: op.id,
             type: 'deleted'

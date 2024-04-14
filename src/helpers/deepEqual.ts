@@ -1,6 +1,6 @@
 import { type DateTime } from 'luxon'
 
-export function deepEqual (a: unknown, b: unknown): boolean {
+export function deepEqual(a: unknown, b: unknown): boolean {
     if (a === b) return true
 
     if (typeof a === 'object' && typeof b === 'object' && a !== null && b !== null) {
@@ -12,21 +12,29 @@ export function deepEqual (a: unknown, b: unknown): boolean {
             const length = a.length
             if (length !== b.length) return false
 
-            for (let i = 0; i < length; ++i) { if (!deepEqual(a[i], b[i])) return false }
+            for (let i = 0; i < length; ++i) {
+                if (!deepEqual(a[i], b[i])) return false
+            }
 
             return true
         }
 
         if ((a instanceof Map) && (b instanceof Map)) {
             if (a.size !== b.size) return false
-            for (const i of a.entries()) { if (!b.has(i[0])) return false }
-            for (const i of a.entries()) { if (!deepEqual(i[1], b.get(i[0]))) return false }
+            for (const i of a.entries()) {
+                if (!b.has(i[0])) return false
+            }
+            for (const i of a.entries()) {
+                if (!deepEqual(i[1], b.get(i[0]))) return false
+            }
             return true
         }
 
         if ((a instanceof Set) && (b instanceof Set)) {
             if (a.size !== b.size) return false
-            for (const i of a.entries()) { if (!b.has(i[0])) return false }
+            for (const i of a.entries()) {
+                if (!b.has(i[0])) return false
+            }
             return true
         }
 
@@ -37,13 +45,16 @@ export function deepEqual (a: unknown, b: unknown): boolean {
 
         if (keys.has('isLuxonDateTime')) {
             return (
-                (a as any).isLuxonDateTime === true &&
-                (b as any).isLuxonDateTime === true &&
-                (a as DateTime).toMillis() === (b as DateTime).toMillis()
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (a as any).isLuxonDateTime === true
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                && (b as any).isLuxonDateTime === true
+                && (a as DateTime).toMillis() === (b as DateTime).toMillis()
             )
         }
 
         for (const key of keys) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             if (!deepEqual((a as any)[key], (b as any)[key])) return false
         }
 
@@ -51,6 +62,6 @@ export function deepEqual (a: unknown, b: unknown): boolean {
     }
 
     // true if both NaN, false otherwise
-    // eslint-disable-next-line no-self-compare
+
     return a !== a && b !== b
 };

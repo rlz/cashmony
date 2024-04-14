@@ -9,7 +9,7 @@ let operationsModel: OperationsModel | null = null
 export class OperationsModel {
     operations: readonly Operation[] | null = null
 
-    private constructor () {
+    private constructor() {
         makeAutoObservable(this, {
             operations: observable.shallow
         })
@@ -17,7 +17,7 @@ export class OperationsModel {
         void this.readAll()
     }
 
-    get firstOp (): NotDeletedOperation | undefined {
+    get firstOp(): NotDeletedOperation | undefined {
         if (this.operations === null) {
             throw Error('Operations not loaded')
         }
@@ -29,7 +29,7 @@ export class OperationsModel {
         }
     }
 
-    get lastOp (): NotDeletedOperation | undefined {
+    get lastOp(): NotDeletedOperation | undefined {
         if (this.operations === null) {
             throw Error('Operations not loaded')
         }
@@ -41,11 +41,11 @@ export class OperationsModel {
         }
     }
 
-    async getOperation (id: string): Promise<Operation> {
+    async getOperation(id: string): Promise<Operation> {
         return await finDataDb.getOperation(id)
     }
 
-    static instance (): OperationsModel {
+    static instance(): OperationsModel {
         if (operationsModel === null) {
             operationsModel = new OperationsModel()
         }
@@ -53,7 +53,7 @@ export class OperationsModel {
         return operationsModel
     }
 
-    async put (ops: Operation[]): Promise<void> {
+    async put(ops: Operation[]): Promise<void> {
         if (ops.length === 0) {
             return
         }
@@ -62,7 +62,7 @@ export class OperationsModel {
         await this.readAll()
     }
 
-    private async readAll (): Promise<void> {
+    private async readAll(): Promise<void> {
         const newOperations = await finDataDb.readAllOperations()
         newOperations.sort(operationComparator)
 

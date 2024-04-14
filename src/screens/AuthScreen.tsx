@@ -4,12 +4,12 @@ import { useLocation } from 'react-router-dom'
 
 import makeUrl from '../google/makeUrl'
 
-export function AuthScreen (): ReactElement {
+export function AuthScreen(): ReactElement {
     const urlHash = useLocation().hash.slice(1)
 
     const params: Record<string, string> = {}
 
-    urlHash.split('&').forEach(i => {
+    urlHash.split('&').forEach((i) => {
         const [param, value] = i.split('=')
         params[param] = decodeURIComponent(value)
     })

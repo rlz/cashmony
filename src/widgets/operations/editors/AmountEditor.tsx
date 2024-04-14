@@ -28,7 +28,7 @@ export const AmountEditor = observer((props: Props): ReactElement => {
             expanded={props.expanded}
             onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
         >
-            <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />} >
+            <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />}>
                 <Typography>{'Amount'}</Typography>
             </AccordionSummary>
             <AccordionDetails>
@@ -59,11 +59,10 @@ export const AmountEditor = observer((props: Props): ReactElement => {
         </Accordion>
         { curSelOpen
             ? <CurrencySelector
-                currency={props.currency}
-                onClose={() => { setCurSelOpen(false) }}
-                onCurrencySelected={props.onCurrencyChange}
-            />
-            : null
-        }
+                    currency={props.currency}
+                    onClose={() => { setCurSelOpen(false) }}
+                    onCurrencySelected={props.onCurrencyChange}
+              />
+            : null}
     </>
 })

@@ -2,7 +2,7 @@ import { runInAction } from 'mobx'
 
 import { type Google, isOk } from './google'
 
-export async function createDataSpreadsheet (google: Google): Promise<void> {
+export async function createDataSpreadsheet(google: Google): Promise<void> {
     const reply = await google.fetch(
         'https://sheets.googleapis.com/v4/spreadsheets',
         {

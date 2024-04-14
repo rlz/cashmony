@@ -25,7 +25,7 @@ declare global {
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <Navigate to={'operations'}/>
+        element: <Navigate to={'operations'} />
     },
     {
         path: '/operations',
@@ -93,7 +93,7 @@ const router = createBrowserRouter([
     },
     {
         path: '/goals/:goalName',
-        element: <ExpensesGoalScreen/>
+        element: <ExpensesGoalScreen />
     },
     {
         path: '/goals/:goalName/:tabName',
@@ -107,7 +107,7 @@ const router = createBrowserRouter([
 
 window.routerNavigate = router.navigate.bind(router)
 
-export const App = observer(function App (): ReactElement {
+export const App = observer(function App(): ReactElement {
     const [update, setUpdate] = useState(false)
 
     useEffect(() => {
@@ -132,23 +132,23 @@ export const App = observer(function App (): ReactElement {
     const goalsModel = GoalsModel.instance()
 
     if (
-        operationsModel.operations === null ||
-        accountsModel.accounts === null ||
-        accountsModel.accountsSorted === null ||
-        accountsModel.amounts === null ||
-        categoriesModel.categories === null ||
-        categoriesModel.categoriesSorted === null ||
-        currenciesModel.currencies === null ||
-        goalsModel.goals === null
+        operationsModel.operations === null
+        || accountsModel.accounts === null
+        || accountsModel.accountsSorted === null
+        || accountsModel.amounts === null
+        || categoriesModel.categories === null
+        || categoriesModel.categoriesSorted === null
+        || currenciesModel.currencies === null
+        || goalsModel.goals === null
     ) {
         return <LoadingScreen />
     }
 
     if (
-        accountsModel.accounts.size === 0 &&
-        !location.pathname.startsWith('/accounts') &&
-        !location.pathname.startsWith('/auth') &&
-        !location.pathname.startsWith('/google-sync')
+        accountsModel.accounts.size === 0
+        && !location.pathname.startsWith('/accounts')
+        && !location.pathname.startsWith('/auth')
+        && !location.pathname.startsWith('/google-sync')
     ) {
         window.location.assign('/accounts')
         return <></>
@@ -160,7 +160,8 @@ export const App = observer(function App (): ReactElement {
                 update,
                 <Box my={1}>
                     <DivBody2 textAlign={'center'}>
-                        {'New version is available'}<br/>
+                        {'New version is available'}
+                        <br />
                     </DivBody2>
                     <DivBody2 textAlign={'center'} color={'secondary'}>
                         <a onClick={() => { window.location.reload() }}>{'Update'}</a>
@@ -168,11 +169,11 @@ export const App = observer(function App (): ReactElement {
                 </Box>
             )
         }
-        <RouterProvider router={router}/>
+        <RouterProvider router={router} />
     </>
 })
 
-function getCurrentVersion (): string | null {
+function getCurrentVersion(): string | null {
     const scripts = document.getElementsByTagName('script')
     for (let i = 0; i < scripts.length; ++i) {
         const script = scripts[i]
@@ -185,7 +186,7 @@ function getCurrentVersion (): string | null {
     return null
 }
 
-async function getServerVersion (): Promise<string | null> {
+async function getServerVersion(): Promise<string | null> {
     const resp = await fetch('/', { cache: 'no-store' })
 
     if (!resp.ok) {

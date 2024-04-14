@@ -31,9 +31,9 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
     useEffect(
         () => {
             if (
-                operationsModel.operations === null ||
-                categoriesModel.categories === null ||
-                goalsModel.goals === null
+                operationsModel.operations === null
+                || categoriesModel.categories === null
+                || goalsModel.goals === null
             ) {
                 return
             }
@@ -66,7 +66,7 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
 
                 if (goals !== undefined) {
                     const predicatesWithCurrency: Record<string, PredicateWithCurrency> = {}
-                    goals.forEach(i => {
+                    goals.forEach((i) => {
                         predicatesWithCurrency[i.name] = { currency: i.currency, predicate: PE.filter(i.filter) }
                     })
 
@@ -105,7 +105,7 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
             display={'flex'}
             flexDirection={'column'}
             gap={1}
-        >
+               >
             {[1, 1, 1].map((_, i) => <ExpensesCardSkeleton key={i} />)}
         </Box>
     }
@@ -114,28 +114,28 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
         display={'flex'}
         flexDirection={'column'}
         gap={1}
-    >
+           >
         {
             categories === undefined
-                ? (goals ?? []).map(goal => {
-                    const url = `/goals/${encodeURIComponent(goal.name)}`
-                    return <ExpensesCard
-                        key={goal.name}
-                        url={url}
-                        name={
+                ? (goals ?? []).map((goal) => {
+                        const url = `/goals/${encodeURIComponent(goal.name)}`
+                        return <ExpensesCard
+                            key={goal.name}
+                            url={url}
+                            name={
                             match(goal.name)
                                 .with('_total', () => <Bold>{'Total'}</Bold>)
                                 .with('_', () => <Italic>{'Uncategorized'}</Italic>)
                                 .otherwise(v => v)
                         }
-                        totalAmount={stats.totals[goal.name]}
-                        todayAmount={stats.today[goal.name]}
-                        perDayGoal={goal.perDayAmount ?? null}
-                        perDayExpenses={stats.perDayExpenses.map(i => i[goal.name])}
-                        currency={goal.currency ?? appState.masterCurrency}
-                    />
-                })
-                : categories.map(cat => {
+                            totalAmount={stats.totals[goal.name]}
+                            todayAmount={stats.today[goal.name]}
+                            perDayGoal={goal.perDayAmount ?? null}
+                            perDayExpenses={stats.perDayExpenses.map(i => i[goal.name])}
+                            currency={goal.currency ?? appState.masterCurrency}
+                               />
+                    })
+                : categories.map((cat) => {
                     const url = `/categories/${encodeURIComponent(cat.name)}`
                     return <ExpensesCard
                         key={cat.name}
@@ -151,7 +151,7 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
                         perDayGoal={cat.perDayAmount ?? null}
                         perDayExpenses={stats.perDayExpenses.map(i => i[cat.name])}
                         currency={cat.currency ?? appState.masterCurrency}
-                    />
+                           />
                 })
         }
     </Box>

@@ -9,11 +9,11 @@ interface Props {
     operation: AdjustmentOperation
 }
 
-export function AdjustmentCard ({ operation }: Props): ReactElement {
+export function AdjustmentCard({ operation }: Props): ReactElement {
     return <BaseOpCard
         opId={operation.id}
         color={'warning'}
-        icon={<FontAwesomeIcon icon={faExclamation}/>}
+        icon={<FontAwesomeIcon icon={faExclamation} />}
         categoryName={'Adjustment'}
         categoryGrey
         amount={operation.amount}

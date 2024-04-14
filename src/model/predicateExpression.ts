@@ -57,53 +57,53 @@ export type Predicate =
     UncategorizedPredicate | AccountPredicate | TagPredicate |
     AndPredicate | OrPredicate | NotPredicate
 
-export function compilePredicate (predicate: Predicate): (op: NotDeletedOperation) => boolean {
+export function compilePredicate(predicate: Predicate): (op: NotDeletedOperation) => boolean {
     return match<Predicate, (op: NotDeletedOperation) => boolean>(predicate)
-        .with({ type: 'type' }, p => {
+        .with({ type: 'type' }, (p) => {
             return op => op.type === p.opType
         })
         .with({ type: 'and', predicates: [] }, () => {
             throw Error('and predicate must not be empty')
         })
-        .with({ type: 'and', predicates: [P._] }, p => {
+        .with({ type: 'and', predicates: [P._] }, (p) => {
             return compilePredicate(p.predicates[0])
         })
-        .with({ type: 'and', predicates: [P._, P._, ...P.array()] }, p => {
+        .with({ type: 'and', predicates: [P._, P._, ...P.array()] }, (p) => {
             const compiledPredicates = p.predicates.map(i => compilePredicate(i))
             return op => compiledPredicates.every(i => i(op))
         })
         .with({ type: 'or', predicates: [] }, () => {
             throw Error('or predicate must not be empty')
         })
-        .with({ type: 'or', predicates: [P._] }, p => {
+        .with({ type: 'or', predicates: [P._] }, (p) => {
             return compilePredicate(p.predicates[0])
         })
-        .with({ type: 'or', predicates: [P._, P._, ...P.array()] }, p => {
+        .with({ type: 'or', predicates: [P._, P._, ...P.array()] }, (p) => {
             const compiledPredicates = p.predicates.map(i => compilePredicate(i))
             return op => compiledPredicates.some(i => i(op))
         })
-        .with({ type: 'not' }, p => {
+        .with({ type: 'not' }, (p) => {
             const predicate = compilePredicate(p.predicate)
             return op => !predicate(op)
         })
-        .with({ type: 'cat' }, p => {
+        .with({ type: 'cat' }, (p) => {
             return op => (op.type === 'expense' || op.type === 'income') && op.categories.some(i => i.name === p.name)
         })
-        .with({ type: 'comment' }, p => {
+        .with({ type: 'comment' }, (p) => {
             const re = new RegExp(_.escapeRegExp(p.search), 'i')
             return op => re.test(op.comment ?? '')
         })
-        .with({ type: 'uncategorized' }, p => {
+        .with({ type: 'uncategorized' }, (_p) => {
             return op => (op.type === 'expense' || op.type === 'income') && op.categories.length === 0
         })
-        .with({ type: 'account' }, p => {
+        .with({ type: 'account' }, (p) => {
             return op => op.account.name === p.name || (op.type === 'transfer' && op.toAccount.name === p.name)
         })
-        .with({ type: 'tag' }, p => {
+        .with({ type: 'tag' }, (p) => {
             return op => op.tags.includes(p.tag)
         })
         .with({ type: 'any' }, () => {
-            return op => true
+            return _op => true
         })
         .otherwise(() => {
             throw Error('not implemented')
@@ -230,6 +230,6 @@ export const EXPENSE_PREDICATE = PE.or(PE.type('expense'), PE.and(PE.type('incom
 
 export const isExpense = compilePredicate(EXPENSE_PREDICATE)
 
-export function expensesGoalPredicate (filter: Filter): Predicate {
+export function expensesGoalPredicate(filter: Filter): Predicate {
     return PE.and(EXPENSE_PREDICATE, PE.filter(filter))
 }

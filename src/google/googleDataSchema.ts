@@ -140,11 +140,11 @@ export interface GoogleOperationsInfo {
     categories: GoogleOperationCategoryRow[]
 }
 
-export function opsToGoogle (ops: readonly Operation[]): GoogleOperationsInfo {
+export function opsToGoogle(ops: readonly Operation[]): GoogleOperationsInfo {
     const operations: GoogleOperationRow[] = []
     const categories: GoogleOperationCategoryRow[] = []
 
-    ops.forEach(o => {
+    ops.forEach((o) => {
         if (o.type === 'deleted') {
             operations.push([o.id, o.type])
             return
@@ -163,7 +163,7 @@ export function opsToGoogle (ops: readonly Operation[]): GoogleOperationsInfo {
             o.comment ?? ''
         ])
         if ('categories' in o) {
-            o.categories.forEach(c => {
+            o.categories.forEach((c) => {
                 categories.push([
                     o.id,
                     c.name,
@@ -190,7 +190,7 @@ export function opsToGoogle (ops: readonly Operation[]): GoogleOperationsInfo {
     return { operations, categories }
 }
 
-export function opsFromGoogle (googleRows: { operations: unknown[], categories: unknown[] }): Operation[] {
+export function opsFromGoogle(googleRows: { operations: unknown[], categories: unknown[] }): Operation[] {
     const result: Operation[] = []
 
     const categories = new Map<string, Array<{ name: string, amount: number }>>()
@@ -296,8 +296,8 @@ export function opsFromGoogle (googleRows: { operations: unknown[], categories: 
     return result
 }
 
-export function catsToGoogle (categories: readonly Category[]): GoogleCategoryRowV2[] {
-    return categories.map(c => {
+export function catsToGoogle(categories: readonly Category[]): GoogleCategoryRowV2[] {
+    return categories.map((c) => {
         return [
             c.name,
             c.currency ?? '-',
@@ -310,7 +310,7 @@ export function catsToGoogle (categories: readonly Category[]): GoogleCategoryRo
     })
 }
 
-export function catsFromGoogle (rows: unknown[]): Category[] {
+export function catsFromGoogle(rows: unknown[]): Category[] {
     return rows.map((row): Category => {
         const r1 = GoogleCategoryRowSchemaV1.safeParse(row)
         if (r1.success) {
@@ -337,8 +337,8 @@ export function catsFromGoogle (rows: unknown[]): Category[] {
     })
 }
 
-export function goalsToGoogle (goals: readonly ExpensesGoal[]): GoogleGoalRow[] {
-    return goals.map(i => {
+export function goalsToGoogle(goals: readonly ExpensesGoal[]): GoogleGoalRow[] {
+    return goals.map((i) => {
         return [
             i.name,
             toGoogleDateTime(i.lastModified),
@@ -351,8 +351,8 @@ export function goalsToGoogle (goals: readonly ExpensesGoal[]): GoogleGoalRow[] 
     })
 }
 
-export function goalsFromGoogle (rows: unknown[]): ExpensesGoal[] {
-    return rows.map(row => {
+export function goalsFromGoogle(rows: unknown[]): ExpensesGoal[] {
+    return rows.map((row) => {
         const parsed = googleGoalRowSchema.parse(row)
 
         return {
@@ -367,8 +367,8 @@ export function goalsFromGoogle (rows: unknown[]): ExpensesGoal[] {
     })
 }
 
-export function accsToGoogle (accounts: readonly Account[]): GoogleAccountRow[] {
-    return accounts.map(a => {
+export function accsToGoogle(accounts: readonly Account[]): GoogleAccountRow[] {
+    return accounts.map((a) => {
         return [
             a.name,
             a.currency,
@@ -379,8 +379,8 @@ export function accsToGoogle (accounts: readonly Account[]): GoogleAccountRow[] 
     })
 }
 
-export function accsFromGoogle (rows: unknown[]): Account[] {
-    return rows.map(row => {
+export function accsFromGoogle(rows: unknown[]): Account[] {
+    return rows.map((row) => {
         const r = GoogleAccountRowSchema.safeParse(row)
         if (!r.success) {
             throw Error(`Unexpected data in row (Category): ${JSON.stringify(row)}`)

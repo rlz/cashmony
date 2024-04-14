@@ -29,7 +29,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                 <CurrencySelector
                     currency={appState.masterCurrency}
                     onClose={() => { runInAction(() => { appState.topBarState.showGlobalCurrencySelector = false }) }}
-                    onCurrencySelected={c => { runInAction(() => { appState.masterCurrency = c }) }}
+                    onCurrencySelected={(c) => { runInAction(() => { appState.masterCurrency = c }) }}
                 />
             )
         }
@@ -39,7 +39,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                 <FilterEditor
                     filter={appState.filter}
                     onClose={() => { runInAction(() => { appState.topBarState.showGlobalFilterEditor = false }) }}
-                    onFilterChanged={filter => {
+                    onFilterChanged={(filter) => {
                         runInAction(() => {
                             appState.filter = filter
                         })
@@ -48,7 +48,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
             )
         }
         <Box flex={'1 1 0'} mt={1} px={1}>
-            <PeriodSelector/>
+            <PeriodSelector />
         </Box>
         <Box px={1} display={'flex'} gap={1} justifyContent={'space-between'} alignItems={'center'}>
             <div>{'Theme:'}</div>
@@ -74,7 +74,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
             <ListItem disablePadding>
                 <ListItemButton onClick={() => { runInAction(() => { appState.topBarState.showGlobalFilterEditor = true }) }}>
                     <ListItemIcon>
-                        <FontAwesomeIcon icon={faFilter} fixedWidth/>
+                        <FontAwesomeIcon icon={faFilter} fixedWidth />
                     </ListItemIcon>
                     <ListItemText primary={'Filter operations'} />
                 </ListItemButton>
@@ -86,7 +86,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                             run(() => {
                                 const icon = CURRENCIES[appState.masterCurrency].faIcon
                                 return icon !== undefined
-                                    ? <FontAwesomeIcon icon={icon} fixedWidth/>
+                                    ? <FontAwesomeIcon icon={icon} fixedWidth />
                                     : <DivBody1 width={20} textAlign={'center'} fontWeight={'bold'}>
                                         {getCurrencySymbol(appState.masterCurrency)}
                                     </DivBody1>
@@ -99,7 +99,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
             <ListItem disablePadding>
                 <ListItemButton onClick={() => { void initGoogleSync() }}>
                     <ListItemIcon>
-                        <FontAwesomeIcon icon={faCloudArrowUp} fixedWidth/>
+                        <FontAwesomeIcon icon={faCloudArrowUp} fixedWidth />
                     </ListItemIcon>
                     <ListItemText primary={'Sync with Google'} />
                 </ListItemButton>
@@ -107,7 +107,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
             <ListItem disablePadding>
                 <ListItemButton href={'https://t.me/+kBQ5Uy5y13UzNjk0'} target={'_blank'}>
                     <ListItemIcon>
-                        <FontAwesomeIcon icon={faTelegram} fixedWidth/>
+                        <FontAwesomeIcon icon={faTelegram} fixedWidth />
                     </ListItemIcon>
                     <ListItemText>{'Discuss'}</ListItemText>
                 </ListItemButton>
@@ -115,7 +115,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
             <ListItem disablePadding>
                 <ListItemButton href={'https://github.com/rlz/cashmony/issues'} target={'_blank'}>
                     <ListItemIcon>
-                        <FontAwesomeIcon icon={faGithub} fixedWidth/>
+                        <FontAwesomeIcon icon={faGithub} fixedWidth />
                     </ListItemIcon>
                     <ListItemText>
                         {'Report issue'}

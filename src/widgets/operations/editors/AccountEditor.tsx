@@ -32,14 +32,14 @@ export const AccountEditor = observer((props: Props): ReactElement => {
         disableGutters
         expanded={props.expanded}
         onChange={(_, expanded) => { props.onExpandedChange(expanded) }}
-    >
+           >
         <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />}>
             <Typography>{props.title}</Typography>
         </AccordionSummary>
         <AccordionDetails>
             <AccountsSelect
                 selected={match(props.account).with(null, () => []).otherwise(v => [v.name])}
-                onSelectedChange={selected => {
+                onSelectedChange={(selected) => {
                     props.onAccountChange({
                         name: selected[0],
                         amount: props.account?.amount ?? 0
@@ -68,8 +68,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                             })
                         }}
                     />
-                </Box>
-            }
+                </Box>}
         </AccordionDetails>
     </Accordion>
 })

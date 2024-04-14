@@ -12,7 +12,7 @@ const ClearReplyBodySchema = z.object({
 
 export type ClearReplyBody = z.infer<typeof ClearReplyBodySchema>
 
-async function clearData (google: Google, tabName: string): Promise<void> {
+async function clearData(google: Google, tabName: string): Promise<void> {
     if (google.finDataSpreadsheetId === null) {
         throw Error(`finDataSpreadsheetId(${google.finDataSpreadsheetId ?? 'null'}) expected here`)
     }
@@ -45,7 +45,7 @@ const PutReplyBodySchema = z.object({
 
 export type PutReplyBody = z.infer<typeof PutReplyBodySchema>
 
-export async function storeRows (google: Google, tabName: string, range: string, rows: unknown[][]): Promise<void> {
+export async function storeRows(google: Google, tabName: string, range: string, rows: unknown[][]): Promise<void> {
     console.log(`Store ${rows.length} rows in ${google.spreadsheetName}:${tabName}`)
 
     if (google.finDataSpreadsheetId === null) {
@@ -82,7 +82,7 @@ export async function storeRows (google: Google, tabName: string, range: string,
     }
 }
 
-export async function storeOperations (google: Google, operations: readonly Operation[]): Promise<void> {
+export async function storeOperations(google: Google, operations: readonly Operation[]): Promise<void> {
     console.log('Store operations')
 
     await clearData(google, google.tabNames.operations)
@@ -96,7 +96,7 @@ export async function storeOperations (google: Google, operations: readonly Oper
     console.log('End store operations')
 }
 
-export async function storeAccounts (google: Google, accounts: readonly Account[]): Promise<void> {
+export async function storeAccounts(google: Google, accounts: readonly Account[]): Promise<void> {
     console.log('Store accounts')
 
     await clearData(google, google.tabNames.accounts)
@@ -108,7 +108,7 @@ export async function storeAccounts (google: Google, accounts: readonly Account[
     console.log('End store accounts')
 }
 
-export async function storeCategories (google: Google, categories: readonly Category[]): Promise<void> {
+export async function storeCategories(google: Google, categories: readonly Category[]): Promise<void> {
     console.log('Store categories')
 
     await clearData(google, google.tabNames.categories)
@@ -120,7 +120,7 @@ export async function storeCategories (google: Google, categories: readonly Cate
     console.log('End store categories')
 }
 
-export async function storeGoals (google: Google, goals: readonly ExpensesGoal[]): Promise<void> {
+export async function storeGoals(google: Google, goals: readonly ExpensesGoal[]): Promise<void> {
     console.log('Store goals')
 
     await clearData(google, google.tabNames.goals)

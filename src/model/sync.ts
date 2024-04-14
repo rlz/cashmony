@@ -13,7 +13,7 @@ const accountsModel = AccountsModel.instance()
 const categoriesModel = CategoriesModel.instance()
 const goalsModel = GoalsModel.instance()
 
-export async function initGoogleSync (): Promise<void> {
+export async function initGoogleSync(): Promise<void> {
     await google.authenticate()
 }
 
@@ -30,7 +30,7 @@ export interface SyncStatsEx extends SyncStats {
     deletedInLocal: number
 }
 
-export async function syncAccounts (): Promise<SyncStats> {
+export async function syncAccounts(): Promise<SyncStats> {
     if (accountsModel.accounts === null) {
         throw Error('Accounts not loaded')
     }
@@ -79,7 +79,7 @@ export async function syncAccounts (): Promise<SyncStats> {
 
     console.log('Accounts Sync Result', syncStats)
 
-    await Promise.all([...missedInLocal, ...latestInGoogle].map(async i => { await accountsModel.put(i) }))
+    await Promise.all([...missedInLocal, ...latestInGoogle].map(async (i) => { await accountsModel.put(i) }))
 
     if (latestInLocal > 0 || localAccsMap.size > 0) {
         await google.storeAccounts([...accountsModel.accounts.values()])
@@ -88,7 +88,7 @@ export async function syncAccounts (): Promise<SyncStats> {
     return syncStats
 }
 
-export async function syncCategories (): Promise<SyncStats> {
+export async function syncCategories(): Promise<SyncStats> {
     if (categoriesModel.categories === null) {
         throw Error('Categories not loaded')
     }
@@ -137,7 +137,7 @@ export async function syncCategories (): Promise<SyncStats> {
 
     console.log('Categories Sync Result', syncStats)
 
-    await Promise.all([...missedInLocal, ...latestInGoogle].map(async i => { await categoriesModel.put(i) }))
+    await Promise.all([...missedInLocal, ...latestInGoogle].map(async (i) => { await categoriesModel.put(i) }))
 
     if (latestInLocal > 0 || localCatsMap.size > 0) {
         await google.storeCategories([...categoriesModel.categories.values()])
@@ -146,7 +146,7 @@ export async function syncCategories (): Promise<SyncStats> {
     return syncStats
 }
 
-export async function syncGoals (): Promise<SyncStats> {
+export async function syncGoals(): Promise<SyncStats> {
     const googleGoals = await google.loadGoals()
     const localGoals = nonNull(goalsModel.goals, 'goalsModel.goals expected here')
 
@@ -191,7 +191,7 @@ export async function syncGoals (): Promise<SyncStats> {
 
     console.log('Goals Sync Result', syncStats)
 
-    await Promise.all([...missedInLocal, ...latestInGoogle].map(async i => { await goalsModel.put(i) }))
+    await Promise.all([...missedInLocal, ...latestInGoogle].map(async (i) => { await goalsModel.put(i) }))
 
     if (latestInLocal > 0 || localGoalsMap.size > 0) {
         await google.storeGoals([...localGoals])
@@ -200,7 +200,7 @@ export async function syncGoals (): Promise<SyncStats> {
     return syncStats
 }
 
-export async function syncOperations (): Promise<SyncStatsEx> {
+export async function syncOperations(): Promise<SyncStatsEx> {
     if (operationsModel.operations === null) {
         throw Error('Operations not loaded')
     }

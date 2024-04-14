@@ -43,5 +43,5 @@ export const TagsSelect = observer((props: Props) => {
         selectMany={true}
         selectZero={true}
         sx={props.sx}
-    />
+           />
 })

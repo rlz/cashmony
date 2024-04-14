@@ -37,7 +37,7 @@ const appState = AppState.instance()
 const accountsModel = AccountsModel.instance()
 const operationsModel = OperationsModel.instance()
 
-export function AccountScreen (): ReactElement {
+export function AccountScreen(): ReactElement {
     const appState = AppState.instance()
     const smallScreen = screenWidthIs('xs', 'sm')
     const location = useLocation()
@@ -56,7 +56,7 @@ export function AccountScreen (): ReactElement {
             !smallScreen
                 ? <PanelGroup direction={'horizontal'}>
                     <Panel>
-                        <AccountsScreenBody noFab={accSelected}/>
+                        <AccountsScreenBody noFab={accSelected} />
                     </Panel>
                     {
                         showIfLazy(accSelected, () => {
@@ -82,7 +82,7 @@ export function AccountScreen (): ReactElement {
                                 height={'100%'}
                                 width={'100%'}
                                 bgcolor={theme.palette.background.default}
-                            >
+                                   >
                                 <AccountScreenBody />
                             </Box>
                         })
@@ -139,7 +139,7 @@ export const AccountScreenBody = observer(() => {
 
         const allDates = [...timeSpan.allDates({ includeDayBefore: true })]
 
-        const totalAmount = allDates.map((d) => accountsModel.getAmounts(d)[accName] ?? 0)
+        const totalAmount = allDates.map(d => accountsModel.getAmounts(d)[accName] ?? 0)
 
         const perDayAmount = totalAmount.map((a, i, arr) => i === 0 ? 0 : a - arr[i - 1])
 
@@ -147,9 +147,9 @@ export const AccountScreenBody = observer(() => {
     }, [accName, accountsModel.amounts, appState.timeSpanInfo])
 
     if (
-        acc === null ||
-        accountsModel.accounts === null ||
-        accountsModel.amounts === null
+        acc === null
+        || accountsModel.accounts === null
+        || accountsModel.amounts === null
     ) {
         return <AccountScreenSkeleton />
     }
@@ -170,9 +170,9 @@ export const AccountScreenBody = observer(() => {
                     onChange={(_, tab) => { navigate(`/accounts/${encodeURIComponent(accName)}/${tab as string}`) }}
                     variant={'fullWidth'}
                 >
-                    <Tab value={'stats'} label={'Stats'}/>
-                    <Tab value={'modify'} label={'Modify'}/>
-                    <Tab value={'operations'} label={'Operations'}/>
+                    <Tab value={'stats'} label={'Stats'} />
+                    <Tab value={'modify'} label={'Modify'} />
+                    <Tab value={'operations'} label={'Operations'} />
                 </Tabs>
             </Box>
             <Box overflow={'auto'} flex={'1 1 auto'}>
@@ -180,17 +180,17 @@ export const AccountScreenBody = observer(() => {
                     {
                         match(tabName)
                             .with('stats', () => <Stats account={acc} perDayAmount={perDayAmount} totalAmount={totalAmount} />)
-                            .with('modify', () => <Editor acc={acc} setAcc={setAcc}/>)
+                            .with('modify', () => <Editor acc={acc} setAcc={setAcc} />)
                             .with('operations', () => <OpsList
                                 noFab
                                 onOpClick={(opId) => {
                                     navigate(`/accounts/${accName}/operations/${opId}`)
                                 }}
                                 predicate={PE.and(PE.filter(appState.filter), PE.account(acc.name))}
-                            />)
+                                                      />)
                             .otherwise(() => { throw Error('Unimplemented tab') })
                     }
-                    <Box minHeight={72}/>
+                    <Box minHeight={72} />
                 </Box>
             </Box>
         </Column>
@@ -200,7 +200,7 @@ export const AccountScreenBody = observer(() => {
                     width={'850px'}
                     title={opModalTitle}
                     onClose={() => { navigate(`/accounts/${accName}/operations`) }}
-                >
+                       >
                     <Box p={1}>
                         <OperationScreenBody
                             urlOpId={opId ?? ''}
@@ -213,7 +213,7 @@ export const AccountScreenBody = observer(() => {
     </>
 })
 
-function AccountScreenSkeleton (): ReactElement {
+function AccountScreenSkeleton(): ReactElement {
     return <>
         <Typography variant={'h6'} mt={2}>
             <Skeleton width={75} sx={{ mx: 'auto' }} />
@@ -222,14 +222,14 @@ function AccountScreenSkeleton (): ReactElement {
             <Skeleton width={95} sx={{ mx: 'auto' }} />
         </Typography>
         <Tabs value={0} variant={'fullWidth'}>
-            <Tab label={<Skeleton width={45} />}/>
-            <Tab label={<Skeleton width={65}/>}/>
-            <Tab label={<Skeleton width={35}/>}/>
+            <Tab label={<Skeleton width={45} />} />
+            <Tab label={<Skeleton width={65} />} />
+            <Tab label={<Skeleton width={35} />} />
         </Tabs>
         <Column gap={1} mt={1}>
-            <Skeleton variant={'rounded'} height={185}/>
-            <Skeleton variant={'rounded'} height={200}/>
-            <Skeleton variant={'rounded'} height={180}/>
+            <Skeleton variant={'rounded'} height={185} />
+            <Skeleton variant={'rounded'} height={200} />
+            <Skeleton variant={'rounded'} height={180} />
         </Column>
     </>
 }
@@ -240,10 +240,10 @@ interface StatsProps {
     totalAmount: number[]
 }
 
-function Stats ({ account, perDayAmount, totalAmount }: StatsProps): ReactElement {
+function Stats({ account, perDayAmount, totalAmount }: StatsProps): ReactElement {
     return <Box display={'flex'} flexDirection={'column'} gap={1} mt={1}>
         <AccPlot title={'Amount'} account={account} totalAmount={totalAmount} />
-        <AccPlot title={'Per day amount'} account={account} perDayAmount={perDayAmount}/>
+        <AccPlot title={'Per day amount'} account={account} perDayAmount={perDayAmount} />
     </Box>
 }
 
@@ -252,7 +252,7 @@ interface EditorProps {
     setAcc: (cat: Account) => void
 }
 
-function Editor ({ acc, setAcc }: EditorProps): ReactElement {
+function Editor({ acc, setAcc }: EditorProps): ReactElement {
     const navigate = useNavigate()
     const amount = accountsModel.getAmounts(appState.today)[acc.name] ?? 0
 
@@ -264,17 +264,17 @@ function Editor ({ acc, setAcc }: EditorProps): ReactElement {
     useEffect(() => { setNewAcc(acc) }, [acc])
 
     const trimmedName = newAcc.name.trim()
-    const nameConflict = trimmedName !== acc.name &&
-        accountsModel.accounts !== null &&
-        accountsModel.accounts.has(newAcc.name) &&
-        accountsModel.get(newAcc.name).deleted !== true
+    const nameConflict = trimmedName !== acc.name
+        && accountsModel.accounts !== null
+        && accountsModel.accounts.has(newAcc.name)
+        && accountsModel.get(newAcc.name).deleted !== true
 
     const onSave = useMemo(
         () => {
             if (
-                deepEqual(acc, newAcc) ||
-                trimmedName === '' ||
-                nameConflict
+                deepEqual(acc, newAcc)
+                || trimmedName === ''
+                || nameConflict
             ) {
                 return null
             }
@@ -290,8 +290,8 @@ function Editor ({ acc, setAcc }: EditorProps): ReactElement {
                     const changedOps: Operation[] = []
                     for (const op of operationsModel.operations) {
                         if (
-                            (op.type !== 'deleted') &&
-                        op.account.name === acc.name
+                            (op.type !== 'deleted')
+                            && op.account.name === acc.name
                         ) {
                             changedOps.push({
                                 ...op,
@@ -325,14 +325,13 @@ function Editor ({ acc, setAcc }: EditorProps): ReactElement {
             helperText={match(null)
                 .when(() => trimmedName === '', () => 'Black name')
                 .when(() => nameConflict, () => 'Already exists')
-                .otherwise(() => 'Ok')
-            }
+                .otherwise(() => 'Ok')}
             label={'Name'}
             size={'small'}
             fullWidth
             variant={'filled'}
             value={newAcc.name}
-            onChange={ev => { setNewAcc({ ...newAcc, name: ev.target.value }) }}
+            onChange={(ev) => { setNewAcc({ ...newAcc, name: ev.target.value }) }}
         />
         <FormControlLabel
             control={<Switch
@@ -343,7 +342,7 @@ function Editor ({ acc, setAcc }: EditorProps): ReactElement {
                         hidden: checked
                     })
                 }}
-            />}
+                     />}
             label={'Hidden'}
         />
         <Box my={4}>
@@ -351,7 +350,7 @@ function Editor ({ acc, setAcc }: EditorProps): ReactElement {
                 label={'Adjust amount'}
                 currency={newAcc.currency}
                 amount={adjustedAmount}
-                onAmountChange={amount => { setAdjustedAmount(amount) }}
+                onAmountChange={(amount) => { setAdjustedAmount(amount) }}
             />
             <ActionButton
                 sx={{ mt: 1 }}
@@ -373,6 +372,7 @@ function Editor ({ acc, setAcc }: EditorProps): ReactElement {
                                 tags: [],
                                 comment: null
                             }])
+                        // eslint-disable-next-line @stylistic/jsx-indent
                         }
                 }
                 variant={'contained'}
@@ -382,7 +382,7 @@ function Editor ({ acc, setAcc }: EditorProps): ReactElement {
             </ActionButton>
         </Box>
         <ActionFab action={onSave}>
-            <FontAwesomeIcon icon={faCheck}/>
+            <FontAwesomeIcon icon={faCheck} />
         </ActionFab>
         <Button
             variant={'contained'}
@@ -440,24 +440,26 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
             {
                 addAccount
                     ? <AddAccount
-                        onClose={() => { setAddAccount(false) }}
-                    />
+                            onClose={() => { setAddAccount(false) }}
+                      />
                     : undefined
             }
             {
                 addAccount || noFab === true
                     ? undefined
                     : <Fab
-                        color={'primary'}
-                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                        onClick={() => { setAddAccount(true) }}
-                    >
+                            color={'primary'}
+                            sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                            onClick={() => { setAddAccount(true) }}
+                      >
                         <FontAwesomeIcon icon={faPlus} />
                     </Fab>
             }
             <Column textAlign={'center'} mt={3}>
-                {'Before start tracking your finances you need to create an account'}<br/>
-                {'Account is your bank account or cash'}<br/>
+                {'Before start tracking your finances you need to create an account'}
+                <br />
+                {'Account is your bank account or cash'}
+                <br />
                 {'You can create as many accounts as you need'}
                 <Box my={2}>{'OR'}</Box>
                 {'If you have sync your data with Google before'}
@@ -471,8 +473,8 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
     }
 
     if (
-        accountsModel.accountsSorted === null ||
-        total === null
+        accountsModel.accountsSorted === null
+        || total === null
     ) return <AccountsScreenSkeleton />
 
     const totalAmounts = [...appState.timeSpan.allDates({ includeDayBefore: true })].map(d => accountsModel.getAmounts(d))
@@ -492,18 +494,18 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
         {
             addAccount
                 ? <AddAccount
-                    onClose={() => { setAddAccount(false) }}
-                />
+                        onClose={() => { setAddAccount(false) }}
+                  />
                 : undefined
         }
         {
             addAccount || noFab === true
                 ? undefined
                 : <Fab
-                    color={'primary'}
-                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                    onClick={() => { setAddAccount(true) }}
-                >
+                        color={'primary'}
+                        sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                        onClick={() => { setAddAccount(true) }}
+                  >
                     <FontAwesomeIcon icon={faPlus} />
                 </Fab>
         }
@@ -525,33 +527,36 @@ export const AccountsScreenBody = observer(({ noFab }: AccountsScreenBodyProps):
                             key={account.name}
                             account={account}
                             totalAmount={totalAmounts.map(a => a[account.name] ?? 0)}
-                        />)
+                                                       />)
                     }
                     { hiddenAccounts.length > 0
                         ? (showHidden
-                            ? hiddenAccounts.map(account => <AccountCard
-                                key={account.name}
-                                account={account}
-                                totalAmount={totalAmounts.map(a => a[account.name] ?? 0)}
-                            />)
-                            : <Typography color={'primary.main'} textAlign={'center'}>
-                                <a onClick={() => { setShowHidden(true) }}>{'Show '}{hiddenAccounts.length}{' hidden'}</a>
-                            </Typography>)
-                        : null
-                    }
+                                ? hiddenAccounts.map(account => <AccountCard
+                                        key={account.name}
+                                        account={account}
+                                        totalAmount={totalAmounts.map(a => a[account.name] ?? 0)}
+                                                                />)
+                                : <Typography color={'primary.main'} textAlign={'center'}>
+                                    <a onClick={() => { setShowHidden(true) }}>
+                                        {'Show '}
+                                        {hiddenAccounts.length}
+                                        {' hidden'}
+                                    </a>
+                                </Typography>)
+                        : null}
                 </Box>
-                <Box minHeight={144}/>
+                <Box minHeight={144} />
             </Box>
         </Box>
     </>
 })
 
-function AccountsScreenSkeleton (): ReactElement {
+function AccountsScreenSkeleton(): ReactElement {
     return <Column width={'100%'} p={1}>
         <Typography component={'div'} variant={'h6'} textAlign={'center'} my={1}>
-            <Skeleton sx={{ maxWidth: 85, mx: 'auto' }}/>
+            <Skeleton sx={{ maxWidth: 85, mx: 'auto' }} />
             <Typography variant={'body1'} color={'primary.main'}>
-                <Skeleton sx={{ maxWidth: 65, mx: 'auto' }}/>
+                <Skeleton sx={{ maxWidth: 65, mx: 'auto' }} />
             </Typography>
         </Typography>
         <Box
@@ -560,7 +565,7 @@ function AccountsScreenSkeleton (): ReactElement {
             gap={1}
             width={'100%'}
         >
-            {[1, 1, 1].map((_, i) => <AccountCardSkeleton key={i}/>)}
+            {[1, 1, 1].map((_, i) => <AccountCardSkeleton key={i} />)}
         </Box>
     </Column>
 }
@@ -570,7 +575,7 @@ interface AccountPanelProps {
     totalAmount: number[]
 }
 
-function AccountCard ({ account, totalAmount }: AccountPanelProps): ReactElement {
+function AccountCard({ account, totalAmount }: AccountPanelProps): ReactElement {
     const navigate = useNavigate()
 
     return <a onClick={() => { navigate(`/accounts/${encodeURIComponent(account.name)}`) }}>
@@ -595,14 +600,14 @@ function AccountCard ({ account, totalAmount }: AccountPanelProps): ReactElement
     </a>
 }
 
-function AccountCardSkeleton (): ReactElement {
+function AccountCardSkeleton(): ReactElement {
     return <Paper sx={{ p: 1, maxWidth: 900, mx: 'auto', width: '100%' }}>
         <Box display={'flex'} mb={1}>
-            <DivBody1 flex={'1 1 0'}><Skeleton sx={{ maxWidth: 85 }}/></DivBody1>
+            <DivBody1 flex={'1 1 0'}><Skeleton sx={{ maxWidth: 85 }} /></DivBody1>
             <DivBody1 textAlign={'right'} color={'primary.main'}>
                 <Skeleton sx={{ minWidth: 55 }} />
             </DivBody1>
         </Box>
-        <Skeleton variant={'rectangular'} height={50}/>
+        <Skeleton variant={'rectangular'} height={50} />
     </Paper>
 }

@@ -24,7 +24,7 @@ export class AccountsModel {
     amountsStartDate: DateTime | null = null
     amountsEndDate: DateTime | null = null
 
-    private constructor () {
+    private constructor() {
         makeAutoObservable(this, {
             accounts: observable.shallow,
             accountsSorted: observable.shallow,
@@ -93,7 +93,7 @@ export class AccountsModel {
         void this.readAll()
     }
 
-    static instance (): AccountsModel {
+    static instance(): AccountsModel {
         if (accountsModel === null) {
             accountsModel = new AccountsModel()
         }
@@ -101,7 +101,7 @@ export class AccountsModel {
         return accountsModel
     }
 
-    get (accountName: string): Account {
+    get(accountName: string): Account {
         if (this.accounts === null) {
             throw Error('Accounts have not been loaded')
         }
@@ -122,7 +122,7 @@ export class AccountsModel {
         return account
     }
 
-    getAmounts (date: DateTime): Readonly<Record<string, number>> {
+    getAmounts(date: DateTime): Readonly<Record<string, number>> {
         if (this.amounts === null || this.amountsEndDate === null) {
             throw Error('Amounts have not been calculated')
         }
@@ -146,22 +146,22 @@ export class AccountsModel {
         return this.amounts.get(date.toISODate() ?? '') ?? this.zeroAmounts()
     }
 
-    async put (account: Account): Promise<void> {
+    async put(account: Account): Promise<void> {
         await this.finDataDb.putAccount(account)
         await this.readAll()
     }
 
-    private async readAll (): Promise<void> {
+    private async readAll(): Promise<void> {
         const accounts = new Map<string, Account>();
 
-        (await this.finDataDb.readAllAccounts()).forEach(a => { accounts.set(a.name, a) })
+        (await this.finDataDb.readAllAccounts()).forEach((a) => { accounts.set(a.name, a) })
 
         runInAction(() => {
             this.accounts = accounts
         })
     }
 
-    private zeroAmounts (): Record<string, number> {
+    private zeroAmounts(): Record<string, number> {
         if (this.accounts === null) {
             throw Error('Accounts not loaded')
         }
