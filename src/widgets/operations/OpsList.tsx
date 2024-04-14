@@ -83,7 +83,7 @@ export const OpsList = observer((props: Props): ReactElement => {
         </Box>
     }
 
-    return <Box height={'100%'} overflow={'auto'}>
+    return <Box height={'100%'}>
         {displayOps.slice(0, displayDays).map((group, i) =>
             <Box key={group[0].date.toISODate()}>
                 <Stack direction={'row'} spacing={1} justifyContent={'space-between'} pt={2}>

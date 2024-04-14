@@ -66,10 +66,12 @@ export function OperationScreen(): ReactElement {
             !smallScreen
                 ? <PanelGroup direction={'horizontal'}>
                     <Panel>
-                        <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
-                            <OpsList
-                                noFab={opId !== ''}
+                        <Box height={'100%'} overflow={'auto'}>
+                            <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
+                                <OpsList
+                                    noFab={opId !== ''}
                             />
+                            </Box>
                         </Box>
                     </Panel>
                     {
@@ -85,7 +87,7 @@ export function OperationScreen(): ReactElement {
 
                 </PanelGroup>
                 : <Box position={'relative'} height={'100%'}>
-                    <Box p={1} height={'100%'}>
+                    <Box p={1} height={'100%'} overflow={'auto'}>
                         <OpsList noFab={opId !== ''} />
                     </Box>
                     {
