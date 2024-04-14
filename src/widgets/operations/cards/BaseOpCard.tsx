@@ -1,4 +1,4 @@
-import { Avatar, Box, Paper, Skeleton } from '@mui/material'
+import { Avatar, Box, Paper, Skeleton, Stack, useTheme } from '@mui/material'
 import React, { type ReactElement } from 'react'
 
 import { formatCurrency } from '../../../helpers/currencies'
@@ -21,32 +21,34 @@ interface Props {
 }
 
 export function BaseOpCard(props: Props): ReactElement {
-    const color = props.color + '.light'
+    const theme = useTheme()
+    const color = `${props.color}.${theme.palette.mode === 'dark' ? 'light' : 'dark'}`
 
-    return <Paper elevation={1} sx={{ p: 1, display: 'flex', gap: 2 }}>
-        <Box>
-            <Avatar sx={{ bgcolor: color }}>{props.icon}</Avatar>
-        </Box>
-        <Box flex={'1 1 0'} minWidth={0}>
-            <Row gap={1}>
-                <DivBody1
-                    flex={'1 1 0'}
-                    minWidth={30}
-                    color={props.categoryGrey === true ? 'grey.500' : undefined}
-                    noWrap
+    return <Paper variant={'outlined'}>
+        <Stack p={1} direction={'row'} spacing={2}>
+            <Box>
+                <Avatar sx={{ bgcolor: color }}>{props.icon}</Avatar>
+            </Box>
+            <Box flex={'1 1 0'} minWidth={0}>
+                <Row gap={1}>
+                    <DivBody1
+                        flex={'1 1 0'}
+                        minWidth={30}
+                        color={props.categoryGrey === true ? 'grey.500' : undefined}
+                        noWrap
                 >
-                    {props.categoryName}
-                </DivBody1>
-                <DivBody1 color={color} noWrap>
-                    { formatCurrency(props.amount, props.currency) }
-                </DivBody1>
-            </Row>
-            {props.transferElement}
-            <Row gap={1}>
-                <DivBody2 flex={'1 1 0'} minWidth={30} noWrap>
-                    {props.tags.join(', ')}
-                </DivBody2>
-                {
+                        {props.categoryName}
+                    </DivBody1>
+                    <DivBody1 color={color} noWrap>
+                        { formatCurrency(props.amount, props.currency) }
+                    </DivBody1>
+                </Row>
+                {props.transferElement}
+                <Row gap={1}>
+                    <DivBody2 flex={'1 1 0'} minWidth={30} noWrap>
+                        {props.tags.join(', ')}
+                    </DivBody2>
+                    {
                     showIf(
                         props.accountName !== null,
                         <DivBody2 noWrap>
@@ -55,11 +57,12 @@ export function BaseOpCard(props: Props): ReactElement {
                         </DivBody2>
                     )
                 }
-            </Row>
-            <DivBody2 fontStyle={'italic'} noWrap>
-                {(props.comment ?? '') === '' ? '\u00a0' : props.comment}
-            </DivBody2>
-        </Box>
+                </Row>
+                <DivBody2 fontStyle={'italic'} noWrap>
+                    {(props.comment ?? '') === '' ? '\u00a0' : props.comment}
+                </DivBody2>
+            </Box>
+        </Stack>
     </Paper>
 }
 

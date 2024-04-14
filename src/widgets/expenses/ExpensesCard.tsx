@@ -41,49 +41,51 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
 
     return <Box sx={props.sx}>
         <a onClick={() => { navigate(props.url) }}>
-            <Paper sx={{ p: 1 }}>
-                <Box display={'flex'} gap={1}>
-                    <SpanBody1>{ props.name }</SpanBody1>
-                    <SpanBody1
-                        color={'primary.main'}
-                        flex={'1 1 0'}
-                        textAlign={'right'}
-                    >
-                        {cur(match(props.totalAmount).with(0, v => v).otherwise(v => -v))}
-                    </SpanBody1>
-                </Box>
-                <DivBody2 my={1}>
-                    <table className={'stats'}>
-                        <tbody>
-                            <tr>
-                                <th>{'Period pace (30d):'}</th>
-                                <td>{match(periodPace).with(null, () => '-').otherwise(v => cur(-v))}</td>
-                            </tr>
-                            <tr>
-                                <th>{'Goal (30d):'}</th>
-                                <td>{props.perDayGoal !== null ? cur(30 * props.perDayGoal) : '-'}</td>
-                            </tr>
-                            <tr>
-                                <th>{'Left per day:'}</th>
-                                <td>
-                                    {
+            <Paper variant={'outlined'}>
+                <Box p={1}>
+                    <Box display={'flex'} gap={1}>
+                        <SpanBody1>{ props.name }</SpanBody1>
+                        <SpanBody1
+                            color={'primary.main'}
+                            flex={'1 1 0'}
+                            textAlign={'right'}
+                        >
+                            {cur(match(props.totalAmount).with(0, v => v).otherwise(v => -v))}
+                        </SpanBody1>
+                    </Box>
+                    <DivBody2 my={1}>
+                        <table className={'stats'}>
+                            <tbody>
+                                <tr>
+                                    <th>{'Period pace (30d):'}</th>
+                                    <td>{match(periodPace).with(null, () => '-').otherwise(v => cur(-v))}</td>
+                                </tr>
+                                <tr>
+                                    <th>{'Goal (30d):'}</th>
+                                    <td>{props.perDayGoal !== null ? cur(30 * props.perDayGoal) : '-'}</td>
+                                </tr>
+                                <tr>
+                                    <th>{'Left per day:'}</th>
+                                    <td>
+                                        {
                                         match(leftPerDay)
                                             .with(null, () => '-')
                                             .with(P.number.gt(0), v => cur(v))
                                             .otherwise(() => <Italic color={'warning.main'}>{'overspend'}</Italic>)
                                     }
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </DivBody2>
-                <ExpensesBarsPlot
-                    currency={props.currency}
-                    sparkline
-                    perDayPace={periodPace === null ? null : periodPace / 30}
-                    leftPerDay={leftPerDay}
-                    perDayExpenses={props.perDayExpenses}
-                />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </DivBody2>
+                    <ExpensesBarsPlot
+                        currency={props.currency}
+                        sparkline
+                        perDayPace={periodPace === null ? null : periodPace / 30}
+                        leftPerDay={leftPerDay}
+                        perDayExpenses={props.perDayExpenses}
+                    />
+                </Box>
             </Paper>
         </a>
     </Box>

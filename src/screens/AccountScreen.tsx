@@ -579,23 +579,23 @@ function AccountCard({ account, totalAmount }: AccountPanelProps): ReactElement 
     const navigate = useNavigate()
 
     return <a onClick={() => { navigate(`/accounts/${encodeURIComponent(account.name)}`) }}>
-        <Paper
-            sx={{ p: 1 }}
-        >
-            <Box display={'flex'} mb={1}>
-                <DivBody1>{account.name}</DivBody1>
-                <DivBody1 flex={'1 1 0'} textAlign={'right'} color={'primary.main'}>
-                    {
+        <Paper variant={'outlined'}>
+            <Box p={1}>
+                <Box display={'flex'} mb={1}>
+                    <DivBody1>{account.name}</DivBody1>
+                    <DivBody1 flex={'1 1 0'} textAlign={'right'} color={'primary.main'}>
+                        {
                         formatCurrency(totalAmount[totalAmount.length - 1], account.currency)
                     }
-                </DivBody1>
+                    </DivBody1>
+                </Box>
+                <AccPlot
+                    sparkline
+                    account={account}
+                    perDayAmount={totalAmount.map((a, i, arr) => i === 0 ? 0 : a - arr[i - 1])}
+                    totalAmount={totalAmount}
+                />
             </Box>
-            <AccPlot
-                sparkline
-                account={account}
-                perDayAmount={totalAmount.map((a, i, arr) => i === 0 ? 0 : a - arr[i - 1])}
-                totalAmount={totalAmount}
-            />
         </Paper>
     </a>
 }

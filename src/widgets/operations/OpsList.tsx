@@ -1,5 +1,5 @@
 import { AddCard as AddCardIcon, CreditCard as CreditCardIcon, CurrencyExchange as CurrencyExchangeIcon } from '@mui/icons-material'
-import { Backdrop, Box, Portal, Skeleton, SpeedDial, SpeedDialAction, SpeedDialIcon, Stack, Typography } from '@mui/material'
+import { Backdrop, Box, Portal, Skeleton, SpeedDial, SpeedDialAction, SpeedDialIcon, Stack, Typography, useTheme } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -31,12 +31,14 @@ interface Props {
 }
 
 export const OpsList = observer((props: Props): ReactElement => {
+    const theme = useTheme()
     const navigate = useNavigate()
     const [displayOps, setDisplayOps] = useState<NotDeletedOperation[][] | null>(null)
     const [perDayExpenses, setPerDayExpenses] = useState<number[] | null>(null)
     const [displayDays, setDisplayDays] = useState(30)
 
     const masterCurrency = appState.masterCurrency
+    const conrastColor = theme.palette.mode === 'dark' ? 'light' : 'dark'
 
     useEffect(() => {
         if (displayOps === null) {
@@ -90,7 +92,7 @@ export const OpsList = observer((props: Props): ReactElement => {
                     <DivBody2>
                         {group[0].date.toLocaleString({ dateStyle: 'full' })}
                     </DivBody2>
-                    <DivBody2 color={'primary.main'}>
+                    <DivBody2 color={`error.${conrastColor}`}>
                         {perDayExpenses === null ? undefined : formatCurrency(-perDayExpenses[i], masterCurrency)}
                     </DivBody2>
                 </Stack>
