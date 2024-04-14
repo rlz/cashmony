@@ -215,7 +215,7 @@ export const CategoryScreenBody = observer((): ReactElement => {
                     {cur(-stats.total)}
                 </Typography>
                 <Typography variant={'body2'} textAlign={'center'}>
-                    {'Goal (30d): '}{cat.perDayAmount !== undefined ? cur(-30 * cat.perDayAmount) : '-'}
+                    {'Goal (30d): '}{cat.perDayAmount !== undefined ? cur(30 * cat.perDayAmount) : '-'}
                 </Typography>
                 <Tabs value={tabName} onChange={(_, tab) => { navigate(`/categories/${catName}/${tab as string}`) }} variant={'fullWidth'}>
                     <Tab value={'stats'} label={'Stats'}/>
