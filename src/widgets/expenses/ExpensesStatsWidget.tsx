@@ -231,13 +231,13 @@ function MonthComparisonPlot({ expenses, currency }: PlotProps): JSX.Element {
                         x: 'Year',
                         y: 'amount',
                         fill: 'Year',
-                        fx: 'month',
-                        tip: {
-                            format: {
-                                fx: false,
-                                y: v => formatCurrency(v, currency)
-                            }
-                        }
+                        fx: 'month'
+                        // tip: {
+                        //     format: {
+                        //         fx: false,
+                        //         y: v => formatCurrency(v, currency)
+                        //     }
+                        // }
                     }),
                     Plot.ruleY([0]),
                     Plot.axisFx({
