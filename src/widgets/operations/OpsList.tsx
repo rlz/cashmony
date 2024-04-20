@@ -69,7 +69,14 @@ export const OpsList = observer((props: Props): ReactElement => {
                 setDisplayOps(props.operations)
             })
         },
-        [props.operations, props.predicate, operationsModel.operations, appState.filter, appState.timeSpan]
+        [
+            props.operations,
+            props.predicate,
+            operationsModel.operations,
+            appState.filter,
+            appState.timeSpan,
+            appState.masterCurrency
+        ]
     )
 
     if (displayOps === null) {
@@ -92,9 +99,15 @@ export const OpsList = observer((props: Props): ReactElement => {
                     <DivBody2 fontWeight={'bold'}>
                         {group[0].date.toLocaleString({ dateStyle: 'full' })}
                     </DivBody2>
-                    <DivBody2 color={`error.${conrastColor}`} fontWeight={'bold'}>
-                        {perDayExpenses === null ? undefined : formatCurrency(-perDayExpenses[i], masterCurrency)}
-                    </DivBody2>
+                    {
+                        perDayExpenses !== null
+                        && <DivBody2
+                            color={`${perDayExpenses[i] < 0 ? 'error' : 'success'}.${conrastColor}`}
+                            fontWeight={'bold'}
+                        >
+                            {formatCurrency(Math.abs(perDayExpenses[i]), masterCurrency)}
+                        </DivBody2>
+                    }
                 </Stack>
                 <Column gap={1}>
                     {group.map(op => <a
