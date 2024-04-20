@@ -27,7 +27,6 @@ interface Props {
     onOpClick?: (opId: string) => void
     noFab?: boolean
     predicate?: Predicate
-    operations?: NotDeletedOperation[][]
 }
 
 export const OpsList = observer((props: Props): ReactElement => {
@@ -51,26 +50,21 @@ export const OpsList = observer((props: Props): ReactElement => {
     useEffect(
         () => {
             runAsync(async () => {
-                if (props.operations === undefined) {
-                    if (operationsModel.operations === null) {
-                        return
-                    }
-
-                    const appState = AppState.instance()
-                    const predicate = props.predicate ?? PE.filter(appState.filter)
-                    const stats = await calcStats(predicate, appState.timeSpan, appState.today, {
-                        opsByDate: opsPerIterval('day', false),
-                        perDayExpenses: perIntervalExpensesReducer('day', PE.any(), masterCurrency)
-                    })
-                    setDisplayOps(stats.opsByDate.reverse())
-                    setPerDayExpenses(stats.perDayExpenses.slice(0, stats.opsByDate.length).reverse())
+                if (operationsModel.operations === null) {
                     return
                 }
-                setDisplayOps(props.operations)
+
+                const appState = AppState.instance()
+                const predicate = props.predicate ?? PE.filter(appState.filter)
+                const stats = await calcStats(predicate, appState.timeSpan, appState.today, {
+                    opsByDate: opsPerIterval('day', false),
+                    perDayExpenses: perIntervalExpensesReducer('day', PE.any(), masterCurrency)
+                })
+                setDisplayOps(stats.opsByDate.reverse())
+                setPerDayExpenses(stats.perDayExpenses.slice(0, stats.opsByDate.length).reverse())
             })
         },
         [
-            props.operations,
             props.predicate,
             operationsModel.operations,
             appState.filter,
