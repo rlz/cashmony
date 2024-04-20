@@ -1,4 +1,4 @@
-import { Box, Paper, Typography } from '@mui/material'
+import { Box, Paper, styled, Typography, useMediaQuery, useTheme } from '@mui/material'
 import * as Plot from '@observablehq/plot'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
@@ -43,6 +43,9 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
     const appState = AppState.instance()
     const operationsModel = OperationsModel.instance()
 
+    const theme = useTheme()
+    const xs = useMediaQuery(theme.breakpoints.down('sm'))
+
     const [stats, setStats] = useState<Stats | null>(null)
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
@@ -74,7 +77,7 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
 
                 const mc = new MonthComparison(currency)
                 const ts = new CustomTimeSpan(
-                    DateTime.utc().minus({ years: 4 }).startOf('year'),
+                    DateTime.utc().minus({ years: xs ? 2 : 4 }).startOf('year'),
                     DateTime.utc()
                 )
                 await calcStats2(predicate, ts, appState.today, [mc])
@@ -99,7 +102,8 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
             predicate,
             appState.today,
             appState.timeSpanInfo,
-            operationsModel.operations
+            operationsModel.operations,
+            xs
         ]
     )
 
@@ -183,6 +187,16 @@ interface PlotProps {
     currency: string
 }
 
+const PlotContainer = styled('div')(
+    {
+        '&': {
+            figure: {
+                margin: 0
+            }
+        }
+    }
+)
+
 function MonthComparisonPlot({ expenses, currency }: PlotProps): JSX.Element {
     const { width, ref } = useResizeDetector()
 
@@ -207,6 +221,7 @@ function MonthComparisonPlot({ expenses, currency }: PlotProps): JSX.Element {
 
             const p = Plot.plot({
                 width,
+                height: 250,
                 x: { axis: null, type: 'band' },
                 y: { tickFormat: v => formatCurrency(v, currency, true), grid: true },
                 fx: {
@@ -237,6 +252,8 @@ function MonthComparisonPlot({ expenses, currency }: PlotProps): JSX.Element {
     )
 
     return <Paper variant={'outlined'}>
-        <div ref={ref} />
+        <Box p={1}>
+            <PlotContainer ref={ref} />
+        </Box>
     </Paper>
 }
