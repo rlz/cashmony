@@ -88,11 +88,11 @@ export const OpsList = observer((props: Props): ReactElement => {
     return <Box height={'100%'}>
         {displayOps.slice(0, displayDays).map((group, i) =>
             <Box key={group[0].date.toISODate()}>
-                <Stack direction={'row'} spacing={1} justifyContent={'space-between'} pt={2}>
-                    <DivBody2>
+                <Stack direction={'row'} spacing={1} justifyContent={'space-between'} pt={3} pb={1}>
+                    <DivBody2 fontWeight={'bold'}>
                         {group[0].date.toLocaleString({ dateStyle: 'full' })}
                     </DivBody2>
-                    <DivBody2 color={`error.${conrastColor}`}>
+                    <DivBody2 color={`error.${conrastColor}`} fontWeight={'bold'}>
                         {perDayExpenses === null ? undefined : formatCurrency(-perDayExpenses[i], masterCurrency)}
                     </DivBody2>
                 </Stack>
