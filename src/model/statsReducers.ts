@@ -237,7 +237,7 @@ export function perIntervalExpensesReducer(interval: IntervalType, predicate: Pr
     return {
         interval,
         reduce: async (op, _interval, firstOp, _intervalKind, result) => {
-            if (firstOp) {
+            if (firstOp && op !== null) {
                 result.push(0)
             }
 
