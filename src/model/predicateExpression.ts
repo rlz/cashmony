@@ -230,6 +230,10 @@ export const EXPENSE_PREDICATE = PE.or(PE.type('expense'), PE.and(PE.type('incom
 
 export const isExpense = compilePredicate(EXPENSE_PREDICATE)
 
+export const INCOME_PREDICATE = PE.and(PE.type('income'), PE.uncat())
+
+export const isIncome = compilePredicate(INCOME_PREDICATE)
+
 export function expensesGoalPredicate(filter: Filter): Predicate {
     return PE.and(EXPENSE_PREDICATE, PE.filter(filter))
 }

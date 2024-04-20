@@ -113,5 +113,5 @@ export function Plot(props: Props): ReactElement {
 
     return match(props.elevation)
         .with(0, () => plot)
-        .otherwise(v => <Paper elevation={v}>{plot}</Paper>)
+        .otherwise(_ => <Paper variant={'outlined'}>{plot}</Paper>)
 }

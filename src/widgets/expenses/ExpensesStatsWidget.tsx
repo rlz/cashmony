@@ -1,15 +1,20 @@
 import { Box, Paper, Typography } from '@mui/material'
+import * as Plot from '@observablehq/plot'
+import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useEffect, useState } from 'react'
+import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
+import { useResizeDetector } from 'react-resize-detector'
 import { match, P } from 'ts-pattern'
 
 import { formatCurrency } from '../../helpers/currencies'
-import { LastPeriodTimeSpan } from '../../helpers/dates'
+import { CustomTimeSpan, LastPeriodTimeSpan } from '../../helpers/dates'
 import { runAsync } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
+import { calcStats2 } from '../../model/newStatsProcessor'
 import { OperationsModel } from '../../model/operations'
 import { type Predicate } from '../../model/predicateExpression'
 import { calcStats } from '../../model/stats'
+import { MonthComparison } from '../../model/stats/monthsComparison'
 import { cumulativeIntervalExpensesReducer, perIntervalExpensesReducer, periodExpensesReducer } from '../../model/statsReducers'
 import { DivBody2, Italic } from '../generic/Typography'
 import { ExpensesBarsPlot, ExpensesTotalPlot } from './ExpensesPlots'
@@ -28,6 +33,10 @@ interface Stats {
     lastMonth: number
     last3Month: number
     lastYear: number
+    monthsComparison: {
+        expenses: readonly Record<number, number>[]
+        incomes: readonly Record<number, number>[]
+    }
 }
 
 export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }: Props): ReactElement => {
@@ -63,6 +72,13 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
                     lastYear: periodExpensesReducer(lastYear.startDate, predicate, currency)
                 })
 
+                const mc = new MonthComparison(currency)
+                const ts = new CustomTimeSpan(
+                    DateTime.utc().minus({ years: 4 }).startOf('year'),
+                    DateTime.utc()
+                )
+                await calcStats2(predicate, ts, appState.today, [mc])
+
                 setStats({
                     total: periodStats.total[periodStats.total.length - 1],
                     today: periodStats.today[0],
@@ -70,7 +86,11 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
                     cumulative: periodStats.total,
                     lastMonth: -30 * yearStats.lastMonth[0] / lastMonth.totalDays,
                     last3Month: -30 * yearStats.last3Month[0] / last3Month.totalDays,
-                    lastYear: -30 * yearStats.lastYear[0] / lastYear.totalDays
+                    lastYear: -30 * yearStats.lastYear[0] / lastYear.totalDays,
+                    monthsComparison: {
+                        expenses: mc.expenses,
+                        incomes: mc.incomes
+                    }
                 })
             })
         },
@@ -121,7 +141,7 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
                 </tbody>
             </table>
         </DivBody2>
-        <Paper elevation={2} sx={{ p: 1 }}>
+        <Paper variant={'outlined'} sx={{ p: 1 }}>
             <Typography variant={'h6'} textAlign={'center'}>
                 {'Avg. Pace (30d)'}
             </Typography>
@@ -154,5 +174,69 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
             perDayGoal={perDayGoal === null ? null : [perDayGoal, currency]}
             expenses={stats.cumulative}
         />
+        <MonthComparisonPlot expenses={stats.monthsComparison.expenses} currency={currency} />
     </Box>
 })
+
+interface PlotProps {
+    expenses: readonly Record<number, number>[]
+    currency: string
+}
+
+function MonthComparisonPlot({ expenses, currency }: PlotProps): JSX.Element {
+    const { width, ref } = useResizeDetector()
+
+    const data = useMemo(() => {
+        return expenses.map((e, i) => { return { month: i, perYear: e } })
+            .flatMap(({ month, perYear }) => {
+                return Object.entries(perYear).map(([year, amount]) => {
+                    return {
+                        year,
+                        month,
+                        amount: -amount
+                    }
+                })
+            })
+    }, [expenses])
+
+    useEffect(
+        () => {
+            if (ref.current == null) {
+                return
+            }
+
+            const p = Plot.plot({
+                width,
+                x: { axis: null, type: 'band' },
+                y: { tickFormat: v => formatCurrency(v, currency, true), grid: true },
+                fx: {
+                    label: null,
+                    tickFormat: v => ['Jan', 'Feb', 'Mar',
+                        'Apr', 'May', 'Jun',
+                        'Jul', 'Aug', 'Sep',
+                        'Oct', 'Nov', 'Dec'][v]
+                },
+                color: { type: 'ordinal', scheme: 'Category10', legend: true },
+                marks: [
+                    Plot.barY(data, {
+                        x: 'year',
+                        y: 'amount',
+                        fill: 'year',
+                        fx: 'month'
+                    }),
+                    Plot.ruleY([0])
+                ]
+            })
+            ref.current.append(p)
+
+            return () => {
+                p.remove()
+            }
+        },
+        [width, expenses]
+    )
+
+    return <Paper variant={'outlined'}>
+        <div ref={ref} />
+    </Paper>
+}
