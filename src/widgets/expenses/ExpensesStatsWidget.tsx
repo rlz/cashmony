@@ -222,8 +222,8 @@ function MonthComparisonPlot({ expenses, currency }: PlotProps): JSX.Element {
             const p = Plot.plot({
                 width,
                 height: 250,
-                x: { axis: null, type: 'band' },
-                y: { tickFormat: v => formatCurrency(v, currency, true), grid: true },
+                x: { axis: null, type: 'band', label: null },
+                y: { tickFormat: v => formatCurrency(v, currency, true), grid: true, label: null },
                 fx: {
                     label: null,
                     tickFormat: v => ['Jan', 'Feb', 'Mar',
