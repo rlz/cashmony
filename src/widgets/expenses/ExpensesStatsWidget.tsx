@@ -253,6 +253,7 @@ function MonthComparisonPlot({ expenses, currency }: PlotProps): JSX.Element {
 
     return <Paper variant={'outlined'}>
         <Box p={1}>
+            <Typography variant={'h6'} textAlign={'center'}>{'Monthly'}</Typography>
             <PlotContainer ref={ref} />
         </Box>
     </Paper>
