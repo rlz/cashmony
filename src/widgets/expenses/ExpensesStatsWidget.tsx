@@ -205,7 +205,7 @@ function MonthComparisonPlot({ expenses, currency }: PlotProps): JSX.Element {
             .flatMap(({ month, perYear }) => {
                 return Object.entries(perYear).map(([year, amount]) => {
                     return {
-                        year,
+                        Year: year,
                         month,
                         amount: -amount
                     }
@@ -222,24 +222,29 @@ function MonthComparisonPlot({ expenses, currency }: PlotProps): JSX.Element {
             const p = Plot.plot({
                 width,
                 height: 250,
-                x: { axis: null, type: 'band', label: null },
-                y: { tickFormat: v => formatCurrency(v, currency, true), grid: true, label: null },
-                fx: {
-                    label: null,
-                    tickFormat: v => ['Jan', 'Feb', 'Mar',
-                        'Apr', 'May', 'Jun',
-                        'Jul', 'Aug', 'Sep',
-                        'Oct', 'Nov', 'Dec'][v]
-                },
+                x: { axis: null, type: 'band' },
+                y: { tickFormat: v => formatCurrency(v, currency, true), grid: true, label: 'Total' },
+                fx: { label: 'Month' },
                 color: { type: 'ordinal', scheme: 'Category10', legend: true },
                 marks: [
                     Plot.barY(data, {
-                        x: 'year',
+                        x: 'Year',
                         y: 'amount',
-                        fill: 'year',
-                        fx: 'month'
+                        fill: 'Year',
+                        fx: 'month',
+                        tip: {
+                            format: {
+                                fx: false,
+                                y: v => formatCurrency(v, currency)
+                            }
+                        }
                     }),
-                    Plot.ruleY([0])
+                    Plot.ruleY([0]),
+                    Plot.axisFx({
+                        label: null,
+                        anchor: 'bottom',
+                        tickFormat: monthFormat
+                    })
                 ]
             })
             ref.current.append(p)
@@ -257,4 +262,11 @@ function MonthComparisonPlot({ expenses, currency }: PlotProps): JSX.Element {
             <PlotContainer ref={ref} />
         </Box>
     </Paper>
+}
+
+function monthFormat(month: number): string {
+    return ['Jan', 'Feb', 'Mar',
+        'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep',
+        'Oct', 'Nov', 'Dec'][month]
 }
