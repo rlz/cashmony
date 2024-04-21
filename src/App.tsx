@@ -10,6 +10,7 @@ import { CurrenciesModel } from './model/currencies'
 import { GoalsModel } from './model/goals'
 import { OperationsModel } from './model/operations'
 import { AccountScreen } from './screens/AccountScreen'
+import { AnaliticsScreen } from './screens/AnaliticsScreen'
 import { AuthScreen } from './screens/AuthScreen'
 import { CategoryScreen } from './screens/CategoryScreen'
 import { ExpensesGoalScreen } from './screens/ExpensesGoalScreen'
@@ -102,6 +103,10 @@ const router = createBrowserRouter([
     {
         path: '/goals/:goalName/operations/:opId',
         element: <ExpensesGoalScreen />
+    },
+    {
+        path: '/analitics',
+        Component: AnaliticsScreen
     }
 ])
 
@@ -154,8 +159,9 @@ export const App = observer(function App(): ReactElement {
         return <></>
     }
 
-    return <>
-        {
+    return (
+        <>
+            {
             showIf(
                 update,
                 <Box my={1}>
@@ -169,8 +175,9 @@ export const App = observer(function App(): ReactElement {
                 </Box>
             )
         }
-        <RouterProvider router={router} />
-    </>
+            <RouterProvider router={router} />
+        </>
+    )
 })
 
 function getCurrentVersion(): string | null {

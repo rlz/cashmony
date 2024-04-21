@@ -5,7 +5,7 @@ import { isExpense, isIncome } from '../predicateExpression'
 
 const currenciesModel = CurrenciesModel.instance()
 
-export class MonthComparison extends StatsReducer {
+export class YMComparisonReducer extends StatsReducer {
     private curency: string
     readonly expenses: readonly Record<number, number>[]
     readonly incomes: readonly Record<number, number>[]

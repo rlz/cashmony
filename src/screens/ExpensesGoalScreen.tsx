@@ -47,37 +47,45 @@ export function ExpensesGoalScreen(): ReactElement {
         })
     }, [params.goalName])
 
-    return <MainScreen>
-        {
+    return (
+        <MainScreen>
+            {
             smallScreen
-                ? <>
-                    <ExpensesGoalsScreenBody
-                        noFab={params.goalName !== undefined}
-                        hide={params.goalName !== undefined}
-                    />
-                    {
+                ? (
+                    <>
+                        <ExpensesGoalsScreenBody
+                            noFab={params.goalName !== undefined}
+                            hide={params.goalName !== undefined}
+                        />
+                        {
                         showIfLazy(params.goalName !== undefined, () => {
                             return <ExpensesGoalScreenBody />
                         })
                     }
-                </>
-                : <PanelGroup direction={'horizontal'}>
-                    <Panel>
-                        <ExpensesGoalsScreenBody noFab={params.goalName !== undefined} />
-                    </Panel>
-                    {
+                    </>
+                    )
+                : (
+                    <PanelGroup direction={'horizontal'}>
+                        <Panel>
+                            <ExpensesGoalsScreenBody noFab={params.goalName !== undefined} />
+                        </Panel>
+                        {
                         showIfLazy(params.goalName !== undefined, () => {
-                            return <>
-                                <ResizeHandle />
-                                <Panel>
-                                    <ExpensesGoalScreenBody />
-                                </Panel>
-                            </>
+                            return (
+                                <>
+                                    <ResizeHandle />
+                                    <Panel>
+                                        <ExpensesGoalScreenBody />
+                                    </Panel>
+                                </>
+                            )
                         })
                     }
-                </PanelGroup>
+                    </PanelGroup>
+                    )
         }
-    </MainScreen>
+        </MainScreen>
+    )
 }
 
 interface ExpensesGoalsScreenBodyProps {
@@ -109,40 +117,48 @@ export const ExpensesGoalsScreenBody = observer(({ noFab, hide }: ExpensesGoalsS
         return <EspensesGoalsScreenBodySkeleton />
     }
 
-    return <>
-        {
+    return (
+        <>
+            {
             add
-                ? <AddExpensesGoalModal
+                ? (
+                    <AddExpensesGoalModal
                         onClose={() => { setAdd(false) }}
-                  />
+                    />
+                    )
                 : undefined
         }
-        {
+            {
             add || noFab === true
                 ? undefined
-                : <Fab
+                : (
+                    <Fab
                         color={'primary'}
                         sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
                         onClick={() => { setAdd(true) }}
-                  >
-                    <FontAwesomeIcon icon={faPlus} />
-                </Fab>
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                    </Fab>
+                    )
         }
-        <Box p={1} height={'100%'} overflow={'auto'} display={hide === true ? 'none' : 'block'}>
-            <Box maxWidth={900} mx={'auto'}>
-                <ExpensesList goals={goals} />
-                <Box minHeight={144} />
+            <Box p={1} height={'100%'} overflow={'auto'} display={hide === true ? 'none' : 'block'}>
+                <Box maxWidth={900} mx={'auto'}>
+                    <ExpensesList goals={goals} />
+                    <Box minHeight={144} />
+                </Box>
             </Box>
-        </Box>
-    </>
+        </>
+    )
 })
 
 function EspensesGoalsScreenBodySkeleton(): ReactElement {
-    return <Column gap={1} p={1}>
-        <ExpensesCardSkeleton />
-        <ExpensesCardSkeleton />
-        <ExpensesCardSkeleton />
-    </Column>
+    return (
+        <Column gap={1} p={1}>
+            <ExpensesCardSkeleton />
+            <ExpensesCardSkeleton />
+            <ExpensesCardSkeleton />
+        </Column>
+    )
 }
 
 export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody(): ReactElement {
@@ -221,85 +237,95 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody()
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, newGoal.currency, compact)
 
-    return <>
-        <Column height={'100%'}>
-            <Box p={1}>
-                <Typography variant={'h6'} textAlign={'center'} mt={1}>
-                    {newGoal.name.trim() === '' ? '-' : newGoal.name}
-                </Typography>
-                <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
-                    {cur(-total)}
-                </Typography>
-                <Typography variant={'body2'} textAlign={'center'}>
-                    {'Goal (30d): '}
-                    {cur(30 * newGoal.perDayAmount)}
-                </Typography>
-                <Tabs
-                    value={tabName}
-                    onChange={(_, tab) => { navigate(`/goals/${encodeURIComponent(goal.name)}/${tab as string}`) }}
-                    variant={'fullWidth'}
-                >
-                    <Tab value={'stats'} label={'Stats'} />
-                    <Tab value={'modify'} label={'Modify'} />
-                    <Tab value={'operations'} label={'Operations'} />
-                </Tabs>
-            </Box>
-            <Box overflow={'auto'} flex={'1 1 auto'}>
-                <Box px={1}>
-                    {
+    return (
+        <>
+            <Column height={'100%'}>
+                <Box p={1}>
+                    <Typography variant={'h6'} textAlign={'center'} mt={1}>
+                        {newGoal.name.trim() === '' ? '-' : newGoal.name}
+                    </Typography>
+                    <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
+                        {cur(-total)}
+                    </Typography>
+                    <Typography variant={'body2'} textAlign={'center'}>
+                        {'Goal (30d): '}
+                        {cur(30 * newGoal.perDayAmount)}
+                    </Typography>
+                    <Tabs
+                        value={tabName}
+                        onChange={(_, tab) => { navigate(`/goals/${encodeURIComponent(goal.name)}/${tab as string}`) }}
+                        variant={'fullWidth'}
+                    >
+                        <Tab value={'stats'} label={'Stats'} />
+                        <Tab value={'modify'} label={'Modify'} />
+                        <Tab value={'operations'} label={'Operations'} />
+                    </Tabs>
+                </Box>
+                <Box overflow={'auto'} flex={'1 1 auto'}>
+                    <Box px={1}>
+                        {
                         match(tabName)
-                            .with('stats', () => <ExpensesStatsWidget
-                                currency={newGoal.currency}
-                                predicate={statsFilter!}
-                                perDayGoal={newGoal.perDayAmount}
-                                                 />)
+                            .with('stats', () => (
+                                <ExpensesStatsWidget
+                                    currency={newGoal.currency}
+                                    predicate={statsFilter!}
+                                    perDayGoal={newGoal.perDayAmount}
+                                />
+                            ))
                             .with('modify', () => {
-                                return <>
-                                    <ExpensesGoalEditor goal={newGoal} onChange={setNewGoal} />
-                                    <Button
-                                        variant={'contained'}
-                                        fullWidth
-                                        color={'error'}
-                                        sx={{ mt: 5 }}
-                                        onClick={() => {
-                                            runAsync(async () => {
-                                                await goalsModel.put({ ...goal, deleted: true })
-                                                navigate('/goals')
-                                            })
-                                        }}
-                                    >
-                                        {'Delete'}
-                                    </Button>
-                                </>
+                                return (
+                                    <>
+                                        <ExpensesGoalEditor goal={newGoal} onChange={setNewGoal} />
+                                        <Button
+                                            variant={'contained'}
+                                            fullWidth
+                                            color={'error'}
+                                            sx={{ mt: 5 }}
+                                            onClick={() => {
+                                                runAsync(async () => {
+                                                    await goalsModel.put({ ...goal, deleted: true })
+                                                    navigate('/goals')
+                                                })
+                                            }}
+                                        >
+                                            {'Delete'}
+                                        </Button>
+                                    </>
+                                )
                             })
-                            .with('operations', () => <OpsList
-                                noFab
-                                onOpClick={(opId) => {
-                                    navigate(`/goals/${goalName}/operations/${opId}`)
-                                }}
-                                predicate={PE.and(EXPENSE_PREDICATE, PE.filter(newGoal.filter))}
-                                                      />)
+                            .with('operations', () => (
+                                <OpsList
+                                    noFab
+                                    onOpClick={(opId) => {
+                                        navigate(`/goals/${goalName}/operations/${opId}`)
+                                    }}
+                                    predicate={PE.and(EXPENSE_PREDICATE, PE.filter(newGoal.filter))}
+                                />
+                            ))
                             .otherwise(() => { throw Error('Unimplenented tab') })
                     }
-                    <Box minHeight={80} />
-                </Box>
-            </Box>
-        </Column>
-        {
-            showIfLazy(opId !== null, () => {
-                return <FullScreenModal
-                    width={'850px'}
-                    title={opModalTitle}
-                    onClose={() => { navigate(`/goals/${goalName}/operations`) }}
-                       >
-                    <Box p={1}>
-                        <OperationScreenBody
-                            urlOpId={opId ?? ''}
-                            setModalTitle={setOpModalTitle}
-                        />
+                        <Box minHeight={80} />
                     </Box>
-                </FullScreenModal>
+                </Box>
+            </Column>
+            {
+            showIfLazy(opId !== null, () => {
+                return (
+                    <FullScreenModal
+                        width={'850px'}
+                        title={opModalTitle}
+                        onClose={() => { navigate(`/goals/${goalName}/operations`) }}
+                    >
+                        <Box p={1}>
+                            <OperationScreenBody
+                                urlOpId={opId ?? ''}
+                                setModalTitle={setOpModalTitle}
+                            />
+                        </Box>
+                    </FullScreenModal>
+                )
             })
         }
-    </>
+        </>
+    )
 })

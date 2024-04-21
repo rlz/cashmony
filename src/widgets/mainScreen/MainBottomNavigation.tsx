@@ -1,4 +1,4 @@
-import { faBullseye, faList, faShapes, faWallet } from '@fortawesome/free-solid-svg-icons'
+import { faBullseye, faChartLine, faList, faShapes, faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { BottomNavigation, BottomNavigationAction, type SxProps } from '@mui/material'
 import React, { type ReactElement } from 'react'
@@ -9,7 +9,7 @@ import { screenWidthIs } from '../../helpers/useWidth'
 import { AccountsModel } from '../../model/accounts'
 import { CategoriesModel } from '../../model/categories'
 
-type Tabs = 'o' | 'c' | 'g' | 'a' | null
+type Tabs = 'o' | 'c' | 'g' | 'a' | 'analitics' | null
 
 const FIXED_BOTTON_NAVIGATION_STYLE: SxProps = { position: 'fixed', bottom: 0, left: 0, right: 0 }
 
@@ -27,51 +27,71 @@ export function MainBottomNavigation(): ReactElement {
         .with(P.string.startsWith('/categories'), () => 'c')
         .with(P.string.startsWith('/goals'), () => 'g')
         .with(P.string.startsWith('/accounts'), () => 'a')
+        .with(P.string.startsWith('/analitics'), () => 'analitics')
         .otherwise(() => null)
 
-    return <BottomNavigation
-        showLabels
-        value={active}
-        sx={smallScreen ? FIXED_BOTTON_NAVIGATION_STYLE : undefined}
-           >
-        {
+    return (
+        <BottomNavigation
+            showLabels
+            value={active}
+            sx={smallScreen ? FIXED_BOTTON_NAVIGATION_STYLE : undefined}
+        >
+            {
             accountsModel.accounts?.size === 0 || categoriesModel.categories?.size === 0
                 ? undefined
-                : <BottomNavigationAction
+                : (
+                    <BottomNavigationAction
                         value={'o'}
                         label={'Operations'}
                         disabled={accountsModel.accounts?.size === 0}
                         icon={<FontAwesomeIcon size={'lg'} icon={faList} />}
                         onClick={() => { nav('/operations') }}
-                  />
+                    />
+                    )
         }
-        {
+            {
             accountsModel.accounts?.size === 0
                 ? undefined
-                : <BottomNavigationAction
+                : (
+                    <BottomNavigationAction
                         value={'c'}
                         label={'Categories'}
                         disabled={accountsModel.accounts?.size === 0}
                         icon={<FontAwesomeIcon size={'lg'} icon={faShapes} />}
                         onClick={() => { nav('/categories') }}
-                  />
+                    />
+                    )
         }
-        {
+            {
             accountsModel.accounts?.size === 0 || categoriesModel.categories?.size === 0
                 ? undefined
-                : <BottomNavigationAction
+                : (
+                    <BottomNavigationAction
                         value={'g'}
                         label={'Goals'}
                         disabled={accountsModel.accounts?.size === 0}
                         icon={<FontAwesomeIcon size={'lg'} icon={faBullseye} />}
                         onClick={() => { nav('/goals') }}
-                  />
+                    />
+                    )
         }
-        <BottomNavigationAction
-            value={'a'}
-            label={'Accounts'}
-            icon={<FontAwesomeIcon size={'lg'} icon={faWallet} />}
-            onClick={() => { nav('/accounts') }}
-        />
-    </BottomNavigation>
+            <BottomNavigationAction
+                value={'a'}
+                label={'Accounts'}
+                icon={<FontAwesomeIcon size={'lg'} icon={faWallet} />}
+                onClick={() => { nav('/accounts') }}
+            />
+            {
+            smallScreen
+            || (
+                <BottomNavigationAction
+                    value={'analitics'}
+                    label={'Analitics'}
+                    icon={<FontAwesomeIcon size={'lg'} icon={faChartLine} />}
+                    onClick={() => { nav('/analitics') }}
+                />
+            )
+        }
+        </BottomNavigation>
+    )
 }

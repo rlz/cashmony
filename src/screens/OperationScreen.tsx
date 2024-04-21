@@ -61,52 +61,62 @@ export function OperationScreen(): ReactElement {
         })
     }, [opId])
 
-    return <MainScreen>
-        {
+    return (
+        <MainScreen>
+            {
             !smallScreen
-                ? <PanelGroup direction={'horizontal'}>
-                    <Panel>
-                        <Box height={'100%'} overflow={'auto'}>
-                            <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
-                                <OpsList
-                                    noFab={opId !== ''}
-                            />
-                            </Box>
-                        </Box>
-                    </Panel>
-                    {
-                        showIfLazy(opId !== '', () => <>
-                            <ResizeHandle />
-                            <Panel>
-                                <Box p={1} overflow={'auto'} height={'100%'}>
-                                    <OperationScreenBody urlOpId={opId} />
+                ? (
+                    <PanelGroup direction={'horizontal'}>
+                        <Panel>
+                            <Box height={'100%'} overflow={'auto'}>
+                                <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
+                                    <OpsList
+                                        noFab={opId !== ''}
+                                    />
                                 </Box>
-                            </Panel>
-                        </>)
+                            </Box>
+                        </Panel>
+                        {
+                        showIfLazy(opId !== '', () => (
+                            <>
+                                <ResizeHandle />
+                                <Panel>
+                                    <Box p={1} overflow={'auto'} height={'100%'}>
+                                        <OperationScreenBody urlOpId={opId} />
+                                    </Box>
+                                </Panel>
+                            </>
+                        ))
                     }
 
-                </PanelGroup>
-                : <Box position={'relative'} height={'100%'}>
-                    <Box p={1} height={'100%'} overflow={'auto'}>
-                        <OpsList noFab={opId !== ''} />
-                    </Box>
-                    {
+                    </PanelGroup>
+                    )
+                : (
+                    <Box position={'relative'} height={'100%'}>
+                        <Box p={1} height={'100%'} overflow={'auto'}>
+                            <OpsList noFab={opId !== ''} />
+                        </Box>
+                        {
                         showIfLazy(opId !== '', () => {
-                            return <Box
-                                p={1}
-                                position={'absolute'}
-                                top={0}
-                                left={0}
-                                height={'100%'}
-                                bgcolor={theme.palette.background.default}
-                                   >
-                                <OperationScreenBody urlOpId={opId} />
-                            </Box>
+                            return (
+                                <Box
+                                    p={1}
+                                    position={'absolute'}
+                                    top={0}
+                                    left={0}
+                                    height={'100%'}
+                                    bgcolor={theme.palette.background.default}
+                                >
+                                    <OperationScreenBody urlOpId={opId} />
+                                </Box>
+                            )
                         })
                     }
-                </Box>
+                    </Box>
+                    )
         }
-    </MainScreen>
+        </MainScreen>
+    )
 }
 
 interface BodyProps {
@@ -384,72 +394,76 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
         setOpToAccount(prToAccount)
     }
 
-    return <Box>
-        <Box pt={1} pb={2}>
-            <BasicInfo
-                opType={opType}
-                opDate={opDate}
-                opAmount={opAmount}
-                opCurrency={opCurrency}
-                opAccount={opAccount}
-                opToAccount={opToAccount}
-                opCategories={opCategories}
-                opTags={opTags}
-                opComment={opComment}
+    return (
+        <Box>
+            <Box pt={1} pb={2}>
+                <BasicInfo
+                    opType={opType}
+                    opDate={opDate}
+                    opAmount={opAmount}
+                    opCurrency={opCurrency}
+                    opAccount={opAccount}
+                    opToAccount={opToAccount}
+                    opCategories={opCategories}
+                    opTags={opTags}
+                    opComment={opComment}
+                />
+            </Box>
+            <AmountEditor
+                amount={opAmount}
+                negative={opType === 'expense'}
+                currency={opCurrency}
+                expanded={expanded === 'amount'}
+                onCurrencyChange={(currency) => {
+                    propagateAndSave(opAmount, currency, opCategories, opAccount, opToAccount)
+                }}
+                onAmountChange={(amount) => {
+                    propagateAndSave(amount, opCurrency, opCategories, opAccount, opToAccount)
+                }}
+                onExpandedChange={(expanded) => { setExpanded(expanded ? 'amount' : null) }}
             />
-        </Box>
-        <AmountEditor
-            amount={opAmount}
-            negative={opType === 'expense'}
-            currency={opCurrency}
-            expanded={expanded === 'amount'}
-            onCurrencyChange={(currency) => {
-                propagateAndSave(opAmount, currency, opCategories, opAccount, opToAccount)
-            }}
-            onAmountChange={(amount) => {
-                propagateAndSave(amount, opCurrency, opCategories, opAccount, opToAccount)
-            }}
-            onExpandedChange={(expanded) => { setExpanded(expanded ? 'amount' : null) }}
-        />
-        <DateEditor
-            expanded={expanded === 'date'}
-            onExpandedChange={(expanded) => { setExpanded(expanded ? 'date' : null) }}
-            date={opDate}
-            onDateChange={setOpDate}
-        />
-        <AccountEditor
-            title={opType === 'transfer' ? 'From account' : 'Account'}
-            opAmount={opAmount}
-            negative={opType === 'expense' || opType === 'transfer'}
-            opCurrency={opCurrency}
-            expanded={expanded === 'account'}
-            onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : null) }}
-            account={opAccount}
-            onAccountChange={(account) => { propagateAndSave(opAmount, opCurrency, opCategories, account, opToAccount) }}
-            hideAccount={opType === 'transfer' ? opToAccount?.name : undefined}
-        />
-        {
+            <DateEditor
+                expanded={expanded === 'date'}
+                onExpandedChange={(expanded) => { setExpanded(expanded ? 'date' : null) }}
+                date={opDate}
+                onDateChange={setOpDate}
+            />
+            <AccountEditor
+                title={opType === 'transfer' ? 'From account' : 'Account'}
+                opAmount={opAmount}
+                negative={opType === 'expense' || opType === 'transfer'}
+                opCurrency={opCurrency}
+                expanded={expanded === 'account'}
+                onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : null) }}
+                account={opAccount}
+                onAccountChange={(account) => { propagateAndSave(opAmount, opCurrency, opCategories, account, opToAccount) }}
+                hideAccount={opType === 'transfer' ? opToAccount?.name : undefined}
+            />
+            {
             opType === 'transfer'
-                ? <>
-                    <AccountEditor
-                        title={'To account'}
-                        opAmount={opAmount}
-                        negative={false}
-                        opCurrency={opCurrency}
-                        expanded={expanded === 'toAccount'}
-                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'toAccount' : null) }}
-                        account={opToAccount}
-                        onAccountChange={(toAccount) => {
-                            propagateAndSave(opAmount, opCurrency, opCategories, opAccount, toAccount)
-                        }}
-                        hideAccount={opAccount?.name}
-                    />
-                </>
+                ? (
+                    <>
+                        <AccountEditor
+                            title={'To account'}
+                            opAmount={opAmount}
+                            negative={false}
+                            opCurrency={opCurrency}
+                            expanded={expanded === 'toAccount'}
+                            onExpandedChange={(expanded) => { setExpanded(expanded ? 'toAccount' : null) }}
+                            account={opToAccount}
+                            onAccountChange={(toAccount) => {
+                                propagateAndSave(opAmount, opCurrency, opCategories, opAccount, toAccount)
+                            }}
+                            hideAccount={opAccount?.name}
+                        />
+                    </>
+                    )
                 : null
         }
-        {
+            {
             opType === 'expense' || opType === 'income'
-                ? <CategoriesEditor
+                ? (
+                    <CategoriesEditor
                         expanded={expanded === 'categories'}
                         onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
                         opAmount={opAmount}
@@ -459,33 +473,35 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
                         onCategoriesChange={(categories) => {
                             propagateAndSave(opAmount, opCurrency, categories, opAccount, opToAccount)
                         }}
-                  />
+                    />
+                    )
                 : null
         }
-        <TagsEditor
-            expanded={expanded === 'tags'}
-            onExpandedChange={(expanded) => { setExpanded(expanded ? 'tags' : null) }}
-            categories={opType === 'income' || opType === 'expense' ? opCategories?.map(c => c.name) ?? [] : []}
-            tags={opTags}
-            opType={opType}
-            onTagsChanged={setOpTags}
-        />
-        <CommentEditor
-            expanded={expanded === 'comment'}
-            onExpandedChange={(expanded) => { setExpanded(expanded ? 'comment' : null) }}
-            comment={opComment}
-            onCommentChange={setOpComment}
-        />
-        <ActionFab
-            action={onSave}
-            bottom={setModalTitle !== undefined ? '20px' : undefined}
-        >
-            <FontAwesomeIcon icon={faCheck} />
-        </ActionFab>
-        {
+            <TagsEditor
+                expanded={expanded === 'tags'}
+                onExpandedChange={(expanded) => { setExpanded(expanded ? 'tags' : null) }}
+                categories={opType === 'income' || opType === 'expense' ? opCategories?.map(c => c.name) ?? [] : []}
+                tags={opTags}
+                opType={opType}
+                onTagsChanged={setOpTags}
+            />
+            <CommentEditor
+                expanded={expanded === 'comment'}
+                onExpandedChange={(expanded) => { setExpanded(expanded ? 'comment' : null) }}
+                comment={opComment}
+                onCommentChange={setOpComment}
+            />
+            <ActionFab
+                action={onSave}
+                bottom={setModalTitle !== undefined ? '20px' : undefined}
+            >
+                <FontAwesomeIcon icon={faCheck} />
+            </ActionFab>
+            {
             location.pathname.startsWith('/new-op/')
                 ? null
-                : <ActionButton
+                : (
+                    <ActionButton
                         variant={'contained'}
                         fullWidth
                         color={'error'}
@@ -498,44 +514,48 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
                             await operationsModel.put([{ id: urlOpId, type: 'deleted' }])
 
                             if (smallScreen && setModalTitle === undefined) {
-                            // todo: fix navigation from non operation screens
+                                // todo: fix navigation from non operation screens
                                 navigate('/operations')
                             }
                         }}
-                  >
-                    {'Delete'}
-                </ActionButton>
+                    >
+                        {'Delete'}
+                    </ActionButton>
+                    )
         }
-        <Box minHeight={128} />
-    </Box>
+            <Box minHeight={128} />
+        </Box>
+    )
 })
 
 function SkeletonBody(): ReactElement {
     const theme = useTheme()
 
-    return <Box px={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
-        <Box py={2}>
-            <PBody2>
-                <Skeleton width={90} sx={{ margin: '0 auto' }} />
-            </PBody2>
-            <Typography variant={'h4'}>
-                <Skeleton width={180} sx={{ margin: '0 auto' }} />
-            </Typography>
-            <PBody2 mt={1}>
-                <Skeleton width={190} />
-                <Skeleton width={170} />
-                <Skeleton width={230} sx={{ mt: 1 }} />
-                <Skeleton width={270} />
-            </PBody2>
+    return (
+        <Box px={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
+            <Box py={2}>
+                <PBody2>
+                    <Skeleton width={90} sx={{ margin: '0 auto' }} />
+                </PBody2>
+                <Typography variant={'h4'}>
+                    <Skeleton width={180} sx={{ margin: '0 auto' }} />
+                </Typography>
+                <PBody2 mt={1}>
+                    <Skeleton width={190} />
+                    <Skeleton width={170} />
+                    <Skeleton width={230} sx={{ mt: 1 }} />
+                    <Skeleton width={270} />
+                </PBody2>
+            </Box>
+            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
+            <Skeleton variant={'rounded'} sx={{ height: 36, mt: 2 }} />
         </Box>
-        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-        <Skeleton variant={'rounded'} sx={{ height: 36, mt: 2 }} />
-    </Box>
+    )
 }
 
 function propagateAmount(
@@ -615,70 +635,80 @@ const BasicInfo = observer(({ opType, opDate, opAmount, opCurrency, opCategories
         if (opCats.length === 0) {
             categoryInfo = <Typography variant={'body2'}>{'Cat.: -'}</Typography>
         } else {
-            categoryInfo = <>
-                {
+            categoryInfo = (
+                <>
+                    {
                 opCats
-                    .map(c => <Typography key={c.name} variant={'body2'}>
-                        {'Cat.: '}
-                        {c.name}
-                        {' ('}
-                        {
+                    .map(c => (
+                        <Typography key={c.name} variant={'body2'}>
+                            {'Cat.: '}
+                            {c.name}
+                            {' ('}
+                            {
                             formatCurrency(
                                 c.amount,
                                 opCurrency
                             )
                         }
-                        {')'}
-                    </Typography>)
+                            {')'}
+                        </Typography>
+                    ))
             }
-            </>
+                </>
+            )
         }
     }
 
-    return <>
-        <Typography variant={'body2'} textAlign={'center'}>
-            {opDate.toLocaleString({ dateStyle: 'full' })}
-        </Typography>
-        <Typography variant={'h4'} textAlign={'center'} color={amountColor}>
-            {Math.abs(opAmount).toLocaleString(undefined, {
-                style: 'currency',
-                currency: opCurrency,
-                currencyDisplay: 'narrowSymbol'
-            })}
-        </Typography>
-        <Typography variant={'body2'} mt={1}>
-            {opType === 'transfer' ? 'From acc.: ' : 'Acc.: '}
-            {
+    return (
+        <>
+            <Typography variant={'body2'} textAlign={'center'}>
+                {opDate.toLocaleString({ dateStyle: 'full' })}
+            </Typography>
+            <Typography variant={'h4'} textAlign={'center'} color={amountColor}>
+                {Math.abs(opAmount).toLocaleString(undefined, {
+                    style: 'currency',
+                    currency: opCurrency,
+                    currencyDisplay: 'narrowSymbol'
+                })}
+            </Typography>
+            <Typography variant={'body2'} mt={1}>
+                {opType === 'transfer' ? 'From acc.: ' : 'Acc.: '}
+                {
                 opAccount === null
                     ? '-'
-                    : <>
-                        {opAccount.name}
-                        {
+                    : (
+                        <>
+                            {opAccount.name}
+                            {
                             accountCurrency === undefined || accountCurrency === null
                                 ? null
                                 : ` (${formatCurrency(opAccount.amount, accountCurrency)})`
                         }
-                    </>
+                        </>
+                        )
             }
-        </Typography>
-        {
+            </Typography>
+            {
             opType === 'transfer'
-                ? <Typography variant={'body2'}>
-                    {'To acc.: '}
-                    {opToAccount?.name ?? '-'}
-                    {
+                ? (
+                    <Typography variant={'body2'}>
+                        {'To acc.: '}
+                        {opToAccount?.name ?? '-'}
+                        {
 
                         opToAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
                             ? null
                             : ` (${formatCurrency(opToAccount.amount, toAccountCurrency)})`
                     }
-                </Typography>
+                    </Typography>
+                    )
                 : null
         }
-        {categoryInfo}
-        <Typography variant={'body2'} mt={1} color={'primary.light'} noWrap>
-            {opTags.join(', ')}
-        </Typography>
-        <Typography variant={'body2'} fontStyle={'italic'}>{opComment}</Typography>
-    </>
+            {categoryInfo}
+            <Typography variant={'body2'} mt={1} color={'primary.light'} noWrap>
+                {opTags.join(', ')}
+            </Typography>
+            <Typography variant={'body2'} fontStyle={'italic'}>{opComment}</Typography>
+        </>
+    )
 })

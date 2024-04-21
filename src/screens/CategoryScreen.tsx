@@ -47,45 +47,55 @@ export function CategoryScreen(): ReactElement {
         }
     }, [noCatSelected])
 
-    return <MainScreen>
-        {
+    return (
+        <MainScreen>
+            {
             smallScreen
-                ? <Box height={'100%'} position={'relative'}>
-                    <Box height={'100%'}>
-                        <CategoriesScreenBody noFab={!noCatSelected} />
-                    </Box>
-                    {
+                ? (
+                    <Box height={'100%'} position={'relative'}>
+                        <Box height={'100%'}>
+                            <CategoriesScreenBody noFab={!noCatSelected} />
+                        </Box>
+                        {
                         showIfLazy(!noCatSelected, () => {
-                            return <Box
-                                position={'absolute'}
-                                top={0}
-                                left={0}
-                                height={'100%'}
-                                width={'100%'}
-                                bgcolor={theme.palette.background.default}
-                                   >
-                                <CategoryScreenBody />
-                            </Box>
-                        })
-                    }
-                </Box>
-                : <PanelGroup direction={'horizontal'}>
-                    <Panel>
-                        <CategoriesScreenBody noFab={!noCatSelected} />
-                    </Panel>
-                    {
-                        showIfLazy(!noCatSelected, () => {
-                            return <>
-                                <ResizeHandle />
-                                <Panel>
+                            return (
+                                <Box
+                                    position={'absolute'}
+                                    top={0}
+                                    left={0}
+                                    height={'100%'}
+                                    width={'100%'}
+                                    bgcolor={theme.palette.background.default}
+                                >
                                     <CategoryScreenBody />
-                                </Panel>
-                            </>
+                                </Box>
+                            )
                         })
                     }
-                </PanelGroup>
+                    </Box>
+                    )
+                : (
+                    <PanelGroup direction={'horizontal'}>
+                        <Panel>
+                            <CategoriesScreenBody noFab={!noCatSelected} />
+                        </Panel>
+                        {
+                        showIfLazy(!noCatSelected, () => {
+                            return (
+                                <>
+                                    <ResizeHandle />
+                                    <Panel>
+                                        <CategoryScreenBody />
+                                    </Panel>
+                                </>
+                            )
+                        })
+                    }
+                    </PanelGroup>
+                    )
         }
-    </MainScreen>
+        </MainScreen>
+    )
 }
 
 export const CategoryScreenBody = observer((): ReactElement => {
@@ -199,74 +209,84 @@ export const CategoryScreenBody = observer((): ReactElement => {
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
 
-    return <>
-        <Column height={'100%'}>
-            <Box p={1}>
-                <Typography variant={'h6'} textAlign={'center'} mt={1}>
-                    {
+    return (
+        <>
+            <Column height={'100%'}>
+                <Box p={1}>
+                    <Typography variant={'h6'} textAlign={'center'} mt={1}>
+                        {
                         match(cat.name.trim())
                             .with('', () => '-')
                             .with('_', () => 'Uncategorized')
                             .with('_total', () => 'Total')
                             .otherwise(v => v)
                     }
-                </Typography>
-                <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
-                    {cur(-stats.total)}
-                </Typography>
-                <Typography variant={'body2'} textAlign={'center'}>
-                    {'Goal (30d): '}
-                    {cat.perDayAmount !== undefined ? cur(30 * cat.perDayAmount) : '-'}
-                </Typography>
-                <Tabs value={tabName} onChange={(_, tab) => { navigate(`/categories/${catName}/${tab as string}`) }} variant={'fullWidth'}>
-                    <Tab value={'stats'} label={'Stats'} />
-                    <Tab value={'modify'} label={'Modify'} />
-                    <Tab value={'operations'} label={'Operations'} />
-                </Tabs>
-            </Box>
-            <Box overflow={'auto'} flex={'1 1 auto'}>
-                <Box px={1}>
-                    {
+                    </Typography>
+                    <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
+                        {cur(-stats.total)}
+                    </Typography>
+                    <Typography variant={'body2'} textAlign={'center'}>
+                        {'Goal (30d): '}
+                        {cat.perDayAmount !== undefined ? cur(30 * cat.perDayAmount) : '-'}
+                    </Typography>
+                    <Tabs value={tabName} onChange={(_, tab) => { navigate(`/categories/${catName}/${tab as string}`) }} variant={'fullWidth'}>
+                        <Tab value={'stats'} label={'Stats'} />
+                        <Tab value={'modify'} label={'Modify'} />
+                        <Tab value={'operations'} label={'Operations'} />
+                    </Tabs>
+                </Box>
+                <Box overflow={'auto'} flex={'1 1 auto'}>
+                    <Box px={1}>
+                        {
                         match(tabName)
-                            .with('stats', () => <ExpensesStatsWidget
-                                currency={currency}
-                                predicate={predicate}
-                                perDayGoal={cat.perDayAmount ?? null}
-                                                 />)
-                            .with('modify', () => <CategoryEditor
-                                cat={cat}
-                                setCat={setCat}
-                                                  />)
-                            .with('operations', () => <OpsList
-                                noFab
-                                onOpClick={(opId) => {
-                                    navigate(`/categories/${catName}/operations/${opId}`)
-                                }}
-                                predicate={predicate}
-                                                      />)
+                            .with('stats', () => (
+                                <ExpensesStatsWidget
+                                    currency={currency}
+                                    predicate={predicate}
+                                    perDayGoal={cat.perDayAmount ?? null}
+                                />
+                            ))
+                            .with('modify', () => (
+                                <CategoryEditor
+                                    cat={cat}
+                                    setCat={setCat}
+                                />
+                            ))
+                            .with('operations', () => (
+                                <OpsList
+                                    noFab
+                                    onOpClick={(opId) => {
+                                        navigate(`/categories/${catName}/operations/${opId}`)
+                                    }}
+                                    predicate={predicate}
+                                />
+                            ))
                             .otherwise(() => { throw Error('Unimplenented tab') })
                     }
-                    <Box minHeight={72} />
-                </Box>
-            </Box>
-        </Column>
-        {
-            showIfLazy(opId !== null, () => {
-                return <FullScreenModal
-                    width={'850px'}
-                    title={opModalTitle}
-                    onClose={() => { navigate(`/categories/${catName}/operations`) }}
-                       >
-                    <Box p={1}>
-                        <OperationScreenBody
-                            urlOpId={opId ?? ''}
-                            setModalTitle={setOpModalTitle}
-                        />
+                        <Box minHeight={72} />
                     </Box>
-                </FullScreenModal>
+                </Box>
+            </Column>
+            {
+            showIfLazy(opId !== null, () => {
+                return (
+                    <FullScreenModal
+                        width={'850px'}
+                        title={opModalTitle}
+                        onClose={() => { navigate(`/categories/${catName}/operations`) }}
+                    >
+                        <Box p={1}>
+                            <OperationScreenBody
+                                urlOpId={opId ?? ''}
+                                setModalTitle={setOpModalTitle}
+                            />
+                        </Box>
+                    </FullScreenModal>
+                )
             })
         }
-    </>
+        </>
+    )
 })
 CategoryScreenBody.displayName = 'CategoryScreenBody'
 
@@ -350,81 +370,93 @@ export const CategoriesScreenBody = observer(({ noFab }: CategoriesScreenBodyPro
     )
 
     if (categoriesModel.categories?.size === 0) {
-        return <>
-            {
+        return (
+            <>
+                {
                 addCategory
-                    ? <AddCategory
+                    ? (
+                        <AddCategory
                             onClose={() => { setAddCategory(false) }}
-                      />
+                        />
+                        )
                     : undefined
             }
-            {
+                {
                 addCategory || noFab === true
                     ? null
-                    : <Fab
+                    : (
+                        <Fab
                             color={'primary'}
                             sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
                             onClick={() => { setAddCategory(true) }}
-                      >
-                        <FontAwesomeIcon icon={faPlus} />
-                    </Fab>
+                        >
+                            <FontAwesomeIcon icon={faPlus} />
+                        </Fab>
+                        )
             }
-            <Column textAlign={'center'} alignItems={'center'} mt={3}>
-                <Box>
-                    {'Before start tracking your finances you need to create a category'}
-                    <br />
-                    {'You will mark all your expenses as related to one or another category'}
-                    <br />
-                    {'You can create as many categories as you need'}
-                </Box>
-                <Typography my={2} fontSize={'1.5rem'}>
-                    {'or'}
-                </Typography>
-                <Box>
-                    {'Create start with predefined set of categories'}
-                </Box>
-                <DivBody2 mb={1}>
-                    {'(you can always change it later)'}
-                </DivBody2>
-                <Button
-                    variant={'contained'}
-                    onClick={() => {
-                        runAsync(async () => {
-                            await Promise.all(DEFAULT_CATEGORIES.map(async (c) => { await categoriesModel.put(c) }))
-                        })
-                    }}
-                >
-                    {'Predefined categories'}
-                </Button>
-            </Column>
-        </>
+                <Column textAlign={'center'} alignItems={'center'} mt={3}>
+                    <Box>
+                        {'Before start tracking your finances you need to create a category'}
+                        <br />
+                        {'You will mark all your expenses as related to one or another category'}
+                        <br />
+                        {'You can create as many categories as you need'}
+                    </Box>
+                    <Typography my={2} fontSize={'1.5rem'}>
+                        {'or'}
+                    </Typography>
+                    <Box>
+                        {'Create start with predefined set of categories'}
+                    </Box>
+                    <DivBody2 mb={1}>
+                        {'(you can always change it later)'}
+                    </DivBody2>
+                    <Button
+                        variant={'contained'}
+                        onClick={() => {
+                            runAsync(async () => {
+                                await Promise.all(DEFAULT_CATEGORIES.map(async (c) => { await categoriesModel.put(c) }))
+                            })
+                        }}
+                    >
+                        {'Predefined categories'}
+                    </Button>
+                </Column>
+            </>
+        )
     }
 
-    return <>
-        {
+    return (
+        <>
+            {
             addCategory
-                ? <AddCategory
+                ? (
+                    <AddCategory
                         onClose={() => { setAddCategory(false) }}
-                  />
+                    />
+                    )
                 : undefined
         }
-        {
+            {
             addCategory || noFab === true
                 ? null
-                : <Fab
+                : (
+                    <Fab
                         color={'primary'}
                         sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
                         onClick={() => { setAddCategory(true) }}
-                  >
-                    <FontAwesomeIcon icon={faPlus} />
-                </Fab>
+                    >
+                        <FontAwesomeIcon icon={faPlus} />
+                    </Fab>
+                    )
         }
-        <Box p={1} height={'100%'} overflow={'auto'}>
-            <Box maxWidth={900} mx={'auto'}>
-                <ExpensesList categories={cats} />
-                <Box minHeight={144} />
+            <Box p={1} height={'100%'} overflow={'auto'}>
+                <Box maxWidth={900} mx={'auto'}>
+                    <ExpensesList categories={cats} />
+                    <Box minHeight={144} />
+                </Box>
             </Box>
-        </Box>
-    </>
+        </>
+    )
 })
 CategoriesScreenBody.displayName = 'CategoriesScreenBody'

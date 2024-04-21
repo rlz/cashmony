@@ -27,10 +27,10 @@ export default [
         rules: {
             '@stylistic/brace-style': ['error', '1tbs', { allowSingleLine: true }],
             '@stylistic/jsx-curly-brace-presence': ['error', 'always'],
-            '@stylistic/jsx-wrap-multilines': 'off',
-            '@stylistic/jsx-closing-tag-location': 'off',
-            '@stylistic/max-statements-per-line': ['error', { max: 2 }],
-            '@stylistic/jsx-closing-bracket-location': 'off'
+            // '@stylistic/jsx-wrap-multilines': 'off',
+            // '@stylistic/jsx-closing-tag-location': 'off',
+            '@stylistic/max-statements-per-line': ['error', { max: 2 }]
+            // '@stylistic/jsx-closing-bracket-location': 'off'
             // '@stylistic/jsx-indent': 'off'
         }
     },
