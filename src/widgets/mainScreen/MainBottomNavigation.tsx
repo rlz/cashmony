@@ -37,61 +37,56 @@ export function MainBottomNavigation(): ReactElement {
             sx={smallScreen ? FIXED_BOTTON_NAVIGATION_STYLE : undefined}
         >
             {
-            accountsModel.accounts?.size === 0 || categoriesModel.categories?.size === 0
-                ? undefined
-                : (
-                    <BottomNavigationAction
-                        value={'o'}
-                        label={'Operations'}
-                        disabled={accountsModel.accounts?.size === 0}
-                        icon={<FontAwesomeIcon size={'lg'} icon={faList} />}
-                        onClick={() => { nav('/operations') }}
-                    />
-                    )
-        }
+                accountsModel.accounts?.size === 0 || categoriesModel.categories?.size === 0
+                    ? undefined
+                    : (
+                        <BottomNavigationAction
+                            value={'o'}
+                            label={'Operations'}
+                            disabled={accountsModel.accounts?.size === 0}
+                            icon={<FontAwesomeIcon size={'lg'} icon={faList} />}
+                            onClick={() => { nav('/operations') }}
+                        />
+                        )
+            }
+            <BottomNavigationAction
+                value={'analitics'}
+                label={'Analitics'}
+                icon={<FontAwesomeIcon size={'lg'} icon={faChartLine} />}
+                onClick={() => { nav('/analitics') }}
+            />
             {
-            accountsModel.accounts?.size === 0
-                ? undefined
-                : (
-                    <BottomNavigationAction
-                        value={'c'}
-                        label={'Categories'}
-                        disabled={accountsModel.accounts?.size === 0}
-                        icon={<FontAwesomeIcon size={'lg'} icon={faShapes} />}
-                        onClick={() => { nav('/categories') }}
-                    />
-                    )
-        }
+                accountsModel.accounts?.size === 0
+                    ? undefined
+                    : (
+                        <BottomNavigationAction
+                            value={'c'}
+                            label={'Categories'}
+                            disabled={accountsModel.accounts?.size === 0}
+                            icon={<FontAwesomeIcon size={'lg'} icon={faShapes} />}
+                            onClick={() => { nav('/categories') }}
+                        />
+                        )
+            }
             {
-            accountsModel.accounts?.size === 0 || categoriesModel.categories?.size === 0
-                ? undefined
-                : (
-                    <BottomNavigationAction
-                        value={'g'}
-                        label={'Goals'}
-                        disabled={accountsModel.accounts?.size === 0}
-                        icon={<FontAwesomeIcon size={'lg'} icon={faBullseye} />}
-                        onClick={() => { nav('/goals') }}
-                    />
-                    )
-        }
+                accountsModel.accounts?.size === 0 || categoriesModel.categories?.size === 0
+                    ? undefined
+                    : (
+                        <BottomNavigationAction
+                            value={'g'}
+                            label={'Goals'}
+                            disabled={accountsModel.accounts?.size === 0}
+                            icon={<FontAwesomeIcon size={'lg'} icon={faBullseye} />}
+                            onClick={() => { nav('/goals') }}
+                        />
+                        )
+            }
             <BottomNavigationAction
                 value={'a'}
                 label={'Accounts'}
                 icon={<FontAwesomeIcon size={'lg'} icon={faWallet} />}
                 onClick={() => { nav('/accounts') }}
             />
-            {
-            smallScreen
-            || (
-                <BottomNavigationAction
-                    value={'analitics'}
-                    label={'Analitics'}
-                    icon={<FontAwesomeIcon size={'lg'} icon={faChartLine} />}
-                    onClick={() => { nav('/analitics') }}
-                />
-            )
-        }
         </BottomNavigation>
     )
 }
