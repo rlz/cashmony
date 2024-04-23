@@ -40,7 +40,7 @@ export function YMComparisonPlot({ reducer, currency }: Props): JSX.Element {
                 x: { axis: null, type: 'band' },
                 y: { tickFormat: v => formatCurrency(v, currency, true), grid: true, label: 'Total' },
                 fx: { label: 'Month' },
-                color: { type: 'ordinal', scheme: 'Category10', legend: true },
+                color: { type: 'ordinal', scheme: 'Observable10', legend: true },
                 marks: [
                     Plot.barY(data, {
                         x: 'Year',
