@@ -5,7 +5,7 @@ import { useResizeDetector } from 'react-resize-detector'
 
 import { formatCurrency } from '../../helpers/currencies'
 import { YMComparisonReducer } from '../../model/stats/YMComparisonReducer'
-import { PlotContainer } from './PlotContainer'
+import { monthFormat, PlotContainer } from './plotUtils'
 
 interface Props {
     reducer: YMComparisonReducer
@@ -79,11 +79,4 @@ export function YMComparisonPlot({ reducer, currency }: Props): JSX.Element {
             </Box>
         </Paper>
     )
-}
-
-function monthFormat(month: number): string {
-    return ['Jan', 'Feb', 'Mar',
-        'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep',
-        'Oct', 'Nov', 'Dec'][month]
 }

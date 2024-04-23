@@ -141,7 +141,7 @@ export const AccountBody = observer(() => {
                     <Box px={1}>
                         {
                             match(tabName)
-                                .with('stats', () => <AccountStatsBody account={acc} perDayAmount={stats.dayChange.map(i => i.value)} totalAmount={stats.dayTotal.map(i => i.value)} />)
+                                .with('stats', () => <AccountStatsBody account={acc} stats={stats} />)
                                 .with('modify', () => <AccountEditor acc={acc} setAcc={setAcc} />)
                                 .with('operations', () => (
                                     <OpsList

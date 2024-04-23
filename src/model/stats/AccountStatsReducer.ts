@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 
 import { HumanTimeSpan } from '../../helpers/dates'
-import { Point } from '../../widgets/plots/point'
+import { Point } from '../../widgets/plots/plotUtils'
 import { NotDeletedOperation } from '../model'
 import { Intervals, StatsReducer } from '../newStatsProcessor'
 
