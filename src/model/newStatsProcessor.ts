@@ -26,9 +26,9 @@ export interface Intervals {
 }
 
 export class StatsReducer {
-    newDay(_intervals: Readonly<Intervals>): void {}
+    async newDay(_intervals: Readonly<Intervals>, _init: boolean): Promise<void> {}
     async process(_op: NotDeletedOperation): Promise<void> {}
-    done(): void {}
+    async done(): Promise<void> {}
 }
 
 export async function calcStats2(
@@ -49,10 +49,12 @@ export async function calcStats2(
         return [operationsModel.firstOp?.date ?? appState.today, operationsModel.lastOp?.date ?? appState.today]
     })()
 
+    let init = true
     let index = 0
     for (let date = startDate; date <= endDate; date = date.plus({ day: 1 })) {
         const intervals = calcIntervals(date, today)
-        reducers.forEach(reducer => reducer.newDay(intervals))
+        await Promise.all(reducers.map(reducer => reducer.newDay(intervals, init)))
+        init = false
 
         while (index < operationsModel.operations.length) {
             const op = operationsModel.operations[index]
@@ -81,7 +83,7 @@ export async function calcStats2(
         }
     }
 
-    reducers.forEach(r => r.done())
+    await Promise.all(reducers.map(r => r.done()))
 }
 
 function calcIntervals(date: DateTime, today: DateTime): Intervals {

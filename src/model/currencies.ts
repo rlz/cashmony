@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { autorun, makeAutoObservable, runInAction } from 'mobx'
 
 import { CURRENCIES } from '../helpers/currenciesList'
+import { utcToday } from '../helpers/dates'
 import { nonNull } from '../helpers/smallTools'
 import { compareByStats } from '../helpers/stats'
 import { FinDataDb } from './finDataDb'
@@ -48,6 +49,10 @@ export class CurrenciesModel {
 
     async getFromUsdRate(date: DateTime, toCurrency: string): Promise<number> {
         // console.log('getFromUsdRate', date.toISODate(), toCurrency)
+
+        if (date > DateTime.now()) {
+            date = utcToday()
+        }
 
         if (toCurrency === 'USD') return 1
 

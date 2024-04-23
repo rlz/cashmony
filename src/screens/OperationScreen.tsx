@@ -364,7 +364,6 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
         || opCurrency === null
         || opTags === null
         || accountsModel.accounts === null
-        || accountsModel.amounts === null
     ) {
         if (opType === 'deleted') {
             return <Typography variant={'h5'} mt={10} textAlign={'center'}>{'This operation was deleted'}</Typography>

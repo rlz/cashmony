@@ -140,7 +140,6 @@ export const App = observer(function App(): ReactElement {
         operationsModel.operations === null
         || accountsModel.accounts === null
         || accountsModel.accountsSorted === null
-        || accountsModel.amounts === null
         || categoriesModel.categories === null
         || categoriesModel.categoriesSorted === null
         || currenciesModel.currencies === null

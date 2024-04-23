@@ -1,15 +1,18 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Box, Button, Fab, Skeleton, Typography } from '@mui/material'
+import { Box, Button, Fab, Skeleton, Stack, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import { ReactElement, useEffect, useState } from 'react'
 
-import { formatCurrency } from '../../helpers/currencies'
+import { CustomTimeSpan } from '../../helpers/dates'
 import { runAsync } from '../../helpers/smallTools'
 import { AccountsModel } from '../../model/accounts'
 import { AppState } from '../../model/appState'
-import { CurrenciesModel } from '../../model/currencies'
 import { Account } from '../../model/model'
+import { calcStats2 } from '../../model/newStatsProcessor'
+import { OperationsModel } from '../../model/operations'
+import { PE } from '../../model/predicateExpression'
+import { AccountsStatsReducer } from '../../model/stats/AccountsStatsReducer'
 import { initGoogleSync } from '../../model/sync'
 import { AddAccount } from '../../widgets/AddAccount'
 import { Column } from '../../widgets/generic/Containers'
@@ -21,64 +24,58 @@ interface Props {
 
 export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
     const appState = AppState.instance()
-    const currenciesModel = CurrenciesModel.instance()
     const accountsModel = AccountsModel.instance()
+    const operationsModel = OperationsModel.instance()
 
     const [addAccount, setAddAccount] = useState(false)
     const [showHidden, setShowHidden] = useState(false)
-    const [total, setTotal] = useState<number | null>(null)
+    const [stats, setStats] = useState<AccountsStatsReducer | null>(null)
 
-    useEffect(() => {
-        runAsync(async () => {
-            if (accountsModel.amounts === null) {
-                return
-            }
-
-            const lastDate = (() => {
-                const dt = appState.timeSpan.endDate
-                return dt > appState.today ? appState.today : dt
-            })()
-            const amounts = accountsModel.getAmounts(lastDate)
-
-            const results = [...Object.entries(amounts)].map(async ([accName, amount]) => {
-                const rate = await currenciesModel.getRate(
-                    lastDate,
-                    accountsModel.get(accName).currency,
-                    appState.masterCurrency
+    useEffect(
+        () => {
+            runAsync(async () => {
+                const r = new AccountsStatsReducer(appState.timeSpan, appState.masterCurrency)
+                const lastOpDate = operationsModel.lastOp?.date ?? appState.timeSpan.endDate
+                await calcStats2(
+                    PE.any(),
+                    new CustomTimeSpan(
+                        operationsModel.firstOp?.date ?? appState.timeSpan.startDate,
+                        lastOpDate > appState.timeSpan.endDate ? lastOpDate : appState.timeSpan.endDate
+                    ),
+                    appState.today,
+                    [r]
                 )
-
-                return amount * rate
+                setStats(r)
             })
-
-            setTotal((await Promise.all(results)).reduce((partialSum, a) => partialSum + a, 0))
-        })
-    }, [appState.masterCurrency, accountsModel.amounts])
+        },
+        [appState.masterCurrency, appState.timeSpan, operationsModel.operations]
+    )
 
     if (accountsModel.accounts?.size === 0) {
         return (
             <>
                 {
-                addAccount
-                    ? (
-                        <AddAccount
-                            onClose={() => { setAddAccount(false) }}
-                        />
-                        )
-                    : undefined
-            }
+                    addAccount
+                        ? (
+                            <AddAccount
+                                onClose={() => { setAddAccount(false) }}
+                            />
+                            )
+                        : undefined
+                }
                 {
-                addAccount || noFab === true
-                    ? undefined
-                    : (
-                        <Fab
-                            color={'primary'}
-                            sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                            onClick={() => { setAddAccount(true) }}
-                        >
-                            <FontAwesomeIcon icon={faPlus} />
-                        </Fab>
-                        )
-            }
+                    addAccount || noFab === true
+                        ? undefined
+                        : (
+                            <Fab
+                                color={'primary'}
+                                sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                                onClick={() => { setAddAccount(true) }}
+                            >
+                                <FontAwesomeIcon icon={faPlus} />
+                            </Fab>
+                            )
+                }
                 <Column textAlign={'center'} mt={3}>
                     {'Before start tracking your finances you need to create an account'}
                     <br />
@@ -99,10 +96,8 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
 
     if (
         accountsModel.accountsSorted === null
-        || total === null
+        || stats === null
     ) return <AccountsScreenSkeleton />
-
-    const totalAmounts = [...appState.timeSpan.allDates({ includeDayBefore: true })].map(d => accountsModel.getAmounts(d))
 
     const visibleAccounts: Account[] = []
     const hiddenAccounts: Account[] = []
@@ -141,46 +136,46 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
         }
             <Box p={1} height={'100%'} overflow={'auto'}>
                 <Box maxWidth={900} mx={'auto'}>
-                    <Typography component={'div'} variant={'h6'} textAlign={'center'} my={1}>
-                        {'Total'}
-                        <Typography variant={'body1'} color={'primary.main'}>
-                            {formatCurrency(total, appState.masterCurrency)}
-                        </Typography>
-                    </Typography>
-                    <Box
-                        display={'flex'}
-                        flexDirection={'column'}
-                        gap={1}
-                    >
+                    <Stack spacing={1}>
+                        <AccountCard
+                            total={true}
+                            name={'Total'}
+                            currency={appState.masterCurrency}
+                            stats={stats.total}
+                        />
                         {
-                        visibleAccounts.map(account => (
-                            <AccountCard
-                                key={account.name}
-                                account={account}
-                                totalAmount={totalAmounts.map(a => a[account.name] ?? 0)}
-                            />
-                        ))
-                    }
-                        { hiddenAccounts.length > 0
-                            ? (showHidden
-                                    ? hiddenAccounts.map(account => (
-                                        <AccountCard
-                                            key={account.name}
-                                            account={account}
-                                            totalAmount={totalAmounts.map(a => a[account.name] ?? 0)}
-                                        />
-                                    ))
-                                    : (
-                                        <Typography color={'primary.main'} textAlign={'center'}>
-                                            <a onClick={() => { setShowHidden(true) }}>
-                                                {'Show '}
-                                                {hiddenAccounts.length}
-                                                {' hidden'}
-                                            </a>
-                                        </Typography>
+                            visibleAccounts.map(account => (
+                                <AccountCard
+                                    key={account.name}
+                                    name={account.name}
+                                    currency={account.currency}
+                                    stats={stats.accounts[account.name]}
+                                />
+                            ))
+                        }
+                        {
+                            hiddenAccounts.length > 0
+                                ? (showHidden
+                                        ? hiddenAccounts.map(account => (
+                                            <AccountCard
+                                                key={account.name}
+                                                name={account.name}
+                                                currency={account.currency}
+                                                stats={stats.accounts[account.name]}
+                                            />
                                         ))
-                            : null}
-                    </Box>
+                                        : (
+                                            <Typography color={'primary.main'} textAlign={'center'}>
+                                                <a onClick={() => { setShowHidden(true) }}>
+                                                    {'Show '}
+                                                    {hiddenAccounts.length}
+                                                    {' hidden'}
+                                                </a>
+                                            </Typography>
+                                            ))
+                                : null
+}
+                    </Stack>
                     <Box minHeight={144} />
                 </Box>
             </Box>

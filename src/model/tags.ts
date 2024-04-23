@@ -81,7 +81,7 @@ export class TagsModel {
                 this.income = sortTags(tagsStats.income)
                 this.transfer = sortTags(tagsStats.transfer)
                 this.all = sortTags(tagsStats.all)
-                this.byCat = new Map(Array.from(byCat.entries()).map(([cat, catStats]) => [cat, sortTags(catStats)]))
+                this.byCat = new Map(byCat.entries().map(([cat, catStats]) => [cat, sortTags(catStats)]))
             })
         })
     }

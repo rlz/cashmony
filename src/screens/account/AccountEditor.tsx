@@ -7,11 +7,15 @@ import { useNavigate } from 'react-router-dom'
 import { match } from 'ts-pattern'
 import { v1 as uuid } from 'uuid'
 
+import { CustomTimeSpan } from '../../helpers/dates'
 import { deepEqual } from '../../helpers/deepEqual'
 import { AccountsModel } from '../../model/accounts'
 import { AppState } from '../../model/appState'
 import { Account, Operation } from '../../model/model'
+import { calcStats2 } from '../../model/newStatsProcessor'
 import { OperationsModel } from '../../model/operations'
+import { PE } from '../../model/predicateExpression'
+import { AccountStatsReducer } from '../../model/stats/AccountStatsReducer'
 import { CurrencyInput } from '../../widgets/CurrencyInput'
 import { DeleteAccount } from '../../widgets/DeleteAccount'
 import { ActionButton, ActionFab } from '../../widgets/generic/ActionButton'
@@ -27,7 +31,7 @@ export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
     const operationsModel = OperationsModel.instance()
 
     const navigate = useNavigate()
-    const amount = accountsModel.getAmounts(appState.today)[acc.name] ?? 0
+    const [amount, setAmount] = useState(0)
 
     const [adjustedAmount, setAdjustedAmount] = useState(amount)
 
@@ -35,6 +39,24 @@ export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
     const [newAcc, setNewAcc] = useState(acc)
 
     useEffect(() => { setNewAcc(acc) }, [acc])
+    useEffect(() => {
+        void (
+            async () => {
+                const stats = new AccountStatsReducer(acc.name, appState.timeSpan)
+                const lastOpDate = operationsModel.lastOp?.date ?? appState.timeSpan.endDate
+                await calcStats2(
+                    PE.account(acc.name),
+                    new CustomTimeSpan(
+                        operationsModel.firstOp?.date ?? appState.timeSpan.startDate,
+                        lastOpDate
+                    ),
+                    appState.today,
+                    [stats]
+                )
+                setAmount(stats.stats.last)
+            }
+        )()
+    }, [acc.name, operationsModel.operations])
 
     const trimmedName = newAcc.name.trim()
     const nameConflict = trimmedName !== acc.name

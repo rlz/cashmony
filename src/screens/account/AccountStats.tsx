@@ -10,7 +10,7 @@ interface Props {
     totalAmount: number[]
 }
 
-export function AccountStats({ account, perDayAmount, totalAmount }: Props): ReactElement {
+export function AccountStatsBody({ account, perDayAmount, totalAmount }: Props): ReactElement {
     return (
         <Box display={'flex'} flexDirection={'column'} gap={1} mt={1}>
             <AccPlot title={'Amount'} account={account} totalAmount={totalAmount} />

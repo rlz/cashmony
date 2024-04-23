@@ -2,6 +2,7 @@ import './index.scss'
 
 import { createTheme, CssBaseline, ThemeProvider, Typography, useMediaQuery } from '@mui/material'
 import { deepOrange, indigo } from '@mui/material/colors'
+import { installIntoGlobal } from 'iterator-helpers-polyfill'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import ReactDOM from 'react-dom/client'
@@ -11,6 +12,8 @@ import { App } from './App'
 import { nonNull } from './helpers/smallTools'
 import { AppState } from './model/appState'
 import reportWebVitals from './reportWebVitals'
+
+installIntoGlobal()
 
 const root = ReactDOM.createRoot(
     nonNull(document.getElementById('root'), 'Root element not found')
@@ -51,14 +54,16 @@ const RootNode = observer((): ReactElement => {
 
     document.body.className = 'theme-' + theme
 
-    return <React.StrictMode>
-        <ThemeProvider theme={match(theme).with('light', () => lightTheme).otherwise(() => darkTheme)}>
-            <CssBaseline />
-            <Typography component={'div'}>
-                <App />
-            </Typography>
-        </ThemeProvider>
-    </React.StrictMode>
+    return (
+        <React.StrictMode>
+            <ThemeProvider theme={match(theme).with('light', () => lightTheme).otherwise(() => darkTheme)}>
+                <CssBaseline />
+                <Typography component={'div'}>
+                    <App />
+                </Typography>
+            </ThemeProvider>
+        </React.StrictMode>
+    )
 })
 
 root.render(<RootNode />)

@@ -21,7 +21,7 @@ export class YMComparisonReducer extends StatsReducer {
         this.incomes = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
     }
 
-    newDay(intervals: Readonly<Intervals>): void {
+    async newDay(intervals: Readonly<Intervals>): Promise<void> {
         if (this.firstDay || intervals.year.isFirstDay) {
             this.expenses.forEach(e => e[intervals.year.start.year] = 0)
             this.incomes.forEach(e => e[intervals.year.start.year] = 0)

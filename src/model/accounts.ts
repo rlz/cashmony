@@ -1,34 +1,25 @@
 import { DateTime } from 'luxon'
 import { autorun, makeAutoObservable, observable, runInAction, toJS } from 'mobx'
 
-import { runAsync } from '../helpers/smallTools'
 import { compareByStats } from '../helpers/stats'
-import { AppState } from './appState'
 import { FinDataDb } from './finDataDb'
 import { type Account } from './model'
 import { OperationsModel } from './operations'
-import { PE } from './predicateExpression'
-import { calcStats } from './stats'
-import { cumulativeIntervalPerAccountReducer } from './statsReducers'
 
-const appState = AppState.instance()
 const operationsModel = OperationsModel.instance()
 
 let accountsModel: AccountsModel | null = null
 
 export class AccountsModel {
     private readonly finDataDb = FinDataDb.instance()
+
     accounts: ReadonlyMap<string, Account> | null = null
     accountsSorted: readonly string[] | null = null
-    amounts: ReadonlyMap<string, Readonly<Record<string, number>>> | null = null
-    amountsStartDate: DateTime | null = null
-    amountsEndDate: DateTime | null = null
 
     private constructor() {
         makeAutoObservable(this, {
             accounts: observable.shallow,
-            accountsSorted: observable.shallow,
-            amounts: observable.shallow
+            accountsSorted: observable.shallow
         })
 
         autorun(() => {
@@ -52,41 +43,6 @@ export class AccountsModel {
 
             runInAction(() => {
                 this.accountsSorted = accounts.sort(compareByStats(stats))
-            })
-        })
-
-        autorun(() => {
-            if (this.accounts === null || operationsModel.operations === null) {
-                return
-            }
-
-            if (operationsModel.operations.length === 0) {
-                runInAction(() => {
-                    this.amounts = new Map([[appState.today.toISODate() ?? '', this.zeroAmounts()]])
-                    this.amountsStartDate = appState.today
-                    this.amountsEndDate = appState.today
-                })
-                return
-            }
-
-            const today = appState.today
-
-            runAsync(async () => {
-                const stats = await calcStats(PE.any(), null, today, {
-                    amounts: cumulativeIntervalPerAccountReducer('day')
-                })
-
-                const amounts = new Map<string, Readonly<Record<string, number>>>()
-
-                for (const i of stats.amounts) {
-                    amounts.set(i.interval.toISODate() ?? '', i.amounts)
-                }
-
-                runInAction(() => {
-                    this.amounts = amounts
-                    this.amountsStartDate = stats.amounts[0].interval
-                    this.amountsEndDate = stats.amounts[stats.amounts.length - 1].interval
-                })
             })
         })
 
@@ -122,30 +78,6 @@ export class AccountsModel {
         return account
     }
 
-    getAmounts(date: DateTime): Readonly<Record<string, number>> {
-        if (this.amounts === null || this.amountsEndDate === null) {
-            throw Error('Amounts have not been calculated')
-        }
-
-        if (operationsModel.operations === null) {
-            throw Error('Operations have not been calculated')
-        }
-
-        if (operationsModel.operations.length === 0) {
-            return this.zeroAmounts()
-        }
-
-        if (date > this.amountsEndDate) {
-            const amounts = this.amounts.get(this.amountsEndDate.toISODate() ?? '')
-            if (amounts === undefined) {
-                throw Error('Always expected amounts here')
-            }
-            return amounts
-        }
-
-        return this.amounts.get(date.toISODate() ?? '') ?? this.zeroAmounts()
-    }
-
     async put(account: Account): Promise<void> {
         await this.finDataDb.putAccount(account)
         await this.readAll()
@@ -159,19 +91,5 @@ export class AccountsModel {
         runInAction(() => {
             this.accounts = accounts
         })
-    }
-
-    private zeroAmounts(): Record<string, number> {
-        if (this.accounts === null) {
-            throw Error('Accounts not loaded')
-        }
-
-        const z: Record<string, number> = {}
-
-        for (const a of this.accounts.values()) {
-            z[a.name] = 0
-        }
-
-        return z
     }
 }

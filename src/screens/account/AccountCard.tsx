@@ -1,43 +1,56 @@
-import { Box, Paper, Skeleton } from '@mui/material'
+import { Box, Paper, Skeleton, Stack } from '@mui/material'
+import { observer } from 'mobx-react-lite'
 import { ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { formatCurrency } from '../../helpers/currencies'
-import { Account } from '../../model/model'
-import { AccPlot } from '../../widgets/AccountPlots'
-import { DivBody1 } from '../../widgets/generic/Typography'
+import { AppState } from '../../model/appState'
+import { AccountStats } from '../../model/stats/AccountStatsReducer'
+import { DivBody1, DivBody2, SpanBody2 } from '../../widgets/generic/Typography'
+import { AccountSparklinePlot } from '../../widgets/plots/AccountSparklinePlot'
 
 interface Props {
-    account: Account
-    totalAmount: number[]
+    total?: boolean
+    name: string
+    currency: string
+    stats: AccountStats
 }
 
-export function AccountCard({ account, totalAmount }: Props): ReactElement {
+export const AccountCard = observer(function AccountCard({ total, name, currency, stats }: Props): ReactElement {
+    const appState = AppState.instance()
     const navigate = useNavigate()
 
+    const periodInPast = stats.dayTotal[stats.dayTotal.length - 1].date < appState.today
+
     return (
-        <a onClick={() => { navigate(`/accounts/${encodeURIComponent(account.name)}`) }}>
+        <a onClick={() => { navigate(`/accounts/${encodeURIComponent(total === true ? '_total' : name)}`) }}>
             <Paper variant={'outlined'}>
                 <Box p={1}>
-                    <Box display={'flex'} mb={1}>
-                        <DivBody1>{account.name}</DivBody1>
+                    <Stack direction={'row'} spacing={1}>
+                        <DivBody1>{name}</DivBody1>
                         <DivBody1 flex={'1 1 0'} textAlign={'right'} color={'primary.main'}>
                             {
-                                formatCurrency(totalAmount[totalAmount.length - 1], account.currency)
+                                formatCurrency(stats.dayTotal.at(-1)?.value ?? 0, currency)
                             }
                         </DivBody1>
+                    </Stack>
+                    {
+                        periodInPast
+                        && (
+                            <DivBody2 textAlign={'right'}>
+                                <SpanBody2 color={'secondary.main'}>{'now: '}</SpanBody2>
+                                {formatCurrency(stats.last, currency)}
+                            </DivBody2>
+                        )
+                    }
+                    <Box mt={1}>
+                        <AccountSparklinePlot stats={stats} />
                     </Box>
-                    <AccPlot
-                        sparkline
-                        account={account}
-                        perDayAmount={totalAmount.map((a, i, arr) => i === 0 ? 0 : a - arr[i - 1])}
-                        totalAmount={totalAmount}
-                    />
                 </Box>
             </Paper>
         </a>
     )
-}
+})
 
 export function AccountCardSkeleton(): ReactElement {
     return (

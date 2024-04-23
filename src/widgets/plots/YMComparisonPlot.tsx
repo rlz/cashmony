@@ -1,10 +1,11 @@
-import { Box, Paper, styled, Typography } from '@mui/material'
+import { Box, Paper, Typography } from '@mui/material'
 import * as Plot from '@observablehq/plot'
 import React, { useEffect, useMemo } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 
 import { formatCurrency } from '../../helpers/currencies'
 import { YMComparisonReducer } from '../../model/stats/YMComparisonReducer'
+import { PlotContainer } from './PlotContainer'
 
 interface Props {
     reducer: YMComparisonReducer
@@ -79,16 +80,6 @@ export function YMComparisonPlot({ reducer, currency }: Props): JSX.Element {
         </Paper>
     )
 }
-
-const PlotContainer = styled('div')(
-    {
-        '&': {
-            figure: {
-                margin: 0
-            }
-        }
-    }
-)
 
 function monthFormat(month: number): string {
     return ['Jan', 'Feb', 'Mar',
