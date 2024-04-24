@@ -23,6 +23,7 @@ import { ActionButton, ActionFab } from '../widgets/generic/ActionButton'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
 import { PBody2 } from '../widgets/generic/Typography'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
+import { AddOperationFab } from '../widgets/operations/AddOperationFab'
 import { AccountEditor } from '../widgets/operations/editors/AccountEditor'
 import { AmountEditor } from '../widgets/operations/editors/AmountEditor'
 import { CategoriesEditor } from '../widgets/operations/editors/CategoriesEditor'
@@ -70,9 +71,9 @@ export function OperationScreen(): ReactElement {
                         <Panel>
                             <Box height={'100%'} overflow={'auto'}>
                                 <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
-                                    <OpsList
-                                        noFab={opId !== ''}
-                                    />
+                                    <OpsList />
+                                    { opId === '' && <AddOperationFab /> }
+
                                 </Box>
                             </Box>
                         </Panel>
@@ -94,7 +95,8 @@ export function OperationScreen(): ReactElement {
                 : (
                     <Box position={'relative'} height={'100%'}>
                         <Box p={1} height={'100%'} overflow={'auto'}>
-                            <OpsList noFab={opId !== ''} />
+                            <OpsList />
+                            { opId === '' && <AddOperationFab /> }
                         </Box>
                         {
                         showIfLazy(opId !== '', () => {

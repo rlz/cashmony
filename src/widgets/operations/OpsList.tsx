@@ -1,12 +1,11 @@
-import { AddCard as AddCardIcon, CreditCard as CreditCardIcon, CurrencyExchange as CurrencyExchangeIcon } from '@mui/icons-material'
-import { Backdrop, Box, Portal, Skeleton, SpeedDial, SpeedDialAction, SpeedDialIcon, Stack, Typography, useTheme } from '@mui/material'
+import { Box, Skeleton, Stack, Typography, useTheme } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { formatCurrency } from '../../helpers/currencies'
 import { HumanTimeSpan } from '../../helpers/dates'
-import { runAsync, showIf } from '../../helpers/smallTools'
+import { runAsync } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { type NotDeletedOperation } from '../../model/model'
 import { OperationsModel } from '../../model/operations'
@@ -26,12 +25,11 @@ const operationsModel = OperationsModel.instance()
 
 interface Props {
     onOpClick?: (opId: string) => void
-    noFab?: boolean
     predicate?: Predicate
     timeSpan?: HumanTimeSpan
 }
 
-export const OpsList = observer((props: Props): ReactElement => {
+export const OpsList = observer(function OpsList(props: Props): ReactElement {
     const theme = useTheme()
     const navigate = useNavigate()
     const [displayOps, setDisplayOps] = useState<NotDeletedOperation[][] | null>(null)
@@ -144,13 +142,9 @@ export const OpsList = observer((props: Props): ReactElement => {
                     )
                 : null}
             <Box minHeight={144} />
-            {
-            showIf(props.noFab !== true, <Fab />)
-        }
         </Box>
     )
 })
-OpsList.displayName = 'OpsList'
 
 const Transaction = ({ op }: { op: NotDeletedOperation }): ReactElement => {
     if (op.type === 'adjustment') {
@@ -166,45 +160,4 @@ const Transaction = ({ op }: { op: NotDeletedOperation }): ReactElement => {
     }
 
     return <ExpenseCard operation={op} />
-}
-
-const Fab = (): ReactElement => {
-    const [open, setOpen] = useState(false)
-    const navigate = useNavigate()
-
-    return (
-        <Portal>
-            <Backdrop open={open} sx={{ backdropFilter: 'grayscale(30%) brightness(300%) blur(2px)' }} />
-            <SpeedDial
-                sx={{ position: 'fixed', bottom: 70, right: 16 }}
-                icon={<SpeedDialIcon />}
-                ariaLabel={'add'}
-                open={open}
-                onOpen={() => { setOpen(true) }}
-                onClose={() => { setOpen(false) }}
-            >
-                <SpeedDialAction
-                    icon={<CreditCardIcon />}
-                    tooltipOpen
-                    tooltipTitle={'Expence'}
-                    FabProps={{ color: 'error', size: 'medium' }}
-                    onClick={() => { navigate('/new-op/expense') }}
-                />
-                <SpeedDialAction
-                    icon={<AddCardIcon />}
-                    tooltipOpen
-                    tooltipTitle={'Income'}
-                    FabProps={{ color: 'success', size: 'medium' }}
-                    onClick={() => { navigate('/new-op/income') }}
-                />
-                <SpeedDialAction
-                    icon={<CurrencyExchangeIcon />}
-                    tooltipOpen
-                    tooltipTitle={'Transfer'}
-                    FabProps={{ color: 'info', size: 'medium' }}
-                    onClick={() => { navigate('/new-op/transfer') }}
-                />
-            </SpeedDial>
-        </Portal>
-    )
 }
