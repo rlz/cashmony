@@ -64,29 +64,6 @@ export function sumCatExpensesReducer(interval: IntervalType, totalCurrency: str
     }
 }
 
-export function opsPerIterval(interval: IntervalType, keepEmpty: boolean): Reducer<NotDeletedOperation[]> {
-    return {
-        interval,
-        async reduce(op, _interval, firstOp, _intervalKind, values) {
-            if (firstOp && (op !== null || keepEmpty)) {
-                if (values.length > 0) {
-                    values[values.length - 1].reverse()
-                }
-                values.push([])
-            }
-
-            if (op !== null) {
-                values[values.length - 1].push(op)
-            }
-        },
-        async done(values) {
-            if (values.length > 0) {
-                values[values.length - 1].reverse()
-            }
-        }
-    }
-}
-
 export function perCatTodayExpensesReducer(totalCurrency: string, uncatCurrency: string): Reducer<Record<string, number>> {
     const appState = AppState.instance()
     const categoriesModel = CategoriesModel.instance()

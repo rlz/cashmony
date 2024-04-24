@@ -7,11 +7,11 @@ import { formatCurrency } from '../../helpers/currencies'
 import { HumanTimeSpan } from '../../helpers/dates'
 import { runAsync } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
+import { CurrenciesModel } from '../../model/currencies'
 import { type NotDeletedOperation } from '../../model/model'
+import { calcStats2, Intervals, StatsReducer } from '../../model/newStatsProcessor'
 import { OperationsModel } from '../../model/operations'
 import { PE, type Predicate } from '../../model/predicateExpression'
-import { calcStats } from '../../model/stats'
-import { opsPerIterval, perIntervalExpensesReducer } from '../../model/statsReducers'
 import { Column } from '../generic/Containers'
 import { DivBody2 } from '../generic/Typography'
 import { AdjustmentCard } from './cards/AdjustmentCard'
@@ -57,12 +57,10 @@ export const OpsList = observer(function OpsList(props: Props): ReactElement {
                 const appState = AppState.instance()
                 const predicate = props.predicate ?? PE.filter(appState.filter)
                 const timeSpan = props.timeSpan ?? appState.timeSpan
-                const stats = await calcStats(predicate, timeSpan, appState.today, {
-                    opsByDate: opsPerIterval('day', false),
-                    perDayExpenses: perIntervalExpensesReducer('day', PE.any(), masterCurrency)
-                })
-                setDisplayOps(stats.opsByDate.reverse())
-                setPerDayExpenses(stats.perDayExpenses.slice(0, stats.opsByDate.length).reverse())
+                const reducer = new OpsListReducer(appState.masterCurrency)
+                await calcStats2(predicate, timeSpan, appState.today, [reducer])
+                setDisplayOps(reducer.perDayOps)
+                setPerDayExpenses(reducer.perDayAmountDiff)
             })
         },
         [
@@ -160,4 +158,48 @@ const Transaction = ({ op }: { op: NotDeletedOperation }): ReactElement => {
     }
 
     return <ExpenseCard operation={op} />
+}
+
+class OpsListReducer extends StatsReducer {
+    perDayOps: NotDeletedOperation[][] = []
+    perDayAmountDiff: number[] = []
+
+    private currency: string
+    private currenciesModel = CurrenciesModel.instance()
+    private currentOps: NotDeletedOperation[] = []
+    private currentDiff: number = 0
+
+    constructor(currency: string) {
+        super()
+        this.currency = currency
+    }
+
+    async newDay(_intervals: Readonly<Intervals>, _init: boolean): Promise<void> {
+        if (this.currentOps.length > 0) {
+            this.perDayOps.push(this.currentOps.reverse())
+            this.perDayAmountDiff.push(this.currentDiff)
+            this.currentOps = []
+            this.currentDiff = 0
+        }
+    }
+
+    async process(op: NotDeletedOperation): Promise<void> {
+        this.currentOps.push(op)
+        if (op.type !== 'transfer') {
+            const rate = op.currency === this.currency
+                ? 1
+                : await this.currenciesModel.getRate(op.date, op.currency, this.currency)
+            this.currentDiff += op.amount * rate
+        }
+    }
+
+    async done(): Promise<void> {
+        if (this.currentOps.length > 0) {
+            this.perDayOps.push(this.currentOps.reverse())
+            this.perDayAmountDiff.push(this.currentDiff)
+        }
+
+        this.perDayOps.reverse()
+        this.perDayAmountDiff.reverse()
+    }
 }
