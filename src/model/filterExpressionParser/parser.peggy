@@ -55,6 +55,12 @@ singleFilter
     / "cat:" name:(identifier / string) {
         return PE.cat(name)
     }
+    / "acc:" name:(identifier / string) {
+        return PE.account(name)
+    }
+    / "amount" _? op:("=" / "!=" / "<=" / ">=" / "<" / ">") _? n:number {
+        return PE.amount(op, n)
+    }
     / "expense" {
         return EXPENSE_PREDICATE
     }
@@ -83,8 +89,12 @@ string
     }
 
 number
-    = _ "-"? digits:$([0-9]+ ("." [0-9]+)?) _ {
-        return parseFloat(digits);
+    = minus:"-"? digits:$([0-9]+ ("." [0-9]+)?) {
+        if (minus !== null) {
+            return -parseFloat(digits)
+        }
+
+        return parseFloat(digits)
     }
 
 _

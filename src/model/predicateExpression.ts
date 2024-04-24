@@ -4,6 +4,8 @@ import { match, P } from 'ts-pattern'
 import { type Filter } from './filter'
 import { type NotDeletedOperation } from './model'
 
+export type ComparisonOperator = '<' | '>' | '=' | '<=' | '>=' | '!='
+
 export interface AnyPredicate {
     readonly type: 'any'
 }
@@ -37,6 +39,17 @@ export interface TagPredicate {
     readonly tag: string
 }
 
+export interface CurrencyPredicate {
+    readonly type: 'currency'
+    readonly currency: string
+}
+
+export interface AmountPredicate {
+    readonly type: 'amount'
+    readonly op: ComparisonOperator
+    readonly value: number
+}
+
 export interface AndPredicate {
     readonly type: 'and'
     readonly predicates: readonly Predicate[]
@@ -55,6 +68,7 @@ export interface NotPredicate {
 export type Predicate =
     AnyPredicate | TypePredicate | CategoryPredicate | CommentPredicate |
     UncategorizedPredicate | AccountPredicate | TagPredicate |
+    CurrencyPredicate | AmountPredicate |
     AndPredicate | OrPredicate | NotPredicate
 
 export function compilePredicate(predicate: Predicate): (op: NotDeletedOperation) => boolean {
@@ -102,11 +116,32 @@ export function compilePredicate(predicate: Predicate): (op: NotDeletedOperation
         .with({ type: 'tag' }, (p) => {
             return op => op.tags.includes(p.tag)
         })
+        .with({ type: 'currency' }, (p) => {
+            return op => op.currency === p.currency
+        })
+        .with({ type: 'amount', op: '=' }, (p) => {
+            return op => op.amount === p.value
+        })
+        .with({ type: 'amount', op: '!=' }, (p) => {
+            return op => op.amount !== p.value
+        })
+        .with({ type: 'amount', op: '<' }, (p) => {
+            return op => op.amount < p.value
+        })
+        .with({ type: 'amount', op: '>' }, (p) => {
+            return op => op.amount > p.value
+        })
+        .with({ type: 'amount', op: '<=' }, (p) => {
+            return op => op.amount <= p.value
+        })
+        .with({ type: 'amount', op: '>=' }, (p) => {
+            return op => op.amount >= p.value
+        })
         .with({ type: 'any' }, () => {
             return _op => true
         })
-        .otherwise(() => {
-            throw Error('not implemented')
+        .otherwise((p) => {
+            throw Error(`Not implemented predicate: ${JSON.stringify(p)}`)
         })
 }
 
@@ -149,6 +184,21 @@ export const PE = {
         return {
             type: 'tag',
             tag
+        }
+    },
+
+    currency: (currency: string): CurrencyPredicate => {
+        return {
+            type: 'currency',
+            currency
+        }
+    },
+
+    amount: (op: ComparisonOperator, value: number): AmountPredicate => {
+        return {
+            type: 'amount',
+            op,
+            value
         }
     },
 
