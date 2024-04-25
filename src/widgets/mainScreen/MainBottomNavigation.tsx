@@ -1,17 +1,14 @@
 import { faBullseye, faChartLine, faList, faShapes, faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { BottomNavigation, BottomNavigationAction, type SxProps } from '@mui/material'
+import { BottomNavigation, BottomNavigationAction } from '@mui/material'
 import React, { type ReactElement } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { match, P } from 'ts-pattern'
 
-import { screenWidthIs } from '../../helpers/useWidth'
 import { AccountsModel } from '../../model/accounts'
 import { CategoriesModel } from '../../model/categories'
 
 type Tabs = 'o' | 'c' | 'g' | 'a' | 'analitics' | null
-
-const FIXED_BOTTON_NAVIGATION_STYLE: SxProps = { position: 'fixed', bottom: 0, left: 0, right: 0 }
 
 export function MainBottomNavigation(): ReactElement {
     const accountsModel = AccountsModel.instance()
@@ -19,7 +16,6 @@ export function MainBottomNavigation(): ReactElement {
 
     const loc = useLocation()
     const nav = useNavigate()
-    const smallScreen = screenWidthIs('xs', 'sm')
 
     const active = match<string, Tabs>(loc.pathname)
         .with(P.string.startsWith('/operations'), () => 'o')
@@ -34,7 +30,6 @@ export function MainBottomNavigation(): ReactElement {
         <BottomNavigation
             showLabels
             value={active}
-            sx={smallScreen ? FIXED_BOTTON_NAVIGATION_STYLE : undefined}
         >
             {
                 accountsModel.accounts?.size === 0 || categoriesModel.categories?.size === 0

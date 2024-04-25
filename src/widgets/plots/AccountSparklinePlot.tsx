@@ -5,7 +5,7 @@ import { useResizeDetector } from 'react-resize-detector'
 
 import { AppState } from '../../model/appState'
 import { AccountStats } from '../../model/stats/AccountStatsReducer'
-import { Point } from './plotUtils'
+import { Point } from './PlotUtils'
 
 interface Props {
     stats: AccountStats

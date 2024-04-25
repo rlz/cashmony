@@ -4,29 +4,32 @@ import React, { useEffect, useMemo } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 
 import { formatCurrency } from '../../helpers/currencies'
-import { YMComparisonReducer } from '../../model/stats/YMComparisonReducer'
-import { monthFormat, PlotContainer } from './plotUtils'
+import { monthFormat, PlotContainer } from './PlotUtils'
 
 interface Props {
-    reducer: YMComparisonReducer
+    title: string
+    /**
+     * [{year -> amount}, {year -> amount}, ...] for each month
+    */
+    stats: readonly Record<number, number>[]
     currency: string
 }
 
-export function YMComparisonPlot({ reducer, currency }: Props): JSX.Element {
+export function YMExpensesComparisonPlot({ title, stats, currency }: Props): JSX.Element {
     const { width, ref } = useResizeDetector()
 
     const data = useMemo(() => {
-        return reducer.expenses.map((e, i) => { return { month: i, perYear: e } })
+        return stats.map((e, i) => { return { month: i, perYear: e } })
             .flatMap(({ month, perYear }) => {
                 return Object.entries(perYear).map(([year, amount]) => {
                     return {
                         Year: year,
                         month,
-                        amount: -amount
+                        amount
                     }
                 })
             })
-    }, [reducer.expenses])
+    }, [stats])
 
     useEffect(
         () => {
@@ -47,12 +50,6 @@ export function YMComparisonPlot({ reducer, currency }: Props): JSX.Element {
                         y: 'amount',
                         fill: 'Year',
                         fx: 'month'
-                        // tip: {
-                        //     format: {
-                        //         fx: false,
-                        //         y: v => formatCurrency(v, currency)
-                        //     }
-                        // }
                     }),
                     Plot.ruleY([0]),
                     Plot.axisFx({
@@ -68,13 +65,13 @@ export function YMComparisonPlot({ reducer, currency }: Props): JSX.Element {
                 p.remove()
             }
         },
-        [width, reducer.expenses]
+        [width, stats]
     )
 
     return (
         <Paper variant={'outlined'}>
             <Box p={1}>
-                <Typography variant={'h6'} textAlign={'center'}>{'Y/M Comparison'}</Typography>
+                <Typography variant={'h6'} textAlign={'center'}>{title}</Typography>
                 <PlotContainer ref={ref} />
             </Box>
         </Paper>

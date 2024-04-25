@@ -15,7 +15,7 @@ import { calcStats } from '../../model/stats'
 import { YMComparisonReducer } from '../../model/stats/YMComparisonReducer'
 import { cumulativeIntervalExpensesReducer, perIntervalExpensesReducer, periodExpensesReducer } from '../../model/statsReducers'
 import { DivBody2, Italic } from '../generic/Typography'
-import { YMComparisonPlot } from '../plots/YMComparisonPlot'
+import { YMExpensesComparisonPlot } from '../plots/YMComparisonPlot'
 import { ExpensesBarsPlot, ExpensesTotalPlot } from './ExpensesPlots'
 
 interface Props {
@@ -172,7 +172,11 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
                 perDayGoal={perDayGoal === null ? null : [perDayGoal, currency]}
                 expenses={stats.cumulative}
             />
-            <YMComparisonPlot reducer={stats.monthsComparison} currency={currency} />
+            <YMExpensesComparisonPlot
+                title={'Y/M Comparison'}
+                stats={stats.monthsComparison.expenses}
+                currency={currency}
+            />
         </Box>
     )
 })
