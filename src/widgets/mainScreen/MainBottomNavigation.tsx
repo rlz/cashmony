@@ -1,5 +1,4 @@
-import { faBullseye, faChartLine, faList, faShapes, faWallet } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { AccountBalanceWallet as AccountBalanceWalletIcon, Category as CategoryIcon, List as ListIcon, QueryStats as QueryStatsIcon, Troubleshoot as TroubleshootIcon } from '@mui/icons-material'
 import { Box, Stack, Typography, useTheme } from '@mui/material'
 import React, { type ReactElement } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -87,7 +86,7 @@ export function MainBottomNavigation(): ReactElement {
                                 selected={active === 'o'}
                                 label={'Operations'}
                                 disabled={accountsModel.accounts?.size === 0}
-                                icon={<FontAwesomeIcon size={'lg'} icon={faList} />}
+                                icon={<ListIcon />}
                                 onClick={() => { nav('/operations') }}
                             />
                             )
@@ -95,7 +94,7 @@ export function MainBottomNavigation(): ReactElement {
                 <NavItem
                     selected={active === 'analitics'}
                     label={'Analitics'}
-                    icon={<FontAwesomeIcon size={'lg'} icon={faChartLine} />}
+                    icon={<QueryStatsIcon />}
                     onClick={() => { nav('/analitics') }}
                 />
                 {
@@ -106,7 +105,7 @@ export function MainBottomNavigation(): ReactElement {
                                 selected={active === 'c'}
                                 label={'Categories'}
                                 disabled={accountsModel.accounts?.size === 0}
-                                icon={<FontAwesomeIcon size={'lg'} icon={faShapes} />}
+                                icon={<CategoryIcon />}
                                 onClick={() => { nav('/categories') }}
                             />
                             )
@@ -119,7 +118,7 @@ export function MainBottomNavigation(): ReactElement {
                                 selected={active === 'g'}
                                 label={'Goals'}
                                 disabled={accountsModel.accounts?.size === 0}
-                                icon={<FontAwesomeIcon size={'lg'} icon={faBullseye} />}
+                                icon={<TroubleshootIcon />}
                                 onClick={() => { nav('/goals') }}
                             />
                             )
@@ -127,7 +126,7 @@ export function MainBottomNavigation(): ReactElement {
                 <NavItem
                     selected={active === 'a'}
                     label={'Accounts'}
-                    icon={<FontAwesomeIcon size={'lg'} icon={faWallet} />}
+                    icon={<AccountBalanceWalletIcon />}
                     onClick={() => { nav('/accounts') }}
                 />
             </Stack>
