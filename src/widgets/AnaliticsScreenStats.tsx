@@ -42,14 +42,14 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
                 reducers !== null
                 && (
                     <Grid container spacing={1} my={1}>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} sm={6}>
                             <YMExpensesComparisonPlot
                                 title={'Y/M Expenses Comparison'}
                                 stats={reducers.ym.expenses}
                                 currency={appState.masterCurrency}
                             />
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} sm={6}>
                             <YMExpensesComparisonPlot
                                 title={'Y/M Incomes Comparison'}
                                 stats={reducers.ym.incomes}

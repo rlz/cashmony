@@ -73,7 +73,7 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
 
                 const mc = new YMComparisonReducer(currency)
                 const ts = new CustomTimeSpan(
-                    DateTime.utc().minus({ years: xs ? 2 : 4 }).startOf('year'),
+                    DateTime.utc().minus({ years: 4 }).startOf('year'),
                     DateTime.utc()
                 )
                 await calcStats2(predicate, ts, appState.today, [mc])
