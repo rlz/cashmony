@@ -29,7 +29,7 @@ function NavItem(props: NavItemProps): JSX.Element {
             )
 
     const el = (
-        <Stack color={color} alignItems={'center'} py={1}>
+        <Stack color={color} alignItems={'center'} py={1} spacing={0.4}>
             {props.icon}
             <Typography
                 width={'100%'}
@@ -38,6 +38,7 @@ function NavItem(props: NavItemProps): JSX.Element {
                 overflow={'hidden'}
                 whiteSpace={'nowrap'}
                 textOverflow={'ellipsis'}
+                fontSize={'0.7rem'}
             >
                 {props.label}
             </Typography>
