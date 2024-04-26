@@ -107,6 +107,14 @@ const router = createBrowserRouter([
     {
         path: '/analitics',
         Component: AnaliticsScreen
+    },
+    {
+        path: '/analitics/stats',
+        Component: AnaliticsScreen
+    },
+    {
+        path: '/analitics/op/:opId',
+        Component: AnaliticsScreen
     }
 ])
 

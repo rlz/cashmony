@@ -4,6 +4,7 @@ import { Box, Button, Stack, Tab, Tabs, TextField, Typography, useTheme } from '
 import color from 'color'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { formatCurrency } from '../helpers/currencies'
 import { AppState } from '../model/appState'
@@ -14,19 +15,30 @@ import { calcStats2, StatsReducer } from '../model/newStatsProcessor'
 import { OperationsModel } from '../model/operations'
 import { isExpense, isIncome, PE, Predicate } from '../model/predicateExpression'
 import { AnaliticsScreenStats } from '../widgets/AnaliticsScreenStats'
+import { FullScreenModal } from '../widgets/FullScreenModal'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
 import { OpsList } from '../widgets/operations/OpsList'
+import { OperationScreenBody } from './OperationScreen'
 
 export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement {
     const appState = AppState.instance()
     const operationsModel = OperationsModel.instance()
 
     const theme = useTheme()
+    const location = useLocation()
+    const navigate = useNavigate()
     const [filter, setFilter] = useState('')
     const [predicate, setPredicate] = useState<Predicate>(PE.any())
     const [stats, setStats] = useState<{ total: number, count: number } | null>(null)
     const [error, setError] = useState<ParseError | null>(null)
-    const [tab, setTab] = useState('ops')
+
+    const tab: 'stats' | 'ops' = location.pathname.startsWith('/analitics/stats')
+        ? 'stats'
+        : 'ops'
+
+    const opId = location.pathname.startsWith('/analitics/op/')
+        ? location.pathname.substring(14)
+        : null
 
     appState.setOnClose(null)
     appState.setSubTitle('Analitics')
@@ -109,7 +121,7 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                         stats !== null
                         && <Typography variant={'body2'}>{`Total: ${formatCurrency(stats.total, 'RUB')} Count: ${stats.count}`}</Typography>
                     }
-                    <Tabs value={tab} onChange={(_, t) => setTab(t)}>
+                    <Tabs value={tab} onChange={(_, t) => navigate(t === 'stats' ? '/analitics/stats' : '/analitics')}>
                         <Tab value={'ops'} label={'Operations'} />
                         <Tab value={'stats'} label={'Stats'} />
                     </Tabs>
@@ -117,7 +129,13 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                 <Box overflow={'auto'} flexGrow={1} p={1}>
                     {
                         tab === 'ops'
-                        && <OpsList predicate={predicate} timeSpan={appState.timeSpan} />
+                        && (
+                            <OpsList
+                                predicate={predicate}
+                                timeSpan={appState.timeSpan}
+                                onOpClick={opId => navigate(`/analitics/op/${opId}`)}
+                            />
+                        )
                     }
                     {
                         tab === 'stats'
@@ -125,6 +143,19 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                     }
                 </Box>
             </Stack>
+            {
+                opId !== null
+                && (
+                    <FullScreenModal
+                        title={'Operation'}
+                        onClose={() => navigate('/analitics')}
+                    >
+                        <Box p={1}>
+                            <OperationScreenBody urlOpId={opId} />
+                        </Box>
+                    </FullScreenModal>
+                )
+            }
         </MainScreen>
     )
 })
