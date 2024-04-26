@@ -295,7 +295,6 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody()
                             })
                             .with('operations', () => (
                                 <OpsList
-                                    noFab
                                     onOpClick={(opId) => {
                                         navigate(`/goals/${goalName}/operations/${opId}`)
                                     }}
@@ -309,23 +308,23 @@ export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody()
                 </Box>
             </Column>
             {
-            showIfLazy(opId !== null, () => {
-                return (
-                    <FullScreenModal
-                        width={'850px'}
-                        title={opModalTitle}
-                        onClose={() => { navigate(`/goals/${goalName}/operations`) }}
-                    >
-                        <Box p={1}>
-                            <OperationScreenBody
-                                urlOpId={opId ?? ''}
-                                setModalTitle={setOpModalTitle}
-                            />
-                        </Box>
-                    </FullScreenModal>
-                )
-            })
-        }
+                showIfLazy(opId !== null, () => {
+                    return (
+                        <FullScreenModal
+                            width={'850px'}
+                            title={opModalTitle}
+                            onClose={() => { navigate(`/goals/${goalName}/operations`) }}
+                        >
+                            <Box p={1}>
+                                <OperationScreenBody
+                                    urlOpId={opId ?? ''}
+                                    setModalTitle={setOpModalTitle}
+                                />
+                            </Box>
+                        </FullScreenModal>
+                    )
+                })
+            }
         </>
     )
 })
