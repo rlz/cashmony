@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react'
 import { AppState } from '../model/appState'
 import { calcStats2 } from '../model/newStatsProcessor'
 import { Predicate } from '../model/predicateExpression'
+import { MainChangeReducer } from '../model/stats/TotalAndChangeReducer'
 import { YearsComparisonReducer } from '../model/stats/YearsComparisonReducer'
 import { YMComparisonReducer } from '../model/stats/YMComparisonReducer'
+import { TotalAndChangePlot } from './plots/TotalAndChangePlot'
 import { YearExpenseIncomeComparisonPlot } from './plots/YearExpenseIncomeComparisonPlot'
 import { YMExpensesComparisonPlot } from './plots/YMComparisonPlot'
 
@@ -15,6 +17,7 @@ interface Props {
 }
 
 interface Redusers {
+    main: MainChangeReducer
     ym: YMComparisonReducer
     years: YearsComparisonReducer
 }
@@ -27,6 +30,7 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
         void (
             async () => {
                 const reducers = {
+                    main: new MainChangeReducer(appState.masterCurrency),
                     ym: new YMComparisonReducer(appState.masterCurrency),
                     years: new YearsComparisonReducer(appState.masterCurrency)
                 }
@@ -42,6 +46,20 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
                 reducers !== null
                 && (
                     <Grid container spacing={1} my={1}>
+                        <Grid item xs={12} sm={6}>
+                            <TotalAndChangePlot
+                                title={'Expenses'}
+                                stats={reducers.main.expense}
+                                currency={appState.masterCurrency}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TotalAndChangePlot
+                                title={'Incomes'}
+                                stats={reducers.main.income}
+                                currency={appState.masterCurrency}
+                            />
+                        </Grid>
                         <Grid item xs={12} sm={6}>
                             <YMExpensesComparisonPlot
                                 title={'Y/M Expenses Comparison'}
