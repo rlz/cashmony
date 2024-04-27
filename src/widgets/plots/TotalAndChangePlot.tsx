@@ -9,11 +9,15 @@ import { PlotWidget } from './PlotUtils'
 
 interface Props {
     title: string
+    /**
+     * if true show positive amounts in red
+     */
+    expense?: boolean
     stats: TotalAndChangeStats
     currency: string
 }
 
-export function TotalAndChangePlot({ title, stats, currency }: Props): JSX.Element {
+export function TotalAndChangePlot({ title, expense, stats, currency }: Props): JSX.Element {
     const theme = useTheme()
 
     const totalPlot = (width: number) => Plot.plot({
@@ -67,7 +71,9 @@ export function TotalAndChangePlot({ title, stats, currency }: Props): JSX.Eleme
                         floor: (v: DateTime) => offset(v, -0.5),
                         offset: (v, o) => offset(v, o ?? 1)
                     },
-                    fill: v => v.value < 0 ? theme.palette.error.main : theme.palette.success.main
+                    fill: v => (expense === true && v.value >= 0) || (expense !== true && v.value < 0)
+                        ? theme.palette.error.main
+                        : theme.palette.success.main
                 }
             )
         ]

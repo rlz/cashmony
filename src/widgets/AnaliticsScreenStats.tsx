@@ -48,14 +48,15 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
                     <Grid container spacing={1} my={1}>
                         <Grid item xs={12} sm={6}>
                             <TotalAndChangePlot
-                                title={'Expenses'}
+                                title={'Expense'}
+                                expense
                                 stats={reducers.main.expense}
                                 currency={appState.masterCurrency}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TotalAndChangePlot
-                                title={'Incomes'}
+                                title={'Income'}
                                 stats={reducers.main.income}
                                 currency={appState.masterCurrency}
                             />
