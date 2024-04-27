@@ -1,10 +1,4 @@
 import { styled } from '@mui/material'
-import { DateTime } from 'luxon'
-
-export interface Point {
-    date: DateTime
-    value: number
-}
 
 export const PlotContainer = styled('div')(
     {

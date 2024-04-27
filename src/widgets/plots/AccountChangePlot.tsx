@@ -7,11 +7,11 @@ import { useResizeDetector } from 'react-resize-detector'
 
 import { formatCurrency } from '../../helpers/currencies'
 import { AppState } from '../../model/appState'
-import { AccountStats } from '../../model/stats/AccountStatsReducer'
+import { TotalAndChangeStats } from '../../model/stats/data'
 import { PlotContainer } from './PlotUtils'
 
 interface Props {
-    stats: AccountStats
+    stats: TotalAndChangeStats
     currency: string
 }
 

@@ -65,10 +65,6 @@ type TimeSpanInfo = ThisMonthTimeSpanInfo |
 const TIME_SPAN_INFO_LS_KEY = 'AppState.timeSpanInfo'
 const THEME_LS_KEY = 'AppState.theme'
 const MASTER_CURRENCY_LS_KEY = 'AppState.masterCurrency'
-const TOTAL_GOAL_AMOUNT_LS_KEY = 'AppState.totalGoal'
-const TOTAL_GOAL_CURRENCY_LS_KEY = 'AppState.totalGoalCurrency'
-const UNCATEGORIZED_GOAL_AMOUNT_LS_KEY = 'AppState.uncategorizedGoal'
-const UNCATEGORIZED_GOAL_CURRENCY_LS_KEY = 'AppState.uncategorizedGoalCurrency'
 const FILTER_LS_KEY = 'AppState.filter'
 
 type UserThemeType = 'light' | 'dark' | 'auto'
@@ -78,25 +74,6 @@ export class AppState {
     theme: UserThemeType = (localStorage.getItem(THEME_LS_KEY) as UserThemeType | null) ?? 'auto'
     timeSpanInfo: TimeSpanInfo = JSON.parse(localStorage.getItem(TIME_SPAN_INFO_LS_KEY) ?? '{ "type": "thisMonth" }')
     masterCurrency: string = localStorage.getItem(MASTER_CURRENCY_LS_KEY) ?? 'USD'
-    totalGoalAmount: number | null = run(() => {
-        const val = localStorage.getItem(TOTAL_GOAL_AMOUNT_LS_KEY)
-        if (val === null) {
-            return null
-        }
-        return parseFloat(val)
-    })
-
-    totalGoalCurrency = localStorage.getItem(TOTAL_GOAL_CURRENCY_LS_KEY) ?? 'USD'
-
-    uncategorizedGoalAmount: number | null = run(() => {
-        const val = localStorage.getItem(UNCATEGORIZED_GOAL_AMOUNT_LS_KEY)
-        if (val === null) {
-            return null
-        }
-        return parseFloat(val)
-    })
-
-    uncategorizedGoalCurrency = localStorage.getItem(UNCATEGORIZED_GOAL_CURRENCY_LS_KEY) ?? 'USD'
 
     filter: Filter = run((): Filter => {
         const val = localStorage.getItem(FILTER_LS_KEY)
@@ -145,30 +122,6 @@ export class AppState {
 
         autorun(() => {
             localStorage.setItem(MASTER_CURRENCY_LS_KEY, this.masterCurrency)
-        })
-
-        autorun(() => {
-            if (this.totalGoalAmount === null) {
-                localStorage.removeItem(TOTAL_GOAL_AMOUNT_LS_KEY)
-            } else {
-                localStorage.setItem(TOTAL_GOAL_AMOUNT_LS_KEY, this.totalGoalAmount.toString())
-            }
-        })
-
-        autorun(() => {
-            localStorage.setItem(TOTAL_GOAL_CURRENCY_LS_KEY, this.totalGoalCurrency)
-        })
-
-        autorun(() => {
-            if (this.uncategorizedGoalAmount === null) {
-                localStorage.removeItem(UNCATEGORIZED_GOAL_AMOUNT_LS_KEY)
-            } else {
-                localStorage.setItem(UNCATEGORIZED_GOAL_AMOUNT_LS_KEY, this.uncategorizedGoalAmount.toString())
-            }
-        })
-
-        autorun(() => {
-            localStorage.setItem(UNCATEGORIZED_GOAL_CURRENCY_LS_KEY, this.uncategorizedGoalCurrency)
         })
 
         autorun(() => {

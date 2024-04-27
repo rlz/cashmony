@@ -1,27 +1,15 @@
 import { DateTime } from 'luxon'
 
 import { HumanTimeSpan } from '../../helpers/dates'
-import { Point } from '../../widgets/plots/PlotUtils'
 import { NotDeletedOperation } from '../model'
 import { Intervals, StatsReducer } from '../newStatsProcessor'
-
-export interface AccountStats {
-    last: number
-    dayChange: Point[]
-    sWeekChange: Point[]
-    mWeekChange: Point[]
-    monthChange: Point[]
-    dayTotal: Point[]
-    sWeekTotal: Point[]
-    mWeekTotal: Point[]
-    monthTotal: Point[]
-}
+import { Point, TotalAndChangeStats } from './data'
 
 export class AccountStatsReducer extends StatsReducer {
     private name: string
     private startDate: DateTime
     private endDate: DateTime
-    readonly stats: AccountStats
+    readonly stats: TotalAndChangeStats
 
     constructor(name: string, timeSpan: HumanTimeSpan) {
         super()
@@ -97,22 +85,22 @@ export class AccountStatsReducer extends StatsReducer {
     }
 }
 
-function addDay(amount: AccountStats, date: DateTime): void {
+function addDay(amount: TotalAndChangeStats, date: DateTime): void {
     amount.dayChange.push({ date, value: 0 })
     amount.dayTotal.push({ date, value: amount.last })
 }
 
-function addSweek(amount: AccountStats, date: DateTime): void {
+function addSweek(amount: TotalAndChangeStats, date: DateTime): void {
     amount.sWeekChange.push({ date, value: 0 })
     amount.sWeekTotal.push({ date, value: amount.last })
 }
 
-function addMweek(amount: AccountStats, date: DateTime): void {
+function addMweek(amount: TotalAndChangeStats, date: DateTime): void {
     amount.mWeekChange.push({ date, value: 0 })
     amount.mWeekTotal.push({ date, value: amount.last })
 }
 
-function addMonth(amount: AccountStats, date: DateTime): void {
+function addMonth(amount: TotalAndChangeStats, date: DateTime): void {
     amount.monthChange.push({ date, value: 0 })
     amount.monthTotal.push({ date, value: amount.last })
 }

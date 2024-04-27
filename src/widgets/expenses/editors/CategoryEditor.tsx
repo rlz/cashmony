@@ -2,7 +2,6 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Button, FormControlLabel, Switch, TextField } from '@mui/material'
 import { DateTime } from 'luxon'
-import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -10,7 +9,6 @@ import { match } from 'ts-pattern'
 
 import { deepEqual } from '../../../helpers/deepEqual'
 import { showIf } from '../../../helpers/smallTools'
-import { AppState } from '../../../model/appState'
 import { CategoriesModel } from '../../../model/categories'
 import { CurrenciesModel } from '../../../model/currencies'
 import { type Category, type Operation } from '../../../model/model'
@@ -26,7 +24,6 @@ interface EditorProps {
 }
 
 export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElement => {
-    const appState = AppState.instance()
     const virtual = cat.name === '_total' || cat.name === '_'
     const currenciesModel = CurrenciesModel.instance()
     const categoriesModel = CategoriesModel.instance()
@@ -58,19 +55,7 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
             }
 
             return async () => {
-                if (cat.name === '_') {
-                    runInAction(() => {
-                        appState.uncategorizedGoalAmount = newCat.perDayAmount === undefined ? null : newCat.perDayAmount
-                        appState.uncategorizedGoalCurrency = newCat.currency ?? 'USD'
-                    })
-                } else if (cat.name === '_total') {
-                    runInAction(() => {
-                        appState.totalGoalAmount = newCat.perDayAmount === undefined ? null : newCat.perDayAmount
-                        appState.totalGoalCurrency = newCat.currency ?? 'USD'
-                    })
-                } else {
-                    await categoriesModel.put({ ...newCat, name: trimmedName, lastModified: DateTime.utc() })
-                }
+                await categoriesModel.put({ ...newCat, name: trimmedName, lastModified: DateTime.utc() })
 
                 if (trimmedName !== cat.name) {
                     const changedOps: Operation[] = []
@@ -109,8 +94,9 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
         ]
     )
 
-    return <Box mt={1}>
-        {
+    return (
+        <Box mt={1}>
+            {
             showIf(
                 !virtual,
                 <TextField
@@ -130,24 +116,25 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
                 />
             )
         }
-        <FormControlLabel
-            control={
-                <Switch
-                    checked={newCat.perDayAmount !== undefined}
-                    onChange={(_, checked) => {
-                        setNewCat({
-                            ...newCat,
-                            perDayAmount: checked ? 0 : undefined,
-                            currency: checked ? currenciesModel.currencies[0] : undefined
-                        })
-                    }}
-                />
-            }
-            label={'Set goal'}
-        />
-        {
+            <FormControlLabel
+                control={(
+                    <Switch
+                        checked={newCat.perDayAmount !== undefined}
+                        onChange={(_, checked) => {
+                            setNewCat({
+                                ...newCat,
+                                perDayAmount: checked ? 0 : undefined,
+                                currency: checked ? currenciesModel.currencies[0] : undefined
+                            })
+                        }}
+                    />
+                )}
+                label={'Set goal'}
+            />
+            {
             newCat.perDayAmount !== undefined
-                ? <GoalInput
+                ? (
+                    <GoalInput
                         perDayAmount={newCat.perDayAmount}
                         onPerDayAmountChange={(perDayAmount) => {
                             setNewCat({ ...newCat, perDayAmount })
@@ -156,15 +143,16 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
                         onCurrencyChange={(currency) => {
                             setNewCat({ ...newCat, currency })
                         }}
-                  />
+                    />
+                    )
                 : null
         }
-        <ActionFab
-            action={onSave}
-        >
-            <FontAwesomeIcon icon={faCheck} />
-        </ActionFab>
-        {
+            <ActionFab
+                action={onSave}
+            >
+                <FontAwesomeIcon icon={faCheck} />
+            </ActionFab>
+            {
             showIf(
                 !virtual,
                 <>
@@ -181,7 +169,7 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
                 </>
             )
         }
-        {
+            {
             showIf(
                 currencySelector,
                 <CurrencySelector
@@ -196,5 +184,6 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
                 />
             )
         }
-    </Box>
+        </Box>
+    )
 })

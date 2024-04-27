@@ -1,14 +1,13 @@
 import { DateTime } from 'luxon'
 
 import { HumanTimeSpan } from '../../helpers/dates'
-import { Point } from '../../widgets/plots/point'
 import { AccountsModel } from '../accounts'
 import { AppState } from '../appState'
 import { CurrenciesModel } from '../currencies'
 import { NotDeletedOperation } from '../model'
 import { Intervals, StatsReducer } from '../newStatsProcessor'
 import { OperationsModel } from '../operations'
-import { AccountStats } from './AccountStatsReducer'
+import { Point, TotalAndChangeStats } from './data'
 
 const appState = AppState.instance()
 const currenciesModel = CurrenciesModel.instance()
@@ -18,9 +17,9 @@ const operationsModel = OperationsModel.instance()
 export class AccountsStatsReducer extends StatsReducer {
     private startDate: DateTime
     private endDate: DateTime
-    readonly total: AccountStats
+    readonly total: TotalAndChangeStats
     readonly totalCurrency: string
-    readonly accounts: Record<string, AccountStats> = {}
+    readonly accounts: Record<string, TotalAndChangeStats> = {}
     private days: DateTime[] = []
     private sWeeks: DateTime[] = []
     private mWeeks: DateTime[] = []
@@ -149,7 +148,7 @@ export class AccountsStatsReducer extends StatsReducer {
         }
     }
 
-    private newAccountAmount(): AccountStats {
+    private newAccountAmount(): TotalAndChangeStats {
         const datesToPoints = (dates: DateTime[]): Point[] => dates.map((date) => { return { date, value: 0 } })
         return {
             last: 0,
@@ -165,22 +164,22 @@ export class AccountsStatsReducer extends StatsReducer {
     }
 }
 
-function addDay(amount: AccountStats, date: DateTime): void {
+function addDay(amount: TotalAndChangeStats, date: DateTime): void {
     amount.dayChange.push({ date, value: 0 })
     amount.dayTotal.push({ date, value: amount.last })
 }
 
-function addSweek(amount: AccountStats, date: DateTime): void {
+function addSweek(amount: TotalAndChangeStats, date: DateTime): void {
     amount.sWeekChange.push({ date, value: 0 })
     amount.sWeekTotal.push({ date, value: amount.last })
 }
 
-function addMweek(amount: AccountStats, date: DateTime): void {
+function addMweek(amount: TotalAndChangeStats, date: DateTime): void {
     amount.mWeekChange.push({ date, value: 0 })
     amount.mWeekTotal.push({ date, value: amount.last })
 }
 
-function addMonth(amount: AccountStats, date: DateTime): void {
+function addMonth(amount: TotalAndChangeStats, date: DateTime): void {
     amount.monthChange.push({ date, value: 0 })
     amount.monthTotal.push({ date, value: amount.last })
 }

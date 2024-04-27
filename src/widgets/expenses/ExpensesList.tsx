@@ -41,20 +41,9 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
             runAsync(async () => {
                 if (categories !== undefined) {
                     const stats = await calcStats(PE.any(), appState.timeSpan, appState.today, {
-                        totals: sumCatExpensesReducer(
-                            null,
-                            appState.totalGoalAmount === null ? appState.masterCurrency : appState.totalGoalCurrency,
-                            appState.uncategorizedGoalAmount === null ? appState.masterCurrency : appState.uncategorizedGoalCurrency
-                        ),
-                        today: perCatTodayExpensesReducer(
-                            appState.totalGoalAmount === null ? appState.masterCurrency : appState.totalGoalCurrency,
-                            appState.uncategorizedGoalAmount === null ? appState.masterCurrency : appState.uncategorizedGoalCurrency
-                        ),
-                        perDayExpenses: sumCatExpensesReducer(
-                            'day',
-                            appState.totalGoalAmount === null ? appState.masterCurrency : appState.totalGoalCurrency,
-                            appState.uncategorizedGoalAmount === null ? appState.masterCurrency : appState.uncategorizedGoalCurrency
-                        )
+                        totals: sumCatExpensesReducer(null),
+                        today: perCatTodayExpensesReducer(),
+                        perDayExpenses: sumCatExpensesReducer('day')
                     })
 
                     setStats({
@@ -88,10 +77,6 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
             categories,
             goals,
             appState.masterCurrency,
-            appState.totalGoalAmount,
-            appState.totalGoalCurrency,
-            appState.uncategorizedGoalAmount,
-            appState.uncategorizedGoalCurrency,
             appState.today,
             appState.timeSpanInfo,
             operationsModel.operations,
@@ -101,58 +86,66 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
     )
 
     if (stats === null) {
-        return <Box
+        return (
+            <Box
+                display={'flex'}
+                flexDirection={'column'}
+                gap={1}
+            >
+                {[1, 1, 1].map((_, i) => <ExpensesCardSkeleton key={i} />)}
+            </Box>
+        )
+    }
+
+    return (
+        <Box
             display={'flex'}
             flexDirection={'column'}
             gap={1}
-               >
-            {[1, 1, 1].map((_, i) => <ExpensesCardSkeleton key={i} />)}
-        </Box>
-    }
-
-    return <Box
-        display={'flex'}
-        flexDirection={'column'}
-        gap={1}
-           >
-        {
+        >
+            {
             categories === undefined
                 ? (goals ?? []).map((goal) => {
                         const url = `/goals/${encodeURIComponent(goal.name)}`
-                        return <ExpensesCard
-                            key={goal.name}
-                            url={url}
-                            name={
+                        return (
+                            <ExpensesCard
+                                key={goal.name}
+                                url={url}
+                                name={
                             match(goal.name)
                                 .with('_total', () => <Bold>{'Total'}</Bold>)
                                 .with('_', () => <Italic>{'Uncategorized'}</Italic>)
                                 .otherwise(v => v)
                         }
-                            totalAmount={stats.totals[goal.name]}
-                            todayAmount={stats.today[goal.name]}
-                            perDayGoal={goal.perDayAmount ?? null}
-                            perDayExpenses={stats.perDayExpenses.map(i => i[goal.name])}
-                            currency={goal.currency ?? appState.masterCurrency}
-                               />
+                                totalAmount={stats.totals[goal.name]}
+                                todayAmount={stats.today[goal.name]}
+                                perDayGoal={goal.perDayAmount ?? null}
+                                perDayExpenses={stats.perDayExpenses.map(i => i[goal.name])}
+                                currency={goal.currency ?? appState.masterCurrency}
+                            />
+                        )
                     })
                 : categories.map((cat) => {
                     const url = `/categories/${encodeURIComponent(cat.name)}`
-                    return <ExpensesCard
-                        key={cat.name}
-                        url={url}
-                        name={
+                    return (
+                        <ExpensesCard
+                            key={cat.name}
+                            url={url}
+                            name={
                             match(cat.name)
                                 .with('_total', () => <Bold>{'Total'}</Bold>)
                                 .with('_', () => <Italic>{'Uncategorized'}</Italic>)
                                 .otherwise(v => v)
                         }
-                        totalAmount={stats.totals[cat.name]}
-                        todayAmount={stats.today[cat.name]}
-                        perDayGoal={cat.perDayAmount ?? null}
-                        perDayExpenses={stats.perDayExpenses.map(i => i[cat.name])}
-                        currency={cat.currency ?? appState.masterCurrency}
-                           />
+                            totalAmount={stats.totals[cat.name]}
+                            todayAmount={stats.today[cat.name]}
+                            perDayGoal={cat.perDayAmount ?? null}
+                            perDayExpenses={stats.perDayExpenses.map(i => i[cat.name])}
+                            currency={cat.currency ?? appState.masterCurrency}
+                        />
+                    )
                 })
         }
-    </Box>
+        </Box>
+    )
 })

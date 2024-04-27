@@ -5,15 +5,15 @@ import { useNavigate } from 'react-router-dom'
 
 import { formatCurrency } from '../../helpers/currencies'
 import { AppState } from '../../model/appState'
-import { AccountStats } from '../../model/stats/AccountStatsReducer'
+import { TotalAndChangeStats } from '../../model/stats/data'
 import { DivBody1, DivBody2, SpanBody2 } from '../../widgets/generic/Typography'
-import { AccountSparklinePlot } from '../../widgets/plots/AccountSparklinePlot'
+import { SparklinePlot } from '../../widgets/plots/SparklinePlot'
 
 interface Props {
     total?: boolean
     name: string
     currency: string
-    stats: AccountStats
+    stats: TotalAndChangeStats
 }
 
 export const AccountCard = observer(function AccountCard({ total, name, currency, stats }: Props): ReactElement {
@@ -44,7 +44,7 @@ export const AccountCard = observer(function AccountCard({ total, name, currency
                         )
                     }
                     <Box mt={1}>
-                        <AccountSparklinePlot stats={stats} />
+                        <SparklinePlot stats={stats} />
                     </Box>
                 </Box>
             </Paper>

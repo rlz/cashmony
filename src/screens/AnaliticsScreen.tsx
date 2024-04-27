@@ -1,5 +1,3 @@
-import './CategoryScreen.scss'
-
 import { Box, Button, Stack, Tab, Tabs, TextField, Typography, useTheme } from '@mui/material'
 import color from 'color'
 import { observer } from 'mobx-react-lite'

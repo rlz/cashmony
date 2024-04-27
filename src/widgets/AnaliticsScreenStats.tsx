@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 import { AppState } from '../model/appState'
 import { calcStats2 } from '../model/newStatsProcessor'
-import { Predicate } from '../model/predicateExpression'
+import { EXPENSE_PREDICATE, INCOME_PREDICATE, Predicate } from '../model/predicateExpression'
 import { TotalAndChangeReducer } from '../model/stats/TotalAndChangeReducer'
 import { YearsComparisonReducer } from '../model/stats/YearsComparisonReducer'
 import { YMComparisonReducer } from '../model/stats/YMComparisonReducer'
@@ -17,7 +17,8 @@ interface Props {
 }
 
 interface Redusers {
-    main: TotalAndChangeReducer
+    expense: TotalAndChangeReducer
+    income: TotalAndChangeReducer
     ym: YMComparisonReducer
     years: YearsComparisonReducer
 }
@@ -29,8 +30,9 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
     useEffect(() => {
         void (
             async () => {
-                const reducers = {
-                    main: new TotalAndChangeReducer(appState.masterCurrency),
+                const reducers: Redusers = {
+                    expense: new TotalAndChangeReducer(EXPENSE_PREDICATE, appState.masterCurrency, true),
+                    income: new TotalAndChangeReducer(INCOME_PREDICATE, appState.masterCurrency),
                     ym: new YMComparisonReducer(appState.masterCurrency),
                     years: new YearsComparisonReducer(appState.masterCurrency)
                 }
@@ -50,14 +52,14 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
                             <TotalAndChangePlot
                                 title={'Expense'}
                                 expense
-                                stats={reducers.main.expense}
+                                stats={reducers.expense.stats}
                                 currency={appState.masterCurrency}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TotalAndChangePlot
                                 title={'Income'}
-                                stats={reducers.main.income}
+                                stats={reducers.income.stats}
                                 currency={appState.masterCurrency}
                             />
                         </Grid>

@@ -15,7 +15,8 @@ import { calcStats2 } from '../../model/newStatsProcessor'
 import { OperationsModel } from '../../model/operations'
 import { PE } from '../../model/predicateExpression'
 import { AccountsStatsReducer } from '../../model/stats/AccountsStatsReducer'
-import { AccountStats, AccountStatsReducer } from '../../model/stats/AccountStatsReducer'
+import { AccountStatsReducer } from '../../model/stats/AccountStatsReducer'
+import { TotalAndChangeStats } from '../../model/stats/data'
 import { FullScreenModal } from '../../widgets/FullScreenModal'
 import { Column } from '../../widgets/generic/Containers'
 import { OpsList } from '../../widgets/operations/OpsList'
@@ -41,7 +42,7 @@ export const AccountBody = observer(() => {
     })
 
     const [acc, setAcc] = useState<Account | null>(null)
-    const [stats, setStats] = useState<AccountStats | null>(null)
+    const [stats, setStats] = useState<TotalAndChangeStats | null>(null)
     const navigate = useNavigate()
 
     const [opModalTitle, setOpModalTitle] = useState('')
@@ -145,7 +146,6 @@ export const AccountBody = observer(() => {
                                 .with('modify', () => <AccountEditor acc={acc} setAcc={setAcc} />)
                                 .with('operations', () => (
                                     <OpsList
-                                        noFab
                                         onOpClick={(opId) => {
                                             navigate(`/accounts/${accName}/operations/${opId}`)
                                         }}

@@ -4,7 +4,7 @@ import Color from 'color'
 import { DateTime } from 'luxon'
 
 import { formatCurrency } from '../../helpers/currencies'
-import { TotalAndChangeStats } from '../../model/stats/TotalAndChangeReducer'
+import { TotalAndChangeStats } from '../../model/stats/data'
 import { PlotWidget } from './PlotUtils'
 
 interface Props {

@@ -2,7 +2,6 @@ import { Box, Paper, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
-import { match, P } from 'ts-pattern'
 
 import { formatCurrency } from '../../helpers/currencies'
 import { CustomTimeSpan, LastPeriodTimeSpan } from '../../helpers/dates'
@@ -14,8 +13,9 @@ import { type Predicate } from '../../model/predicateExpression'
 import { calcStats } from '../../model/stats'
 import { YMComparisonReducer } from '../../model/stats/YMComparisonReducer'
 import { cumulativeIntervalExpensesReducer, perIntervalExpensesReducer, periodExpensesReducer } from '../../model/statsReducers'
-import { DivBody2, Italic } from '../generic/Typography'
+import { DivBody2 } from '../generic/Typography'
 import { YMExpensesComparisonPlot } from '../plots/YMComparisonPlot'
+import { ExpensesInfoTable } from './ExpensesInfoTable'
 import { ExpensesBarsPlot, ExpensesTotalPlot } from './ExpensesPlots'
 
 interface Props {
@@ -119,25 +119,7 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
     return (
         <Box display={'flex'} flexDirection={'column'} gap={1} pb={1}>
             <DivBody2 mt={1} py={1}>
-                <table className={'stats'}>
-                    <tbody>
-                        <tr>
-                            <th>{'Period pace (30d):'}</th>
-                            <td>{match(periodPace).with(null, () => '-').otherwise(v => cur(-v))}</td>
-                        </tr>
-                        <tr>
-                            <th>{'Left per day:'}</th>
-                            <td>
-                                {
-                                    match(leftPerDay)
-                                        .with(null, () => '-')
-                                        .with(P.number.gt(0), v => cur(v))
-                                        .otherwise(() => <Italic variant={'body2'} color={'warning.main'}>{'overspend'}</Italic>)
-                                }
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <ExpensesInfoTable currency={currency} periodPace={periodPace} leftPerDay={leftPerDay} />
             </DivBody2>
             <Paper variant={'outlined'} sx={{ p: 1 }}>
                 <Typography variant={'h6'} textAlign={'center'}>
