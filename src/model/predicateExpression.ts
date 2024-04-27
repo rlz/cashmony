@@ -120,22 +120,22 @@ export function compilePredicate(predicate: Predicate): (op: NotDeletedOperation
             return op => op.currency === p.currency
         })
         .with({ type: 'amount', op: '=' }, (p) => {
-            return op => op.amount === p.value
+            return op => Math.abs(op.amount) === p.value
         })
         .with({ type: 'amount', op: '!=' }, (p) => {
-            return op => op.amount !== p.value
+            return op => Math.abs(op.amount) !== p.value
         })
         .with({ type: 'amount', op: '<' }, (p) => {
-            return op => op.amount < p.value
+            return op => Math.abs(op.amount) < p.value
         })
         .with({ type: 'amount', op: '>' }, (p) => {
-            return op => op.amount > p.value
+            return op => Math.abs(op.amount) > p.value
         })
         .with({ type: 'amount', op: '<=' }, (p) => {
-            return op => op.amount <= p.value
+            return op => Math.abs(op.amount) <= p.value
         })
         .with({ type: 'amount', op: '>=' }, (p) => {
-            return op => op.amount >= p.value
+            return op => Math.abs(op.amount) >= p.value
         })
         .with({ type: 'any' }, () => {
             return _op => true
