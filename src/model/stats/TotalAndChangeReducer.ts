@@ -19,7 +19,7 @@ export interface TotalAndChangeStats {
 
 const currenciesModel = CurrenciesModel.instance()
 
-export class MainChangeReducer extends StatsReducer {
+export class TotalAndChangeReducer extends StatsReducer {
     private currency: string
     totalExpense: number = 0
     totalIncome: number = 0

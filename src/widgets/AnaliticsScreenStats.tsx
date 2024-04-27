@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { AppState } from '../model/appState'
 import { calcStats2 } from '../model/newStatsProcessor'
 import { Predicate } from '../model/predicateExpression'
-import { MainChangeReducer } from '../model/stats/TotalAndChangeReducer'
+import { TotalAndChangeReducer } from '../model/stats/TotalAndChangeReducer'
 import { YearsComparisonReducer } from '../model/stats/YearsComparisonReducer'
 import { YMComparisonReducer } from '../model/stats/YMComparisonReducer'
 import { TotalAndChangePlot } from './plots/TotalAndChangePlot'
@@ -17,7 +17,7 @@ interface Props {
 }
 
 interface Redusers {
-    main: MainChangeReducer
+    main: TotalAndChangeReducer
     ym: YMComparisonReducer
     years: YearsComparisonReducer
 }
@@ -30,7 +30,7 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
         void (
             async () => {
                 const reducers = {
-                    main: new MainChangeReducer(appState.masterCurrency),
+                    main: new TotalAndChangeReducer(appState.masterCurrency),
                     ym: new YMComparisonReducer(appState.masterCurrency),
                     years: new YearsComparisonReducer(appState.masterCurrency)
                 }
