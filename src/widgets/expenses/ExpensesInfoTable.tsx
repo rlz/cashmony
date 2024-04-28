@@ -28,7 +28,7 @@ export function ExpensesInfoTable({ currency, periodPace, perDayGoal, leftPerDay
             <tbody>
                 <tr>
                     <th>{'Period pace (30d):'}</th>
-                    <td>{match(periodPace).with(null, () => '-').otherwise(v => formatCurrency(-v, currency))}</td>
+                    <td>{match(periodPace).with(null, () => '-').otherwise(v => formatCurrency(v, currency))}</td>
                 </tr>
                 {
                     perDayGoal !== undefined

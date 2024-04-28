@@ -10,7 +10,7 @@ interface Props {
     stats: TotalAndChangeStats
 }
 
-export function SparklinePlot({ stats }: Props): JSX.Element {
+export function AccountSparklinePlot({ stats }: Props): JSX.Element {
     const appState = AppState.instance()
     const theme = useTheme()
     const { width, ref } = useResizeDetector()
@@ -90,7 +90,9 @@ export function SparklinePlot({ stats }: Props): JSX.Element {
                         <rect
                             key={p.date.toISO()}
                             fill={
-                                p.value < 0 ? theme.palette.error.main : theme.palette.success.main
+                                p.value < 0
+                                    ? theme.palette.error.main
+                                    : theme.palette.success.main
                             }
                             x={x2(p.date.toMillis())}
                             width={rectWidth}

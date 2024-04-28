@@ -2,21 +2,19 @@ import { Box, Paper, Skeleton, type SxProps } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { match } from 'ts-pattern'
 
 import { formatCurrency } from '../../helpers/currencies'
 import { AppState } from '../../model/appState'
+import { TotalAndChangeStats } from '../../model/stats/data'
 import { DivBody2, SpanBody1 } from '../generic/Typography'
+import { ExpenseSparklinePlot } from '../plots/ExpenseSparklinePlot'
 import { ExpensesInfoTable } from './ExpensesInfoTable'
-import { ExpensesBarsPlot } from './ExpensesPlots'
 
 interface Props {
     url: string
     name: string | ReactElement
-    totalAmount: number
-    todayAmount: number
     perDayGoal: number | null
-    perDayExpenses: number[]
+    stats: TotalAndChangeStats
     currency: string
     sx?: SxProps
 }
@@ -29,14 +27,15 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
     const timeSpan = appState.timeSpan
     const daysLeft = appState.daysLeft
     const totalDays = timeSpan.totalDays
+    const todayAmount = props.stats.dayChange.find(i => i.date.toMillis() === appState.today.toMillis())?.value ?? 0
 
-    const leftPerDay = props.perDayGoal === null || daysLeft === 0
+    const leftPerDay = props.perDayGoal === null || daysLeft === 0 || todayAmount === undefined
         ? null
-        : (props.perDayGoal * totalDays + props.totalAmount - props.todayAmount) / daysLeft
+        : (props.perDayGoal * totalDays - props.stats.last + todayAmount) / daysLeft
 
-    const periodPace = totalDays - daysLeft === 0
+    const perDay = totalDays - daysLeft === 0
         ? null
-        : (props.totalAmount - props.todayAmount) * 30 / (totalDays - daysLeft)
+        : (props.stats.last - todayAmount) / (totalDays - daysLeft)
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, props.currency, compact)
 
@@ -52,23 +51,23 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                                 flex={'1 1 0'}
                                 textAlign={'right'}
                             >
-                                {cur(match(props.totalAmount).with(0, v => v).otherwise(v => -v))}
+                                {cur(props.stats.last)}
                             </SpanBody1>
                         </Box>
                         <DivBody2 my={1}>
                             <ExpensesInfoTable
                                 currency={props.currency}
-                                periodPace={periodPace}
+                                periodPace={perDay === null ? null : perDay * 30}
                                 perDayGoal={props.perDayGoal}
                                 leftPerDay={leftPerDay}
                             />
                         </DivBody2>
-                        <ExpensesBarsPlot
-                            currency={props.currency}
-                            sparkline
-                            perDayPace={periodPace === null ? null : periodPace / 30}
+                        <ExpenseSparklinePlot
+                            stats={props.stats}
+                            perDay={perDay}
                             leftPerDay={leftPerDay}
-                            perDayExpenses={props.perDayExpenses}
+                            daysLeft={daysLeft}
+                            perDayGoal={props.perDayGoal}
                         />
                     </Box>
                 </Paper>

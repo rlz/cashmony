@@ -7,7 +7,7 @@ import { formatCurrency } from '../../helpers/currencies'
 import { AppState } from '../../model/appState'
 import { TotalAndChangeStats } from '../../model/stats/data'
 import { DivBody1, DivBody2, SpanBody2 } from '../../widgets/generic/Typography'
-import { SparklinePlot } from '../../widgets/plots/SparklinePlot'
+import { AccountSparklinePlot } from '../../widgets/plots/AccountSparklinePlot'
 
 interface Props {
     total?: boolean
@@ -44,7 +44,7 @@ export const AccountCard = observer(function AccountCard({ total, name, currency
                         )
                     }
                     <Box mt={1}>
-                        <SparklinePlot stats={stats} />
+                        <AccountSparklinePlot stats={stats} />
                     </Box>
                 </Box>
             </Paper>

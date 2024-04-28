@@ -1,18 +1,17 @@
 import { Box } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
-import { match } from 'ts-pattern'
 
 import { runAsync } from '../../helpers/smallTools'
 import { AppState } from '../../model/appState'
 import { CategoriesModel } from '../../model/categories'
 import { GoalsModel } from '../../model/goals'
 import { type Category, type ExpensesGoal } from '../../model/model'
+import { calcStats2 } from '../../model/newStatsProcessor'
 import { OperationsModel } from '../../model/operations'
-import { PE } from '../../model/predicateExpression'
-import { calcStats } from '../../model/stats'
-import { perCatTodayExpensesReducer, perPredicatePerIntervalSumExpenses, perPredicateTodaySumExpenses, type PredicateWithCurrency, sumCatExpensesReducer } from '../../model/statsReducers'
-import { Bold, Italic } from '../generic/Typography'
+import { EXPENSE_PREDICATE, PE } from '../../model/predicateExpression'
+import { TotalAndChangeStats } from '../../model/stats/data'
+import { TotalAndChangeReducer } from '../../model/stats/TotalAndChangeReducer'
 import { ExpensesCard, ExpensesCardSkeleton } from './ExpensesCard'
 
 interface ExpensesListProps {
@@ -26,7 +25,7 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
     const categoriesModel = CategoriesModel.instance()
     const goalsModel = GoalsModel.instance()
 
-    const [stats, setStats] = useState<{ totals: Record<string, number>, today: Record<string, number>, perDayExpenses: Array<Record<string, number>> } | null>(null)
+    const [stats, setStats] = useState<Record<string, TotalAndChangeStats> | null>(null)
 
     useEffect(
         () => {
@@ -39,38 +38,27 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
             }
 
             runAsync(async () => {
-                if (categories !== undefined) {
-                    const stats = await calcStats(PE.any(), appState.timeSpan, appState.today, {
-                        totals: sumCatExpensesReducer(null),
-                        today: perCatTodayExpensesReducer(),
-                        perDayExpenses: sumCatExpensesReducer('day')
-                    })
+                const reducers = categories !== undefined
+                    ? Object.fromEntries(
+                        categories.map(c => [
+                            c.name,
+                            new TotalAndChangeReducer(PE.cat(c.name), c.currency ?? appState.masterCurrency, true)
+                        ])
+                    )
+                    : Object.fromEntries(
+                        (goals ?? []).map(g => [
+                            g.name,
+                            new TotalAndChangeReducer(PE.and(EXPENSE_PREDICATE, PE.filter(g.filter)), g.currency, true)
+                        ])
+                    )
+                await calcStats2(
+                    PE.any(),
+                    appState.timeSpan,
+                    appState.today,
+                    Object.values(reducers)
+                )
 
-                    setStats({
-                        totals: stats.totals[0],
-                        today: stats.today[0],
-                        perDayExpenses: stats.perDayExpenses
-                    })
-                }
-
-                if (goals !== undefined) {
-                    const predicatesWithCurrency: Record<string, PredicateWithCurrency> = {}
-                    goals.forEach((i) => {
-                        predicatesWithCurrency[i.name] = { currency: i.currency, predicate: PE.filter(i.filter) }
-                    })
-
-                    const stats = await calcStats(PE.any(), appState.timeSpan, appState.today, {
-                        totals: perPredicatePerIntervalSumExpenses(null, predicatesWithCurrency),
-                        perDayExpenses: perPredicatePerIntervalSumExpenses('day', predicatesWithCurrency),
-                        today: perPredicateTodaySumExpenses(predicatesWithCurrency)
-                    })
-
-                    setStats({
-                        totals: stats.totals[0],
-                        today: stats.today[0],
-                        perDayExpenses: stats.perDayExpenses
-                    })
-                }
+                setStats(Object.fromEntries(Object.entries(reducers).map(([n, r]) => [n, r.stats])))
             })
         },
         [
@@ -111,16 +99,9 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
                             <ExpensesCard
                                 key={goal.name}
                                 url={url}
-                                name={
-                            match(goal.name)
-                                .with('_total', () => <Bold>{'Total'}</Bold>)
-                                .with('_', () => <Italic>{'Uncategorized'}</Italic>)
-                                .otherwise(v => v)
-                        }
-                                totalAmount={stats.totals[goal.name]}
-                                todayAmount={stats.today[goal.name]}
-                                perDayGoal={goal.perDayAmount ?? null}
-                                perDayExpenses={stats.perDayExpenses.map(i => i[goal.name])}
+                                name={goal.name}
+                                perDayGoal={goal.perDayAmount}
+                                stats={stats[goal.name]}
                                 currency={goal.currency ?? appState.masterCurrency}
                             />
                         )
@@ -131,16 +112,9 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
                         <ExpensesCard
                             key={cat.name}
                             url={url}
-                            name={
-                            match(cat.name)
-                                .with('_total', () => <Bold>{'Total'}</Bold>)
-                                .with('_', () => <Italic>{'Uncategorized'}</Italic>)
-                                .otherwise(v => v)
-                        }
-                            totalAmount={stats.totals[cat.name]}
-                            todayAmount={stats.today[cat.name]}
+                            name={cat.name}
                             perDayGoal={cat.perDayAmount ?? null}
-                            perDayExpenses={stats.perDayExpenses.map(i => i[cat.name])}
+                            stats={stats[cat.name]}
                             currency={cat.currency ?? appState.masterCurrency}
                         />
                     )
