@@ -31,7 +31,7 @@ export function AccountScreen(): ReactElement {
                 !smallScreen
                     ? (
                         <PanelGroup direction={'horizontal'}>
-                            <Panel>
+                            <Panel id={'list'} order={1}>
                                 <AccountsBody noFab={accSelected} />
                             </Panel>
                             {
@@ -39,7 +39,7 @@ export function AccountScreen(): ReactElement {
                                     return (
                                         <>
                                             <ResizeHandle />
-                                            <Panel>
+                                            <Panel id={'single'} order={2}>
                                                 <AccountBody />
                                             </Panel>
                                         </>

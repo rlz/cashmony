@@ -54,7 +54,7 @@ export function CategoryScreen(): ReactElement {
                     )
                 : (
                     <PanelGroup direction={'horizontal'}>
-                        <Panel>
+                        <Panel id={'list'} order={1}>
                             <CategoriesScreenBody noFab={!noCatSelected} />
                         </Panel>
                         {
@@ -62,7 +62,7 @@ export function CategoryScreen(): ReactElement {
                                 return (
                                     <>
                                         <ResizeHandle />
-                                        <Panel>
+                                        <Panel id={'single'} order={2}>
                                             <CategoryScreenBody />
                                         </Panel>
                                     </>

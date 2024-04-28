@@ -68,7 +68,7 @@ export function OperationScreen(): ReactElement {
             !smallScreen
                 ? (
                     <PanelGroup direction={'horizontal'}>
-                        <Panel>
+                        <Panel id={'list'} order={1}>
                             <Box height={'100%'} overflow={'auto'}>
                                 <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
                                     <OpsList />
@@ -81,7 +81,7 @@ export function OperationScreen(): ReactElement {
                         showIfLazy(opId !== '', () => (
                             <>
                                 <ResizeHandle />
-                                <Panel>
+                                <Panel id={'single'} order={2}>
                                     <Box p={1} overflow={'auto'} height={'100%'}>
                                         <OperationScreenBody urlOpId={opId} />
                                     </Box>

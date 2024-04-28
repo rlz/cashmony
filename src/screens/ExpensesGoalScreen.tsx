@@ -66,7 +66,7 @@ export function ExpensesGoalScreen(): ReactElement {
                     )
                 : (
                     <PanelGroup direction={'horizontal'}>
-                        <Panel>
+                        <Panel id={'list'} order={1}>
                             <ExpensesGoalsScreenBody noFab={params.goalName !== undefined} />
                         </Panel>
                         {
@@ -74,7 +74,7 @@ export function ExpensesGoalScreen(): ReactElement {
                             return (
                                 <>
                                     <ResizeHandle />
-                                    <Panel>
+                                    <Panel id={'single'} order={2}>
                                         <ExpensesGoalScreenBody />
                                     </Panel>
                                 </>
