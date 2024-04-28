@@ -9,7 +9,7 @@ import { ParseError, parseFilterQuery } from '../model/filterExpressionParser/pa
 import { NotDeletedOperation } from '../model/model'
 import { calcStats2, StatsReducer } from '../model/newStatsProcessor'
 import { OperationsModel } from '../model/operations'
-import { PE, Predicate } from '../model/predicateExpression'
+import { isExpense, isIncome, PE, Predicate } from '../model/predicateExpression'
 import { AnaliticsScreenStats } from '../widgets/AnaliticsScreenStats'
 import { FullScreenModal } from '../widgets/FullScreenModal'
 import { MainScreen } from '../widgets/mainScreen/MainScreen'
@@ -25,7 +25,7 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
     const navigate = useNavigate()
     const [filter, setFilter] = useState('')
     const [predicate, setPredicate] = useState<Predicate>(PE.any())
-    const [count, setCount] = useState(0)
+    const [stats, setStats] = useState<Stats | null>(null)
     const [error, setError] = useState<ParseError | null>(null)
 
     const tab: 'stats' | 'ops' = location.pathname.startsWith('/analitics/stats')
@@ -60,7 +60,7 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
         void (async () => {
             const s = new Stats(appState.masterCurrency)
             await calcStats2(predicate, appState.timeSpan, appState.today, [s])
-            setCount(s.count)
+            setStats(s)
         })()
     }, [predicate, appState.timeSpan, appState.today, appState.masterCurrency])
 
@@ -111,7 +111,13 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                         )
                     }
                     {
-                        <Typography variant={'body2'}>{`Found: ${count} ops`}</Typography>
+                        <Box>
+                            <Typography component={'span'} variant={'body2'}>{`${stats?.all ?? 0} ops: `}</Typography>
+                            <Typography component={'span'} variant={'body2'}>{`${stats?.expense ?? 0} expense (${stats?.return} return), `}</Typography>
+                            <Typography component={'span'} variant={'body2'}>{`${stats?.income ?? 0} income, `}</Typography>
+                            <Typography component={'span'} variant={'body2'}>{`${stats?.transfer ?? 0} transfer, `}</Typography>
+                            <Typography component={'span'} variant={'body2'}>{`${stats?.adjustment ?? 0} adjustment`}</Typography>
+                        </Box>
                     }
                     <Tabs value={tab} onChange={(_, t) => navigate(t === 'stats' ? '/analitics/stats' : '/analitics')}>
                         <Tab value={'ops'} label={'Operations'} />
@@ -153,7 +159,13 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
 })
 
 class Stats extends StatsReducer {
-    count: number = 0
+    all = 0
+    expense = 0
+    return = 0
+    income = 0
+    transfer = 0
+    adjustment = 0
+
     private readonly currency: string
 
     constructor(currency: string) {
@@ -161,7 +173,28 @@ class Stats extends StatsReducer {
         this.currency = currency
     }
 
-    async process(_op: NotDeletedOperation): Promise<void> {
-        this.count += 1
+    async process(op: NotDeletedOperation): Promise<void> {
+        this.all++
+        if (isExpense(op)) {
+            this.expense++
+            if (op.type === 'income') {
+                this.return++
+            }
+        } else if (isIncome(op)) {
+            this.income++
+        } else if (op.type === 'transfer') {
+            this.transfer++
+        } else if (op.type === 'adjustment') {
+            this.adjustment++
+        }
+    }
+
+    async done(): Promise<void> {
+        if (this.all !== this.expense + this.income + this.transfer + this.adjustment) {
+            throw Error('Wrong assertion at ops count calculations (sum)')
+        }
+        if (this.return > this.expense) {
+            throw Error('Wrong assertion at ops count calculations (return)')
+        }
     }
 }
