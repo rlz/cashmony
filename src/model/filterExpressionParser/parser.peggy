@@ -73,6 +73,9 @@ singleFilter
     / "transfer" {
         return PE.type('transfer')
     }
+    / "adjustment" {
+        return PE.type('adjustment')
+    }
     / "comment:" s:(identifier / string) {
         return PE.comment(s)
     }
