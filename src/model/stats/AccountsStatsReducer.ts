@@ -15,6 +15,7 @@ const accountsModel = AccountsModel.instance()
 const operationsModel = OperationsModel.instance()
 
 export class AccountsStatsReducer extends StatsReducer {
+    private timeSpan: HumanTimeSpan
     private startDate: DateTime
     private endDate: DateTime
     readonly total: TotalAndChangeStats
@@ -27,6 +28,7 @@ export class AccountsStatsReducer extends StatsReducer {
 
     constructor(timeSpan: HumanTimeSpan, totalCurrency: string) {
         super()
+        this.timeSpan = timeSpan
         this.startDate = timeSpan.startDate
         this.endDate = timeSpan.endDate
         this.total = this.newAccountAmount()
@@ -151,6 +153,7 @@ export class AccountsStatsReducer extends StatsReducer {
     private newAccountAmount(): TotalAndChangeStats {
         const datesToPoints = (dates: DateTime[]): Point[] => dates.map((date) => { return { date, value: 0 } })
         return {
+            timeSpan: this.timeSpan,
             last: 0,
             dayChange: datesToPoints(this.days),
             sWeekChange: datesToPoints(this.sWeeks),

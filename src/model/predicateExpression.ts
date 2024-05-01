@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import escapeStringRegexp from 'escape-string-regexp'
 import { match, P } from 'ts-pattern'
 
 import { type Filter } from './filter'
@@ -104,7 +104,7 @@ export function compilePredicate(predicate: Predicate): (op: NotDeletedOperation
             return op => (op.type === 'expense' || op.type === 'income') && op.categories.some(i => i.name === p.name)
         })
         .with({ type: 'comment' }, (p) => {
-            const re = new RegExp(_.escapeRegExp(p.search), 'i')
+            const re = new RegExp(escapeStringRegexp(p.search), 'i')
             return op => re.test(op.comment ?? '')
         })
         .with({ type: 'uncategorized' }, (_p) => {

@@ -30,13 +30,14 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
     useEffect(() => {
         void (
             async () => {
+                const ts = appState.timeSpan
                 const reducers: Redusers = {
-                    expense: new TotalAndChangeReducer(EXPENSE_PREDICATE, appState.masterCurrency, true),
-                    income: new TotalAndChangeReducer(INCOME_PREDICATE, appState.masterCurrency),
+                    expense: new TotalAndChangeReducer(ts, EXPENSE_PREDICATE, appState.masterCurrency, true),
+                    income: new TotalAndChangeReducer(ts, INCOME_PREDICATE, appState.masterCurrency),
                     ym: new YMComparisonReducer(appState.masterCurrency),
                     years: new YearsComparisonReducer(appState.masterCurrency)
                 }
-                await calcStats2(predicate, appState.timeSpan, appState.today, Object.values(reducers))
+                await calcStats2(predicate, ts, appState.today, Object.values(reducers))
                 setReducers(reducers)
             }
         )()

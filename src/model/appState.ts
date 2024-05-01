@@ -165,14 +165,6 @@ export class AppState {
         return new CustomTimeSpan(makeDate(this.timeSpanInfo.from), makeDate(this.timeSpanInfo.to))
     }
 
-    get daysLeft(): number {
-        const timeSpan = this.timeSpan
-        const today = this.today
-        if (timeSpan.endDate < today) return 0
-
-        return timeSpan.endDate.diff(today, 'days').days + 1
-    }
-
     static instance(): AppState {
         if (appState === null) {
             appState = new AppState()

@@ -62,7 +62,7 @@ export const ExpensesBarsPlot = observer((props: AmountBarsCatPlotProps): ReactE
                 })
             }
 
-            const daysLeft = appState.daysLeft
+            const daysLeft = appState.timeSpan.daysLeft(appState.today)
             if (daysLeft > 0 && props.leftPerDay !== null) {
                 const leftPerDay = Math.max(props.leftPerDay, 0)
                 series.push({
@@ -88,16 +88,18 @@ export const ExpensesBarsPlot = observer((props: AmountBarsCatPlotProps): ReactE
         ]
     )
 
-    return <Plot
-        elevation={props.sparkline === true ? 0 : 2}
-        showAxes={props.sparkline !== true}
-        currency={props.currency}
-        height={props.sparkline === true ? 50 : 150}
-        xvalues={series.xvalues}
-        series={series.series}
-        title={props.sparkline === true ? undefined : 'Daily Amount'}
-        p={props.sparkline === true ? 0 : 1}
-           />
+    return (
+        <Plot
+            elevation={props.sparkline === true ? 0 : 2}
+            showAxes={props.sparkline !== true}
+            currency={props.currency}
+            height={props.sparkline === true ? 50 : 150}
+            xvalues={series.xvalues}
+            series={series.series}
+            title={props.sparkline === true ? undefined : 'Daily Amount'}
+            p={props.sparkline === true ? 0 : 1}
+        />
+    )
 })
 
 interface TotalCatPlotProps {
@@ -129,8 +131,9 @@ export const ExpensesTotalPlot = observer((props: TotalCatPlotProps): ReactEleme
                     points: totalExpensesByDates
                 }]
 
-                if (appState.daysLeft > 0) {
-                    const daysPass = appState.timeSpan.totalDays - appState.daysLeft + 1
+                const daysLeft = appState.timeSpan.daysLeft(appState.today)
+                if (daysLeft > 0) {
+                    const daysPass = appState.timeSpan.totalDays - daysLeft + 1
                     const periodTotal = -props.expenses[props.expenses.length - 1]
 
                     series.push({
@@ -169,14 +172,16 @@ export const ExpensesTotalPlot = observer((props: TotalCatPlotProps): ReactEleme
         ]
     )
 
-    return <Plot
-        elevation={2}
-        showAxes={true}
-        currency={props.currency}
-        height={250}
-        xvalues={allDates}
-        series={series}
-        title={'Total Amount'}
-        p={1}
-           />
+    return (
+        <Plot
+            elevation={2}
+            showAxes={true}
+            currency={props.currency}
+            height={250}
+            xvalues={allDates}
+            series={series}
+            title={'Total Amount'}
+            p={1}
+        />
+    )
 })

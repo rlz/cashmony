@@ -17,6 +17,7 @@ export class AccountStatsReducer extends StatsReducer {
         this.startDate = timeSpan.startDate
         this.endDate = timeSpan.endDate
         this.stats = {
+            timeSpan,
             last: 0,
             dayChange: [],
             sWeekChange: [],

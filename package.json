@@ -17,6 +17,7 @@
         "color": "^4.2.3",
         "embla-carousel-react": "^8.0.0-rc07",
         "embla-carousel-wheel-gestures": "^8.0.0-rc04",
+        "escape-string-regexp": "^5.0.0",
         "idb": "^8.0.0",
         "iterator-helpers-polyfill": "^3.0.1",
         "luxon": "^3.3.0",

@@ -24,8 +24,8 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
 
     const navigate = useNavigate()
 
-    const timeSpan = appState.timeSpan
-    const daysLeft = appState.daysLeft
+    const timeSpan = props.stats.timeSpan
+    const daysLeft = timeSpan.daysLeft(appState.today)
     const totalDays = timeSpan.totalDays
     const todayAmount = props.stats.dayChange.find(i => i.date.toMillis() === appState.today.toMillis())?.value ?? 0
 

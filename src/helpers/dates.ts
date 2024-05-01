@@ -57,6 +57,14 @@ export abstract class HumanTimeSpan {
     get totalDays(): number {
         return this.endDate.diff(this.startDate, 'days').days + 1
     }
+
+    daysLeft(today: DateTime): number {
+        if (this.endDate < today) return 0
+
+        if (this.startDate > today) return this.totalDays
+
+        return this.endDate.diff(today, 'days').days + 1
+    }
 }
 
 export class ThisMonthTimeSpan extends HumanTimeSpan {

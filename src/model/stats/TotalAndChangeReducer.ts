@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 
+import { HumanTimeSpan } from '../../helpers/dates'
 import { CurrenciesModel } from '../currencies'
 import { NotDeletedOperation } from '../model'
 import { Intervals, StatsReducer } from '../newStatsProcessor'
@@ -14,12 +15,13 @@ export class TotalAndChangeReducer extends StatsReducer {
     private multiplier: 1 | -1
     readonly stats: TotalAndChangeStats
 
-    constructor(predicate: Predicate, currency: string, reverse?: boolean) {
+    constructor(timeSpan: HumanTimeSpan, predicate: Predicate, currency: string, reverse?: boolean) {
         super()
         this.predicate = compilePredicate(predicate)
         this.currency = currency
         this.multiplier = reverse ? -1 : 1
         this.stats = {
+            timeSpan,
             last: 0,
             dayChange: [],
             sWeekChange: [],

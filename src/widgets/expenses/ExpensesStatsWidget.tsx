@@ -105,7 +105,7 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
     }
 
     const timeSpan = appState.timeSpan
-    const daysLeft = appState.daysLeft
+    const daysLeft = timeSpan.daysLeft(appState.today)
     const totalDays = timeSpan.totalDays
 
     const leftPerDay = perDayGoal === null || daysLeft === 0
