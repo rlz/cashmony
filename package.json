@@ -41,8 +41,6 @@
         "start": "vite",
         "build": "vite build",
         "preview": "vite preview",
-        "load-currencies-oanda": "tsx ./utils/load-currencies-oanda.ts",
-        "load-currencies-yahoo": "tsx ./utils/load-currencies-yahoo.ts",
         "test": "jest",
         "test-coverage": "jest --coverage",
         "parser": "peggy -o src/model/filterExpressionParser/parser.gen.js --format es src/model/filterExpressionParser/parser.peggy"
