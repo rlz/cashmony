@@ -1,7 +1,7 @@
 import { Box, Button, Stack, Tab, Tabs, TextField, Typography, useTheme } from '@mui/material'
 import color from 'color'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useEffect, useState } from 'react'
+import React, { type ReactElement, useCallback, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { AppState } from '../model/appState'
@@ -63,6 +63,8 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
             setStats(s)
         })()
     }, [predicate, appState.timeSpan, appState.today, appState.masterCurrency])
+
+    const onOpClick = useCallback((opId: string) => navigate(`/analitics/op/${opId}`), [])
 
     if (operationsModel.operations === null) {
         return <Box>{'Loading...'}</Box>
@@ -131,7 +133,7 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                             <OpsList
                                 predicate={predicate}
                                 timeSpan={appState.timeSpan}
-                                onOpClick={opId => navigate(`/analitics/op/${opId}`)}
+                                onOpClick={onOpClick}
                             />
                         )
                     }
