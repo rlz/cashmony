@@ -6,14 +6,18 @@ import tsEslint from 'typescript-eslint'
 export default [
     {
         files: [
-            'src/**/*.ts?(x)',
-            'utils/**/*.ts?(x)',
+            '(api|common|engine|front|google|localstorage))/**/*.ts?(x)',
             '*.js'
         ],
         languageOptions: {
             parser,
-            parserOptions: { project: './tsconfig.json' }
+            parserOptions: { project: 'tsconfig.json' }
         }
+    },
+    {
+        ignores: [
+            'engine/filterExpressionParser/parser.gen.js'
+        ]
     },
     ...tsEslint.configs.recommended,
     stylistic.configs.customize({
@@ -27,11 +31,7 @@ export default [
         rules: {
             '@stylistic/brace-style': ['error', '1tbs', { allowSingleLine: true }],
             '@stylistic/jsx-curly-brace-presence': ['error', 'always'],
-            // '@stylistic/jsx-wrap-multilines': 'off',
-            // '@stylistic/jsx-closing-tag-location': 'off',
             '@stylistic/max-statements-per-line': ['error', { max: 2 }]
-            // '@stylistic/jsx-closing-bracket-location': 'off'
-            // '@stylistic/jsx-indent': 'off'
         }
     },
     {
@@ -43,6 +43,10 @@ export default [
         }
     },
     {
+        languageOptions: {
+            parser,
+            parserOptions: { project: 'tsconfig.json' }
+        },
         rules: {
             '@typescript-eslint/no-floating-promises': 'error',
             '@typescript-eslint/no-unused-vars': [

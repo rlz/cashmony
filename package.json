@@ -33,7 +33,7 @@
         "ts-pattern": "^5.0.1",
         "uplot": "^1.6.24",
         "uplot-react": "^1.1.4",
-        "uuid": "^9.0.0",
+        "uuidv7": "^1.0.0",
         "web-vitals": "^3.3.1",
         "zod": "^3.21.4"
     },
@@ -43,7 +43,7 @@
         "preview": "vite preview",
         "test": "jest",
         "test-coverage": "jest --coverage",
-        "parser": "peggy -o src/model/filterExpressionParser/parser.gen.js --format es src/model/filterExpressionParser/parser.peggy"
+        "parser": "peggy -o engine/filterExpressionParser/parser.gen.js --format es engine/filterExpressionParser/parser.peggy"
     },
     "browserslist": {
         "production": [
