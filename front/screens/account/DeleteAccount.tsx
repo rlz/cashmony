@@ -74,7 +74,8 @@ async function deleteAccount(accId: string, engine: Engine): Promise<void> {
     const ops: DeletedOperation[] = [...listOperations(engine, PE.account(accId), null)].map((op) => {
         return {
             id: op.id,
-            type: 'deleted'
+            type: 'deleted',
+            lastModified: DateTime.utc()
         }
     })
     engine.pushOperations(ops)

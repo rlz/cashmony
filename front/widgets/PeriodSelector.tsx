@@ -10,12 +10,12 @@ import Calendar from 'react-calendar'
 import { utcDate } from '../../engine/dates'
 import { showIf } from '../helpers/smallTools'
 import { screenWidthIs } from '../helpers/useWidth'
-import { useAppState } from '../model/AppState'
+import { useFrontState } from '../model/FrontState'
 import { FullScreenModal } from './FullScreenModal'
 import { Row } from './generic/Containers'
 
 export const PeriodSelector = observer((): ReactElement => {
-    const appState = useAppState()
+    const appState = useFrontState()
 
     const [showSelector, setShowSelector] = useState<'month' | 'year' | 'custom' | 'lastDays' | 'lastMonth' | null>(null)
 
@@ -181,7 +181,7 @@ interface MonthSelectorProps {
 }
 
 function MonthSelector(props: MonthSelectorProps): ReactElement {
-    const appState = useAppState()
+    const appState = useFrontState()
 
     const today = appState.today
 
@@ -208,7 +208,7 @@ interface YearSelectorProps {
 }
 
 function YearSelector(props: YearSelectorProps): ReactElement {
-    const appState = useAppState()
+    const appState = useFrontState()
 
     const today = appState.today
 
@@ -235,7 +235,7 @@ interface CustomSelectorProps {
 }
 
 function CustomSelector(props: CustomSelectorProps): ReactElement {
-    const appState = useAppState()
+    const appState = useFrontState()
 
     const today = appState.today
     const [period, setPeriod] = useState<[DateTime, DateTime] | null>(null)

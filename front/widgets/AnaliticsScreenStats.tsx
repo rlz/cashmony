@@ -7,7 +7,7 @@ import { calcStats2 } from '../../engine/stats/newStatsProcessor'
 import { TotalAndChangeReducer } from '../../engine/stats/TotalAndChangeReducer'
 import { YearsComparisonReducer } from '../../engine/stats/YearsComparisonReducer'
 import { YMComparisonReducer } from '../../engine/stats/YMComparisonReducer'
-import { useAppState } from '../model/AppState'
+import { useFrontState } from '../model/FrontState'
 import { useCurrenciesLoader } from '../useCurrenciesLoader'
 import { useEngine } from '../useEngine'
 import { TotalAndChangePlot } from './plots/TotalAndChangePlot'
@@ -28,7 +28,7 @@ interface Redusers {
 export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ predicate }: Props): JSX.Element {
     const engine = useEngine()
     const currenciesLoader = useCurrenciesLoader()
-    const appState = useAppState()
+    const appState = useFrontState()
     const [reducers, setReducers] = useState<Redusers | null>(null)
 
     useEffect(() => {

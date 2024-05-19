@@ -13,7 +13,7 @@ import { Engine } from '../engine/engine'
 import { CashmonyLocalStorage } from '../localstorage/CashmonyLocalStorage'
 import { App } from './App'
 import { nonNull } from './helpers/smallTools'
-import { AppState, AppStateProvider } from './model/AppState'
+import { FrontState, FrontStateProvider } from './model/FrontState'
 import reportWebVitals from './reportWebVitals'
 import { CurrenciesLoaderProvider } from './useCurrenciesLoader'
 import { EngineProvider } from './useEngine'
@@ -49,7 +49,7 @@ const lightTheme = createTheme({
 
 const RootNode = observer((): ReactElement => {
     const engine = useMemo(() => new Engine(), [])
-    const appState = useMemo(() => new AppState(engine), [])
+    const appState = useMemo(() => new FrontState(engine), [])
     const currenciesLoader = new CurrenciesLoader()
 
     useEffect(() => {
@@ -68,7 +68,7 @@ const RootNode = observer((): ReactElement => {
     return (
         <React.StrictMode>
             <EngineProvider value={engine}>
-                <AppStateProvider value={appState}>
+                <FrontStateProvider value={appState}>
                     <CurrenciesLoaderProvider value={currenciesLoader}>
                         <ThemeProvider theme={match(theme).with('light', () => lightTheme).otherwise(() => darkTheme)}>
                             <CssBaseline />
@@ -77,7 +77,7 @@ const RootNode = observer((): ReactElement => {
                             </Typography>
                         </ThemeProvider>
                     </CurrenciesLoaderProvider>
-                </AppStateProvider>
+                </FrontStateProvider>
             </EngineProvider>
         </React.StrictMode>
     )

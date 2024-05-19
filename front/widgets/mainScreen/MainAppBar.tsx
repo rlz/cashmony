@@ -6,7 +6,7 @@ import React, { type ReactElement, useState } from 'react'
 
 import { showIf } from '../../helpers/smallTools'
 import { screenWidthIs } from '../../helpers/useWidth'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { FullScreenModal } from '../FullScreenModal'
 import { Column } from '../generic/Containers'
 import { DivBody2 } from '../generic/Typography'
@@ -78,7 +78,7 @@ export function CashmonyAppBar(props: CashmonyAppBarProps): ReactElement {
 }
 
 export const MainAppBar = observer(function MainAppBar(): ReactElement {
-    const appState = useAppState()
+    const appState = useFrontState()
     const [showSettings, setShowSettings] = useState(false)
     const smallScreen = screenWidthIs('xs', 'sm')
 

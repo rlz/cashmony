@@ -1,9 +1,10 @@
+import { DateTime } from 'luxon'
 import { match } from 'ts-pattern'
 import { uuidv7 } from 'uuidv7'
 import { z } from 'zod'
 
 import { Engine } from '../engine/engine'
-import { Account, Category, Operation, Watch } from '../engine/model'
+import { Account, Category, DEFAULT_FILTER, Filter, Operation, Watch } from '../engine/model'
 import { fromGoogleDateTime, toGoogleDateTime } from './dates'
 
 const GoogleNonDeletedOperationRowSchema = z.union([
@@ -227,7 +228,8 @@ export function opsFromGoogle(googleRows: { operations: unknown[], categories: u
         if (dr.success) {
             result.push({
                 id: dr.data[0],
-                type: 'deleted'
+                type: 'deleted',
+                lastModified: DateTime.utc()
             })
             continue
         }
@@ -405,9 +407,14 @@ export function goalsFromGoogle(rows: unknown[], engine: Engine): Watch[] {
     return rows.map((row) => {
         const parsed = googleGoalRowSchemaV1.parse(row)
         const id = watchesByName[parsed[0]]?.id ?? uuidv7()
-        const gFilter = filterSchema.parse(JSON.parse(parsed[4]))
 
-        const filter = (() => {
+        const filter: Filter = (() => {
+            if (parsed[2] === 'yes') {
+                return DEFAULT_FILTER
+            }
+
+            const gFilter = filterSchema.parse(JSON.parse(parsed[4]))
+
             try {
                 return {
                     ...gFilter,
@@ -460,7 +467,6 @@ export function accsFromGoogle(rows: unknown[], engine: Engine): Account[] {
         //                 ? engine.getAccountByName(r.data[0]).id
         //                 : uuidv7()
         //         )
-        console.log('!', r.data, accountsByName[r.data[0]])
         const id = accountsByName[r.data[0]]?.id ?? uuidv7()
 
         return {

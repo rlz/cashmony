@@ -11,7 +11,7 @@ export default [
         ],
         languageOptions: {
             parser,
-            parserOptions: { project: 'tsconfig.json' }
+            parserOptions: { project: './tsconfig.json' }
         }
     },
     {
@@ -45,7 +45,7 @@ export default [
     {
         languageOptions: {
             parser,
-            parserOptions: { project: 'tsconfig.json' }
+            parserOptions: { project: './tsconfig.json' }
         },
         rules: {
             '@typescript-eslint/no-floating-promises': 'error',

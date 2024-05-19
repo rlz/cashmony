@@ -151,7 +151,7 @@ export class CashmonyLocalStorage {
         await db.put(CATEGORIES_STORE_NAME_V1, catToIdb(category))
     }
 
-    async putOperations(operations: Operation[]): Promise<void> {
+    async putOperations(operations: readonly Operation[]): Promise<void> {
         const db = await this.openDb()
 
         const tx = db.transaction(OPERATIONS_STORE_NAME, 'readwrite')

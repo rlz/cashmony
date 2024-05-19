@@ -10,7 +10,7 @@ import { calcStats } from '../../../engine/stats'
 import { periodExpensesReducer } from '../../../engine/statsReducers'
 import { formatCurrency } from '../../helpers/currencies'
 import { nonNull, run, runAsync, showIfLazy } from '../../helpers/smallTools'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader'
 import { useEngine } from '../../useEngine'
 import { ExpensesGroupScreenSkeleton } from '../../widgets/expenses/ExpensesGroupScreenSkeleton'
@@ -23,7 +23,7 @@ import { CategoryEditor } from './CategoryEditor'
 
 export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.Element {
     const engine = useEngine()
-    const appState = useAppState()
+    const appState = useFrontState()
     const currenciesLoader = useCurrenciesLoader()
 
     const [catId, tabName, opId] = run(() => {

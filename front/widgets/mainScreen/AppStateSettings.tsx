@@ -9,7 +9,9 @@ import { CURRENCIES } from '../../../currencies/currenciesList'
 import { initGoogleSync } from '../../../google/sync'
 import { getCurrencySymbol } from '../../helpers/currencies'
 import { run, showIf } from '../../helpers/smallTools'
-import { useAppState } from '../../model/AppState'
+import { apiSync } from '../../model/apiSync'
+import { useAuth, useFrontState } from '../../model/FrontState'
+import { useEngine } from '../../useEngine'
 import { CurrencySelector } from '../CurrencySelector'
 import { FilterEditor } from '../FilterEditor'
 import { Column } from '../generic/Containers'
@@ -19,7 +21,9 @@ import { PeriodSelector } from '../PeriodSelector'
 type Props = Omit<React.ComponentProps<typeof Column>, 'gap'>
 
 export const AppStateSettings = observer((props: Props): ReactElement => {
-    const appState = useAppState()
+    const appState = useFrontState()
+    const auth = useAuth()
+    const engine = useEngine()
 
     return (
         <Column gap={1} {...props}>
@@ -123,6 +127,16 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                         </ListItemIcon>
                         <ListItemText>
                             {'Report issue'}
+                        </ListItemText>
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                    <ListItemButton onClick={() => { void apiSync(auth, engine) }}>
+                        <ListItemIcon>
+                            <GitHub />
+                        </ListItemIcon>
+                        <ListItemText>
+                            {'API sync'}
                         </ListItemText>
                     </ListItemButton>
                 </ListItem>

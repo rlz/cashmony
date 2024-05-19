@@ -2,7 +2,7 @@ import { Typography } from '@mui/material'
 import React, { type ReactElement, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import makeUrl from '../../google/makeUrl'
+import makeUrl from '../../../google/makeUrl'
 
 export function AuthScreen(): ReactElement {
     const urlHash = useLocation().hash.slice(1)

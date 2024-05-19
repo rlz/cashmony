@@ -11,7 +11,7 @@ import { AccountsStatsReducer } from '../../../engine/stats/AccountsStatsReducer
 import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
 import { initGoogleSync } from '../../../google/sync'
 import { runAsync } from '../../helpers/smallTools'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader'
 import { useEngine } from '../../useEngine'
 import { Column } from '../../widgets/generic/Containers'
@@ -23,7 +23,7 @@ interface Props {
 }
 
 export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
-    const appState = useAppState()
+    const appState = useFrontState()
     const engine = useEngine()
     const currenciesLoader = useCurrenciesLoader()
 

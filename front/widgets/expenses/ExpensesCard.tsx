@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { TotalAndChangeStats } from '../../../engine/stats/model'
 import { formatCurrency } from '../../helpers/currencies'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { DivBody2, SpanBody1 } from '../generic/Typography'
 import { ExpenseSparklinePlot } from '../plots/ExpenseSparklinePlot'
 import { ExpensesInfoTable } from './ExpensesInfoTable'
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export const ExpensesCard = observer((props: Props): ReactElement => {
-    const appState = useAppState()
+    const appState = useFrontState()
 
     const navigate = useNavigate()
 

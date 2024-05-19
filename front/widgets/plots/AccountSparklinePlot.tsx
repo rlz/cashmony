@@ -4,14 +4,14 @@ import * as d3 from 'd3'
 import { useResizeDetector } from 'react-resize-detector'
 
 import { Point, TotalAndChangeStats } from '../../../engine/stats/model'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 
 interface Props {
     stats: TotalAndChangeStats
 }
 
 export function AccountSparklinePlot({ stats }: Props): JSX.Element {
-    const appState = useAppState()
+    const appState = useFrontState()
     const theme = useTheme()
     const { width, ref } = useResizeDetector()
 

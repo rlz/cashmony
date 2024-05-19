@@ -4,7 +4,7 @@ import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 
 import { utcToday } from '../../../engine/dates'
 import { runAsync } from '../../helpers/smallTools'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader'
 import { useEngine } from '../../useEngine'
 import { Plot, type PlotSeries } from '../Plot'
@@ -18,7 +18,7 @@ interface AmountBarsCatPlotProps {
 }
 
 export const ExpensesBarsPlot = observer((props: AmountBarsCatPlotProps): ReactElement => {
-    const appState = useAppState()
+    const appState = useFrontState()
     const engine = useEngine()
 
     const theme = useTheme()
@@ -99,7 +99,7 @@ interface TotalCatPlotProps {
 }
 
 export const ExpensesTotalPlot = observer((props: TotalCatPlotProps): ReactElement => {
-    const appState = useAppState()
+    const appState = useFrontState()
     const currenciesLoader = useCurrenciesLoader()
 
     const engine = useEngine()

@@ -15,7 +15,7 @@ import { TotalAndChangeStats } from '../../../engine/stats/model'
 import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
 import { formatCurrency } from '../../helpers/currencies'
 import { nonNull, run, showIfLazy } from '../../helpers/smallTools'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader'
 import { useEngine } from '../../useEngine'
 import { FullScreenModal } from '../../widgets/FullScreenModal'
@@ -26,7 +26,7 @@ import { AccountEditor } from './AccountEditor'
 import { AccountStatsBody } from './AccountStats'
 
 export const AccountBody = observer(() => {
-    const appState = useAppState()
+    const appState = useFrontState()
     const engine = useEngine()
     const currenciesLoader = useCurrenciesLoader()
 

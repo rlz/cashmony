@@ -7,7 +7,7 @@ import { useResizeDetector } from 'react-resize-detector'
 
 import { TotalAndChangeStats } from '../../../engine/stats/model'
 import { formatCurrency } from '../../helpers/currencies'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { PlotContainer } from './PlotUtils'
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export const AccountChangePlot = observer(function AccountChangePlot({ stats, currency }: Props): JSX.Element {
-    const appState = useAppState()
+    const appState = useFrontState()
     const { width, ref } = useResizeDetector()
     const theme = useTheme()
 

@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 export interface Category {
     readonly id: string
     readonly name: string
-    readonly lastModified: DateTime
+    readonly lastModified: DateTime<true>
     readonly perDayAmount?: number
     readonly currency?: string
     readonly deleted?: boolean
@@ -15,7 +15,7 @@ export interface Account {
     readonly currency: string
     readonly hidden: boolean
     readonly deleted?: boolean
-    readonly lastModified: DateTime
+    readonly lastModified: DateTime<true>
 }
 
 type FilterMode = 'all' | 'selected' | 'exclude'
@@ -36,6 +36,18 @@ export interface Filter {
     tags: readonly string[]
 }
 
+export const DEFAULT_FILTER: Filter = {
+    search: null,
+    opTypeMode: 'selected',
+    opType: ['expense', 'income', 'transfer', 'adjustment'],
+    categoriesMode: 'all',
+    categories: [],
+    accountsMode: 'all',
+    accounts: [],
+    tagsMode: 'all',
+    tags: []
+}
+
 export interface Watch extends Category {
     readonly perDayAmount: number
     readonly currency: string
@@ -49,8 +61,8 @@ export interface BaseTransaction {
 
 interface BaseOperation {
     readonly id: string
-    readonly lastModified: DateTime
-    readonly date: DateTime
+    readonly lastModified: DateTime<true>
+    readonly date: DateTime<true>
     readonly currency: string
     readonly amount: number
     readonly tags: readonly string[]
@@ -80,6 +92,7 @@ export interface AdjustmentOperation extends BaseOperation {
 export interface DeletedOperation {
     readonly id: string
     readonly type: 'deleted'
+    readonly lastModified: DateTime<true>
 }
 
 export type Operation = IncomeOperation | ExpenseOperation | TransferOperation | AdjustmentOperation | DeletedOperation

@@ -5,14 +5,14 @@ import { useLocation } from 'react-router-dom'
 
 import { showIfLazy } from '../../helpers/smallTools'
 import { screenWidthIs } from '../../helpers/useWidth'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { ResizeHandle } from '../../widgets/generic/resizeHandle'
 import { MainScreen } from '../../widgets/mainScreen/MainScreen'
 import { AccountBody } from './AccountBody'
 import { AccountsBody } from './AccountsBody'
 
 export function AccountScreen(): ReactElement {
-    const appState = useAppState()
+    const appState = useFrontState()
     const smallScreen = screenWidthIs('xs', 'sm')
     const location = useLocation()
     const theme = useTheme()

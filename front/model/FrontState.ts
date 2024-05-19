@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { autorun, makeAutoObservable, runInAction } from 'mobx'
 import { createContext, useContext } from 'react'
 
+import { ApiAuthResponseV0 } from '../../common/api_v0'
 import { AllHistoryTimeSpan, CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, ThisMonthTimeSpan, ThisYearTimeSpan, utcToday, YearTimeSpan } from '../../engine/dates'
 import { Engine } from '../../engine/engine'
 import { Filter } from '../../engine/model'
@@ -59,6 +60,7 @@ type TimeSpanInfo = ThisMonthTimeSpanInfo |
     LastMonthTimeSpanInfo | LastQuarterTimeSpanInfo | LastYearTimeSpanInfo |
     AllHistoryTimeSpanInfo | CustomTimeSpanInfo
 
+const AUTH_LS_KEY = 'AppState.auth'
 const TIME_SPAN_INFO_LS_KEY = 'AppState.timeSpanInfo'
 const THEME_LS_KEY = 'AppState.theme'
 const MASTER_CURRENCY_LS_KEY = 'AppState.masterCurrency'
@@ -66,10 +68,12 @@ const FILTER_LS_KEY = 'AppState.filter'
 
 type UserThemeType = 'light' | 'dark' | 'auto'
 
-export class AppState {
+export class FrontState {
     private readonly engine: Engine
 
     today = utcToday()
+
+    auth: ApiAuthResponseV0 | null = JSON.parse(localStorage.getItem(AUTH_LS_KEY) ?? 'null') as ApiAuthResponseV0 | null
     theme: UserThemeType = (localStorage.getItem(THEME_LS_KEY) as UserThemeType | null) ?? 'auto'
     timeSpanInfo: TimeSpanInfo = JSON.parse(localStorage.getItem(TIME_SPAN_INFO_LS_KEY) ?? '{ "type": "thisMonth" }')
     masterCurrency: string = localStorage.getItem(MASTER_CURRENCY_LS_KEY) ?? 'USD'
@@ -112,6 +116,10 @@ export class AppState {
                 })
             }
         }, 10000)
+
+        autorun(() => {
+            localStorage.setItem(AUTH_LS_KEY, JSON.stringify(this.auth))
+        })
 
         autorun(() => {
             localStorage.setItem(TIME_SPAN_INFO_LS_KEY, JSON.stringify(this.timeSpanInfo))
@@ -191,16 +199,26 @@ function makeDate(dateInfo: DateInfo): DateTime {
     return DateTime.utc(dateInfo.year, dateInfo.month, dateInfo.day)
 }
 
-const appStateContext = createContext<AppState | null>(null)
+const frontStateContext = createContext<FrontState | null>(null)
 
-export const AppStateProvider = appStateContext.Provider
+export const FrontStateProvider = frontStateContext.Provider
 
-export function useAppState(): AppState {
-    const s = useContext(appStateContext)
+export function useFrontState(): FrontState {
+    const s = useContext(frontStateContext)
 
     if (s === null) {
         throw Error('AppState in not provided')
     }
 
     return s
+}
+
+export function useAuth(): ApiAuthResponseV0 {
+    const auth = useFrontState().auth
+
+    if (auth === null) {
+        throw Error('Unauthenticated')
+    }
+
+    return auth
 }

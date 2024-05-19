@@ -8,7 +8,7 @@ import React, { type ReactElement } from 'react'
 import Calendar from 'react-calendar'
 
 import { utcToday } from '../../../../engine/dates'
-import { useAppState } from '../../../model/AppState'
+import { useFrontState } from '../../../model/FrontState'
 
 interface Props {
     date: DateTime
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const DateEditor = (props: Props): ReactElement => {
-    const appState = useAppState()
+    const appState = useFrontState()
 
     return (
         <Accordion

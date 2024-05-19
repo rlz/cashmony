@@ -11,7 +11,7 @@ import { YMComparisonReducer } from '../../../engine/stats/YMComparisonReducer'
 import { cumulativeIntervalExpensesReducer, perIntervalExpensesReducer, periodExpensesReducer } from '../../../engine/statsReducers'
 import { formatCurrency } from '../../helpers/currencies'
 import { runAsync } from '../../helpers/smallTools'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader'
 import { useEngine } from '../../useEngine'
 import { DivBody2 } from '../generic/Typography'
@@ -38,7 +38,7 @@ interface Stats {
 
 export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }: Props): ReactElement => {
     const engine = useEngine()
-    const appState = useAppState()
+    const appState = useFrontState()
     const currenciesLoader = useCurrenciesLoader()
 
     const theme = useTheme()

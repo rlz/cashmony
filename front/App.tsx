@@ -4,12 +4,13 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
 import { AccountScreen } from './screens/account/AccountScreen'
 import { AnaliticsScreen } from './screens/AnaliticsScreen'
-import { AuthScreen } from './screens/AuthScreen'
 import { CategoryScreen } from './screens/category/CategoryScreen'
-import { ExpensesGoalScreen } from './screens/ExpensesGoalScreen'
-import { GoogleSyncScreen } from './screens/GoogleSyncScreen'
+import { AuthScreen } from './screens/google/AuthScreen'
+import { GoogleSyncScreen } from './screens/google/GoogleSyncScreen'
 import { LoadingScreen } from './screens/LoadingScreen'
 import { OperationScreen } from './screens/OperationScreen'
+import { SignupSigninScreen } from './screens/SignupSigninScreen'
+import { ExpensesGoalScreen } from './screens/watch/ExpensesGoalScreen'
 import { useEngine } from './useEngine'
 
 declare global {
@@ -108,6 +109,14 @@ const router = createBrowserRouter([
     {
         path: '/analitics/op/:opId',
         Component: AnaliticsScreen
+    },
+    {
+        path: '/signin',
+        Component: SignupSigninScreen
+    },
+    {
+        path: '/signup',
+        Component: SignupSigninScreen
     }
 ])
 
@@ -115,7 +124,6 @@ window.routerNavigate = router.navigate.bind(router)
 
 export const App = observer(function App(): ReactElement {
     const engine = useEngine()
-
     const location = window.location
 
     if (!engine.initialised) {

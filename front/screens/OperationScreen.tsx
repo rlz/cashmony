@@ -16,7 +16,7 @@ import { formatCurrency } from '../helpers/currencies'
 import { deepEqual } from '../helpers/deepEqual'
 import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
 import { screenWidthIs } from '../helpers/useWidth'
-import { useAppState } from '../model/AppState'
+import { useFrontState } from '../model/FrontState'
 import { useEngine } from '../useEngine'
 import { ActionButton, ActionFab } from '../widgets/generic/ActionButton'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
@@ -32,7 +32,7 @@ import { TagsEditor } from '../widgets/operations/editors/TagsEditor'
 import { OpsList } from '../widgets/operations/OpsList'
 
 export function OperationScreen(): ReactElement {
-    const appState = useAppState()
+    const appState = useFrontState()
 
     const location = useLocation()
     const navigate = useNavigate()
@@ -123,7 +123,7 @@ interface BodyProps {
 }
 
 export const OperationScreenBody = observer(function OperationScreenBody({ urlOpId, setModalTitle }: BodyProps): ReactElement {
-    const appState = useAppState()
+    const appState = useFrontState()
 
     const engine = useEngine()
     const navigate = useNavigate()
@@ -201,6 +201,7 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
         const setTitle = setModalTitle ?? appState.setSubTitle
 
         if (urlOpId.startsWith('new-')) {
+            // TODO: re-use id of deleted operations here after removing sync with Google
             setOpId(uuidv7())
             setOpDate(utcToday())
             setOpAmount(0)
@@ -497,31 +498,31 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
                 <FontAwesomeIcon icon={faCheck} />
             </ActionFab>
             {
-            location.pathname.startsWith('/new-op/')
-                ? null
-                : (
-                    <ActionButton
-                        variant={'contained'}
-                        fullWidth
-                        color={'error'}
-                        sx={{ mt: 4 }}
-                        confirmation={'Are you sure that you want to delete this operation?'}
-                        action={() => {
-                            clearOpState()
-                            setOpId(urlOpId)
-                            setOpType('deleted')
-                            engine.pushOperation({ id: urlOpId, type: 'deleted' })
+                location.pathname.startsWith('/new-op/')
+                    ? null
+                    : (
+                        <ActionButton
+                            variant={'contained'}
+                            fullWidth
+                            color={'error'}
+                            sx={{ mt: 4 }}
+                            confirmation={'Are you sure that you want to delete this operation?'}
+                            action={() => {
+                                clearOpState()
+                                setOpId(urlOpId)
+                                setOpType('deleted')
+                                engine.pushOperation({ id: urlOpId, type: 'deleted', lastModified: DateTime.utc() })
 
-                            if (smallScreen && setModalTitle === undefined) {
+                                if (smallScreen && setModalTitle === undefined) {
                                 // todo: fix navigation from non operation screens
-                                navigate('/operations')
-                            }
-                        }}
-                    >
-                        {'Delete'}
-                    </ActionButton>
-                    )
-        }
+                                    navigate('/operations')
+                                }
+                            }}
+                        >
+                            {'Delete'}
+                        </ActionButton>
+                        )
+            }
             <Box minHeight={128} />
         </Box>
     )

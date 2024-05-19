@@ -10,7 +10,7 @@ import { PE, Predicate } from '../../../engine/predicateExpression'
 import { calcStats2, Intervals, StatsReducer } from '../../../engine/stats/newStatsProcessor'
 import { formatCurrency } from '../../helpers/currencies'
 import { runAsync } from '../../helpers/smallTools'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader'
 import { useEngine } from '../../useEngine'
 import { Column } from '../generic/Containers'
@@ -28,7 +28,7 @@ interface Props {
 }
 
 export const OpsList = observer(function OpsList(props: Props): ReactElement {
-    const appState = useAppState()
+    const appState = useFrontState()
     const currenciesLoader = useCurrenciesLoader()
 
     const engine = useEngine()

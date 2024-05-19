@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { TotalAndChangeStats } from '../../../engine/stats/model'
 import { formatCurrency } from '../../helpers/currencies'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { DivBody1, DivBody2, SpanBody2 } from '../../widgets/generic/Typography'
 import { AccountSparklinePlot } from '../../widgets/plots/AccountSparklinePlot'
 
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const AccountCard = observer(function AccountCard({ id, total, name, currency, stats }: Props): ReactElement {
-    const appState = useAppState()
+    const appState = useFrontState()
     const navigate = useNavigate()
 
     if (stats === undefined) {

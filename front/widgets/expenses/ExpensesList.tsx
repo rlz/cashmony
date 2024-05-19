@@ -8,7 +8,7 @@ import { TotalAndChangeStats } from '../../../engine/stats/model'
 import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
 import { TotalAndChangeReducer } from '../../../engine/stats/TotalAndChangeReducer'
 import { runAsync } from '../../helpers/smallTools'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader'
 import { useEngine } from '../../useEngine'
 import { ExpensesCard, ExpensesCardSkeleton } from './ExpensesCard'
@@ -20,7 +20,7 @@ interface ExpensesListProps {
 
 export const ExpensesList = observer(({ categories, goals }: ExpensesListProps): ReactElement => {
     const engine = useEngine()
-    const appState = useAppState()
+    const appState = useFrontState()
     const currenciesLoader = useCurrenciesLoader()
 
     const [stats, setStats] = useState<Record<string, TotalAndChangeStats> | null>(null)

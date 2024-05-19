@@ -28,13 +28,19 @@ export function accToIdb(account: Account): IdbAccountV1 {
 }
 
 export function accFromIdb(account: IdbAccountV0 | IdbAccountV1): Account {
+    const lastModified = DateTime.fromMillis(account.lastModified, { zone: 'utc' })
+
+    if (!lastModified.isValid) {
+        throw Error('Can not create DateTime: invalid millis')
+    }
+
     return {
         id: 'id' in account ? account.id : uuidv7(),
         name: account.name,
         currency: account.currency,
         hidden: account.hidden,
         deleted: account.deleted,
-        lastModified: DateTime.fromMillis(account.lastModified, { zone: 'utc' })
+        lastModified
     }
 }
 
@@ -73,10 +79,16 @@ export function catFromIdb(category: IdbCategoryV0 | IdbCategoryV1): Category {
         .with({ yearGoal: P.number, currency: P.string }, v => [-v.yearGoal / 365, v.currency])
         .otherwise(() => [undefined, undefined])
 
+    const lastModified = DateTime.fromMillis(category.lastModified, { zone: 'utc' })
+
+    if (!lastModified.isValid) {
+        throw Error('Can not create DateTime: invalid millis')
+    }
+
     return {
         id: 'id' in category ? category.id : uuidv7(),
         name: category.name,
-        lastModified: DateTime.fromMillis(category.lastModified, { zone: 'utc' }),
+        lastModified,
         perDayAmount: perDayAmount[0],
         currency: perDayAmount[1],
         deleted: category.deleted
@@ -106,10 +118,16 @@ export function goalToIdb(goal: Watch): IdbExpensesGoalV1 {
 }
 
 export function goalFromIdb(goal: IdbExpensesGoalV0 | IdbExpensesGoalV1): Watch {
+    const lastModified = DateTime.fromMillis(goal.lastModified, { zone: 'utc' })
+
+    if (!lastModified.isValid) {
+        throw Error('Can not create DateTime: invalid millis')
+    }
+
     return {
         id: 'id' in goal ? goal.id : uuidv7(),
         name: goal.name,
-        lastModified: DateTime.fromMillis(goal.lastModified, { zone: 'utc' }),
+        lastModified,
         perDayAmount: goal.perDayAmount,
         currency: goal.currency,
         deleted: goal.deleted,
@@ -200,12 +218,21 @@ export interface IdbDeletedOperationV1 {
     readonly type: 'deleted'
 }
 
-export type IdbOperationV1 = IdbIncomeOperationV1 | IdbExpenseOperationV1 | IdbTransferOperationV1 | IdbAdjustmentOperationV1 | IdbDeletedOperationV1
-export type IdbNotDeletedOperationV1 = Exclude<IdbOperationV1, IdbDeletedOperationV1>
+export interface IdbDeletedOperationV2 extends IdbDeletedOperationV1 {
+    readonly lastModified: number
+}
 
-export function opToIdb(o: Operation): IdbOperationV1 {
+export type IdbOperationV1 = IdbIncomeOperationV1 | IdbExpenseOperationV1 | IdbTransferOperationV1 | IdbAdjustmentOperationV1 | IdbDeletedOperationV1
+export type IdbNotDeletedOperationV1 = Exclude<IdbOperationV2, IdbDeletedOperationV2>
+
+export type IdbOperationV2 = IdbIncomeOperationV1 | IdbExpenseOperationV1 | IdbTransferOperationV1 | IdbAdjustmentOperationV1 | IdbDeletedOperationV2
+
+export function opToIdb(o: Operation): IdbOperationV2 {
     if (o.type === 'deleted') {
-        return o
+        return {
+            ...o,
+            lastModified: o.lastModified.toMillis()
+        }
     }
 
     return {
@@ -216,11 +243,23 @@ export function opToIdb(o: Operation): IdbOperationV1 {
 }
 
 export function opFromIdbNoDeleted(o: IdbNotDeletedOperationV0 | IdbNotDeletedOperationV1, accountsMap: Record<string, string>, categoriesMap: Record<string, string>): NotDeletedOperation {
+    const lastModified = DateTime.fromMillis(o.lastModified, { zone: 'utc' })
+
+    if (!lastModified.isValid) {
+        throw Error('Can not create DateTime: invalid millis')
+    }
+
+    const date = DateTime.fromMillis(o.date, { zone: 'utc' })
+
+    if (!date.isValid) {
+        throw Error('Can not create DateTime: invalid millis')
+    }
+
     if (isV1Op(o)) {
         return {
             ...o,
-            lastModified: DateTime.fromMillis(o.lastModified, { zone: 'utc' }),
-            date: DateTime.fromMillis(o.date, { zone: 'utc' })
+            lastModified,
+            date
         }
     }
 
@@ -231,8 +270,8 @@ export function opFromIdbNoDeleted(o: IdbNotDeletedOperationV0 | IdbNotDeletedOp
                 id: accountsMap[o.account.name],
                 amount: o.account.amount
             },
-            lastModified: DateTime.fromMillis(o.lastModified, { zone: 'utc' }),
-            date: DateTime.fromMillis(o.date, { zone: 'utc' })
+            lastModified,
+            date
         }
     }
 
@@ -249,8 +288,8 @@ export function opFromIdbNoDeleted(o: IdbNotDeletedOperationV0 | IdbNotDeletedOp
                     amount: c.amount
                 }
             }),
-            lastModified: DateTime.fromMillis(o.lastModified, { zone: 'utc' }),
-            date: DateTime.fromMillis(o.date, { zone: 'utc' })
+            lastModified,
+            date
         }
     }
 
@@ -264,8 +303,8 @@ export function opFromIdbNoDeleted(o: IdbNotDeletedOperationV0 | IdbNotDeletedOp
             id: accountsMap[o.toAccount.name],
             amount: o.toAccount.amount
         },
-        lastModified: DateTime.fromMillis(o.lastModified, { zone: 'utc' }),
-        date: DateTime.fromMillis(o.date, { zone: 'utc' })
+        lastModified,
+        date
     }
 }
 
@@ -273,9 +312,19 @@ function isV1Op(o: IdbNotDeletedOperationV0 | IdbNotDeletedOperationV1): o is Id
     return 'id' in o.account
 }
 
-export function opFromIdb(o: IdbOperationV0 | IdbOperationV1, accountsMap: Record<string, string>, categoriesMap: Record<string, string>): Operation {
+export function opFromIdb(o: IdbOperationV0 | IdbOperationV1 | IdbOperationV2, accountsMap: Record<string, string>, categoriesMap: Record<string, string>): Operation {
+    const lastModified = 'lastModified' in o ? DateTime.fromMillis(o.lastModified, { zone: 'utc' }) : DateTime.utc()
+
+    if (!lastModified.isValid) {
+        throw Error('Can not create DateTime: invalid millis')
+    }
+
     if (o.type === 'deleted') {
-        return o
+        return {
+            id: o.id,
+            type: o.type,
+            lastModified
+        }
     }
 
     return opFromIdbNoDeleted(o, accountsMap, categoriesMap)

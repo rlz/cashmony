@@ -7,30 +7,30 @@ import { Panel, PanelGroup } from 'react-resizable-panels'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
 
-import { type Watch } from '../../engine/model'
-import { EXPENSE_PREDICATE, PE } from '../../engine/predicateExpression'
-import { calcStats } from '../../engine/stats'
-import { periodExpensesReducer } from '../../engine/statsReducers'
-import { formatCurrency } from '../helpers/currencies'
-import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
-import { screenWidthIs } from '../helpers/useWidth'
-import { useAppState } from '../model/AppState'
-import { useCurrenciesLoader } from '../useCurrenciesLoader'
-import { useEngine } from '../useEngine'
-import { ExpensesGroupScreenSkeleton } from '../widgets/expenses/ExpensesGroupScreenSkeleton'
-import { ExpensesList } from '../widgets/expenses/ExpensesList'
-import { ExpensesStatsWidget } from '../widgets/expenses/ExpensesStatsWidget'
-import { FullScreenModal } from '../widgets/FullScreenModal'
-import { Column } from '../widgets/generic/Containers'
-import { ResizeHandle } from '../widgets/generic/resizeHandle'
-import { MainScreen } from '../widgets/mainScreen/MainScreen'
-import { OpsList } from '../widgets/operations/OpsList'
-import { OperationScreenBody } from './OperationScreen'
-import { AddExpensesGoalModal } from './watch/AddExpensesGoalModal'
-import { ExpensesGoalEditor } from './watch/ExpensesGoalEditor'
+import { type Watch } from '../../../engine/model'
+import { EXPENSE_PREDICATE, PE } from '../../../engine/predicateExpression'
+import { calcStats } from '../../../engine/stats'
+import { periodExpensesReducer } from '../../../engine/statsReducers'
+import { formatCurrency } from '../../helpers/currencies'
+import { nonNull, run, runAsync, showIfLazy } from '../../helpers/smallTools'
+import { screenWidthIs } from '../../helpers/useWidth'
+import { useFrontState } from '../../model/FrontState'
+import { useCurrenciesLoader } from '../../useCurrenciesLoader'
+import { useEngine } from '../../useEngine'
+import { ExpensesGroupScreenSkeleton } from '../../widgets/expenses/ExpensesGroupScreenSkeleton'
+import { ExpensesList } from '../../widgets/expenses/ExpensesList'
+import { ExpensesStatsWidget } from '../../widgets/expenses/ExpensesStatsWidget'
+import { FullScreenModal } from '../../widgets/FullScreenModal'
+import { Column } from '../../widgets/generic/Containers'
+import { ResizeHandle } from '../../widgets/generic/resizeHandle'
+import { MainScreen } from '../../widgets/mainScreen/MainScreen'
+import { OpsList } from '../../widgets/operations/OpsList'
+import { OperationScreenBody } from '../OperationScreen'
+import { AddExpensesGoalModal } from './AddExpensesGoalModal'
+import { ExpensesGoalEditor } from './ExpensesGoalEditor'
 
 export function ExpensesGoalScreen(): ReactElement {
-    const appState = useAppState()
+    const appState = useFrontState()
     const params = useParams()
     const smallScreen = screenWidthIs('xs', 'sm')
     const navigate = useNavigate()
@@ -93,7 +93,7 @@ interface ExpensesGoalsScreenBodyProps {
 }
 
 export const ExpensesGoalsScreenBody = observer(({ noFab, hide }: ExpensesGoalsScreenBodyProps): ReactElement => {
-    const appState = useAppState()
+    const appState = useFrontState()
     const engine = useEngine()
 
     const [add, setAdd] = useState(false)
@@ -158,7 +158,7 @@ export const ExpensesGoalsScreenBody = observer(({ noFab, hide }: ExpensesGoalsS
 
 export const ExpensesGoalScreenBody = observer(function ExpensesGoalScreenBody(): ReactElement {
     const engine = useEngine()
-    const appState = useAppState()
+    const appState = useFrontState()
     const currenciesLoader = useCurrenciesLoader()
 
     const [goalId, tabName, opId] = run(() => {

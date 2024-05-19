@@ -8,7 +8,7 @@ export interface EngineDataChangeListener {
     onAccountChange?: (a: Account) => void | Promise<void>
     onCategoryChange?: (c: Category) => void | Promise<void>
     onOperationChange?: (o: Operation) => void | Promise<void>
-    onOperationsChange?: (o: Operation[]) => void | Promise<void>
+    onOperationsChange?: (o: readonly Operation[]) => void | Promise<void>
     onWatchChange?: (w: Watch) => void | Promise<void>
 }
 
@@ -36,6 +36,7 @@ export class Engine {
                 pushAccount: action,
                 pushCategory: action,
                 pushOperation: action,
+                pushOperations: action,
                 pushWatch: action,
                 accountsById: computed,
                 accountsByName: computed,
@@ -221,7 +222,7 @@ export class Engine {
         })
     }
 
-    pushOperations(ops: Operation[]) {
+    pushOperations(ops: readonly Operation[]) {
         this.requireInitialized()
 
         const ids = new Set(ops.values().map(o => o.id))

@@ -12,7 +12,7 @@ import { PE } from '../../../engine/predicateExpression'
 import { AccountStatsReducer } from '../../../engine/stats/AccountStatsReducer'
 import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
 import { deepEqual } from '../../helpers/deepEqual'
-import { useAppState } from '../../model/AppState'
+import { useFrontState } from '../../model/FrontState'
 import { useEngine } from '../../useEngine'
 import { CurrencyInput } from '../../widgets/CurrencyInput'
 import { ActionFab } from '../../widgets/generic/ActionButton'
@@ -24,7 +24,7 @@ interface EditorProps {
 }
 
 export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
-    const appState = useAppState()
+    const appState = useFrontState()
     const engine = useEngine()
 
     const [amount, setAmount] = useState(0)

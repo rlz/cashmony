@@ -8,7 +8,7 @@ import { ParseError, parseFilterQuery } from '../../engine/filterExpressionParse
 import { NotDeletedOperation } from '../../engine/model'
 import { isExpense, isIncome, PE, Predicate } from '../../engine/predicateExpression'
 import { calcStats2, StatsReducer } from '../../engine/stats/newStatsProcessor'
-import { useAppState } from '../model/AppState'
+import { useFrontState } from '../model/FrontState'
 import { useEngine } from '../useEngine'
 import { AnaliticsScreenStats } from '../widgets/AnaliticsScreenStats'
 import { FullScreenModal } from '../widgets/FullScreenModal'
@@ -18,7 +18,7 @@ import { OperationScreenBody } from './OperationScreen'
 
 export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement {
     const engine = useEngine()
-    const appState = useAppState()
+    const appState = useFrontState()
 
     const theme = useTheme()
     const location = useLocation()

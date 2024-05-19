@@ -4,12 +4,12 @@ import { Box, Typography } from '@mui/material'
 import React, { type ReactElement, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { Google } from '../../google/google'
-import { syncAccounts, syncCategories, syncGoals, syncOperations, type SyncStats, type SyncStatsEx } from '../../google/sync'
-import { runAsync } from '../helpers/smallTools'
-import { useEngine } from '../useEngine'
-import { FullScreenModal } from '../widgets/FullScreenModal'
-import { Row } from '../widgets/generic/Containers'
+import { Google } from '../../../google/google'
+import { syncAccounts, syncCategories, syncGoals, syncOperations, type SyncStats, type SyncStatsEx } from '../../../google/sync'
+import { runAsync } from '../../helpers/smallTools'
+import { useEngine } from '../../useEngine'
+import { FullScreenModal } from '../../widgets/FullScreenModal'
+import { Row } from '../../widgets/generic/Containers'
 
 const google = Google.instance()
 
