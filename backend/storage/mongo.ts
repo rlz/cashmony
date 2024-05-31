@@ -5,8 +5,6 @@ import { ApiComparisonObjectV0 } from '../../common/api_v0'
 import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0'
 import { MongoObject, mongoObjectSchema, MongoTempPassword, MongoUser } from './model'
 
-let instance: MongoStorage | null = null
-
 export class MongoStorage {
     client: MongoClient
 
@@ -215,13 +213,5 @@ export class MongoStorage {
 
     private get tempPasswords(): Collection<MongoTempPassword> {
         return this.db.collection('temp-passwords')
-    }
-
-    static instance(): MongoStorage {
-        if (instance === null) {
-            instance = new MongoStorage()
-        }
-
-        return instance
     }
 }

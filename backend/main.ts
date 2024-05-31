@@ -6,6 +6,7 @@ import formatsPlugin from 'ajv-formats'
 import { fastify } from 'fastify'
 
 import { registerAuthEndpoints } from './auth'
+import { MongoStorage } from './storage/mongo'
 import { registerSyncEndpoints } from './sync'
 
 async function main() {
@@ -18,8 +19,10 @@ async function main() {
     await app.register(fastifySensible)
     await app.register(fastifyResponseValidation, { ajv: { plugins: [formatsPlugin] } })
 
-    registerAuthEndpoints(app)
-    registerSyncEndpoints(app)
+    const mongo = new MongoStorage()
+
+    registerAuthEndpoints(app, mongo)
+    registerSyncEndpoints(app, mongo)
 
     await app.listen({
         port: 3001

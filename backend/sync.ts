@@ -6,7 +6,7 @@ import { apiAccountSchemaV0, apiCategorySchemaV0, apiOperationSchemaV0, apiWatch
 import { auth } from './auth'
 import { MongoStorage } from './storage/mongo'
 
-export function registerSyncEndpoints(app: FastifyInstance) {
+export function registerSyncEndpoints(app: FastifyInstance, mongo: MongoStorage) {
     app.get(
         '/api/v0/operations',
         {
@@ -15,9 +15,8 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             }
         },
         async (req, _resp) => {
-            const userId = await auth(req)
-            const s = MongoStorage.instance()
-            return { items: await s.allOps(userId) }
+            const userId = await auth(req, mongo)
+            return { items: await mongo.allOps(userId) }
         }
     )
 
@@ -30,10 +29,9 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             }
         },
         async (req, _resp): Promise<ApiItemsResponseV0<typeof apiOperationSchemaV0>> => {
-            const userId = await auth(req)
+            const userId = await auth(req, mongo)
             const ids = apiGetObjectsRequestSchemaV0.parse(req.body).ids
-            const s = MongoStorage.instance()
-            return { items: await s.getOps(userId, ids) }
+            return { items: await mongo.getOps(userId, ids) }
         }
     )
 
@@ -46,10 +44,9 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             bodyLimit: 30 * 1024 * 1024
         },
         async (req, resp) => {
-            const userId = await auth(req)
+            const userId = await auth(req, mongo)
             const ops = apiItemsRequestSchemaV0(apiOperationSchemaV0).parse(req.body).items
-            const s = MongoStorage.instance()
-            await s.pushOps(userId, ops)
+            await mongo.pushOps(userId, ops)
             resp.statusCode = 204
         }
     )
@@ -62,9 +59,8 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             }
         },
         async (req, _resp) => {
-            const userId = await auth(req)
-            const s = MongoStorage.instance()
-            return { items: await s.allAccounts(userId) }
+            const userId = await auth(req, mongo)
+            return { items: await mongo.allAccounts(userId) }
         }
     )
 
@@ -77,10 +73,9 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             }
         },
         async (req, _resp): Promise<ApiItemsResponseV0<typeof apiAccountSchemaV0>> => {
-            const userId = await auth(req)
+            const userId = await auth(req, mongo)
             const ids = apiGetObjectsRequestSchemaV0.parse(req.body).ids
-            const s = MongoStorage.instance()
-            return { items: await s.getAccounts(userId, ids) }
+            return { items: await mongo.getAccounts(userId, ids) }
         }
     )
 
@@ -92,10 +87,9 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             }
         },
         async (req, resp) => {
-            const userId = await auth(req)
+            const userId = await auth(req, mongo)
             const accounts = apiItemsRequestSchemaV0(apiAccountSchemaV0).parse(req.body).items
-            const s = MongoStorage.instance()
-            await s.pushAccounts(userId, accounts)
+            await mongo.pushAccounts(userId, accounts)
             resp.statusCode = 204
         }
     )
@@ -108,9 +102,8 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             }
         },
         async (req, _resp) => {
-            const userId = await auth(req)
-            const s = MongoStorage.instance()
-            return { items: await s.allCategories(userId) }
+            const userId = await auth(req, mongo)
+            return { items: await mongo.allCategories(userId) }
         }
     )
 
@@ -123,10 +116,9 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             }
         },
         async (req, _resp): Promise<ApiItemsResponseV0<typeof apiCategorySchemaV0>> => {
-            const userId = await auth(req)
+            const userId = await auth(req, mongo)
             const ids = apiGetObjectsRequestSchemaV0.parse(req.body).ids
-            const s = MongoStorage.instance()
-            return { items: await s.getCategories(userId, ids) }
+            return { items: await mongo.getCategories(userId, ids) }
         }
     )
 
@@ -138,10 +130,9 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             }
         },
         async (req, resp) => {
-            const userId = await auth(req)
+            const userId = await auth(req, mongo)
             const categories = apiItemsRequestSchemaV0(apiCategorySchemaV0).parse(req.body).items
-            const s = MongoStorage.instance()
-            await s.pushCategories(userId, categories)
+            await mongo.pushCategories(userId, categories)
             resp.statusCode = 204
         }
     )
@@ -154,9 +145,8 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             }
         },
         async (req, _resp) => {
-            const userId = await auth(req)
-            const s = MongoStorage.instance()
-            return { items: await s.allWatches(userId) }
+            const userId = await auth(req, mongo)
+            return { items: await mongo.allWatches(userId) }
         }
     )
 
@@ -169,10 +159,9 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             }
         },
         async (req, _resp): Promise<ApiItemsResponseV0<typeof apiWatchSchemaV0>> => {
-            const userId = await auth(req)
+            const userId = await auth(req, mongo)
             const ids = apiGetObjectsRequestSchemaV0.parse(req.body).ids
-            const s = MongoStorage.instance()
-            return { items: await s.getWatches(userId, ids) }
+            return { items: await mongo.getWatches(userId, ids) }
         }
     )
 
@@ -184,10 +173,9 @@ export function registerSyncEndpoints(app: FastifyInstance) {
             }
         },
         async (req, resp) => {
-            const userId = await auth(req)
+            const userId = await auth(req, mongo)
             const watches = apiItemsRequestSchemaV0(apiWatchSchemaV0).parse(req.body).items
-            const s = MongoStorage.instance()
-            await s.pushWatches(userId, watches)
+            await mongo.pushWatches(userId, watches)
             resp.statusCode = 204
         }
     )

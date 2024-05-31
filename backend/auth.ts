@@ -11,91 +11,77 @@ import { MongoStorage } from './storage/mongo'
 
 const TEMP_PASSWORD_SALT = Buffer.from('cashmony-temp-password-salt', 'utf8')
 
-let instance: Auth | null = null
-
-export class Auth {
-    private mongo = MongoStorage.instance()
-
-    async signup(name: string, email: string, password: string): Promise<ApiAuthResponseV0> {
-        const salt = randomBytes(64)
-        const hash = calcHash(password, salt)
-        const id = uuidv7()
-        try {
-            await this.mongo.createUser(id, name, email, new Binary(salt), new Binary(hash))
-        } catch (e) {
-            if (e instanceof MongoServerError && e.code === 11000) {
-                // duplicate key error
-                throw httpErrors.conflict()
-            }
-            throw e
+async function signup(mongo: MongoStorage, name: string, email: string, password: string): Promise<ApiAuthResponseV0> {
+    const salt = randomBytes(64)
+    const hash = calcHash(password, salt)
+    const id = uuidv7()
+    try {
+        await mongo.createUser(id, name, email, new Binary(salt), new Binary(hash))
+    } catch (e) {
+        if (e instanceof MongoServerError && e.code === 11000) {
+            // duplicate key error
+            throw httpErrors.conflict()
         }
-        const tempPassword = await this.makeTempPassword(id)
-        return {
-            id,
-            name,
-            email,
-            tempPassword
-        }
+        throw e
     }
-
-    async signin(name: string, password: string): Promise<ApiAuthResponseV0 | null> {
-        const u = await this.mongo.getUser(name)
-        if (u === null) {
-            return null
-        }
-
-        const hash = calcHash(password, u.passwordSalt.value())
-
-        if (!hash.equals(u.passwordHash.value())) {
-            return null
-        }
-
-        const tempPassword = await this.makeTempPassword(u._id)
-
-        await this.mongo.markUserActive(u._id)
-
-        return {
-            id: u._id,
-            name: u.name,
-            email: u.email,
-            tempPassword
-        }
-    }
-
-    async logout(userId: string, tempPassword: string) {
-        const hash = calcHash(tempPassword, TEMP_PASSWORD_SALT)
-        await this.mongo.deleteTempPassword(userId, new Binary(hash))
-    }
-
-    async verifyTempPassword(userId: string, tempPassword: string): Promise<string> {
-        const hash = calcTempPasswordHash(Buffer.from(tempPassword, 'base64'))
-        const u = await this.mongo.getUserByTempPassword(userId, new Binary(hash))
-        if (u === null) {
-            throw httpErrors.forbidden()
-        }
-
-        await this.mongo.markUserActive(u._id)
-
-        return u._id
-    }
-
-    static instance(): Auth {
-        if (instance === null) {
-            instance = new Auth()
-        }
-
-        return instance
-    }
-
-    private async makeTempPassword(userId: string): Promise<string> {
-        const password = randomBytes(128)
-        const passwordHash = calcTempPasswordHash(password)
-        await this.mongo.pushTempPassword(userId, new Binary(passwordHash), DateTime.utc().plus({ days: 7 }).toJSDate())
-        return password.toString('base64')
+    const tempPassword = await makeTempPassword(mongo, id)
+    return {
+        id,
+        name,
+        email,
+        tempPassword
     }
 }
 
-export function registerAuthEndpoints(app: FastifyInstance) {
+async function signin(mongo: MongoStorage, name: string, password: string): Promise<ApiAuthResponseV0 | null> {
+    const u = await mongo.getUser(name)
+    if (u === null) {
+        return null
+    }
+
+    const hash = calcHash(password, u.passwordSalt.value())
+
+    if (!hash.equals(u.passwordHash.value())) {
+        return null
+    }
+
+    const tempPassword = await makeTempPassword(mongo, u._id)
+
+    await mongo.markUserActive(u._id)
+
+    return {
+        id: u._id,
+        name: u.name,
+        email: u.email,
+        tempPassword
+    }
+}
+
+async function logout(mongo: MongoStorage, userId: string, tempPassword: string) {
+    const hash = calcHash(tempPassword, TEMP_PASSWORD_SALT)
+    await mongo.deleteTempPassword(userId, new Binary(hash))
+}
+
+async function verifyTempPassword(mongo: MongoStorage, userId: string, tempPassword: string): Promise<string> {
+    const hash = calcTempPasswordHash(Buffer.from(tempPassword, 'base64'))
+    const u = await mongo.getUserByTempPassword(userId, new Binary(hash))
+    if (u === null) {
+        throw httpErrors.forbidden()
+    }
+
+    await mongo.markUserActive(u._id)
+
+    return u._id
+}
+
+async function makeTempPassword(mongo: MongoStorage, userId: string): Promise<string> {
+    const password = randomBytes(128)
+    const passwordHash = calcTempPasswordHash(password)
+    await mongo.pushTempPassword(userId, new Binary(passwordHash), DateTime.utc().plus({ days: 7 }).toJSDate())
+    return password.toString('base64')
+}
+
+export function registerAuthEndpoints(app: FastifyInstance, mongo: MongoStorage) {
     app.post(
         '/api/v0/signup',
         {
@@ -106,8 +92,7 @@ export function registerAuthEndpoints(app: FastifyInstance) {
         },
         async (req, _resp) => {
             const body = apiSignupRequestSchemaV0.parse(req.body)
-            const auth = Auth.instance()
-            return await auth.signup(body.name, body.email, body.password)
+            return await signup(mongo, body.name, body.email, body.password)
         }
     )
 
@@ -121,23 +106,40 @@ export function registerAuthEndpoints(app: FastifyInstance) {
         },
         async (req, _resp) => {
             const body = apiSigninRequestSchemaV0.parse(req.body)
-            const r = await Auth.instance().signin(body.name, body.password)
+            const r = await signin(mongo, body.name, body.password)
             if (r === null) {
                 return httpErrors.unauthorized()
             }
             return r
         }
     )
+
+    app.post(
+        '/api/v0/logout',
+        {
+        },
+        async (req, _resp) => {
+            const authHeader = req.headers.authorization
+
+            if (authHeader === undefined) {
+                throw httpErrors.forbidden()
+            }
+
+            const [userId, tempPassword] = authHeader.split(':')
+
+            await logout(mongo, userId, tempPassword)
+        }
+    )
 }
 
-export async function auth(req: FastifyRequest): Promise<string> {
+export async function auth(req: FastifyRequest, mongo: MongoStorage): Promise<string> {
     const authHeader = req.headers.authorization
     if (authHeader === undefined) {
         throw httpErrors.forbidden()
     }
     const [userId, tempPassword] = authHeader.split(':')
 
-    return await Auth.instance().verifyTempPassword(userId, tempPassword)
+    return await verifyTempPassword(mongo, userId, tempPassword)
 }
 
 function calcHash(password: string, salt: Uint8Array): Buffer {
