@@ -1,15 +1,36 @@
+import { FastifyBaseLogger } from 'fastify'
 import { DateTime } from 'luxon'
 import { Binary, Collection, Db, MongoClient } from 'mongodb'
 
 import { ApiComparisonObjectV0 } from '../../common/api_v0'
 import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0'
+import { createIndexes, listIndexes } from './indexes'
 import { MongoObject, mongoObjectSchema, MongoTempPassword, MongoUser } from './model'
 
 export class MongoStorage {
-    client: MongoClient
+    private readonly logger: FastifyBaseLogger
+    private readonly client: MongoClient
 
-    constructor() {
+    private constructor(logger: FastifyBaseLogger) {
+        this.logger = logger
+
         this.client = new MongoClient('mongodb://localhost')
+        void listIndexes(this.ops)
+    }
+
+    static async create(logger: FastifyBaseLogger): Promise<MongoStorage> {
+        const s = new MongoStorage(logger)
+
+        await Promise.all([
+            createIndexes(logger, s.ops),
+            createIndexes(logger, s.accounts),
+            createIndexes(logger, s.categories),
+            createIndexes(logger, s.watches),
+            createIndexes(logger, s.users),
+            createIndexes(logger, s.tempPasswords)
+        ])
+
+        return s
     }
 
     async createUser(id: string, name: string, email: string, passwordSalt: Binary, passwordHash: Binary) {

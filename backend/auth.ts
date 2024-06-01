@@ -77,6 +77,7 @@ async function verifyTempPassword(mongo: MongoStorage, userId: string, tempPassw
 async function makeTempPassword(mongo: MongoStorage, userId: string): Promise<string> {
     const password = randomBytes(128)
     const passwordHash = calcTempPasswordHash(password)
+    // Temp passwords also are removed from Mongo by TTL index, make sure expirity dates are syncronised
     await mongo.pushTempPassword(userId, new Binary(passwordHash), DateTime.utc().plus({ days: 7 }).toJSDate())
     return password.toString('base64')
 }

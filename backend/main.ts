@@ -19,7 +19,7 @@ async function main() {
     await app.register(fastifySensible)
     await app.register(fastifyResponseValidation, { ajv: { plugins: [formatsPlugin] } })
 
-    const mongo = new MongoStorage()
+    const mongo = await MongoStorage.create(app.log.child({ module: 'MONGO' }))
 
     registerAuthEndpoints(app, mongo)
     registerSyncEndpoints(app, mongo)
