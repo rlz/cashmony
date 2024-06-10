@@ -1,5 +1,6 @@
 import { AccountBalanceWallet as AccountBalanceWalletIcon, Category as CategoryIcon, List as ListIcon, QueryStats as QueryStatsIcon, Troubleshoot as TroubleshootIcon } from '@mui/icons-material'
 import { Box, Stack, Typography, useTheme } from '@mui/material'
+import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { match, P } from 'ts-pattern'
@@ -58,7 +59,7 @@ function NavItem(props: NavItemProps): JSX.Element {
     )
 }
 
-export function MainBottomNavigation(): ReactElement {
+export const MainBottomNavigation = observer(function MainBottomNavigation(): ReactElement {
     const engine = useEngine()
 
     const loc = useLocation()
@@ -130,4 +131,4 @@ export function MainBottomNavigation(): ReactElement {
             </Stack>
         </Stack>
     )
-}
+})

@@ -1,17 +1,25 @@
 import { DateTime } from 'luxon'
 
-import { apiAccounts, apiAccountsByIds, apiCategories, apiCategoriesByIds, apiOps, apiOpsByIds, apiPushAccounts, apiPushCategories, apiPushOps, apiPushWatches, apiWatches, apiWatchesByIds } from '../../api/api'
+import { apiAccounts, apiAccountsByIds, apiCategories, apiCategoriesByIds, apiOps, apiOpsByIds, apiPushAccounts, apiPushCategories, apiPushOps, apiPushWatches, apiWatches, apiWatchesByIds, Forbidden } from '../../api/api'
 import { ApiAuthResponseV0, apiComparisonObjectSchemaV0, ApiItemsResponseV0 } from '../../common/api_v0'
 import { ApiOperationV0 } from '../../common/data_v0'
 import { Engine } from '../../engine/engine'
 import { Account, Category, Operation, Watch } from '../../engine/model'
 import { dFromIso, dtFromIso } from '../helpers/smallTools'
 
-export async function apiSync(auth: ApiAuthResponseV0, engine: Engine) {
-    await syncAccounts(auth, engine)
-    await syncCategories(auth, engine)
-    await syncOps(auth, engine)
-    await syncWatches(auth, engine)
+export async function apiSync(auth: ApiAuthResponseV0, engine: Engine, onForbidden: () => void) {
+    try {
+        await syncAccounts(auth, engine)
+        await syncCategories(auth, engine)
+        await syncOps(auth, engine)
+        await syncWatches(auth, engine)
+    } catch (e) {
+        if (e instanceof Forbidden) {
+            onForbidden()
+        } else {
+            throw e
+        }
+    }
 }
 
 async function syncItems<T extends { id: string, lastModified: DateTime<true> }>(

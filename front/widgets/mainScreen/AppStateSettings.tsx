@@ -6,7 +6,6 @@ import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Forbidden } from '../../../api/api'
 import { CURRENCIES } from '../../../currencies/currenciesList'
 import { initGoogleSync } from '../../../google/sync'
 import { getCurrencySymbol } from '../../helpers/currencies'
@@ -136,15 +135,11 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                 <ListItem disablePadding>
                     <ListItemButton
                         onClick={() => {
-                            apiSync(auth, engine).catch((e) => {
-                                if (e instanceof Forbidden) {
-                                    runInAction(() => {
-                                        appState.auth = null
-                                    })
-                                    navigate('/signin')
-                                } else {
-                                    console.error(e)
-                                }
+                            void apiSync(auth, engine, () => {
+                                runInAction(() => {
+                                    appState.auth = null
+                                })
+                                navigate('/signin')
                             })
                         }}
                     >

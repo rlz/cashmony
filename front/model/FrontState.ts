@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { autorun, makeAutoObservable, runInAction } from 'mobx'
+import { autorun, makeAutoObservable, observable, runInAction } from 'mobx'
 import { createContext, useContext } from 'react'
 
 import { ApiAuthResponseV0 } from '../../common/api_v0'
@@ -106,7 +106,9 @@ export class FrontState {
     constructor(engine: Engine) {
         this.engine = engine
 
-        makeAutoObservable(this)
+        makeAutoObservable(this, {
+            auth: observable.shallow
+        })
 
         setInterval(() => {
             const today = utcToday()
