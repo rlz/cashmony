@@ -4,7 +4,7 @@ import { Binary, Collection, Db, MongoClient } from 'mongodb'
 
 import { ApiComparisonObjectV0 } from '../../common/api_v0'
 import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0'
-import { createIndexes, listIndexes } from './indexes'
+import { createIndexes } from './indexes'
 import { MongoObject, mongoObjectSchema, MongoTempPassword, MongoUser } from './model'
 
 export class MongoStorage {
@@ -15,11 +15,12 @@ export class MongoStorage {
         this.logger = logger
 
         this.client = new MongoClient('mongodb://localhost')
-        void listIndexes(this.ops)
     }
 
     static async create(logger: FastifyBaseLogger): Promise<MongoStorage> {
         const s = new MongoStorage(logger)
+
+        await s.createCollections()
 
         await Promise.all([
             createIndexes(logger, s.ops),
@@ -193,6 +194,13 @@ export class MongoStorage {
                 }
             }
         }))
+    }
+
+    private async createCollections() {
+        await Promise.all([
+            'operations', 'accounts', 'categories',
+            'watches', 'users', 'temp-passwords'
+        ].map(i => this.db.createCollection(i)))
     }
 
     private async getAll<T>(c: Collection<MongoObject<T>>, ownerId: string): Promise<ApiComparisonObjectV0[]> {

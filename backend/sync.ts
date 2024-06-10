@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify'
+import { FastifyInstance, RawServerBase } from 'fastify'
 import zodToJsonSchema from 'zod-to-json-schema'
 
 import { apiComparisonObjectSchemaV0, apiGetObjectsRequestSchemaV0, apiItemsRequestSchemaV0, apiItemsResponseSchemaV0, ApiItemsResponseV0 } from '../common/api_v0'
@@ -6,7 +6,7 @@ import { apiAccountSchemaV0, apiCategorySchemaV0, apiOperationSchemaV0, apiWatch
 import { auth } from './auth'
 import { MongoStorage } from './storage/mongo'
 
-export function registerSyncEndpoints(app: FastifyInstance, mongo: MongoStorage) {
+export function registerSyncEndpoints<T extends RawServerBase>(app: FastifyInstance<T>, mongo: MongoStorage) {
     app.get(
         '/api/v0/operations',
         {

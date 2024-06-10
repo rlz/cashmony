@@ -1,0 +1,13 @@
+[Unit]
+Description=Personal finantial tracker
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/cashmony
+Restart=on-failure
+ExecStart=/usr/local/nvm/versions/node/v22.2.0/bin/node /cashmony/cashmony.cjs
+
+[Install]
+WantedBy=multi-user.target

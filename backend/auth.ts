@@ -1,6 +1,6 @@
 import { httpErrors } from '@fastify/sensible'
 import { randomBytes, scryptSync } from 'crypto'
-import { FastifyInstance, FastifyRequest } from 'fastify'
+import { FastifyInstance, FastifyRequest, RawServerBase } from 'fastify'
 import { DateTime } from 'luxon'
 import { Binary, MongoServerError } from 'mongodb'
 import { uuidv7 } from 'uuidv7'
@@ -82,7 +82,7 @@ async function makeTempPassword(mongo: MongoStorage, userId: string): Promise<st
     return password.toString('base64')
 }
 
-export function registerAuthEndpoints(app: FastifyInstance, mongo: MongoStorage) {
+export function registerAuthEndpoints<T extends RawServerBase>(app: FastifyInstance<T>, mongo: MongoStorage) {
     app.post(
         '/api/v0/signup',
         {
@@ -133,7 +133,7 @@ export function registerAuthEndpoints(app: FastifyInstance, mongo: MongoStorage)
     )
 }
 
-export async function auth(req: FastifyRequest, mongo: MongoStorage): Promise<string> {
+export async function auth(req: Pick<FastifyRequest, 'headers'>, mongo: MongoStorage): Promise<string> {
     const authHeader = req.headers.authorization
     if (authHeader === undefined) {
         throw httpErrors.forbidden()
