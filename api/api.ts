@@ -5,6 +5,12 @@ import { apiAccountSchemaV0, ApiAccountV0, apiCategorySchemaV0, ApiCategoryV0, a
 
 const apiDomain = process.env.NODE_ENV === 'production' ? 'https://app2.cashmony.ru' : 'http://localhost:3001'
 
+export class Forbidden extends Error {
+    constructor(url: string) {
+        super(`Forbidden: ${url}`)
+    }
+}
+
 function url(path: string): string {
     return `${apiDomain}/api/v0/${path}`
 }
@@ -42,14 +48,18 @@ async function apiCall<T extends ZodType>(
         headers['authorization'] = `${auth.id}:${auth.tempPassword}`
     }
 
-    const resp = await fetch(url(path), {
+    const u = url(path)
+    const resp = await fetch(u, {
         method,
         headers,
         body
     })
 
     if (!resp.ok) {
-        throw Error(`Not ok resp (${resp.status} ${resp.statusText}): ${method} ${url(path)}`)
+        if (resp.status === 403) {
+            throw new Forbidden(u)
+        }
+        throw Error(`Not ok resp (${resp.status} ${resp.statusText}): ${method} ${u}`)
     }
 
     if (resp.status === 204) {

@@ -138,8 +138,8 @@ async function syncOps(auth: ApiAuthResponseV0, engine: Engine) {
     await syncItems(
         () => apiOps(auth),
         engine.operations,
-        (items: readonly Operation[]) => apiPushOps(
-            items.map((i): ApiOperationV0 => {
+        (items: readonly Operation[]) => {
+            const ops = items.map((i): ApiOperationV0 => {
                 if (i.type === 'deleted') {
                     return {
                         id: i.id,
@@ -191,9 +191,13 @@ async function syncOps(auth: ApiAuthResponseV0, engine: Engine) {
                         comment: i.comment
                     }
                 }
-            }),
-            auth
-        ),
+            })
+
+            return apiPushOps(
+                ops,
+                auth
+            )
+        },
         async (ids: readonly string[]) => (await apiOpsByIds(ids, auth))
             .items
             .map((i): Operation => {

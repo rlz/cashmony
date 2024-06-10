@@ -1,4 +1,4 @@
-import { faArrowDownLong, faArrowUpLong, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faArrowDownLong, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Typography } from '@mui/material'
 import React, { type ReactElement, useEffect, useState } from 'react'
@@ -118,7 +118,7 @@ function Stats({ title, extended, stats }: StatsProps): ReactElement {
             </Box>
             <Box display={'flex'} gap={2}>
                 <Box>{'Updated'}</Box>
-                <Box flex={'1 1 0'} textAlign={'right'}>
+                {/* <Box flex={'1 1 0'} textAlign={'right'}>
                     {stats !== null
                         ? (
                             <>
@@ -128,8 +128,8 @@ function Stats({ title, extended, stats }: StatsProps): ReactElement {
                             </>
                             )
                         : null}
-                </Box>
-                <Box>
+                </Box> */}
+                <Box flex={'1 1 0'} textAlign={'right'}>
                     {stats !== null
                         ? (
                             <>
@@ -143,7 +143,7 @@ function Stats({ title, extended, stats }: StatsProps): ReactElement {
             </Box>
             <Box display={'flex'} gap={2}>
                 <Box>{'Added'}</Box>
-                <Box flex={'1 1 0'} textAlign={'right'}>
+                {/* <Box flex={'1 1 0'} textAlign={'right'}>
                     {stats !== null
                         ? (
                             <>
@@ -153,8 +153,8 @@ function Stats({ title, extended, stats }: StatsProps): ReactElement {
                             </>
                             )
                         : null}
-                </Box>
-                <Box>
+                </Box> */}
+                <Box flex={'1 1 0'} textAlign={'right'}>
                     {stats !== null
                         ? (
                             <>
@@ -171,8 +171,8 @@ function Stats({ title, extended, stats }: StatsProps): ReactElement {
                 ? (
                     <Box display={'flex'} gap={2}>
                         <Box>{'Deleted'}</Box>
-                        <Box flex={'1 1 0'} textAlign={'right'}>
-                            {stats !== null && 'deletedInGoogle' in stats
+                        {/* <Box flex={'1 1 0'} textAlign={'right'}>
+                            {stats !== null && 'deletedInLocal' in stats
                                 ? (
                                     <>
                                         <FontAwesomeIcon icon={faArrowUpLong} />
@@ -181,8 +181,8 @@ function Stats({ title, extended, stats }: StatsProps): ReactElement {
                                     </>
                                     )
                                 : null}
-                        </Box>
-                        <Box>
+                        </Box> */}
+                        <Box flex={'1 1 0'} textAlign={'right'}>
                             {stats !== null && 'deletedInGoogle' in stats
                                 ? (
                                     <>

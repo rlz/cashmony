@@ -1,10 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { CloudUpload, FilterAlt, GitHub, Telegram } from '@mui/icons-material'
+import { CloudDownload, CloudSync, FilterAlt, GitHub, Telegram } from '@mui/icons-material'
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
+import { useNavigate } from 'react-router-dom'
 
+import { Forbidden } from '../../../api/api'
 import { CURRENCIES } from '../../../currencies/currenciesList'
 import { initGoogleSync } from '../../../google/sync'
 import { getCurrencySymbol } from '../../helpers/currencies'
@@ -24,6 +26,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
     const appState = useFrontState()
     const auth = useAuth()
     const engine = useEngine()
+    const navigate = useNavigate()
 
     return (
         <Column gap={1} {...props}>
@@ -107,9 +110,9 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                 <ListItem disablePadding>
                     <ListItemButton onClick={() => { void initGoogleSync() }}>
                         <ListItemIcon>
-                            <CloudUpload />
+                            <CloudDownload />
                         </ListItemIcon>
-                        <ListItemText primary={'Sync with Google'} />
+                        <ListItemText primary={'Get from Google'} />
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
@@ -131,9 +134,22 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
-                    <ListItemButton onClick={() => { void apiSync(auth, engine) }}>
+                    <ListItemButton
+                        onClick={() => {
+                            apiSync(auth, engine).catch((e) => {
+                                if (e instanceof Forbidden) {
+                                    runInAction(() => {
+                                        appState.auth = null
+                                    })
+                                    navigate('/signin')
+                                } else {
+                                    console.error(e)
+                                }
+                            })
+                        }}
+                    >
                         <ListItemIcon>
-                            <GitHub />
+                            <CloudSync />
                         </ListItemIcon>
                         <ListItemText>
                             {'API sync'}

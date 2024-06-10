@@ -69,9 +69,9 @@ export async function syncAccounts(engine: Engine): Promise<SyncStats> {
 
     [...missedInLocal, ...latestInGoogle].forEach(i => engine.pushAccount(i))
 
-    if (latestInLocal > 0 || localAccsMap.size > 0) {
-        await google.storeAccounts(engine.accounts)
-    }
+    // if (latestInLocal > 0 || localAccsMap.size > 0) {
+    //     await google.storeAccounts(engine.accounts)
+    // }
 
     return syncStats
 }
@@ -122,9 +122,9 @@ export async function syncCategories(engine: Engine): Promise<SyncStats> {
 
     [...missedInLocal, ...latestInGoogle].forEach(i => engine.pushCategory(i))
 
-    if (latestInLocal > 0 || localCatsMap.size > 0) {
-        await google.storeCategories(engine.categories)
-    }
+    // if (latestInLocal > 0 || localCatsMap.size > 0) {
+    //     await google.storeCategories(engine.categories)
+    // }
 
     return syncStats
 }
@@ -176,9 +176,9 @@ export async function syncGoals(engine: Engine): Promise<SyncStats> {
 
     [...missedInLocal, ...latestInGoogle].forEach(i => engine.pushWatch(i))
 
-    if (latestInLocal > 0 || localGoalsMap.size > 0) {
-        await google.storeGoals(engine.watches, engine)
-    }
+    // if (latestInLocal > 0 || localGoalsMap.size > 0) {
+    //     await google.storeGoals(engine.watches, engine)
+    // }
 
     return syncStats
 }
@@ -238,9 +238,9 @@ export async function syncOperations(engine: Engine): Promise<SyncStatsEx> {
 
     engine.pushOperations([...missedInLocal, ...latestInGoogle, ...deletedInGoogle])
 
-    if (latestInLocal > 0 || localOpsMap.size > 0 || deletedInLocal > 0) {
-        await google.storeOperations(engine.operations, engine)
-    }
+    // if (latestInLocal > 0 || localOpsMap.size > 0 || deletedInLocal > 0) {
+    //     await google.storeOperations(engine.operations, engine)
+    // }
 
     return syncStats
 }
