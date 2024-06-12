@@ -156,7 +156,7 @@ export const AccountBody = observer(() => {
                                         predicate={
                                             accId === '_total'
                                                 ? PE.filter(appState.filter)
-                                                : PE.and(PE.filter(appState.filter), PE.account(acc.name))
+                                                : PE.and(PE.filter(appState.filter), PE.account(acc.id))
                                         }
                                     />
                                 ))
