@@ -88,7 +88,7 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
                             const url = `/goals/${encodeURIComponent(goal.id)}`
                             return (
                                 <ExpensesCard
-                                    key={goal.name}
+                                    key={goal.id}
                                     url={url}
                                     name={goal.name}
                                     perDayGoal={goal.perDayAmount}
@@ -101,7 +101,7 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
                         const url = `/categories/${encodeURIComponent(cat.id)}`
                         return (
                             <ExpensesCard
-                                key={cat.name}
+                                key={cat.id}
                                 url={url}
                                 name={cat.name}
                                 perDayGoal={cat.perDayAmount ?? null}
