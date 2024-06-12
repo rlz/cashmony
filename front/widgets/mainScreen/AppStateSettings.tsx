@@ -4,14 +4,13 @@ import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toggle
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { CURRENCIES } from '../../../currencies/currenciesList'
 import { initGoogleSync } from '../../../google/sync'
 import { getCurrencySymbol } from '../../helpers/currencies'
 import { run, showIf } from '../../helpers/smallTools'
 import { apiSync } from '../../model/apiSync'
-import { useAuth, useFrontState } from '../../model/FrontState'
+import { useFrontState } from '../../model/FrontState'
 import { useEngine } from '../../useEngine'
 import { CurrencySelector } from '../CurrencySelector'
 import { FilterEditor } from '../FilterEditor'
@@ -23,9 +22,7 @@ type Props = Omit<React.ComponentProps<typeof Column>, 'gap'>
 
 export const AppStateSettings = observer((props: Props): ReactElement => {
     const appState = useFrontState()
-    const auth = useAuth()
     const engine = useEngine()
-    const navigate = useNavigate()
 
     return (
         <Column gap={1} {...props}>
@@ -135,19 +132,24 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                 <ListItem disablePadding>
                     <ListItemButton
                         onClick={() => {
-                            void apiSync(auth, engine, () => {
-                                runInAction(() => {
-                                    appState.auth = null
-                                })
-                                navigate('/signin')
-                            })
+                            void apiSync(appState, engine)
                         }}
                     >
                         <ListItemIcon>
                             <CloudSync />
                         </ListItemIcon>
                         <ListItemText>
-                            {'API sync'}
+                            {`Sync (${
+                                appState.lastSyncDate === null
+                                    ? 'never'
+                                    : appState.lastSyncDate
+                                        .diffNow()
+                                        .negate()
+                                        .shiftTo('hours', 'minutes', 'seconds')
+                                        .set({ seconds: 0 })
+                                        .shiftTo('hours', 'minutes')
+                                        .toHuman({ unitDisplay: 'short' })
+                            })`}
                         </ListItemText>
                     </ListItemButton>
                 </ListItem>

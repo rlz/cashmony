@@ -1,4 +1,3 @@
-import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
@@ -131,12 +130,8 @@ export const App = observer(function App(): ReactElement {
     const location = window.location
 
     useEffect(() => {
-        if (engine.initialised && frontState.auth !== null) {
-            void apiSync(frontState.auth, engine, () => {
-                runInAction(() => {
-                    frontState.auth = null
-                })
-            })
+        if (engine.initialised) {
+            void apiSync(frontState, engine)
         }
     }, [frontState.auth, engine.initialised])
 

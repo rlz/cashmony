@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+import { runInAction } from 'mobx'
 
 import { apiAccounts, apiAccountsByIds, apiCategories, apiCategoriesByIds, apiOps, apiOpsByIds, apiPushAccounts, apiPushCategories, apiPushOps, apiPushWatches, apiWatches, apiWatchesByIds, Forbidden } from '../../api/api'
 import { ApiAuthResponseV0, apiComparisonObjectSchemaV0, ApiItemsResponseV0 } from '../../common/api_v0'
@@ -6,16 +7,27 @@ import { ApiOperationV0 } from '../../common/data_v0'
 import { Engine } from '../../engine/engine'
 import { Account, Category, Operation, Watch } from '../../engine/model'
 import { dFromIso, dtFromIso } from '../helpers/smallTools'
+import { FrontState } from './FrontState'
 
-export async function apiSync(auth: ApiAuthResponseV0, engine: Engine, onForbidden: () => void) {
+export async function apiSync(frontState: FrontState, engine: Engine) {
+    if (frontState.auth === null) {
+        console.log('Skip sync: unauthenticated')
+        return
+    }
+
     try {
-        await syncAccounts(auth, engine)
-        await syncCategories(auth, engine)
-        await syncOps(auth, engine)
-        await syncWatches(auth, engine)
+        await syncAccounts(frontState.auth, engine)
+        await syncCategories(frontState.auth, engine)
+        await syncOps(frontState.auth, engine)
+        await syncWatches(frontState.auth, engine)
+        runInAction(() => {
+            frontState.lastSyncDate = DateTime.utc()
+        })
     } catch (e) {
         if (e instanceof Forbidden) {
-            onForbidden()
+            runInAction(() => {
+                frontState.auth = null
+            })
         } else {
             throw e
         }

@@ -61,6 +61,7 @@ type TimeSpanInfo = ThisMonthTimeSpanInfo |
     AllHistoryTimeSpanInfo | CustomTimeSpanInfo
 
 const AUTH_LS_KEY = 'AppState.auth'
+const LAST_SYNC_DATE_LS_KEY = 'AppState.lastSyncDate'
 const TIME_SPAN_INFO_LS_KEY = 'AppState.timeSpanInfo'
 const THEME_LS_KEY = 'AppState.theme'
 const MASTER_CURRENCY_LS_KEY = 'AppState.masterCurrency'
@@ -68,12 +69,27 @@ const FILTER_LS_KEY = 'AppState.filter'
 
 type UserThemeType = 'light' | 'dark' | 'auto'
 
+function readDate(date: string | null): DateTime<true> | null {
+    if (date === null) {
+        return null
+    }
+
+    const d = DateTime.fromISO(date)
+
+    if (!d.isValid) {
+        return null
+    }
+
+    return d
+}
+
 export class FrontState {
     private readonly engine: Engine
 
     today = utcToday()
 
     auth: ApiAuthResponseV0 | null = JSON.parse(localStorage.getItem(AUTH_LS_KEY) ?? 'null') as ApiAuthResponseV0 | null
+    lastSyncDate = readDate(localStorage.getItem(LAST_SYNC_DATE_LS_KEY))
     theme: UserThemeType = (localStorage.getItem(THEME_LS_KEY) as UserThemeType | null) ?? 'auto'
     timeSpanInfo: TimeSpanInfo = JSON.parse(localStorage.getItem(TIME_SPAN_INFO_LS_KEY) ?? '{ "type": "thisMonth" }')
     masterCurrency: string = localStorage.getItem(MASTER_CURRENCY_LS_KEY) ?? 'USD'
@@ -137,6 +153,14 @@ export class FrontState {
 
         autorun(() => {
             localStorage.setItem(FILTER_LS_KEY, JSON.stringify(this.filter))
+        })
+
+        autorun(() => {
+            if (this.lastSyncDate !== null) {
+                localStorage.setItem(LAST_SYNC_DATE_LS_KEY, this.lastSyncDate.toISO())
+            } else {
+                localStorage.removeItem(LAST_SYNC_DATE_LS_KEY)
+            }
         })
     }
 
