@@ -3,7 +3,7 @@ import { CloudDownload, CloudSync, FilterAlt, GitHub, Telegram } from '@mui/icon
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement } from 'react'
+import React, { type ReactElement, useEffect, useState } from 'react'
 
 import { CURRENCIES } from '../../../currencies/currenciesList'
 import { initGoogleSync } from '../../../google/sync'
@@ -23,6 +23,35 @@ type Props = Omit<React.ComponentProps<typeof Column>, 'gap'>
 export const AppStateSettings = observer((props: Props): ReactElement => {
     const appState = useFrontState()
     const engine = useEngine()
+
+    const [lastSyncText, setLastSyncText] = useState(
+        appState.lastSyncDate === null
+            ? 'never'
+            : appState.lastSyncDate
+                .diffNow()
+                .negate()
+                .shiftTo('hours', 'minutes', 'seconds')
+                .set({ seconds: 0 })
+                .shiftTo('hours', 'minutes')
+                .toHuman({ unitDisplay: 'short' })
+    )
+
+    useEffect(() => {
+        const i = setInterval(() => {
+            setLastSyncText(
+                appState.lastSyncDate === null
+                    ? 'never'
+                    : appState.lastSyncDate
+                        .diffNow()
+                        .negate()
+                        .shiftTo('hours', 'minutes', 'seconds')
+                        .set({ seconds: 0 })
+                        .shiftTo('hours', 'minutes')
+                        .toHuman({ unitDisplay: 'short' })
+            )
+        }, 10000)
+        return () => clearInterval(i)
+    }, [])
 
     return (
         <Column gap={1} {...props}>
@@ -139,17 +168,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                             <CloudSync />
                         </ListItemIcon>
                         <ListItemText>
-                            {`Sync (${
-                                appState.lastSyncDate === null
-                                    ? 'never'
-                                    : appState.lastSyncDate
-                                        .diffNow()
-                                        .negate()
-                                        .shiftTo('hours', 'minutes', 'seconds')
-                                        .set({ seconds: 0 })
-                                        .shiftTo('hours', 'minutes')
-                                        .toHuman({ unitDisplay: 'short' })
-                            })`}
+                            {`Sync (${lastSyncText})`}
                         </ListItemText>
                     </ListItemButton>
                 </ListItem>
