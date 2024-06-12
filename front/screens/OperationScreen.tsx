@@ -10,6 +10,7 @@ import { match } from 'ts-pattern'
 import { uuidv7 } from 'uuidv7'
 
 import { utcToday } from '../../engine/dates'
+import { Engine } from '../../engine/engine'
 import { type BaseTransaction, type NotDeletedOperation, type Operation } from '../../engine/model'
 import { sortCurrencies } from '../../engine/sortCurrencies'
 import { formatCurrency } from '../helpers/currencies'
@@ -357,6 +358,14 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
         ]
     )
 
+    const onTagsExpandedChange = useMemo(() => {
+        return (expanded: boolean) => { setExpanded(expanded ? 'tags' : null) }
+    }, [])
+
+    const tagsCategories = useMemo(() => {
+        return opType === 'income' || opType === 'expense' ? opCategories?.map(c => c.id) ?? [] : []
+    }, [opType, opCategories])
+
     if (
         opId === null
         || opType === null
@@ -380,6 +389,7 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
         toAccount: NotDeletedOperation['account'] | null
     ): void => {
         const [prCategories, prAccount, prToAccount] = propagateAmount(
+            engine,
             opType,
             amount,
             currency,
@@ -440,47 +450,47 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
                 hideAccount={opType === 'transfer' ? opToAccount?.id : undefined}
             />
             {
-            opType === 'transfer'
-                ? (
-                    <>
-                        <AccountEditor
-                            title={'To account'}
-                            opAmount={opAmount}
-                            negative={false}
-                            opCurrency={opCurrency}
-                            expanded={expanded === 'toAccount'}
-                            onExpandedChange={(expanded) => { setExpanded(expanded ? 'toAccount' : null) }}
-                            account={opToAccount}
-                            onAccountChange={(toAccount) => {
-                                propagateAndSave(opAmount, opCurrency, opCategories, opAccount, toAccount)
-                            }}
-                            hideAccount={opAccount?.id}
-                        />
-                    </>
-                    )
-                : null
-        }
+                opType === 'transfer'
+                    ? (
+                        <>
+                            <AccountEditor
+                                title={'To account'}
+                                opAmount={opAmount}
+                                negative={false}
+                                opCurrency={opCurrency}
+                                expanded={expanded === 'toAccount'}
+                                onExpandedChange={(expanded) => { setExpanded(expanded ? 'toAccount' : null) }}
+                                account={opToAccount}
+                                onAccountChange={(toAccount) => {
+                                    propagateAndSave(opAmount, opCurrency, opCategories, opAccount, toAccount)
+                                }}
+                                hideAccount={opAccount?.id}
+                            />
+                        </>
+                        )
+                    : null
+            }
             {
-            opType === 'expense' || opType === 'income'
-                ? (
-                    <CategoriesEditor
-                        expanded={expanded === 'categories'}
-                        onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
-                        opAmount={opAmount}
-                        negative={opType === 'expense'}
-                        opCurrency={opCurrency}
-                        categories={nonNull(opCategories, 'non null opCAtegories expected here')}
-                        onCategoriesChange={(categories) => {
-                            propagateAndSave(opAmount, opCurrency, categories, opAccount, opToAccount)
-                        }}
-                    />
-                    )
-                : null
-        }
+                opType === 'expense' || opType === 'income'
+                    ? (
+                        <CategoriesEditor
+                            expanded={expanded === 'categories'}
+                            onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
+                            opAmount={opAmount}
+                            negative={opType === 'expense'}
+                            opCurrency={opCurrency}
+                            categories={nonNull(opCategories, 'non null opCAtegories expected here')}
+                            onCategoriesChange={(categories) => {
+                                propagateAndSave(opAmount, opCurrency, categories, opAccount, opToAccount)
+                            }}
+                        />
+                        )
+                    : null
+            }
             <TagsEditor
                 expanded={expanded === 'tags'}
-                onExpandedChange={(expanded) => { setExpanded(expanded ? 'tags' : null) }}
-                categories={opType === 'income' || opType === 'expense' ? opCategories?.map(c => c.id) ?? [] : []}
+                onExpandedChange={onTagsExpandedChange}
+                categories={tagsCategories}
                 tags={opTags}
                 opType={opType}
                 onTagsChanged={setOpTags}
@@ -559,6 +569,7 @@ function SkeletonBody(): ReactElement {
 }
 
 function propagateAmount(
+    engine: Engine,
     opType: string,
     opAmount: number,
     opCurrency: string,
@@ -566,8 +577,6 @@ function propagateAmount(
     opAccount: BaseTransaction | null,
     opToAccount: BaseTransaction | null
 ): [readonly BaseTransaction[] | null, BaseTransaction | null, BaseTransaction | null] {
-    const engine = useEngine()
-
     if (
         opAccount !== null
         && opAmount !== opAccount.amount

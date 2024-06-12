@@ -1,7 +1,7 @@
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Button, TextField, Typography } from '@mui/material'
-import React, { type ReactElement, useState } from 'react'
+import React, { memo, type ReactElement, useState } from 'react'
 
 import { type Operation } from '../../../../engine/model'
 import { TagsSelect } from '../../select/TagsSelect'
@@ -15,7 +15,7 @@ interface Props {
     onTagsChanged: (newTags: readonly string[]) => void
 }
 
-export function TagsEditor(props: Props): ReactElement {
+export const TagsEditor = memo(function TagsEditor(props: Props): ReactElement {
     const [newTag, setNewTag] = useState('')
     const [addedTags, setAddedTags] = useState<readonly string[]>([])
 
@@ -58,4 +58,4 @@ export function TagsEditor(props: Props): ReactElement {
             </AccordionActions>
         </Accordion>
     )
-}
+})
