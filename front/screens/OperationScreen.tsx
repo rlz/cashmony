@@ -62,58 +62,58 @@ export function OperationScreen(): ReactElement {
     return (
         <MainScreen>
             {
-            !smallScreen
-                ? (
-                    <PanelGroup direction={'horizontal'}>
-                        <Panel id={'list'} order={1}>
-                            <Box height={'100%'} overflow={'auto'}>
-                                <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
-                                    <OpsList />
-                                    { opId === '' && <AddOperationFab /> }
+                !smallScreen
+                    ? (
+                        <PanelGroup direction={'horizontal'}>
+                            <Panel id={'list'} order={1}>
+                                <Box height={'100%'} overflow={'auto'}>
+                                    <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
+                                        <OpsList />
+                                        { opId === '' && <AddOperationFab /> }
 
-                                </Box>
-                            </Box>
-                        </Panel>
-                        {
-                        showIfLazy(opId !== '', () => (
-                            <>
-                                <ResizeHandle />
-                                <Panel id={'single'} order={2}>
-                                    <Box p={1} overflow={'auto'} height={'100%'}>
-                                        <OperationScreenBody urlOpId={opId} />
                                     </Box>
-                                </Panel>
-                            </>
-                        ))
-                    }
-
-                    </PanelGroup>
-                    )
-                : (
-                    <Box position={'relative'} height={'100%'}>
-                        <Box p={1} height={'100%'} overflow={'auto'}>
-                            <OpsList />
-                            { opId === '' && <AddOperationFab /> }
-                        </Box>
-                        {
-                        showIfLazy(opId !== '', () => {
-                            return (
-                                <Box
-                                    p={1}
-                                    position={'absolute'}
-                                    top={0}
-                                    left={0}
-                                    height={'100%'}
-                                    bgcolor={theme.palette.background.default}
-                                >
-                                    <OperationScreenBody urlOpId={opId} />
                                 </Box>
-                            )
-                        })
-                    }
-                    </Box>
-                    )
-        }
+                            </Panel>
+                            {
+                                showIfLazy(opId !== '', () => (
+                                    <>
+                                        <ResizeHandle />
+                                        <Panel id={'single'} order={2}>
+                                            <Box p={1} overflow={'auto'} height={'100%'}>
+                                                <OperationScreenBody urlOpId={opId} />
+                                            </Box>
+                                        </Panel>
+                                    </>
+                                ))
+                            }
+                        </PanelGroup>
+                        )
+                    : (
+                        <Box position={'relative'} height={'100%'}>
+                            <Box p={1} height={'100%'} overflow={'auto'}>
+                                <OpsList />
+                                { opId === '' && <AddOperationFab /> }
+                            </Box>
+                            {
+                                showIfLazy(opId !== '', () => {
+                                    return (
+                                        <Box
+                                            p={1}
+                                            position={'absolute'}
+                                            top={0}
+                                            left={0}
+                                            width={'100%'}
+                                            height={'100%'}
+                                            bgcolor={theme.palette.background.default}
+                                        >
+                                            <OperationScreenBody urlOpId={opId} />
+                                        </Box>
+                                    )
+                                })
+                            }
+                        </Box>
+                        )
+            }
         </MainScreen>
     )
 }
