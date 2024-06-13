@@ -61,6 +61,7 @@ type TimeSpanInfo = ThisMonthTimeSpanInfo |
     AllHistoryTimeSpanInfo | CustomTimeSpanInfo
 
 const AUTH_LS_KEY = 'AppState.auth'
+const DATA_USER_ID_LS_KEY = 'AppState.dataUserId'
 const LAST_SYNC_DATE_LS_KEY = 'AppState.lastSyncDate'
 const TIME_SPAN_INFO_LS_KEY = 'AppState.timeSpanInfo'
 const THEME_LS_KEY = 'AppState.theme'
@@ -88,6 +89,7 @@ export class FrontState {
 
     today = utcToday()
 
+    dataUserId: string | null = localStorage.getItem(DATA_USER_ID_LS_KEY)
     auth: ApiAuthResponseV0 | null = JSON.parse(localStorage.getItem(AUTH_LS_KEY) ?? 'null') as ApiAuthResponseV0 | null
     lastSyncDate = readDate(localStorage.getItem(LAST_SYNC_DATE_LS_KEY))
     theme: UserThemeType = (localStorage.getItem(THEME_LS_KEY) as UserThemeType | null) ?? 'auto'
@@ -160,6 +162,14 @@ export class FrontState {
                 localStorage.setItem(LAST_SYNC_DATE_LS_KEY, this.lastSyncDate.toISO())
             } else {
                 localStorage.removeItem(LAST_SYNC_DATE_LS_KEY)
+            }
+        })
+
+        autorun(() => {
+            if (this.dataUserId !== null) {
+                localStorage.setItem(DATA_USER_ID_LS_KEY, this.dataUserId)
+            } else {
+                localStorage.removeItem(DATA_USER_ID_LS_KEY)
             }
         })
     }

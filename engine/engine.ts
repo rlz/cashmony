@@ -10,6 +10,7 @@ export interface EngineDataChangeListener {
     onOperationChange?: (o: Operation) => void | Promise<void>
     onOperationsChange?: (o: readonly Operation[]) => void | Promise<void>
     onWatchChange?: (w: Watch) => void | Promise<void>
+    onClearData?: () => void | Promise<void>
 }
 
 export class Engine {
@@ -264,6 +265,18 @@ export class Engine {
         }
 
         return op
+    }
+
+    async clearData() {
+        this.accounts = []
+        this.categories = []
+        this.accounts = []
+        this.watches = []
+        await Promise.all(this.subscribtions.map(async (s) => {
+            if (s.onClearData !== undefined) {
+                await s.onClearData()
+            }
+        }))
     }
 
     get accountsById(): Readonly<Record<string, Account>> {

@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { CloudDownload, CloudSync, FilterAlt, GitHub, Telegram } from '@mui/icons-material'
+import { CloudDownload, CloudSync, FilterAlt, GitHub, Logout, Telegram } from '@mui/icons-material'
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
@@ -169,6 +169,22 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                         </ListItemIcon>
                         <ListItemText>
                             {`Sync (${lastSyncText})`}
+                        </ListItemText>
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                    <ListItemButton
+                        onClick={() => {
+                            runInAction(() => {
+                                appState.auth = null
+                            })
+                        }}
+                    >
+                        <ListItemIcon>
+                            <Logout />
+                        </ListItemIcon>
+                        <ListItemText>
+                            {`Logout (${appState.auth?.name})`}
                         </ListItemText>
                     </ListItemButton>
                 </ListItem>

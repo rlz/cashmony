@@ -3,25 +3,32 @@ import { runInAction } from 'mobx'
 
 import { apiAccounts, apiAccountsByIds, apiCategories, apiCategoriesByIds, apiOps, apiOpsByIds, apiPushAccounts, apiPushCategories, apiPushOps, apiPushWatches, apiWatches, apiWatchesByIds, Forbidden } from '../../api/api'
 import { ApiAuthResponseV0, apiComparisonObjectSchemaV0, ApiItemsResponseV0 } from '../../common/api_v0'
-import { ApiOperationV0 } from '../../common/data_v0'
+import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0'
 import { Engine } from '../../engine/engine'
 import { Account, Category, Operation, Watch } from '../../engine/model'
 import { dFromIso, dtFromIso } from '../helpers/smallTools'
 import { FrontState } from './FrontState'
 
 export async function apiSync(frontState: FrontState, engine: Engine) {
-    if (frontState.auth === null) {
+    const auth = frontState.auth
+
+    if (auth === null) {
         console.log('Skip sync: unauthenticated')
         return
     }
 
+    if (frontState.dataUserId !== auth.id) {
+        await engine.clearData()
+    }
+
     try {
-        await syncAccounts(frontState.auth, engine)
-        await syncCategories(frontState.auth, engine)
-        await syncOps(frontState.auth, engine)
-        await syncWatches(frontState.auth, engine)
+        await syncAccounts(auth, engine)
+        await syncCategories(auth, engine)
+        await syncOps(auth, engine)
+        await syncWatches(auth, engine)
         runInAction(() => {
             frontState.lastSyncDate = DateTime.utc()
+            frontState.dataUserId = auth.id
         })
     } catch (e) {
         if (e instanceof Forbidden) {
@@ -89,7 +96,7 @@ async function syncAccounts(auth: ApiAuthResponseV0, engine: Engine) {
         () => apiAccounts(auth),
         engine.accounts,
         (items: readonly Account[]) => apiPushAccounts(
-            items.map((i) => {
+            items.map((i): ApiAccountV0 => {
                 return {
                     id: i.id,
                     name: i.name,
@@ -103,7 +110,7 @@ async function syncAccounts(auth: ApiAuthResponseV0, engine: Engine) {
         ),
         async (ids: readonly string[]) => (await apiAccountsByIds(ids, auth))
             .items
-            .map((a) => {
+            .map((a): Account => {
                 return {
                     id: a.id,
                     name: a.name,
@@ -122,7 +129,7 @@ async function syncCategories(auth: ApiAuthResponseV0, engine: Engine) {
         () => apiCategories(auth),
         engine.categories,
         (items: readonly Category[]) => apiPushCategories(
-            items.map((i) => {
+            items.map((i): ApiCategoryV0 => {
                 return {
                     id: i.id,
                     name: i.name,
@@ -138,14 +145,14 @@ async function syncCategories(auth: ApiAuthResponseV0, engine: Engine) {
             }),
             auth
         ),
-        async (ids: readonly string[]) => (await apiCategoriesByIds(ids, auth))
+        async (ids: readonly string[]): Promise<Category[]> => (await apiCategoriesByIds(ids, auth))
             .items
-            .map((a) => {
+            .map((a): Category => {
                 return {
                     id: a.id,
                     name: a.name,
                     currency: a.perDayGoal?.currency,
-                    amount: a.perDayGoal?.amount,
+                    perDayAmount: a.perDayGoal?.amount,
                     deleted: a.deleted,
                     lastModified: dtFromIso(a.lastModified)
                 }
@@ -158,7 +165,7 @@ async function syncOps(auth: ApiAuthResponseV0, engine: Engine) {
     await syncItems(
         () => apiOps(auth),
         engine.operations,
-        (items: readonly Operation[]) => {
+        (items: readonly Operation[]): Promise<void> => {
             const ops = items.map((i): ApiOperationV0 => {
                 if (i.type === 'deleted') {
                     return {
@@ -218,7 +225,7 @@ async function syncOps(auth: ApiAuthResponseV0, engine: Engine) {
                 auth
             )
         },
-        async (ids: readonly string[]) => (await apiOpsByIds(ids, auth))
+        async (ids: readonly string[]): Promise<Operation[]> => (await apiOpsByIds(ids, auth))
             .items
             .map((i): Operation => {
                 if (i.type === 'deleted') {
@@ -276,7 +283,7 @@ async function syncWatches(auth: ApiAuthResponseV0, engine: Engine) {
         () => apiWatches(auth),
         engine.watches,
         (items: readonly Watch[]) => apiPushWatches(
-            items.map((i) => {
+            items.map((i): ApiWatchV0 => {
                 return {
                     id: i.id,
                     name: i.name,
@@ -293,7 +300,7 @@ async function syncWatches(auth: ApiAuthResponseV0, engine: Engine) {
         ),
         async (ids: readonly string[]) => (await apiWatchesByIds(ids, auth))
             .items
-            .map((i) => {
+            .map((i): Watch => {
                 return {
                     id: i.id,
                     name: i.name,

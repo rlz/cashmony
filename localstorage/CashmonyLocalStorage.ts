@@ -21,7 +21,8 @@ export class CashmonyLocalStorage {
             onCategoryChange: c => this.putCategory(c),
             onWatchChange: w => this.putWatch(w),
             onOperationChange: o => this.putOperations([o]),
-            onOperationsChange: ops => this.putOperations(ops)
+            onOperationsChange: ops => this.putOperations(ops),
+            onClearData: () => this.clearData()
         })
 
         void (
@@ -159,10 +160,15 @@ export class CashmonyLocalStorage {
         await tx.done
     }
 
-    async clearOperations(): Promise<void> {
+    async clearData(): Promise<void> {
         const db = await this.openDb()
 
-        await db.clear(OPERATIONS_STORE_NAME)
+        await Promise.all([
+            await db.clear(OPERATIONS_STORE_NAME),
+            await db.clear(ACCOUNTS_STORE_NAME_V1),
+            await db.clear(CATEGORIES_STORE_NAME_V1),
+            await db.clear(WATCHES_STORE_NAME)
+        ])
     }
 
     async readAllWatches(): Promise<Watch[]> {
