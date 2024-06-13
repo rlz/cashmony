@@ -15,7 +15,7 @@ const GOOGLE_CLIENT_ID = '969343913019-635prket9b5rq0skn212ab098u5m22pv.apps.goo
 const OK = 200
 const UNAUTHENTICATED = 401
 const REDIRECT_URL = match(process.env.NODE_ENV)
-    .with('production', () => 'https://app2.cashmony.ru/auth')
+    .with('production', () => 'https://app.cashmony.ru/auth')
     .otherwise(() => 'http://localhost:3000/auth')
 
 let google: Google | null = null

@@ -15,7 +15,7 @@ import { MongoStorage } from './storage/mongo'
 import { registerSyncEndpoints } from './sync'
 
 const settings = {
-    domain: 'app2.cashmony.ru'
+    domain: 'app.cashmony.ru'
 }
 
 async function main() {

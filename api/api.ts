@@ -3,7 +3,7 @@ import { z, ZodType } from 'zod'
 import { apiAuthResponseSchemaV0, ApiAuthResponseV0, apiComparisonObjectSchemaV0, ApiGetObjectsRequestV0, ApiItemsRequestV0, apiItemsResponseSchemaV0, ApiItemsResponseV0, ApiSigninRequestV0, ApiSignupRequestV0 } from '../common/api_v0'
 import { apiAccountSchemaV0, ApiAccountV0, apiCategorySchemaV0, ApiCategoryV0, apiOperationSchemaV0, ApiOperationV0, apiWatchSchemaV0, ApiWatchV0 } from '../common/data_v0'
 
-const apiDomain = process.env.NODE_ENV === 'production' ? 'https://app2.cashmony.ru' : 'http://localhost:3001'
+const apiDomain = process.env.NODE_ENV === 'production' ? 'https://app.cashmony.ru' : 'http://localhost:3001'
 
 export class Forbidden extends Error {
     constructor(url: string) {
