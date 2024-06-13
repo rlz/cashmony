@@ -56,7 +56,7 @@ export function AddAccount({ onClose }: { onClose: () => void }): ReactElement {
     return (
         <FullScreenModal title={'Add account'} onClose={onClose}>
             <Column gap={1} p={1}>
-                <Row gap={1}>
+                <Row gap={1} alignItems={'flex-start'}>
                     <IconButton
                         color={'primary'}
                         sx={{ width: 48 }}
