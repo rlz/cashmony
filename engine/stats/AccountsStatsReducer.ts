@@ -13,7 +13,7 @@ export class AccountsStatsReducer extends StatsReducer {
     private endDate: DateTime
     readonly total: TotalAndChangeStats
     readonly totalCurrency: string
-    readonly accounts: Record<string, TotalAndChangeStats> = {}
+    readonly accounts: Record<string, TotalAndChangeStats>
     private days: DateTime[] = []
     private sWeeks: DateTime[] = []
     private mWeeks: DateTime[] = []
@@ -22,7 +22,7 @@ export class AccountsStatsReducer extends StatsReducer {
     private today: DateTime
     private currenciesLoader: CurrenciesLoader
 
-    constructor(curreciesLoader: CurrenciesLoader, timeSpan: HumanTimeSpan, totalCurrency: string, engine: Engine, today: DateTime) {
+    constructor(accountsIds: string[], currenciesLoader: CurrenciesLoader, timeSpan: HumanTimeSpan, totalCurrency: string, engine: Engine, today: DateTime) {
         super()
         this.engine = engine
         this.timeSpan = timeSpan
@@ -30,8 +30,9 @@ export class AccountsStatsReducer extends StatsReducer {
         this.endDate = timeSpan.endDate
         this.total = this.newAccountAmount()
         this.totalCurrency = totalCurrency
+        this.accounts = Object.fromEntries(accountsIds.map(id => [id, this.newAccountAmount()]))
         this.today = today
-        this.currenciesLoader = curreciesLoader
+        this.currenciesLoader = currenciesLoader
     }
 
     async newDay(intervals: Readonly<Intervals>, _init: boolean): Promise<void> {
@@ -66,7 +67,7 @@ export class AccountsStatsReducer extends StatsReducer {
     }
 
     async process(op: NotDeletedOperation): Promise<void> {
-        const account = this.accounts[op.account.id] = this.accounts[op.account.id] ?? this.newAccountAmount()
+        const account = this.accounts[op.account.id]
         account.last += op.account.amount
         if (op.date >= this.startDate && op.date <= this.endDate) {
             addToLast(account.dayChange, op.account.amount)
@@ -83,7 +84,7 @@ export class AccountsStatsReducer extends StatsReducer {
             return
         }
 
-        const toAccount = this.accounts[op.toAccount.id] = this.accounts[op.toAccount.id] ?? this.newAccountAmount()
+        const toAccount = this.accounts[op.toAccount.id]
         toAccount.last += op.toAccount.amount
         if (op.date >= this.startDate && op.date <= this.endDate) {
             addToLast(toAccount.dayChange, op.toAccount.amount)
@@ -150,18 +151,17 @@ export class AccountsStatsReducer extends StatsReducer {
     }
 
     private newAccountAmount(): TotalAndChangeStats {
-        const datesToPoints = (dates: DateTime[]): Point[] => dates.map((date) => { return { date, value: 0 } })
         return {
             timeSpan: this.timeSpan,
             last: 0,
-            dayChange: datesToPoints(this.days),
-            sWeekChange: datesToPoints(this.sWeeks),
-            mWeekChange: datesToPoints(this.mWeeks),
-            monthChange: datesToPoints(this.months),
-            dayTotal: datesToPoints(this.days),
-            sWeekTotal: datesToPoints(this.sWeeks),
-            mWeekTotal: datesToPoints(this.mWeeks),
-            monthTotal: datesToPoints(this.months)
+            dayChange: [],
+            sWeekChange: [],
+            mWeekChange: [],
+            monthChange: [],
+            dayTotal: [],
+            sWeekTotal: [],
+            mWeekTotal: [],
+            monthTotal: []
         }
     }
 }

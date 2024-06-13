@@ -34,13 +34,14 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
     useEffect(
         () => {
             runAsync(async () => {
-                const r = new AccountsStatsReducer(currenciesLoader, appState.timeSpan, appState.masterCurrency, engine, appState.today)
+                const r = new AccountsStatsReducer(engine.accounts.map(a => a.id), currenciesLoader, appState.timeSpan, appState.masterCurrency, engine, appState.today)
+                const firstOpDate = engine.firstOp?.date ?? appState.timeSpan.startDate
                 const lastOpDate = engine.lastOp?.date ?? appState.timeSpan.endDate
                 await calcStats2(
                     engine,
                     PE.any(),
                     new CustomTimeSpan(
-                        engine.firstOp?.date ?? appState.timeSpan.startDate,
+                        firstOpDate < appState.timeSpan.startDate ? firstOpDate : appState.timeSpan.startDate,
                         lastOpDate > appState.timeSpan.endDate ? lastOpDate : appState.timeSpan.endDate
                     ),
                     appState.today,

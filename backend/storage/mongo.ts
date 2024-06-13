@@ -96,7 +96,7 @@ export class MongoStorage {
         await this.ops.bulkWrite(ops.map((o) => {
             return {
                 replaceOne: {
-                    filter: { _id: o.id },
+                    filter: { _id: o.id, ownerId },
                     replacement: {
                         _id: o.id,
                         ownerId,
@@ -125,7 +125,7 @@ export class MongoStorage {
         await this.accounts.bulkWrite(items.map((o) => {
             return {
                 replaceOne: {
-                    filter: { _id: o.id },
+                    filter: { _id: o.id, ownerId },
                     replacement: {
                         _id: o.id,
                         ownerId,
@@ -154,7 +154,7 @@ export class MongoStorage {
         await this.categories.bulkWrite(items.map((o) => {
             return {
                 replaceOne: {
-                    filter: { _id: o.id },
+                    filter: { _id: o.id, ownerId },
                     replacement: {
                         _id: o.id,
                         ownerId,
@@ -183,7 +183,7 @@ export class MongoStorage {
         await this.watches.bulkWrite(items.map((o) => {
             return {
                 replaceOne: {
-                    filter: { _id: o.id },
+                    filter: { _id: o.id, ownerId },
                     replacement: {
                         _id: o.id,
                         ownerId,

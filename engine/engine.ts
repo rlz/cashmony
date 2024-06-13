@@ -248,6 +248,10 @@ export class Engine {
     get lastOp(): NotDeletedOperation | undefined {
         this.requireInitialized()
 
+        if (this.operations.length === 0) {
+            return
+        }
+
         const op = this.operations[this.operations.length - 1]
 
         if (op.type !== 'deleted') {
