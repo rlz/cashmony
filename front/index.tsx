@@ -14,7 +14,6 @@ import { CashmonyLocalStorage } from '../localstorage/CashmonyLocalStorage'
 import { App } from './App'
 import { nonNull } from './helpers/smallTools'
 import { FrontState, FrontStateProvider } from './model/FrontState'
-import reportWebVitals from './reportWebVitals'
 import { CurrenciesLoaderProvider } from './useCurrenciesLoader'
 import { EngineProvider } from './useEngine'
 
@@ -84,8 +83,3 @@ const RootNode = observer((): ReactElement => {
 })
 
 root.render(<RootNode />)
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-void reportWebVitals()
