@@ -79,14 +79,15 @@ export const AccountBody = observer(() => {
 
     useEffect(() => {
         void (async () => {
+            const firstOpDate = engine.firstOp?.date ?? appState.timeSpan.startDate
             const lastOpDate = engine.lastOp?.date ?? appState.timeSpan.endDate
             const allTimeSpan = new CustomTimeSpan(
-                engine.firstOp?.date ?? appState.timeSpan.startDate,
+                firstOpDate < appState.timeSpan.startDate ? firstOpDate : appState.timeSpan.startDate,
                 lastOpDate > appState.timeSpan.endDate ? lastOpDate : appState.timeSpan.endDate
             )
 
             if (accId === '_total') {
-                const stats = new AccountsStatsReducer(currenciesLoader, appState.timeSpan, appState.masterCurrency, engine, appState.today)
+                const stats = new AccountsStatsReducer(Object.keys(engine.accountsById), currenciesLoader, appState.timeSpan, appState.masterCurrency, engine, appState.today)
                 await calcStats2(
                     engine,
                     PE.any(),
