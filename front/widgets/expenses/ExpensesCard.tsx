@@ -20,7 +20,7 @@ interface Props {
 }
 
 export const ExpensesCard = observer((props: Props): ReactElement => {
-    const appState = useFrontState()
+    const frontState = useFrontState()
 
     const navigate = useNavigate()
 
@@ -28,10 +28,11 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
         return <ExpensesCardSkeleton />
     }
 
+    const today = frontState.today
     const timeSpan = props.stats.timeSpan
-    const daysLeft = timeSpan.daysLeft(appState.today)
+    const daysLeft = timeSpan.daysLeft(today)
     const totalDays = timeSpan.totalDays
-    const todayAmount = props.stats.dayChange.find(i => i.date.toMillis() === appState.today.toMillis())?.value ?? 0
+    const todayAmount = props.stats.dayChange.find(i => i.date.toMillis() === frontState.today.toMillis())?.value ?? 0
 
     const leftPerDay = props.perDayGoal === null || daysLeft === 0 || todayAmount === undefined
         ? null
@@ -39,7 +40,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
 
     const perDay = totalDays - daysLeft === 0
         ? null
-        : (props.stats.last - todayAmount) / (totalDays - daysLeft)
+        : props.stats.last / (totalDays - daysLeft + (timeSpan.includesDate(today) ? 1 : 0))
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, props.currency, compact)
 
