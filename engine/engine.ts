@@ -276,6 +276,8 @@ export class Engine {
         this.categories = []
         this.accounts = []
         this.watches = []
+        this.operations = []
+
         await Promise.all(this.subscribtions.map(async (s) => {
             if (s.onClearData !== undefined) {
                 await s.onClearData()
