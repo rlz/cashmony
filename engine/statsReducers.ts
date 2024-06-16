@@ -11,7 +11,7 @@ export function perIntervalExpensesReducer(engine: Engine, currenciesLoader: Cur
     return {
         interval,
         reduce: async (op, _interval, firstOp, _intervalKind, result) => {
-            if (firstOp && op !== null) {
+            if (firstOp) {
                 result.push(0)
             }
 
