@@ -1,12 +1,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { CloudDownload, CloudSync, FilterAlt, GitHub, Logout, Telegram } from '@mui/icons-material'
+import { CloudSync, FilterAlt, GitHub, Logout, Telegram } from '@mui/icons-material'
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 
 import { CURRENCIES } from '../../../currencies/currenciesList'
-import { initGoogleSync } from '../../../google/sync'
 import { getCurrencySymbol } from '../../helpers/currencies'
 import { run, showIf } from '../../helpers/smallTools'
 import { apiSync } from '../../model/apiSync'
@@ -130,14 +129,6 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                             }
                         </ListItemIcon>
                         <ListItemText primary={'Master currency'} />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                    <ListItemButton onClick={() => { void initGoogleSync() }}>
-                        <ListItemIcon>
-                            <CloudDownload />
-                        </ListItemIcon>
-                        <ListItemText primary={'Get from Google'} />
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>

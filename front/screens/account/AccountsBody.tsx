@@ -1,6 +1,6 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Box, Button, Fab, Skeleton, Stack, Typography } from '@mui/material'
+import { Box, Fab, Skeleton, Stack, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import { ReactElement, useEffect, useState } from 'react'
 
@@ -9,7 +9,6 @@ import { Account } from '../../../engine/model'
 import { PE } from '../../../engine/predicateExpression'
 import { AccountsStatsReducer } from '../../../engine/stats/AccountsStatsReducer'
 import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
-import { initGoogleSync } from '../../../google/sync'
 import { runAsync } from '../../helpers/smallTools'
 import { useFrontState } from '../../model/FrontState'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader'
@@ -84,13 +83,6 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                     {'Account is your bank account or cash'}
                     <br />
                     {'You can create as many accounts as you need'}
-                    <Box my={2}>{'OR'}</Box>
-                    {'If you have sync your data with Google before'}
-                    <Box my={1}>
-                        <Button variant={'contained'} onClick={() => { void initGoogleSync() }}>
-                            {'Import data from Google'}
-                        </Button>
-                    </Box>
                 </Column>
             </>
         )

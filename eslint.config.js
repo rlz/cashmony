@@ -6,7 +6,7 @@ import tsEslint from 'typescript-eslint'
 export default [
     {
         files: [
-            '(api|common|engine|front|google|localstorage))/**/*.ts?(x)',
+            '(api|common|engine|front|localstorage))/**/*.ts?(x)',
             '*.js'
         ],
         languageOptions: {

@@ -5,8 +5,6 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { AccountScreen } from './screens/account/AccountScreen'
 import { AnaliticsScreen } from './screens/AnaliticsScreen'
 import { CategoryScreen } from './screens/category/CategoryScreen'
-import { AuthScreen } from './screens/google/AuthScreen'
-import { GoogleSyncScreen } from './screens/google/GoogleSyncScreen'
 import { LoadingScreen } from './screens/LoadingScreen'
 import { OperationScreen } from './screens/OperationScreen'
 import { SignupSigninScreen } from './screens/SignupSigninScreen'
@@ -37,14 +35,6 @@ const router = createBrowserRouter([
     {
         path: '/goals',
         element: <ExpensesGoalScreen />
-    },
-    {
-        path: '/google-sync',
-        element: <GoogleSyncScreen />
-    },
-    {
-        path: '/auth',
-        element: <AuthScreen />
     },
     {
         path: 'operations/:opId',
@@ -135,8 +125,6 @@ export const App = observer(function App(): ReactElement {
         && !location.pathname.startsWith('/accounts')
         && !location.pathname.startsWith('/signin')
         && !location.pathname.startsWith('/signup')
-        && !location.pathname.startsWith('/auth')
-        && !location.pathname.startsWith('/google-sync')
     ) {
         window.location.assign('/accounts')
         return <></>
