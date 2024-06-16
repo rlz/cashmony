@@ -1,9 +1,7 @@
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useEffect } from 'react'
+import React, { type ReactElement } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
-import { apiSync } from './model/apiSync'
-import { useFrontState } from './model/FrontState'
 import { AccountScreen } from './screens/account/AccountScreen'
 import { AnaliticsScreen } from './screens/AnaliticsScreen'
 import { CategoryScreen } from './screens/category/CategoryScreen'
@@ -126,14 +124,7 @@ window.routerNavigate = router.navigate.bind(router)
 
 export const App = observer(function App(): ReactElement {
     const engine = useEngine()
-    const frontState = useFrontState()
     const location = window.location
-
-    useEffect(() => {
-        if (engine.initialised) {
-            void apiSync(frontState, engine)
-        }
-    }, [frontState.auth, engine.initialised])
 
     if (!engine.initialised) {
         return <LoadingScreen />
@@ -142,6 +133,8 @@ export const App = observer(function App(): ReactElement {
     if (
         engine.accounts.length === 0
         && !location.pathname.startsWith('/accounts')
+        && !location.pathname.startsWith('/signin')
+        && !location.pathname.startsWith('/signup')
         && !location.pathname.startsWith('/auth')
         && !location.pathname.startsWith('/google-sync')
     ) {

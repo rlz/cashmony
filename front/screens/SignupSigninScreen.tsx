@@ -1,24 +1,19 @@
-import { Button, Stack, Tab, Tabs, TextField, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Stack, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 
 import { apiSignin, apiSignup } from '../../api/api'
+import { apiSync } from '../model/apiSync'
 import { FrontState, useFrontState } from '../model/FrontState'
+import { useEngine } from '../useEngine'
 
 export const SignupSigninScreen = observer(function SignupSigninScreen(): JSX.Element {
-    const appState = useFrontState()
     const location = useLocation()
     const navigate = useNavigate()
     const tab = location.pathname.substring(1)
-
-    useEffect(() => {
-        if (appState.auth !== null) {
-            navigate('/')
-        }
-    }, [appState.auth])
 
     return (
         <Stack p={1} gap={1} maxWidth={'500px'} mx={'auto'} mt={10}>
@@ -46,7 +41,10 @@ export const SignupSigninScreen = observer(function SignupSigninScreen(): JSX.El
 })
 
 function SignupForm() {
-    const appState = useFrontState()
+    const frontState = useFrontState()
+    const engine = useEngine()
+    const [syncInProgress, setSyncInProgress] = useState(false)
+    const navigate = useNavigate()
     const [name, setName] = useState('')
     const [nameActivated, setNameActivated] = useState(false)
     const [email, setEmail] = useState('')
@@ -55,6 +53,19 @@ function SignupForm() {
     const [passwordActivated, setPasswordActivated] = useState(false)
     const [password2, setPassword2] = useState('')
     const [password2Activated, setPassword2Activated] = useState(false)
+
+    const doSignUp = useCallback(() => {
+        setSyncInProgress(true)
+        setTimeout(async () => {
+            try {
+                await signup(name, email, password, password2, frontState)
+                await apiSync(frontState, engine)
+                navigate('/')
+            } finally {
+                setSyncInProgress(false)
+            }
+        }, 0)
+    }, [name, email, password, password2, frontState])
 
     return (
         <Stack gap={2} mt={2}>
@@ -97,29 +108,43 @@ function SignupForm() {
                 onFocus={() => setPassword2Activated(true)}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                        void signup(name, email, password, password2, appState)
+                        doSignUp()
                     }
                 }}
             />
-            <Button
-                variant={'contained'}
-                disabled={
-                    name === ''
-                    || !isValidEmail(email)
-                    || password === ''
-                    || password2 !== password
-                }
-                onClick={() => {
-                    void signup(name, email, password, password2, appState)
-                }}
-            >
-                {'Signup'}
-            </Button>
+            <Box sx={{ m: 1, position: 'relative' }}>
+                <Button
+                    variant={'contained'}
+                    fullWidth
+                    disabled={
+                        name === ''
+                        || !isValidEmail(email)
+                        || password === ''
+                        || password2 !== password
+                        || syncInProgress
+                    }
+                    onClick={doSignUp}
+                >
+                    {'Signup'}
+                </Button>
+                {syncInProgress && (
+                    <CircularProgress
+                        size={24}
+                        sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            marginTop: '-12px',
+                            marginLeft: '-12px'
+                        }}
+                    />
+                )}
+            </Box>
         </Stack>
     )
 }
 
-async function signup(name: string, email: string, password: string, password2: string, appState: FrontState) {
+async function signup(name: string, email: string, password: string, password2: string, frontState: FrontState) {
     if (
         name === ''
         || !isValidEmail(email)
@@ -132,14 +157,30 @@ async function signup(name: string, email: string, password: string, password2: 
     const resp = await apiSignup(name, email, password)
 
     runInAction(() => {
-        appState.auth = resp
+        frontState.auth = resp
     })
 }
 
 function SigninForm() {
-    const appState = useFrontState()
+    const frontState = useFrontState()
+    const engine = useEngine()
+    const [syncInProgress, setSyncInProgress] = useState(false)
+    const navigate = useNavigate()
     const [name, setName] = useState('')
     const [password, setPassword] = useState('')
+
+    const doSignIn = useCallback(() => {
+        setSyncInProgress(true)
+        setTimeout(async () => {
+            try {
+                await signin(name, password, frontState)
+                await apiSync(frontState, engine)
+                navigate('/')
+            } finally {
+                setSyncInProgress(false)
+            }
+        }, 0)
+    }, [name, password])
 
     return (
         <Stack gap={2} mt={2}>
@@ -151,27 +192,45 @@ function SigninForm() {
                 onChange={e => setPassword(e.target.value)}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                        void signin(name, password, appState)
+                        doSignIn()
                     }
                 }}
             />
-            <Button
-                variant={'contained'}
-                onClick={() => {
-                    void signin(name, password, appState)
-                }}
-            >
-                {'Signin'}
-            </Button>
+            <Box sx={{ m: 1, position: 'relative' }}>
+                <Button
+                    variant={'contained'}
+                    fullWidth
+                    disabled={
+                        name === ''
+                        || password === ''
+                        || syncInProgress
+                    }
+                    onClick={doSignIn}
+                >
+                    {'Signin'}
+                </Button>
+                {syncInProgress && (
+                    <CircularProgress
+                        size={24}
+                        sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            marginTop: '-12px',
+                            marginLeft: '-12px'
+                        }}
+                    />
+                )}
+            </Box>
         </Stack>
     )
 }
 
-async function signin(name: string, password: string, appState: FrontState) {
+async function signin(name: string, password: string, frontState: FrontState) {
     const resp = await apiSignin(name, password)
 
     runInAction(() => {
-        appState.auth = resp
+        frontState.auth = resp
     })
 }
 
