@@ -1,4 +1,4 @@
-import { action, computed, makeObservable, observable } from 'mobx'
+import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 
 import { Account, Category, NotDeletedOperation, Operation, Watch } from './model'
 import { operationComparator } from './operationsComparator'
@@ -272,11 +272,13 @@ export class Engine {
     }
 
     async clearData() {
-        this.accounts = []
-        this.categories = []
-        this.accounts = []
-        this.watches = []
-        this.operations = []
+        runInAction(() => {
+            this.accounts = []
+            this.categories = []
+            this.accounts = []
+            this.watches = []
+            this.operations = []
+        })
 
         await Promise.all(this.subscribtions.map(async (s) => {
             if (s.onClearData !== undefined) {
