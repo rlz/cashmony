@@ -13,6 +13,7 @@ import { Engine } from '../engine/engine'
 import { CashmonyLocalStorage } from '../localstorage/CashmonyLocalStorage'
 import { App } from './App'
 import { nonNull } from './helpers/smallTools'
+import { apiSync } from './model/apiSync'
 import { FrontState, FrontStateProvider } from './model/FrontState'
 import { CurrenciesLoaderProvider } from './useCurrenciesLoader'
 import { EngineProvider } from './useEngine'
@@ -48,26 +49,41 @@ const lightTheme = createTheme({
 
 const RootNode = observer((): ReactElement => {
     const engine = useMemo(() => new Engine(), [])
-    const appState = useMemo(() => new FrontState(engine), [])
+    const frontState = useMemo(() => new FrontState(engine), [])
     const currenciesLoader = new CurrenciesLoader()
 
+    const reSync = async () => {
+        if (frontState.auth === null) {
+            return
+        }
+
+        await apiSync(frontState, engine)
+    }
+
     useEffect(() => {
-        new CashmonyLocalStorage(engine)
+        void (async () => {
+            const ls = new CashmonyLocalStorage(engine)
+            await ls.loadData()
+
+            await reSync()
+            const i = setInterval(reSync, 5 * 60000)
+            return () => clearInterval(i)
+        })()
     }, [])
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
 
-    const theme = match([appState.theme, prefersDarkMode])
+    const theme = match([frontState.theme, prefersDarkMode])
         .with(['auto', true], () => 'dark')
         .with(['auto', false], () => 'light')
-        .otherwise(() => appState.theme)
+        .otherwise(() => frontState.theme)
 
     document.body.className = 'theme-' + theme
 
     return (
         <React.StrictMode>
             <EngineProvider value={engine}>
-                <FrontStateProvider value={appState}>
+                <FrontStateProvider value={frontState}>
                     <CurrenciesLoaderProvider value={currenciesLoader}>
                         <ThemeProvider theme={match(theme).with('light', () => lightTheme).otherwise(() => darkTheme)}>
                             <CssBaseline />

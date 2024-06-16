@@ -15,6 +15,8 @@ const GOALS_STORE_NAME = 'goals'
 const WATCHES_STORE_NAME = 'watches'
 
 export class CashmonyLocalStorage {
+    private engine: Engine
+
     constructor(engine: Engine) {
         engine.subscribe({
             onAccountChange: a => this.putAccount(a),
@@ -25,15 +27,15 @@ export class CashmonyLocalStorage {
             onClearData: () => this.clearData()
         })
 
-        void (
-            async () => {
-                const accounts = await this.readAllAccounts()
-                const categories = await this.readAllCategories()
-                const watches = await this.readAllWatches()
-                const operations = await this.readAllOperations()
-                engine.init(accounts, categories, operations, watches)
-            }
-        )()
+        this.engine = engine
+    }
+
+    async loadData() {
+        const accounts = await this.readAllAccounts()
+        const categories = await this.readAllCategories()
+        const watches = await this.readAllWatches()
+        const operations = await this.readAllOperations()
+        this.engine.init(accounts, categories, operations, watches)
     }
 
     private async openDb(): Promise<IDBPDatabase> {
