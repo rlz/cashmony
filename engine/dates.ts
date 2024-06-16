@@ -47,12 +47,20 @@ export abstract class HumanTimeSpan {
         return this.endDate.diff(this.startDate, 'days').days + 1
     }
 
+    /**
+     * @param today "today" dateTime for testing
+     * @returns days left in period (in future) including today
+     */
     daysLeft(today: DateTime): number {
         if (this.endDate < today) return 0
 
         if (this.startDate > today) return this.totalDays
 
         return this.endDate.diff(today, 'days').days + 1
+    }
+
+    includesDate(date: DateTime): boolean {
+        return date >= this.startDate && date <= this.endDate
     }
 }
 
@@ -123,7 +131,7 @@ export class LastPeriodTimeSpan extends HumanTimeSpan {
     }
 
     get startDate(): DateTime {
-        return utcToday().minus(this.duration)
+        return utcToday().minus(this.duration).plus({ day: 1 })
     }
 
     get endDate(): DateTime {
