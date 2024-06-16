@@ -108,9 +108,11 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
         ? null
         : (perDayGoal * totalDays + stats.total - stats.today) / daysLeft
 
+    // avg expenses per 30 days, positive value
     const periodPace = totalDays - daysLeft === 0
         ? null
-        : (stats.total - stats.today) * 30 / (totalDays - daysLeft)
+        // exclude 'today' expences
+        : -(stats.total - stats.today) * 30 / (totalDays - daysLeft)
 
     return (
         <Box display={'flex'} flexDirection={'column'} gap={1} pb={1}>
@@ -142,7 +144,7 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
             <ExpensesBarsPlot
                 currency={currency}
                 leftPerDay={leftPerDay}
-                perDayPace={periodPace === null ? null : periodPace / 30}
+                perDayPace={periodPace === null ? null : -periodPace / 30}
                 perDayExpenses={stats.perDay}
             />
             <ExpensesTotalPlot
