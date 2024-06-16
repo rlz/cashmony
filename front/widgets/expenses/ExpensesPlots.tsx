@@ -48,7 +48,7 @@ export const ExpensesBarsPlot = observer((props: AmountBarsCatPlotProps): ReactE
                 series.push({
                     type: 'line',
                     color: theme.palette.info.main,
-                    points: allDates.map(i => i < todaySeconds ? -perDayPace : null)
+                    points: allDates.map(i => i <= todaySeconds ? -perDayPace : null)
                 })
             }
 

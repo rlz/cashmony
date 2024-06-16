@@ -101,7 +101,8 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
     }
 
     const timeSpan = appState.timeSpan
-    const daysLeft = timeSpan.daysLeft(appState.today)
+    const today = appState.today
+    const daysLeft = timeSpan.daysLeft(today)
     const totalDays = timeSpan.totalDays
 
     const leftPerDay = perDayGoal === null || daysLeft === 0
@@ -112,7 +113,7 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
     const periodPace = totalDays - daysLeft === 0
         ? null
         // exclude 'today' expences
-        : -(stats.total - stats.today) * 30 / (totalDays - daysLeft)
+        : -(stats.total) * 30 / (totalDays - daysLeft + (timeSpan.includesDate(today) ? 1 : 0))
 
     return (
         <Box display={'flex'} flexDirection={'column'} gap={1} pb={1}>
