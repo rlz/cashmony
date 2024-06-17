@@ -693,21 +693,27 @@ const BasicInfo = observer(({ opType, opDate, opAmount, opCurrency, opCategories
                 }
             </Typography>
             {
-            opType === 'transfer'
-                ? (
+                opType === 'transfer'
+                && (
                     <Typography variant={'body2'}>
                         {'To acc.: '}
-                        {opToAccount?.id ?? '-'}
                         {
-
-                        opToAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
-                            ? null
-                            : ` (${formatCurrency(opToAccount.amount, toAccountCurrency)})`
-                    }
+                            opToAccount === null
+                                ? '-'
+                                : (
+                                    <>
+                                        {engine.getAccount(opToAccount.id).name}
+                                        {
+                                            opToAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
+                                                ? null
+                                                : ` (${formatCurrency(opToAccount.amount, toAccountCurrency)})`
+                                        }
+                                    </>
+                                    )
+                        }
                     </Typography>
-                    )
-                : null
-        }
+                )
+            }
             {categoryInfo}
             <Typography variant={'body2'} mt={1} color={'primary.light'} noWrap>
                 {opTags.join(', ')}
