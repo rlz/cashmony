@@ -1,26 +1,26 @@
-<svg viewBox="0 0 2000 2000" xmlns="http://www.w3.org/2000/svg">
-    <g transform="rotate(30 1000 1000)">
-        <rect x="640" y="330" width="720" height="340" rx="40" fill="#4269d0" />
+<svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
+    <g transform="rotate(30)">
+        <rect x="-36" y="-66" width="72" height="34" rx="4" fill="#4269d0" />
     </g>
-    <g transform="rotate(90 1000 1000)">
-        <rect x="640" y="330" width="720" height="340" rx="40" fill="#efb118" />
+    <g transform="rotate(90)">
+        <rect x="-36" y="-66" width="72" height="34" rx="4" fill="#efb118" />
     </g>
-    <g transform="rotate(150 1000 1000)">
-        <rect x="640" y="330" width="720" height="340" rx="40" fill="#ff725c" />
+    <g transform="rotate(150)">
+        <rect x="-36" y="-66" width="72" height="34" rx="4" fill="#ff725c" />
     </g>
-    <g transform="rotate(210 1000 1000)">
-        <rect x="640" y="330" width="720" height="340" rx="40" fill="#6cc5b0" />
+    <g transform="rotate(210)">
+        <rect x="-36" y="-66" width="72" height="34" rx="4" fill="#6cc5b0" />
     </g>
-    <g transform="rotate(270 1000 1000)">
-        <rect x="640" y="330" width="720" height="340" rx="40" fill="#3ca951" />
+    <g transform="rotate(270)">
+        <rect x="-36" y="-66" width="72" height="34" rx="4" fill="#3ca951" />
     </g>
     <mask id="mask">
-        <rect width="2000" height="2000" fill="white" />
-        <g transform="rotate(60 1000 1000)">
-            <rect x="640" y="330" width="720" height="340" rx="40" fill="black" />
+        <rect x="-100" y="-100" width="200" height="200" fill="white" />
+        <g transform="rotate(60)">
+            <rect x="-36" y="-66" width="72" height="34" rx="4" fill="black" />
         </g>
     </mask>
-    <g transform="rotate(330 1000 1000)" mask="url(#mask)">
-        <rect x="640" y="330" width="720" height="340" rx="40" fill="#ff8ab7" />
+    <g transform="rotate(330)" mask="url(#mask)">
+        <rect x="-36" y="-66" width="72" height="34" rx="4" fill="#ff8ab7" />
     </g>
 </svg>
