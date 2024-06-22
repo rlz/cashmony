@@ -1,5 +1,5 @@
 import { Box, Paper, Typography, useTheme } from '@mui/material'
-import * as ObsPlot from '@observablehq/plot'
+import * as Plot from '@observablehq/plot'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
@@ -42,7 +42,7 @@ export const ExpensesBarsPlot = observer(({ stats, perDay, leftPerDay, perDayGoa
                 barData = stats.mWeekChange.map(({ value, date }) => { return { date, value: value / 7 } })
             }
 
-            const p = ObsPlot.plot({
+            const p = Plot.plot({
                 width,
                 height: sparkline ? 50 : 250,
                 x: {
@@ -58,13 +58,13 @@ export const ExpensesBarsPlot = observer(({ stats, perDay, leftPerDay, perDayGoa
                     domain: stats.dayTotal.every(i => i.value === 0) ? [0, 1] : undefined
                 },
                 marks: [
-                    ObsPlot.rectY(barData, {
+                    Plot.rectY(barData, {
                         y: ({ value }) => Math.abs(value),
                         x: 'date',
                         interval,
                         fill: ({ value }) => value >= 0 ? theme.palette.success.main : theme.palette.error.main }
                     ),
-                    ObsPlot.lineY(
+                    Plot.lineY(
                         [
                             { v: perDay, d: startDate },
                             { v: perDay, d: (stats.today < endDate ? stats.today : endDate).plus({ day: 1 }) }
@@ -75,7 +75,7 @@ export const ExpensesBarsPlot = observer(({ stats, perDay, leftPerDay, perDayGoa
                             stroke: theme.palette.primary.main
                         }
                     ),
-                    ObsPlot.areaY(
+                    Plot.areaY(
                         [
                             { v: perDay, d: startDate },
                             { v: perDay, d: (stats.today < endDate ? stats.today : endDate).plus({ day: 1 }) }
@@ -90,7 +90,7 @@ export const ExpensesBarsPlot = observer(({ stats, perDay, leftPerDay, perDayGoa
                 ].values()
                     .concat(daysLeft > 0 && leftPerDay !== null && leftPerDay > 0
                         ? [
-                                ObsPlot.lineY(
+                                Plot.lineY(
                                     [
                                         { v: leftPerDay, d: stats.today },
                                         { v: leftPerDay, d: endDate.plus({ day: 1 }) }
@@ -101,7 +101,7 @@ export const ExpensesBarsPlot = observer(({ stats, perDay, leftPerDay, perDayGoa
                                         stroke: theme.palette.success.main
                                     }
                                 ),
-                                ObsPlot.areaY(
+                                Plot.areaY(
                                     [
                                         { v: leftPerDay, d: stats.today },
                                         { v: leftPerDay, d: endDate.plus({ day: 1 }) }
@@ -117,7 +117,7 @@ export const ExpensesBarsPlot = observer(({ stats, perDay, leftPerDay, perDayGoa
                         : [])
                     .concat(perDayGoal !== null
                         ? [
-                                ObsPlot.lineY(
+                                Plot.lineY(
                                     [
                                         { v: perDayGoal, d: startDate },
                                         { v: perDayGoal, d: endDate.plus({ day: 1 }) }
@@ -176,7 +176,7 @@ export const ExpensesTotalPlot = observer(({ stats, perDayGoal }: TotalCatPlotPr
 
             const extrapolatedTotal = stats.total * totalDays / (totalDays - daysLeft)
 
-            const p = ObsPlot.plot({
+            const p = Plot.plot({
                 width,
                 height: 250,
                 x: {
@@ -190,7 +190,7 @@ export const ExpensesTotalPlot = observer(({ stats, perDayGoal }: TotalCatPlotPr
                     domain: [0, Math.max(-extrapolatedTotal, (perDayGoal ?? 0) * totalDays)]
                 },
                 marks: [
-                    ObsPlot.lineY(
+                    Plot.lineY(
                         stats.dayTotal,
                         {
                             y: ({ value }) => -value,
@@ -199,7 +199,7 @@ export const ExpensesTotalPlot = observer(({ stats, perDayGoal }: TotalCatPlotPr
                             stroke: theme.palette.primary.main
                         }
                     ),
-                    ObsPlot.areaY(
+                    Plot.areaY(
                         stats.dayTotal,
                         {
                             y: ({ value }) => -value,
@@ -212,7 +212,7 @@ export const ExpensesTotalPlot = observer(({ stats, perDayGoal }: TotalCatPlotPr
                 ].values()
                     .concat(daysLeft > 0
                         ? [
-                                ObsPlot.lineY(
+                                Plot.lineY(
                                     [
                                         { v: -stats.total, d: stats.today },
                                         { v: -extrapolatedTotal, d: endDate }
@@ -229,7 +229,7 @@ export const ExpensesTotalPlot = observer(({ stats, perDayGoal }: TotalCatPlotPr
                     )
                     .concat(perDayGoal !== null
                         ? [
-                                ObsPlot.lineY(
+                                Plot.lineY(
                                     [
                                         { v: perDayGoal, d: startDate },
                                         { v: perDayGoal * (totalDays - daysLeft), d: daysLeft === 0 ? endDate : stats.today }
@@ -245,7 +245,7 @@ export const ExpensesTotalPlot = observer(({ stats, perDayGoal }: TotalCatPlotPr
                     )
                     .concat(daysLeft > 0 && perDayGoal !== null
                         ? [
-                                ObsPlot.lineY(
+                                Plot.lineY(
                                     [
                                         { v: perDayGoal * (totalDays - daysLeft), d: stats.today },
                                         { v: perDayGoal * totalDays, d: endDate }
@@ -257,7 +257,7 @@ export const ExpensesTotalPlot = observer(({ stats, perDayGoal }: TotalCatPlotPr
                                         strokeDasharray: '4 3'
                                     }
                                 ),
-                                ObsPlot.areaY(
+                                Plot.areaY(
                                     [
                                         { v: perDayGoal * (totalDays - daysLeft), d: stats.today },
                                         { v: perDayGoal * totalDays, d: endDate }
