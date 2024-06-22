@@ -19,6 +19,7 @@ export class TotalAndChangeReducer extends StatsReducer {
         this.predicate = compilePredicate(predicate, engine)
         this.currency = currency
         this.stats = {
+            currency,
             timeSpan,
             today,
             todayChange: 0,

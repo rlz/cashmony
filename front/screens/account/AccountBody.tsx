@@ -87,7 +87,14 @@ export const AccountBody = observer(() => {
             )
 
             if (accId === '_total') {
-                const stats = new AccountsStatsReducer(Object.keys(engine.accountsById), currenciesLoader, appState.timeSpan, appState.masterCurrency, engine, appState.today)
+                const stats = new AccountsStatsReducer(
+                    Object.fromEntries(engine.accounts.map(i => [i.id, i.currency])),
+                    currenciesLoader,
+                    appState.timeSpan,
+                    appState.masterCurrency,
+                    engine,
+                    appState.today
+                )
                 await calcStats2(
                     engine,
                     PE.any(),
@@ -99,7 +106,11 @@ export const AccountBody = observer(() => {
                 return
             }
 
-            const stats = new AccountStatsReducer(accId, appState.timeSpan, appState.today)
+            if (acc === null) {
+                return
+            }
+
+            const stats = new AccountStatsReducer(accId, acc.currency, appState.timeSpan, appState.today)
             await calcStats2(
                 engine,
                 PE.account(accId),

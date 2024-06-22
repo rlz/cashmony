@@ -38,7 +38,7 @@ export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
     useEffect(() => {
         void (
             async () => {
-                const stats = new AccountStatsReducer(acc.id, appState.timeSpan, appState.today)
+                const stats = new AccountStatsReducer(acc.id, acc.currency, appState.timeSpan, appState.today)
                 const lastOpDate = engine.lastOp?.date ?? appState.timeSpan.endDate
                 await calcStats2(
                     engine,

@@ -22,16 +22,20 @@ export class AccountsStatsReducer extends StatsReducer {
     private today: DateTime<true>
     private currenciesLoader: CurrenciesLoader
 
-    constructor(accountsIds: string[], currenciesLoader: CurrenciesLoader, timeSpan: HumanTimeSpan, totalCurrency: string, engine: Engine, today: DateTime<true>) {
+    /**
+     *
+     * @param accounts id -> currency
+     */
+    constructor(accounts: Record<string, string>, currenciesLoader: CurrenciesLoader, timeSpan: HumanTimeSpan, totalCurrency: string, engine: Engine, today: DateTime<true>) {
         super()
         this.engine = engine
         this.timeSpan = timeSpan
         this.startDate = timeSpan.startDate
         this.endDate = timeSpan.endDate
-        this.total = this.newAccountAmount()
+        this.total = this.newAccountAmount(totalCurrency)
         this.totalCurrency = totalCurrency
         this.today = today
-        this.accounts = Object.fromEntries(accountsIds.map(id => [id, this.newAccountAmount()]))
+        this.accounts = Object.fromEntries(Object.entries(accounts).map(([id, currency]) => [id, this.newAccountAmount(currency)]))
         this.currenciesLoader = currenciesLoader
     }
 
@@ -156,8 +160,9 @@ export class AccountsStatsReducer extends StatsReducer {
         }
     }
 
-    private newAccountAmount(): TotalAndChangeStats {
+    private newAccountAmount(currency: string): TotalAndChangeStats {
         return {
+            currency,
             timeSpan: this.timeSpan,
             today: this.today,
             todayChange: 0,

@@ -11,12 +11,13 @@ export class AccountStatsReducer extends StatsReducer {
     private endDate: DateTime
     readonly stats: TotalAndChangeStats
 
-    constructor(id: string, timeSpan: HumanTimeSpan, today: DateTime) {
+    constructor(id: string, currency: string, timeSpan: HumanTimeSpan, today: DateTime) {
         super()
         this.id = id
         this.startDate = timeSpan.startDate
         this.endDate = timeSpan.endDate
         this.stats = {
+            currency,
             timeSpan,
             today,
             todayChange: 0,

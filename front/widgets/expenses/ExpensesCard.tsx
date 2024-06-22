@@ -68,12 +68,10 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                         </DivBody2>
                         <ExpensesBarsPlot
                             stats={props.stats}
-                            today={today}
                             perDay={perDay}
                             leftPerDay={leftPerDay}
                             daysLeft={daysLeft}
                             perDayGoal={props.perDayGoal}
-                            currency={props.currency}
                             sparkline={true}
                         />
                     </Box>

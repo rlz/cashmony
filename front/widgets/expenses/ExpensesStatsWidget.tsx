@@ -132,18 +132,15 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
                 </Box>
             </Paper>
             <ExpensesBarsPlot
-                currency={currency}
                 stats={stats.periodStats}
                 perDay={perDay}
                 perDayGoal={perDayGoal}
                 leftPerDay={leftPerDay}
                 daysLeft={daysLeft}
-                today={today}
             />
             <ExpensesTotalPlot
-                currency={currency}
-                perDayGoal={perDayGoal === null ? null : [perDayGoal, currency]}
-                expenses={stats.periodStats.dayTotal.map(i => i.value)}
+                perDayGoal={perDayGoal}
+                stats={stats.periodStats}
             />
             <YMExpensesComparisonPlot
                 title={'Y/M Comparison'}

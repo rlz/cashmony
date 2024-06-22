@@ -8,6 +8,7 @@ export interface Point {
 }
 
 export interface TotalAndChangeStats {
+    currency: string
     timeSpan: HumanTimeSpan
     today: DateTime
     todayChange: number
