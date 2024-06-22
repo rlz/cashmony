@@ -1,7 +1,7 @@
 import { CurrenciesLoader } from '../../currencies/currencies'
 import { NotDeletedOperation } from '../model'
 import { isExpense, isIncome } from '../predicateExpression'
-import { Intervals, StatsReducer } from './newStatsProcessor'
+import { Intervals, StatsReducer } from './stats'
 
 export class YMComparisonReducer extends StatsReducer {
     private curency: string

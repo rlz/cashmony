@@ -12,7 +12,7 @@ import { PE } from '../../../engine/predicateExpression'
 import { AccountsStatsReducer } from '../../../engine/stats/AccountsStatsReducer'
 import { AccountStatsReducer } from '../../../engine/stats/AccountStatsReducer'
 import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
+import { calcStats } from '../../../engine/stats/stats'
 import { formatCurrency } from '../../helpers/currencies'
 import { nonNull, run, showIfLazy } from '../../helpers/smallTools'
 import { useFrontState } from '../../model/FrontState'
@@ -95,7 +95,7 @@ export const AccountBody = observer(() => {
                     engine,
                     appState.today
                 )
-                await calcStats2(
+                await calcStats(
                     engine,
                     PE.any(),
                     allTimeSpan,
@@ -111,7 +111,7 @@ export const AccountBody = observer(() => {
             }
 
             const stats = new AccountStatsReducer(accId, acc.currency, appState.timeSpan, appState.today)
-            await calcStats2(
+            await calcStats(
                 engine,
                 PE.account(accId),
                 allTimeSpan,

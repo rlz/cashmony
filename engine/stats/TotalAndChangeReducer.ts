@@ -6,7 +6,7 @@ import { Engine } from '../engine'
 import { NotDeletedOperation } from '../model'
 import { compilePredicate, Predicate } from '../predicateExpression'
 import { Point, TotalAndChangeStats } from './model'
-import { Intervals, StatsReducer } from './newStatsProcessor'
+import { Intervals, StatsReducer } from './stats'
 
 export class TotalAndChangeReducer extends StatsReducer {
     private predicate: (op: NotDeletedOperation) => boolean

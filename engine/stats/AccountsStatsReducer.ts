@@ -5,7 +5,7 @@ import { HumanTimeSpan } from '../dates'
 import { Engine } from '../engine'
 import { NotDeletedOperation } from '../model'
 import { Point, TotalAndChangeStats } from './model'
-import { Intervals, StatsReducer } from './newStatsProcessor'
+import { Intervals, StatsReducer } from './stats'
 
 export class AccountsStatsReducer extends StatsReducer {
     private timeSpan: HumanTimeSpan

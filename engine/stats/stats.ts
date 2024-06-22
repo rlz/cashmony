@@ -27,7 +27,7 @@ export class StatsReducer {
     async done(): Promise<void> {}
 }
 
-export async function calcStats2(
+export async function calcStats(
     engine: Engine,
     predicate: Predicate,
     timeSpan: HumanTimeSpan,

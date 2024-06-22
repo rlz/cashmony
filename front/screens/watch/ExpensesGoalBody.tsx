@@ -8,7 +8,7 @@ import { match } from 'ts-pattern'
 import { Watch } from '../../../engine/model'
 import { EXPENSE_PREDICATE, PE } from '../../../engine/predicateExpression'
 import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
+import { calcStats } from '../../../engine/stats/stats'
 import { TotalAndChangeReducer } from '../../../engine/stats/TotalAndChangeReducer'
 import { formatCurrency } from '../../helpers/currencies'
 import { nonNull, run, runAsync, showIfLazy } from '../../helpers/smallTools'
@@ -76,7 +76,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
 
             const reducer = new TotalAndChangeReducer(engine, currenciesLoader, appState.today, appState.timeSpan, predicate, newGoal.currency)
 
-            await calcStats2(engine, PE.any(), appState.timeSpan, appState.today, [reducer])
+            await calcStats(engine, PE.any(), appState.timeSpan, appState.today, [reducer])
 
             setStats(reducer.stats)
         })

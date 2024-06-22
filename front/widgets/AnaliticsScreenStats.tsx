@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite'
 import { useEffect, useState } from 'react'
 
 import { EXPENSE_PREDICATE, INCOME_PREDICATE, Predicate } from '../../engine/predicateExpression'
-import { calcStats2 } from '../../engine/stats/newStatsProcessor'
+import { calcStats } from '../../engine/stats/stats'
 import { TotalAndChangeReducer } from '../../engine/stats/TotalAndChangeReducer'
 import { YearsComparisonReducer } from '../../engine/stats/YearsComparisonReducer'
 import { YMComparisonReducer } from '../../engine/stats/YMComparisonReducer'
@@ -42,7 +42,7 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
                     ym: new YMComparisonReducer(currenciesLoader, appState.masterCurrency),
                     years: new YearsComparisonReducer(currenciesLoader, appState.masterCurrency)
                 }
-                await calcStats2(engine, predicate, ts, appState.today, Object.values(reducers))
+                await calcStats(engine, predicate, ts, appState.today, Object.values(reducers))
                 setReducers(reducers)
             }
         )()

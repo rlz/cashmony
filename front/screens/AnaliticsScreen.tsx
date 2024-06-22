@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { ParseError, parseFilterQuery } from '../../engine/filterExpressionParser/parser'
 import { NotDeletedOperation } from '../../engine/model'
 import { isExpense, isIncome, PE, Predicate } from '../../engine/predicateExpression'
-import { calcStats2, StatsReducer } from '../../engine/stats/newStatsProcessor'
+import { calcStats, StatsReducer } from '../../engine/stats/stats'
 import { useFrontState } from '../model/FrontState'
 import { useEngine } from '../useEngine'
 import { AnaliticsScreenStats } from '../widgets/AnaliticsScreenStats'
@@ -59,7 +59,7 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
     useEffect(() => {
         void (async () => {
             const s = new Stats(appState.masterCurrency)
-            await calcStats2(engine, predicate, appState.timeSpan, appState.today, [s])
+            await calcStats(engine, predicate, appState.timeSpan, appState.today, [s])
             setStats(s)
         })()
     }, [predicate, appState.timeSpan, appState.today, appState.masterCurrency])

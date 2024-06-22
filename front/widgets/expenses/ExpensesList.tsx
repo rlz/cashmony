@@ -5,7 +5,7 @@ import React, { type ReactElement, useEffect, useState } from 'react'
 import { type Category, type Watch } from '../../../engine/model'
 import { EXPENSE_PREDICATE, PE } from '../../../engine/predicateExpression'
 import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
+import { calcStats } from '../../../engine/stats/stats'
 import { TotalAndChangeReducer } from '../../../engine/stats/TotalAndChangeReducer'
 import { runAsync } from '../../helpers/smallTools'
 import { useFrontState } from '../../model/FrontState'
@@ -44,7 +44,7 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
                             new TotalAndChangeReducer(engine, currenciesLoader, today, ts, PE.and(EXPENSE_PREDICATE, PE.filter(g.filter)), g.currency)
                         ])
                     )
-                await calcStats2(
+                await calcStats(
                     engine,
                     PE.any(),
                     ts,

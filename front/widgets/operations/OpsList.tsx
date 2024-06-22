@@ -7,7 +7,7 @@ import { CurrenciesLoader } from '../../../currencies/currencies'
 import { HumanTimeSpan } from '../../../engine/dates'
 import { type NotDeletedOperation } from '../../../engine/model'
 import { PE, Predicate } from '../../../engine/predicateExpression'
-import { calcStats2, Intervals, StatsReducer } from '../../../engine/stats/newStatsProcessor'
+import { calcStats, Intervals, StatsReducer } from '../../../engine/stats/stats'
 import { formatCurrency } from '../../helpers/currencies'
 import { runAsync } from '../../helpers/smallTools'
 import { useFrontState } from '../../model/FrontState'
@@ -55,7 +55,7 @@ export const OpsList = observer(function OpsList(props: Props): ReactElement {
                 const predicate = props.predicate ?? PE.filter(appState.filter)
                 const timeSpan = props.timeSpan ?? appState.timeSpan
                 const reducer = new OpsListReducer(currenciesLoader, appState.masterCurrency)
-                await calcStats2(engine, predicate, timeSpan, appState.today, [reducer])
+                await calcStats(engine, predicate, timeSpan, appState.today, [reducer])
                 setDisplayOps(reducer.perDayOps)
                 setPerDayExpenses(reducer.perDayAmountDiff)
             })

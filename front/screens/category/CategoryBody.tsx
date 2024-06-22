@@ -7,7 +7,7 @@ import { match } from 'ts-pattern'
 import { Category } from '../../../engine/model'
 import { PE } from '../../../engine/predicateExpression'
 import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
+import { calcStats } from '../../../engine/stats/stats'
 import { TotalAndChangeReducer } from '../../../engine/stats/TotalAndChangeReducer'
 import { formatCurrency } from '../../helpers/currencies'
 import { nonNull, run, runAsync, showIfLazy } from '../../helpers/smallTools'
@@ -79,7 +79,7 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
         () => {
             runAsync(async () => {
                 const stats = new TotalAndChangeReducer(engine, currenciesLoader, appState.today, appState.timeSpan, PE.cat(catId), currency)
-                await calcStats2(engine, PE.any(), appState.timeSpan, appState.today, [stats])
+                await calcStats(engine, PE.any(), appState.timeSpan, appState.today, [stats])
                 setStats(stats.stats)
             })
         }, [engine.operations, catId, appState.timeSpanInfo, appState.today]

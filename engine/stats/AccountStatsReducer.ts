@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { HumanTimeSpan } from '../dates'
 import { NotDeletedOperation } from '../model'
 import { Point, TotalAndChangeStats } from './model'
-import { Intervals, StatsReducer } from './newStatsProcessor'
+import { Intervals, StatsReducer } from './stats'
 
 export class AccountStatsReducer extends StatsReducer {
     private id: string

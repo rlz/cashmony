@@ -1,7 +1,7 @@
 import { CurrenciesLoader } from '../../currencies/currencies'
 import { NotDeletedOperation } from '../model'
 import { isExpense, isIncome } from '../predicateExpression'
-import { Intervals, StatsReducer } from './newStatsProcessor'
+import { Intervals, StatsReducer } from './stats'
 
 export class YearsComparisonReducer extends StatsReducer {
     private readonly curency: string

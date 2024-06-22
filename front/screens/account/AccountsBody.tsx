@@ -8,7 +8,7 @@ import { CustomTimeSpan } from '../../../engine/dates'
 import { Account } from '../../../engine/model'
 import { PE } from '../../../engine/predicateExpression'
 import { AccountsStatsReducer } from '../../../engine/stats/AccountsStatsReducer'
-import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
+import { calcStats } from '../../../engine/stats/stats'
 import { runAsync } from '../../helpers/smallTools'
 import { useFrontState } from '../../model/FrontState'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader'
@@ -43,7 +43,7 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                 )
                 const firstOpDate = engine.firstOp?.date ?? appState.timeSpan.startDate
                 const lastOpDate = engine.lastOp?.date ?? appState.timeSpan.endDate
-                await calcStats2(
+                await calcStats(
                     engine,
                     PE.any(),
                     new CustomTimeSpan(

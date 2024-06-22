@@ -10,7 +10,7 @@ import { CustomTimeSpan } from '../../../engine/dates'
 import { Account } from '../../../engine/model'
 import { PE } from '../../../engine/predicateExpression'
 import { AccountStatsReducer } from '../../../engine/stats/AccountStatsReducer'
-import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
+import { calcStats } from '../../../engine/stats/stats'
 import { deepEqual } from '../../helpers/deepEqual'
 import { useFrontState } from '../../model/FrontState'
 import { useEngine } from '../../useEngine'
@@ -40,7 +40,7 @@ export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
             async () => {
                 const stats = new AccountStatsReducer(acc.id, acc.currency, appState.timeSpan, appState.today)
                 const lastOpDate = engine.lastOp?.date ?? appState.timeSpan.endDate
-                await calcStats2(
+                await calcStats(
                     engine,
                     PE.account(acc.id),
                     new CustomTimeSpan(

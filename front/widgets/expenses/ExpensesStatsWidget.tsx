@@ -8,7 +8,7 @@ import { CustomTimeSpan, LastPeriodTimeSpan } from '../../../engine/dates'
 import { NotDeletedOperation } from '../../../engine/model'
 import { compilePredicate, Predicate } from '../../../engine/predicateExpression'
 import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { calcStats2, StatsReducer } from '../../../engine/stats/newStatsProcessor'
+import { calcStats, StatsReducer } from '../../../engine/stats/stats'
 import { YMComparisonReducer } from '../../../engine/stats/YMComparisonReducer'
 import { formatCurrency } from '../../helpers/currencies'
 import { runAsync } from '../../helpers/smallTools'
@@ -59,7 +59,7 @@ export const ExpensesStatsWidget = observer(({ stats, predicate, perDayGoal }: P
                     DateTime.utc().minus({ years: 4 }).startOf('year'),
                     today
                 )
-                await calcStats2(engine, predicate, ts, today, [mc, reducer])
+                await calcStats(engine, predicate, ts, today, [mc, reducer])
 
                 setLastYearsStats({
                     lastMonth: reducer.lastMonth,
