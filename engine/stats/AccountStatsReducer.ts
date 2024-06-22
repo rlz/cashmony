@@ -33,18 +33,25 @@ export class AccountStatsReducer extends StatsReducer {
         }
     }
 
-    async newDay(intervals: Readonly<Intervals>, init: boolean): Promise<void> {
+    async newDay(intervals: Readonly<Intervals>, _init: boolean): Promise<void> {
+        if (
+            intervals.day.start < this.startDate
+            || intervals.day.start > this.endDate
+        ) {
+            return
+        }
+
         addDay(this.stats, intervals.day.start)
 
-        if (init || intervals.sWeek.isFirstDay) {
+        if (intervals.day.start.toMillis() === this.startDate.toMillis() || intervals.sWeek.isFirstDay) {
             addSweek(this.stats, intervals.sWeek.start)
         }
 
-        if (init || intervals.mWeek.isFirstDay) {
+        if (intervals.day.start.toMillis() === this.startDate.toMillis() || intervals.mWeek.isFirstDay) {
             addMweek(this.stats, intervals.mWeek.start)
         }
 
-        if (init || intervals.month.isFirstDay) {
+        if (intervals.day.start.toMillis() === this.startDate.toMillis() || intervals.month.isFirstDay) {
             addMonth(this.stats, intervals.month.start)
         }
     }
