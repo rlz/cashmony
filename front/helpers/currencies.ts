@@ -10,8 +10,8 @@ export function getCurrencySymbol(currency: string): string {
 }
 
 export function formatCurrency(amount: number, currency: string, compact: boolean = false): string {
-    if (amount === 0 && amount.toLocaleString() === '-0') {
-        amount = -amount
+    if (amount.toLocaleString() === '-0') {
+        amount = 0
     }
 
     return amount.toLocaleString(undefined, {
