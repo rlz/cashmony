@@ -56,7 +56,7 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                 setStats(r)
             })
         },
-        [appState.masterCurrency, appState.timeSpan, engine.operations]
+        [appState.masterCurrency, appState.timeSpan, engine.operations, engine.accounts]
     )
 
     if (engine.accounts.length === 0) {
