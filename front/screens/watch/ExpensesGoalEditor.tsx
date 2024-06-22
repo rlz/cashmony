@@ -8,10 +8,11 @@ import { match, P } from 'ts-pattern'
 import { Watch } from '../../../engine/model'
 import { deepEqual } from '../../helpers/deepEqual'
 import { showIf } from '../../helpers/smallTools'
+import { screenWidthIs } from '../../helpers/useWidth'
 import { useEngine } from '../../useEngine'
 import { GoalInput } from '../../widgets/expenses/editors/GoalInput'
 import { FilterEditor } from '../../widgets/FilterEditor'
-import { ActionFab } from '../../widgets/generic/ActionButton'
+import { ActionButton, ActionFab } from '../../widgets/generic/ActionButton'
 import { Column } from '../../widgets/generic/Containers'
 
 interface Props {
@@ -23,6 +24,7 @@ export function ExpensesGoalEditor({ goal, onChange }: Props): ReactElement {
     const engine = useEngine()
     const [editFilter, setEditFilter] = useState(false)
     const [newGoal, setNewGoal] = useState(goal)
+    const smallScreen = screenWidthIs('xs', 'sm')
 
     const newNameTrimmed = newGoal.name.trim()
 
@@ -94,12 +96,25 @@ export function ExpensesGoalEditor({ goal, onChange }: Props): ReactElement {
                     setNewGoal({ ...newGoal, perDayAmount })
                 }}
             />
-            <ActionFab
-                action={onSave}
-                bottom={goal.name === '' ? '20px' : undefined}
-            >
-                <FontAwesomeIcon icon={faCheck} />
-            </ActionFab>
+            {
+                goal.name === '' // create new goal
+                    ? (
+                        <ActionButton
+                            variant={'contained'}
+                            action={onSave}
+                        >
+                            {'Create'}
+                        </ActionButton>
+                        )
+                    : (
+                        <ActionFab
+                            action={onSave}
+                            bottom={goal.name === '' && smallScreen ? '20px' : undefined}
+                        >
+                            <FontAwesomeIcon icon={faCheck} />
+                        </ActionFab>
+                        )
+            }
             {
                 showIf(editFilter,
                     <FilterEditor
