@@ -1,7 +1,6 @@
 import { Box, Paper, Typography, useTheme } from '@mui/material'
 import * as Plot from '@observablehq/plot'
 import Color from 'color'
-import { DateTime } from 'luxon'
 
 import { TotalAndChangeStats } from '../../../engine/stats/model'
 import { formatCurrency } from '../../helpers/currencies'
@@ -46,31 +45,31 @@ export function TotalAndChangePlot({ title, expense, stats, currency }: Props): 
     })
 
     let data = stats.monthChange
-    let offset = (d: DateTime, i: number) => d.plus({ month: i })
+    let interval: Plot.Interval = 'month'
     if (data.length < 10) {
         data = stats.mWeekChange
-        offset = (d, i) => d.plus({ weeks: i })
+        interval = 'week'
     }
     if (data.length < 10) {
         data = stats.dayChange
-        offset = (d, i) => d.plus({ days: i })
+        interval = 'day'
     }
 
     const changePlot = (width: number) => Plot.plot({
         width,
         height: 150,
         x: { type: 'utc' },
-        y: { tickFormat: v => formatCurrency(v, currency, true) },
+        y: {
+            tickFormat: v => formatCurrency(v, currency, true),
+            domain: stats.dayTotal.every(({ value }) => value === 0) ? [0, 1] : undefined
+        },
         marks: [
             Plot.rectY(
                 data,
                 {
                     x: 'date',
                     y: v => Math.abs(v.value),
-                    interval: {
-                        floor: (v: DateTime) => offset(v, -0.5),
-                        offset: (v, o) => offset(v, o ?? 1)
-                    },
+                    interval,
                     fill: v => v.value < 0
                         ? theme.palette.error.main
                         : theme.palette.success.main
