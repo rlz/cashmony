@@ -81,7 +81,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
         })
     }, [newGoal, engine.operations, appState.timeSpanInfo])
 
-    const statsFilter = useMemo(() => newGoal !== null ? PE.filter(newGoal.filter) : null, [newGoal])
+    const statsFilter = useMemo(() => newGoal !== null ? PE.and(EXPENSE_PREDICATE, PE.filter(newGoal.filter)) : null, [newGoal])
 
     if (
         goal === null
