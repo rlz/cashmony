@@ -2,6 +2,48 @@ import { CURRENCIES } from '../currencies/currenciesList'
 import { Engine } from './engine'
 import { compareByStats } from './statsComparator'
 
+const rank = [
+    'USD',
+    'EUR',
+    'JPY',
+    'GBP',
+    'CNY',
+    'AUD',
+    'CAD',
+    'CHF',
+    'HKD',
+    'SGD',
+    'SEK',
+    'KRW',
+    'NOK',
+    'NZD',
+    'INR',
+    'MXN',
+    'TWD',
+    'ZAR',
+    'BRL',
+    'DKK',
+    'PLN',
+    'THB',
+    'ILS',
+    'IDR',
+    'CZK',
+    'AED',
+    'TRY',
+    'HUF',
+    'CLP',
+    'SAR',
+    'PHP',
+    'MYR',
+    'COP',
+    'RUB',
+    'RON',
+    'PEN',
+    'BHD',
+    'BGN',
+    'ARS'
+].map((c, i): [string, number] => [c, (100 - i) / 100])
+
 export function sortCurrencies(engine: Engine) {
     if (!engine.initialised) {
         throw Error('Uninitialized engine')
@@ -9,7 +51,7 @@ export function sortCurrencies(engine: Engine) {
 
     const currencies = Object.values(CURRENCIES).map(c => c.code)
 
-    const stats = new Map<string, number>()
+    const stats = new Map<string, number>(rank)
 
     for (const op of engine.operations) {
         if (op.type === 'deleted') continue
