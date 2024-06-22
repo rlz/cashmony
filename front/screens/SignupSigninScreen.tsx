@@ -60,7 +60,7 @@ function SignupForm() {
             try {
                 await signup(name, email, password, password2, frontState)
                 await apiSync(frontState, engine)
-                navigate('/')
+                navigate('/accounts')
             } finally {
                 setSyncInProgress(false)
             }
