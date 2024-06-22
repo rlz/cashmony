@@ -7,6 +7,7 @@ import { uuidv7 } from 'uuidv7'
 import zodToJsonSchema from 'zod-to-json-schema'
 
 import { apiAuthResponseSchemaV0, ApiAuthResponseV0, apiSigninRequestSchemaV0, apiSignupRequestSchemaV0 } from '../common/api_v0'
+import { makeDefaultCategories } from './storage/defaultCategories'
 import { MongoStorage } from './storage/mongo'
 
 const TEMP_PASSWORD_SALT = Buffer.from('cashmony-temp-password-salt', 'utf8')
@@ -17,6 +18,7 @@ async function signup(mongo: MongoStorage, name: string, email: string, password
     const id = uuidv7()
     try {
         await mongo.createUser(id, name, email, new Binary(salt), new Binary(hash))
+        await mongo.pushCategories(id, makeDefaultCategories())
     } catch (e) {
         if (e instanceof MongoServerError && e.code === 11000) {
             // duplicate key error
