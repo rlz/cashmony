@@ -6,8 +6,9 @@ import { match } from 'ts-pattern'
 
 import { Category } from '../../../engine/model'
 import { PE } from '../../../engine/predicateExpression'
-import { calcStats } from '../../../engine/stats'
-import { periodExpensesReducer } from '../../../engine/statsReducers'
+import { TotalAndChangeStats } from '../../../engine/stats/model'
+import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
+import { TotalAndChangeReducer } from '../../../engine/stats/TotalAndChangeReducer'
 import { formatCurrency } from '../../helpers/currencies'
 import { nonNull, run, runAsync, showIfLazy } from '../../helpers/smallTools'
 import { useFrontState } from '../../model/FrontState'
@@ -41,7 +42,7 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
     const [cat, setCat] = useState<Category | null>(null)
     const navigate = useNavigate()
     const [opModalTitle, setOpModalTitle] = useState('')
-    const [stats, setStats] = useState<{ total: number } | null>(null)
+    const [stats, setStats] = useState<TotalAndChangeStats | null>(null)
 
     const currency = cat?.currency ?? appState.masterCurrency
 
@@ -77,15 +78,11 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
     useEffect(
         () => {
             runAsync(async () => {
-                const stats = await calcStats(engine, PE.cat(catId), appState.timeSpan, appState.today, {
-                    total: periodExpensesReducer(engine, currenciesLoader, null, PE.cat(catId), currency)
-                })
-
-                setStats({
-                    total: stats.total[0]
-                })
+                const stats = new TotalAndChangeReducer(engine, currenciesLoader, appState.today, appState.timeSpan, PE.cat(catId), currency)
+                await calcStats2(engine, PE.any(), appState.timeSpan, appState.today, [stats])
+                setStats(stats.stats)
             })
-        }, [engine.operations, catId, appState.timeSpanInfo]
+        }, [engine.operations, catId, appState.timeSpanInfo, appState.today]
     )
 
     if (
@@ -127,7 +124,7 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
                             match(tabName)
                                 .with('stats', () => (
                                     <ExpensesStatsWidget
-                                        currency={currency}
+                                        stats={stats}
                                         predicate={PE.cat(catId)}
                                         perDayGoal={cat.perDayAmount ?? null}
                                     />

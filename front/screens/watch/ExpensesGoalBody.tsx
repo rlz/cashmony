@@ -7,8 +7,9 @@ import { match } from 'ts-pattern'
 
 import { Watch } from '../../../engine/model'
 import { EXPENSE_PREDICATE, PE } from '../../../engine/predicateExpression'
-import { calcStats } from '../../../engine/stats'
-import { periodExpensesReducer } from '../../../engine/statsReducers'
+import { TotalAndChangeStats } from '../../../engine/stats/model'
+import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
+import { TotalAndChangeReducer } from '../../../engine/stats/TotalAndChangeReducer'
 import { formatCurrency } from '../../helpers/currencies'
 import { nonNull, run, runAsync, showIfLazy } from '../../helpers/smallTools'
 import { useFrontState } from '../../model/FrontState'
@@ -43,7 +44,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
     const [goal, setGoal] = useState<Watch | null>(null)
     const [newGoal, setNewGoal] = useState<Watch | null>(null)
     const [opModalTitle, setOpModalTitle] = useState('')
-    const [total, setTotal] = useState<number>(0)
+    const [stats, setStats] = useState<TotalAndChangeStats | null>(null)
 
     const newGoalNameTrimmed = newGoal?.name.trim()
 
@@ -71,13 +72,13 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
                 return
             }
 
-            const predicate = PE.filter(newGoal.filter)
+            const predicate = PE.and(EXPENSE_PREDICATE, PE.filter(newGoal.filter))
 
-            const stats = await calcStats(engine, predicate, appState.timeSpan, appState.today, {
-                total: periodExpensesReducer(engine, currenciesLoader, null, predicate, newGoal.currency)
-            })
+            const reducer = new TotalAndChangeReducer(engine, currenciesLoader, appState.today, appState.timeSpan, predicate, newGoal.currency)
 
-            setTotal(stats.total[0])
+            await calcStats2(engine, PE.any(), appState.timeSpan, appState.today, [reducer])
+
+            setStats(reducer.stats)
         })
     }, [newGoal, engine.operations, appState.timeSpanInfo])
 
@@ -87,6 +88,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
         goal === null
         || newGoal === null
         || newGoalNameTrimmed === undefined
+        || stats === null
     ) {
         return <Box p={1}><ExpensesGroupScreenSkeleton /></Box>
     }
@@ -101,7 +103,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
                         {newGoal.name.trim() === '' ? '-' : newGoal.name}
                     </Typography>
                     <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
-                        {cur(-total)}
+                        {cur(-stats.total)}
                     </Typography>
                     <Typography variant={'body2'} textAlign={'center'}>
                         {'Goal (30d): '}
@@ -123,7 +125,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
                             match(tabName)
                                 .with('stats', () => (
                                     <ExpensesStatsWidget
-                                        currency={newGoal.currency}
+                                        stats={stats}
                                         predicate={statsFilter!}
                                         perDayGoal={newGoal.perDayAmount}
                                     />

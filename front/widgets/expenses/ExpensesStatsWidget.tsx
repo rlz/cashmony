@@ -6,10 +6,9 @@ import React, { type ReactElement, useEffect, useState } from 'react'
 import { CurrenciesLoader } from '../../../currencies/currencies'
 import { CustomTimeSpan, LastPeriodTimeSpan } from '../../../engine/dates'
 import { NotDeletedOperation } from '../../../engine/model'
-import { compilePredicate, PE, Predicate } from '../../../engine/predicateExpression'
+import { compilePredicate, Predicate } from '../../../engine/predicateExpression'
 import { TotalAndChangeStats } from '../../../engine/stats/model'
 import { calcStats2, StatsReducer } from '../../../engine/stats/newStatsProcessor'
-import { TotalAndChangeReducer } from '../../../engine/stats/TotalAndChangeReducer'
 import { YMComparisonReducer } from '../../../engine/stats/YMComparisonReducer'
 import { formatCurrency } from '../../helpers/currencies'
 import { runAsync } from '../../helpers/smallTools'
@@ -22,7 +21,7 @@ import { ExpensesInfoTable } from './ExpensesInfoTable'
 import { ExpensesBarsPlot, ExpensesTotalPlot } from './ExpensesPlots'
 
 interface Props {
-    currency: string
+    stats: TotalAndChangeStats
     perDayGoal: number | null
     predicate: Predicate
 }
@@ -32,10 +31,9 @@ interface Stats {
     last3Month: number
     lastYear: number
     monthsComparison: YMComparisonReducer
-    periodStats: TotalAndChangeStats
 }
 
-export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }: Props): ReactElement => {
+export const ExpensesStatsWidget = observer(({ stats, predicate, perDayGoal }: Props): ReactElement => {
     const engine = useEngine()
     const appState = useFrontState()
     const currenciesLoader = useCurrenciesLoader()
@@ -43,41 +41,36 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
     const theme = useTheme()
     const xs = useMediaQuery(theme.breakpoints.down('sm'))
 
-    const [stats, setStats] = useState<Stats | null>(null)
+    const [lastYearsStats, setLastYearsStats] = useState<Stats | null>(null)
 
-    const cur = (amount: number, compact = false): string => formatCurrency(amount, currency, compact)
+    const cur = (amount: number, compact = false): string => formatCurrency(amount, stats.currency, compact)
 
     useEffect(
         () => {
             runAsync(async () => {
                 const today = appState.today
-                const timeSpan = appState.timeSpan
 
                 const filter = compilePredicate(predicate, engine)
 
-                const reducer = new LastPeriodStatsReducer(filter, currenciesLoader, currency)
+                const reducer = new LastPeriodStatsReducer(filter, currenciesLoader, stats.currency)
 
-                const mc = new YMComparisonReducer(currenciesLoader, currency)
+                const mc = new YMComparisonReducer(currenciesLoader, stats.currency)
                 const ts = new CustomTimeSpan(
                     DateTime.utc().minus({ years: 4 }).startOf('year'),
                     today
                 )
                 await calcStats2(engine, predicate, ts, today, [mc, reducer])
 
-                const changeStats = new TotalAndChangeReducer(engine, currenciesLoader, today, timeSpan, predicate, currency)
-                await calcStats2(engine, PE.any(), timeSpan, today, [changeStats])
-
-                setStats({
+                setLastYearsStats({
                     lastMonth: reducer.lastMonth,
                     last3Month: reducer.last3Month,
                     lastYear: reducer.lastYear,
-                    monthsComparison: mc,
-                    periodStats: changeStats.stats
+                    monthsComparison: mc
                 })
             })
         },
         [
-            currency,
+            stats.currency,
             predicate,
             appState.today,
             appState.timeSpanInfo,
@@ -86,7 +79,7 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
         ]
     )
 
-    if (stats === null) {
+    if (lastYearsStats === null) {
         return <></>
     }
 
@@ -94,11 +87,11 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
     const today = appState.today
     const daysLeft = timeSpan.daysLeft(today)
     const totalDays = timeSpan.totalDays
-    const totalAmount = stats.periodStats.total
+    const totalAmount = stats.total
 
     const leftPerDay = perDayGoal === null || daysLeft === 0
         ? null
-        : (perDayGoal * totalDays + totalAmount - stats.periodStats.todayChange) / daysLeft
+        : (perDayGoal * totalDays + totalAmount - stats.todayChange) / daysLeft
 
     const perDay = totalDays - daysLeft === 0
         ? null
@@ -107,7 +100,7 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
     return (
         <Box display={'flex'} flexDirection={'column'} gap={1} pb={1}>
             <DivBody2 mt={1} py={1}>
-                <ExpensesInfoTable currency={currency} periodPace={perDay === null ? null : perDay * 30} leftPerDay={leftPerDay} />
+                <ExpensesInfoTable currency={stats.currency} periodPace={perDay === null ? null : perDay * 30} leftPerDay={leftPerDay} />
             </DivBody2>
             <Paper variant={'outlined'} sx={{ p: 1 }}>
                 <Typography variant={'h6'} textAlign={'center'}>
@@ -117,22 +110,22 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
                     <Typography variant={'body2'} textAlign={'center'} flex={'1 1 0'} noWrap minWidth={0}>
                         {'1 month'}
                         <br />
-                        {cur(stats.lastMonth, true)}
+                        {cur(lastYearsStats.lastMonth, true)}
                     </Typography>
                     <Typography variant={'body2'} textAlign={'center'} flex={'1 1 0'} noWrap minWidth={0}>
                         {'3 month'}
                         <br />
-                        {cur(stats.last3Month, true)}
+                        {cur(lastYearsStats.last3Month, true)}
                     </Typography>
                     <Typography variant={'body2'} textAlign={'center'} flex={'1 1 0'} noWrap minWidth={0}>
                         {'1 year'}
                         <br />
-                        {cur(stats.lastYear, true)}
+                        {cur(lastYearsStats.lastYear, true)}
                     </Typography>
                 </Box>
             </Paper>
             <ExpensesBarsPlot
-                stats={stats.periodStats}
+                stats={stats}
                 perDay={perDay}
                 perDayGoal={perDayGoal}
                 leftPerDay={leftPerDay}
@@ -140,12 +133,12 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
             />
             <ExpensesTotalPlot
                 perDayGoal={perDayGoal}
-                stats={stats.periodStats}
+                stats={stats}
             />
             <YMExpensesComparisonPlot
                 title={'Y/M Comparison'}
-                stats={stats.monthsComparison.expenses}
-                currency={currency}
+                stats={lastYearsStats.monthsComparison.expenses}
+                currency={stats.currency}
             />
         </Box>
     )
