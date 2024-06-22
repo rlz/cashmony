@@ -6,6 +6,7 @@ import { uuidv7 } from 'uuidv7'
 import { utcToday } from '../../../engine/dates'
 import { sortCurrencies } from '../../../engine/sortCurrencies'
 import { getCurrencySymbol } from '../../helpers/currencies'
+import { screenWidthIs } from '../../helpers/useWidth'
 import { useEngine } from '../../useEngine'
 import { CurrencyInput } from '../../widgets/CurrencyInput'
 import { CurrencySelector } from '../../widgets/CurrencySelector'
@@ -18,6 +19,7 @@ export function AddAccount({ onClose }: { onClose: () => void }): ReactElement {
     const [currency, setCurrency] = useState(sortCurrencies(engine)[0])
     const [initialAmount, setInitialAmount] = useState(0)
     const [curSelOpen, setCurSelOpen] = useState(false)
+    const smallScreen = screenWidthIs('xs', 'sm')
 
     const save = () => {
         // reuse ids of deleted accounts
@@ -55,7 +57,7 @@ export function AddAccount({ onClose }: { onClose: () => void }): ReactElement {
 
     return (
         <FullScreenModal title={'Add account'} onClose={onClose}>
-            <Column gap={1} p={1}>
+            <Column gap={1} p={1} minWidth={smallScreen ? undefined : '800px'}>
                 <Row gap={1} alignItems={'flex-start'}>
                     <IconButton
                         color={'primary'}

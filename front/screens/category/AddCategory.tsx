@@ -4,6 +4,7 @@ import React, { type ReactElement, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { uuidv7 } from 'uuidv7'
 
+import { screenWidthIs } from '../../helpers/useWidth'
 import { useEngine } from '../../useEngine'
 import { FullScreenModal } from '../../widgets/FullScreenModal'
 import { Column } from '../../widgets/generic/Containers'
@@ -12,6 +13,7 @@ export function AddCategory({ onClose }: { onClose: () => void }): ReactElement 
     const engine = useEngine()
     const navigate = useNavigate()
     const [name, setName] = useState('')
+    const smallScreen = screenWidthIs('xs', 'sm')
 
     const save = (): void => {
         const trimmedName = name.trim()
@@ -32,7 +34,7 @@ export function AddCategory({ onClose }: { onClose: () => void }): ReactElement 
 
     return (
         <FullScreenModal title={'Add category'} onClose={onClose}>
-            <Column gap={1} p={1}>
+            <Column gap={1} p={1} minWidth={smallScreen ? undefined : '800px'}>
                 <TextField
                     label={'Name'}
                     variant={'filled'}
