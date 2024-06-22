@@ -38,7 +38,7 @@ export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
     useEffect(() => {
         void (
             async () => {
-                const stats = new AccountStatsReducer(acc.id, acc.currency, appState.timeSpan, appState.today)
+                const reducer = new AccountStatsReducer(acc.id, acc.currency, appState.timeSpan, appState.today)
                 const lastOpDate = engine.lastOp?.date ?? appState.timeSpan.endDate
                 await calcStats(
                     engine,
@@ -48,9 +48,12 @@ export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
                         lastOpDate
                     ),
                     appState.today,
-                    [stats]
+                    [reducer]
                 )
-                setAmount(stats.stats.total)
+                if (amount === adjustedAmount) {
+                    setAmount(reducer.stats.total)
+                    setAdjustedAmount(reducer.stats.total)
+                }
             }
         )()
     }, [acc.name, engine.operations])
@@ -116,6 +119,7 @@ export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
                     label={'Adjust amount'}
                     currency={newAcc.currency}
                     amount={adjustedAmount}
+                    allowZero
                     onAmountChange={(amount) => { setAdjustedAmount(amount) }}
                 />
                 <Button
