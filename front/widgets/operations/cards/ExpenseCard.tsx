@@ -31,7 +31,7 @@ export function ExpenseCard({ operation }: Props): ReactElement {
             icon={<FontAwesomeIcon icon={faCreditCard} />}
             categoryName={categoryName}
             categoryGrey={categoryGrey}
-            amount={operation.amount}
+            amount={-operation.amount}
             accountName={engine.getAccount(operation.account.id).name}
             currency={operation.currency}
             tags={operation.tags}
