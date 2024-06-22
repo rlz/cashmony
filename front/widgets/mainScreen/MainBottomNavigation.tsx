@@ -90,12 +90,17 @@ export const MainBottomNavigation = observer(function MainBottomNavigation(): Re
                             />
                             )
                 }
-                <NavItem
-                    selected={active === 'analitics'}
-                    label={'Analitics'}
-                    icon={<QueryStatsIcon />}
-                    onClick={() => { nav('/analitics') }}
-                />
+                {
+                    engine.operations.length !== 0
+                    && (
+                        <NavItem
+                            selected={active === 'analitics'}
+                            label={'Analitics'}
+                            icon={<QueryStatsIcon />}
+                            onClick={() => { nav('/analitics') }}
+                        />
+                    )
+                }
                 {
                     engine.accounts.length === 0
                         ? undefined
