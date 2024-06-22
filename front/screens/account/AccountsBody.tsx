@@ -141,7 +141,6 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                             id={'_total'}
                             total={true}
                             name={'Total'}
-                            currency={appState.masterCurrency}
                             stats={stats.total}
                         />
                         {
@@ -150,7 +149,6 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                                     key={account.id}
                                     id={account.id}
                                     name={account.name}
-                                    currency={account.currency}
                                     stats={stats.accounts[account.id]}
                                 />
                             ))
@@ -163,7 +161,6 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                                                 key={account.id}
                                                 id={account.id}
                                                 name={account.name}
-                                                currency={account.currency}
                                                 stats={stats.accounts[account.id]}
                                             />
                                         ))

@@ -13,11 +13,10 @@ interface Props {
     id: string
     total?: boolean
     name: string
-    currency: string
     stats: TotalAndChangeStats | undefined
 }
 
-export const AccountCard = observer(function AccountCard({ id, total, name, currency, stats }: Props): ReactElement {
+export const AccountCard = observer(function AccountCard({ id, total, name, stats }: Props): ReactElement {
     const appState = useFrontState()
     const navigate = useNavigate()
 
@@ -35,7 +34,7 @@ export const AccountCard = observer(function AccountCard({ id, total, name, curr
                         <DivBody1>{name}</DivBody1>
                         <DivBody1 flex={'1 1 0'} textAlign={'right'} color={'primary.main'}>
                             {
-                                formatCurrency(stats.dayTotal.at(-1)?.value ?? 0, currency)
+                                formatCurrency(stats.dayTotal.at(-1)?.value ?? 0, stats.currency)
                             }
                         </DivBody1>
                     </Stack>
@@ -44,7 +43,7 @@ export const AccountCard = observer(function AccountCard({ id, total, name, curr
                         && (
                             <DivBody2 textAlign={'right'}>
                                 <SpanBody2 color={'secondary.main'}>{'now: '}</SpanBody2>
-                                {formatCurrency(stats.total, currency)}
+                                {formatCurrency(stats.total, stats.currency)}
                             </DivBody2>
                         )
                     }
