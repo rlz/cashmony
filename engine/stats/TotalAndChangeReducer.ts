@@ -11,18 +11,18 @@ import { Intervals, StatsReducer } from './newStatsProcessor'
 export class TotalAndChangeReducer extends StatsReducer {
     private predicate: (op: NotDeletedOperation) => boolean
     private currency: string
-    private multiplier: 1 | -1
     readonly stats: TotalAndChangeStats
     private readonly currenciesLoader: CurrenciesLoader
 
-    constructor(engine: Engine, currenciesLoader: CurrenciesLoader, timeSpan: HumanTimeSpan, predicate: Predicate, currency: string, reverse?: boolean) {
+    constructor(engine: Engine, currenciesLoader: CurrenciesLoader, today: DateTime, timeSpan: HumanTimeSpan, predicate: Predicate, currency: string) {
         super()
         this.predicate = compilePredicate(predicate, engine)
         this.currency = currency
-        this.multiplier = reverse ? -1 : 1
         this.stats = {
             timeSpan,
-            last: 0,
+            today,
+            todayChange: 0,
+            total: 0,
             dayChange: [],
             sWeekChange: [],
             mWeekChange: [],
@@ -57,9 +57,12 @@ export class TotalAndChangeReducer extends StatsReducer {
         }
 
         const rate = await this.currenciesLoader.getRate(op.date, op.currency, this.currency)
-        const amount = this.multiplier * op.amount * rate
+        const amount = op.amount * rate
 
-        this.stats.last += amount
+        this.stats.total += amount
+        if (op.date.toMillis() === this.stats.today.toMillis()) {
+            this.stats.todayChange += amount
+        }
         addToLast(this.stats.dayChange, amount)
         addToLast(this.stats.dayTotal, amount)
         addToLast(this.stats.sWeekChange, amount)
@@ -73,22 +76,22 @@ export class TotalAndChangeReducer extends StatsReducer {
 
 function addDay(amount: TotalAndChangeStats, date: DateTime): void {
     amount.dayChange.push({ date, value: 0 })
-    amount.dayTotal.push({ date, value: amount.last })
+    amount.dayTotal.push({ date, value: amount.total })
 }
 
 function addSweek(amount: TotalAndChangeStats, date: DateTime): void {
     amount.sWeekChange.push({ date, value: 0 })
-    amount.sWeekTotal.push({ date, value: amount.last })
+    amount.sWeekTotal.push({ date, value: amount.total })
 }
 
 function addMweek(amount: TotalAndChangeStats, date: DateTime): void {
     amount.mWeekChange.push({ date, value: 0 })
-    amount.mWeekTotal.push({ date, value: amount.last })
+    amount.mWeekTotal.push({ date, value: amount.total })
 }
 
 function addMonth(amount: TotalAndChangeStats, date: DateTime): void {
     amount.monthChange.push({ date, value: 0 })
-    amount.monthTotal.push({ date, value: amount.last })
+    amount.monthTotal.push({ date, value: amount.total })
 }
 
 function addToLast(values: Point[], change: number): void {

@@ -3,12 +3,14 @@ import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 
+import { CurrenciesLoader } from '../../../currencies/currencies'
 import { CustomTimeSpan, LastPeriodTimeSpan } from '../../../engine/dates'
-import { Predicate } from '../../../engine/predicateExpression'
-import { calcStats } from '../../../engine/stats'
-import { calcStats2 } from '../../../engine/stats/newStatsProcessor'
+import { NotDeletedOperation } from '../../../engine/model'
+import { compilePredicate, PE, Predicate } from '../../../engine/predicateExpression'
+import { TotalAndChangeStats } from '../../../engine/stats/model'
+import { calcStats2, StatsReducer } from '../../../engine/stats/newStatsProcessor'
+import { TotalAndChangeReducer } from '../../../engine/stats/TotalAndChangeReducer'
 import { YMComparisonReducer } from '../../../engine/stats/YMComparisonReducer'
-import { cumulativeIntervalExpensesReducer, perIntervalExpensesReducer, periodExpensesReducer } from '../../../engine/statsReducers'
 import { formatCurrency } from '../../helpers/currencies'
 import { runAsync } from '../../helpers/smallTools'
 import { useFrontState } from '../../model/FrontState'
@@ -26,14 +28,11 @@ interface Props {
 }
 
 interface Stats {
-    total: number
-    today: number
-    perDay: number[]
-    cumulative: number[]
     lastMonth: number
     last3Month: number
     lastYear: number
     monthsComparison: YMComparisonReducer
+    periodStats: TotalAndChangeStats
 }
 
 export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }: Props): ReactElement => {
@@ -51,38 +50,29 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
     useEffect(
         () => {
             runAsync(async () => {
-                const periodStats = await calcStats(engine, predicate, appState.timeSpan, appState.today, {
-                    total: cumulativeIntervalExpensesReducer(engine, currenciesLoader, 'day', predicate, currency),
-                    today: periodExpensesReducer(engine, currenciesLoader, appState.today, predicate, currency),
-                    perDay: perIntervalExpensesReducer(engine, currenciesLoader, 'day', predicate, currency)
-                })
+                const today = appState.today
+                const timeSpan = appState.timeSpan
 
-                const lastYear = new LastPeriodTimeSpan({ year: 1 })
-                const lastMonth = new LastPeriodTimeSpan({ month: 1 })
-                const last3Month = new LastPeriodTimeSpan({ month: 3 })
+                const filter = compilePredicate(predicate, engine)
 
-                const yearStats = await calcStats(engine, predicate, lastYear, appState.today, {
-                    lastMonth: periodExpensesReducer(engine, currenciesLoader, lastMonth.startDate, predicate, currency),
-                    last3Month: periodExpensesReducer(engine, currenciesLoader, last3Month.startDate, predicate, currency),
-                    lastYear: periodExpensesReducer(engine, currenciesLoader, lastYear.startDate, predicate, currency)
-                })
+                const reducer = new LastPeriodStatsReducer(filter, currenciesLoader, currency)
 
                 const mc = new YMComparisonReducer(currenciesLoader, currency)
                 const ts = new CustomTimeSpan(
                     DateTime.utc().minus({ years: 4 }).startOf('year'),
-                    DateTime.utc()
+                    today
                 )
-                await calcStats2(engine, predicate, ts, appState.today, [mc])
+                await calcStats2(engine, predicate, ts, today, [mc, reducer])
+
+                const changeStats = new TotalAndChangeReducer(engine, currenciesLoader, today, timeSpan, predicate, currency)
+                await calcStats2(engine, PE.any(), timeSpan, today, [changeStats])
 
                 setStats({
-                    total: periodStats.total[periodStats.total.length - 1],
-                    today: periodStats.today[0],
-                    perDay: periodStats.perDay,
-                    cumulative: periodStats.total,
-                    lastMonth: -30 * yearStats.lastMonth[0] / lastMonth.totalDays,
-                    last3Month: -30 * yearStats.last3Month[0] / last3Month.totalDays,
-                    lastYear: -30 * yearStats.lastYear[0] / lastYear.totalDays,
-                    monthsComparison: mc
+                    lastMonth: reducer.lastMonth,
+                    last3Month: reducer.last3Month,
+                    lastYear: reducer.lastYear,
+                    monthsComparison: mc,
+                    periodStats: changeStats.stats
                 })
             })
         },
@@ -104,21 +94,20 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
     const today = appState.today
     const daysLeft = timeSpan.daysLeft(today)
     const totalDays = timeSpan.totalDays
+    const totalAmount = stats.periodStats.total
 
     const leftPerDay = perDayGoal === null || daysLeft === 0
         ? null
-        : (perDayGoal * totalDays + stats.total - stats.today) / daysLeft
+        : (perDayGoal * totalDays + totalAmount - stats.periodStats.todayChange) / daysLeft
 
-    // avg expenses per 30 days, positive value
-    const periodPace = totalDays - daysLeft === 0
+    const perDay = totalDays - daysLeft === 0
         ? null
-        // exclude 'today' expences
-        : -(stats.total) * 30 / (totalDays - daysLeft + (timeSpan.includesDate(today) ? 1 : 0))
+        : -(totalAmount) / (totalDays - daysLeft + (timeSpan.includesDate(today) ? 1 : 0))
 
     return (
         <Box display={'flex'} flexDirection={'column'} gap={1} pb={1}>
             <DivBody2 mt={1} py={1}>
-                <ExpensesInfoTable currency={currency} periodPace={periodPace} leftPerDay={leftPerDay} />
+                <ExpensesInfoTable currency={currency} periodPace={perDay === null ? null : perDay * 30} leftPerDay={leftPerDay} />
             </DivBody2>
             <Paper variant={'outlined'} sx={{ p: 1 }}>
                 <Typography variant={'h6'} textAlign={'center'}>
@@ -144,14 +133,17 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
             </Paper>
             <ExpensesBarsPlot
                 currency={currency}
+                stats={stats.periodStats}
+                perDay={perDay}
+                perDayGoal={perDayGoal}
                 leftPerDay={leftPerDay}
-                perDayPace={periodPace === null ? null : -periodPace / 30}
-                perDayExpenses={stats.perDay}
+                daysLeft={daysLeft}
+                today={today}
             />
             <ExpensesTotalPlot
                 currency={currency}
                 perDayGoal={perDayGoal === null ? null : [perDayGoal, currency]}
-                expenses={stats.cumulative}
+                expenses={stats.periodStats.dayTotal.map(i => i.value)}
             />
             <YMExpensesComparisonPlot
                 title={'Y/M Comparison'}
@@ -161,3 +153,65 @@ export const ExpensesStatsWidget = observer(({ currency, predicate, perDayGoal }
         </Box>
     )
 })
+
+class LastPeriodStatsReducer extends StatsReducer {
+    private readonly lastYearPeriod = new LastPeriodTimeSpan({ year: 1 })
+    private readonly lastMonthPeriod = new LastPeriodTimeSpan({ month: 1 })
+    private readonly last3MonthPeriod = new LastPeriodTimeSpan({ month: 3 })
+
+    private filter: (op: NotDeletedOperation) => boolean
+    private currenciesLoader: CurrenciesLoader
+    private currency: string
+
+    lastYear = 0
+    last3Month = 0
+    lastMonth = 0
+
+    constructor(filter: (op: NotDeletedOperation) => boolean, currenciesLoader: CurrenciesLoader, currency: string) {
+        super()
+        this.filter = filter
+        this.currenciesLoader = currenciesLoader
+        this.currency = currency
+    }
+
+    async process(op: NotDeletedOperation): Promise<void> {
+        if (
+            (
+                op.type !== 'expense'
+                && (op.type !== 'income' || op.categories.length === 0)
+            )
+            || op.date < this.lastYearPeriod.startDate
+        ) {
+            return
+        }
+
+        const rate = await this.currenciesLoader.getRate(op.date, op.currency, this.currency)
+
+        let amount = 0
+        for (const cat of op.categories) {
+            const catOp = { ...op, categories: [cat] }
+
+            if (!this.filter(catOp)) {
+                continue
+            }
+
+            amount += cat.amount * rate
+        }
+
+        this.lastYear += amount
+
+        if (op.date >= this.last3MonthPeriod.startDate) {
+            this.last3Month += amount
+        }
+
+        if (op.date >= this.lastMonthPeriod.startDate) {
+            this.lastMonth += amount
+        }
+    }
+
+    async done(): Promise<void> {
+        this.lastMonth = -30 * this.lastMonth / this.lastMonthPeriod.totalDays
+        this.last3Month = -30 * this.last3Month / this.last3MonthPeriod.totalDays
+        this.lastYear = -30 * this.lastYear / this.lastYearPeriod.totalDays
+    }
+}

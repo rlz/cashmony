@@ -1,95 +1,167 @@
-import { useTheme } from '@mui/material'
+import { Box, Paper, Typography, useTheme } from '@mui/material'
+import * as ObsPlot from '@observablehq/plot'
+import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
+import { useResizeDetector } from 'react-resize-detector'
 
 import { utcToday } from '../../../engine/dates'
+import { TotalAndChangeStats } from '../../../engine/stats/model'
+import { formatCurrency } from '../../helpers/currencies'
 import { runAsync } from '../../helpers/smallTools'
 import { useFrontState } from '../../model/FrontState'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader'
 import { useEngine } from '../../useEngine'
 import { Plot, type PlotSeries } from '../Plot'
+import { PlotContainer } from '../plots/PlotUtils'
 
-interface AmountBarsCatPlotProps {
-    currency: string
-    perDayPace: number | null
+interface ExpensesBarsPlotProps {
+    today: DateTime
+    stats: TotalAndChangeStats
+    perDay: number | null
     leftPerDay: number | null
-    perDayExpenses: number[]
+    perDayGoal: number | null
+    daysLeft: number
+    currency: string
     sparkline?: boolean
 }
 
-export const ExpensesBarsPlot = observer((props: AmountBarsCatPlotProps): ReactElement => {
+export const ExpensesBarsPlot = observer(({ stats, perDay, leftPerDay, perDayGoal, daysLeft, currency, sparkline }: ExpensesBarsPlotProps): ReactElement => {
+    sparkline ??= false
     const appState = useFrontState()
-    const engine = useEngine()
-
+    const { width, ref } = useResizeDetector()
     const theme = useTheme()
 
-    const series = useMemo(
+    useEffect(
         () => {
-            const allDates = [...appState.timeSpan.allDates({ includeDayBefore: true })]
-                .map(d => d.toMillis() / 1000)
+            if (ref.current == null) {
+                return
+            }
 
-            const todaySeconds = appState.today.toMillis() / 1000
+            const startDate = stats.dayTotal[0].date
+            const endDate = stats.dayTotal.at(-1)!.date
 
-            const series: PlotSeries[] = [
-                {
-                    type: 'bars',
-                    color: theme.palette.error.main,
-                    points: [0, ...props.perDayExpenses.map(a => a === undefined || a >= 0 ? null : -a)]
+            let interval: 'day' | 'week' | 'month' = 'day'
+            let barData = stats.dayChange
+
+            if (stats.timeSpan.totalDays > 1095) {
+                interval = 'month'
+                barData = stats.monthChange.map(({ value, date }) => { return { date, value: value / date.daysInMonth } })
+            } else if (stats.timeSpan.totalDays > 180) {
+                interval = 'week'
+                barData = stats.mWeekChange.map(({ value, date }) => { return { date, value: value / 7 } })
+            }
+
+            const p = ObsPlot.plot({
+                width,
+                height: sparkline ? 50 : 250,
+                x: {
+                    type: 'utc',
+                    grid: !sparkline,
+                    axis: sparkline ? null : undefined
                 },
-                {
-                    type: 'bars',
-                    color: theme.palette.success.main,
-                    points: [0, ...props.perDayExpenses.map(a => a === undefined || a <= 0 ? null : a)]
-                }
-            ]
+                y: {
+                    tickFormat: v => formatCurrency(v, currency, true),
+                    grid: !sparkline,
+                    label: null,
+                    axis: sparkline ? null : undefined,
+                    domain: stats.dayTotal.every(i => i.value === 0) ? [0, 1] : undefined
+                },
+                marks: [
+                    ObsPlot.rectY(barData, {
+                        y: ({ value }) => Math.abs(value),
+                        x: 'date',
+                        interval,
+                        fill: ({ value }) => value >= 0 ? theme.palette.success.main : theme.palette.error.main }
+                    ),
+                    ObsPlot.lineY(
+                        [
+                            { v: perDay, d: startDate },
+                            { v: perDay, d: (stats.today < endDate ? stats.today : endDate).plus({ day: 1 }) }
+                        ],
+                        {
+                            x: 'd',
+                            y: 'v',
+                            stroke: theme.palette.primary.main
+                        }
+                    ),
+                    ObsPlot.areaY(
+                        [
+                            { v: perDay, d: startDate },
+                            { v: perDay, d: (stats.today < endDate ? stats.today : endDate).plus({ day: 1 }) }
+                        ],
+                        {
+                            x: 'd',
+                            y: 'v',
+                            fill: theme.palette.primary.main,
+                            fillOpacity: 0.2
+                        }
+                    )
+                ].values()
+                    .concat(daysLeft > 0 && leftPerDay !== null && leftPerDay > 0
+                        ? [
+                                ObsPlot.lineY(
+                                    [
+                                        { v: leftPerDay, d: stats.today },
+                                        { v: leftPerDay, d: endDate.plus({ day: 1 }) }
+                                    ],
+                                    {
+                                        x: 'd',
+                                        y: 'v',
+                                        stroke: theme.palette.success.main
+                                    }
+                                ),
+                                ObsPlot.areaY(
+                                    [
+                                        { v: leftPerDay, d: stats.today },
+                                        { v: leftPerDay, d: endDate.plus({ day: 1 }) }
+                                    ],
+                                    {
+                                        x: 'd',
+                                        y: 'v',
+                                        fill: theme.palette.success.main,
+                                        fillOpacity: 0.2
+                                    }
+                                )
+                            ]
+                        : [])
+                    .concat(perDayGoal !== null
+                        ? [
+                                ObsPlot.lineY(
+                                    [
+                                        { v: perDayGoal, d: startDate },
+                                        { v: perDayGoal, d: endDate.plus({ day: 1 }) }
+                                    ],
+                                    {
+                                        x: 'd',
+                                        y: 'v',
+                                        stroke: theme.palette.warning.main,
+                                        strokeDasharray: '4 3'
+                                    }
+                                )
+                            ]
+                        : [])
+                    .toArray()
+            })
+            ref.current.append(p)
 
-            const perDayPace = props.perDayPace
-            if (perDayPace !== null) {
-                series.push({
-                    type: 'line',
-                    color: theme.palette.info.main,
-                    points: allDates.map(i => i <= todaySeconds ? -perDayPace : null)
-                })
-            }
-
-            const daysLeft = appState.timeSpan.daysLeft(appState.today)
-            if (daysLeft > 0 && props.leftPerDay !== null) {
-                const leftPerDay = Math.max(props.leftPerDay, 0)
-                series.push({
-                    type: 'dash',
-                    color: theme.palette.info.main,
-                    points: allDates.map((_, i) => i === allDates.length - 1 || allDates[i + 1] >= todaySeconds ? leftPerDay : null)
-                })
-            }
-
-            return {
-                xvalues: allDates,
-                series
+            return () => {
+                p.remove()
             }
         },
-        [
-            props.perDayExpenses,
-            props.perDayPace,
-            props.leftPerDay,
-            appState.timeSpanInfo,
-            appState.today,
-            engine.operations,
-            engine.categories
-        ]
+        [width, stats, appState.today]
     )
 
-    return (
-        <Plot
-            elevation={props.sparkline === true ? 0 : 2}
-            showAxes={props.sparkline !== true}
-            currency={props.currency}
-            height={props.sparkline === true ? 50 : 150}
-            xvalues={series.xvalues}
-            series={series.series}
-            title={props.sparkline === true ? undefined : 'Daily Amount'}
-            p={props.sparkline === true ? 0 : 1}
-        />
-    )
+    return sparkline
+        ? <PlotContainer ref={ref} />
+        : (
+            <Paper variant={'outlined'}>
+                <Box p={1}>
+                    <Typography variant={'h6'} textAlign={'center'}>{'Stats'}</Typography>
+                    <PlotContainer ref={ref} />
+                </Box>
+            </Paper>
+            )
 })
 
 interface TotalCatPlotProps {

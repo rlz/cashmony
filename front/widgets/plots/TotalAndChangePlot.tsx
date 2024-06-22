@@ -10,7 +10,7 @@ import { PlotWidget } from './PlotUtils'
 interface Props {
     title: string
     /**
-     * if true show positive amounts in red
+     * if true reverse values
      */
     expense?: boolean
     stats: TotalAndChangeStats
@@ -30,7 +30,7 @@ export function TotalAndChangePlot({ title, expense, stats, currency }: Props): 
                 stats.dayTotal,
                 {
                     x: 'date',
-                    y: 'value',
+                    y: ({ value }) => expense ? -value : value,
                     stroke: theme.palette.primary.main
                 }
             ),
@@ -38,7 +38,7 @@ export function TotalAndChangePlot({ title, expense, stats, currency }: Props): 
                 stats.dayTotal,
                 {
                     x: 'date',
-                    y: 'value',
+                    y: ({ value }) => expense ? -value : value,
                     fill: Color(theme.palette.primary.main).opaquer(-0.8).hexa()
                 }
             )
@@ -71,7 +71,7 @@ export function TotalAndChangePlot({ title, expense, stats, currency }: Props): 
                         floor: (v: DateTime) => offset(v, -0.5),
                         offset: (v, o) => offset(v, o ?? 1)
                     },
-                    fill: v => (expense === true && v.value >= 0) || (expense !== true && v.value < 0)
+                    fill: v => v.value < 0
                         ? theme.palette.error.main
                         : theme.palette.success.main
                 }

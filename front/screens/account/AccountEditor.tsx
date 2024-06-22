@@ -38,7 +38,7 @@ export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
     useEffect(() => {
         void (
             async () => {
-                const stats = new AccountStatsReducer(acc.id, appState.timeSpan)
+                const stats = new AccountStatsReducer(acc.id, appState.timeSpan, appState.today)
                 const lastOpDate = engine.lastOp?.date ?? appState.timeSpan.endDate
                 await calcStats2(
                     engine,
@@ -50,7 +50,7 @@ export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
                     appState.today,
                     [stats]
                 )
-                setAmount(stats.stats.last)
+                setAmount(stats.stats.total)
             }
         )()
     }, [acc.name, engine.operations])

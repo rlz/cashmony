@@ -35,9 +35,10 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
         void (
             async () => {
                 const ts = appState.timeSpan
+                const today = appState.today
                 const reducers: Redusers = {
-                    expense: new TotalAndChangeReducer(engine, currenciesLoader, ts, EXPENSE_PREDICATE, appState.masterCurrency, true),
-                    income: new TotalAndChangeReducer(engine, currenciesLoader, ts, INCOME_PREDICATE, appState.masterCurrency),
+                    expense: new TotalAndChangeReducer(engine, currenciesLoader, today, ts, EXPENSE_PREDICATE, appState.masterCurrency),
+                    income: new TotalAndChangeReducer(engine, currenciesLoader, today, ts, INCOME_PREDICATE, appState.masterCurrency),
                     ym: new YMComparisonReducer(currenciesLoader, appState.masterCurrency),
                     years: new YearsComparisonReducer(currenciesLoader, appState.masterCurrency)
                 }

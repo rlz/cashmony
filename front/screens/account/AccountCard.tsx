@@ -44,7 +44,7 @@ export const AccountCard = observer(function AccountCard({ id, total, name, curr
                         && (
                             <DivBody2 textAlign={'right'}>
                                 <SpanBody2 color={'secondary.main'}>{'now: '}</SpanBody2>
-                                {formatCurrency(stats.last, currency)}
+                                {formatCurrency(stats.total, currency)}
                             </DivBody2>
                         )
                     }

@@ -99,7 +99,7 @@ export const AccountBody = observer(() => {
                 return
             }
 
-            const stats = new AccountStatsReducer(accId, appState.timeSpan)
+            const stats = new AccountStatsReducer(accId, appState.timeSpan, appState.today)
             await calcStats2(
                 engine,
                 PE.account(accId),

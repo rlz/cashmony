@@ -30,17 +30,18 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
             setStats(null)
             runAsync(async () => {
                 const ts = appState.timeSpan
+                const today = appState.today
                 const reducers = categories !== undefined
                     ? Object.fromEntries(
                         categories.map(c => [
                             c.id,
-                            new TotalAndChangeReducer(engine, currenciesLoader, ts, PE.cat(c.id), c.currency ?? appState.masterCurrency, true)
+                            new TotalAndChangeReducer(engine, currenciesLoader, today, ts, PE.cat(c.id), c.currency ?? appState.masterCurrency)
                         ])
                     )
                     : Object.fromEntries(
                         (goals ?? []).map(g => [
                             g.id,
-                            new TotalAndChangeReducer(engine, currenciesLoader, ts, PE.and(EXPENSE_PREDICATE, PE.filter(g.filter)), g.currency, true)
+                            new TotalAndChangeReducer(engine, currenciesLoader, today, ts, PE.and(EXPENSE_PREDICATE, PE.filter(g.filter)), g.currency)
                         ])
                     )
                 await calcStats2(

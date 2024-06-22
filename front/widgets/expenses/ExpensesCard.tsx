@@ -7,8 +7,8 @@ import { TotalAndChangeStats } from '../../../engine/stats/model'
 import { formatCurrency } from '../../helpers/currencies'
 import { useFrontState } from '../../model/FrontState'
 import { DivBody2, SpanBody1 } from '../generic/Typography'
-import { ExpenseSparklinePlot } from '../plots/ExpenseSparklinePlot'
 import { ExpensesInfoTable } from './ExpensesInfoTable'
+import { ExpensesBarsPlot } from './ExpensesPlots'
 
 interface Props {
     url: string
@@ -32,15 +32,14 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
     const timeSpan = props.stats.timeSpan
     const daysLeft = timeSpan.daysLeft(today)
     const totalDays = timeSpan.totalDays
-    const todayAmount = props.stats.dayChange.find(i => i.date.toMillis() === frontState.today.toMillis())?.value ?? 0
 
-    const leftPerDay = props.perDayGoal === null || daysLeft === 0 || todayAmount === undefined
+    const leftPerDay = props.perDayGoal === null || daysLeft === 0
         ? null
-        : (props.perDayGoal * totalDays - props.stats.last + todayAmount) / daysLeft
+        : (props.perDayGoal * totalDays + props.stats.total - props.stats.todayChange) / daysLeft
 
     const perDay = totalDays - daysLeft === 0
         ? null
-        : props.stats.last / (totalDays - daysLeft + (timeSpan.includesDate(today) ? 1 : 0))
+        : -props.stats.total / (totalDays - daysLeft + (timeSpan.includesDate(today) ? 1 : 0))
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, props.currency, compact)
 
@@ -56,7 +55,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                                 flex={'1 1 0'}
                                 textAlign={'right'}
                             >
-                                {cur(props.stats.last)}
+                                {cur(-props.stats.total)}
                             </SpanBody1>
                         </Box>
                         <DivBody2 my={1}>
@@ -67,12 +66,15 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
                                 leftPerDay={leftPerDay}
                             />
                         </DivBody2>
-                        <ExpenseSparklinePlot
+                        <ExpensesBarsPlot
                             stats={props.stats}
+                            today={today}
                             perDay={perDay}
                             leftPerDay={leftPerDay}
                             daysLeft={daysLeft}
                             perDayGoal={props.perDayGoal}
+                            currency={props.currency}
+                            sparkline={true}
                         />
                     </Box>
                 </Paper>
