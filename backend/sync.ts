@@ -1,22 +1,32 @@
 import { FastifyInstance, RawServerBase } from 'fastify'
+import { DateTime } from 'luxon'
+import { z } from 'zod'
 import zodToJsonSchema from 'zod-to-json-schema'
 
 import { apiComparisonObjectSchemaV0, apiGetObjectsRequestSchemaV0, apiItemsRequestSchemaV0, apiItemsResponseSchemaV0, ApiItemsResponseV0 } from '../common/api_v0'
 import { apiAccountSchemaV0, apiCategorySchemaV0, apiOperationSchemaV0, apiWatchSchemaV0 } from '../common/data_v0'
+import { toValid } from '../common/dates'
 import { auth } from './auth'
 import { MongoStorage } from './storage/mongo'
+
+const getOperationsQueryStringSchema = z.object({
+    syncAfter: z.string().datetime().optional()
+}).readonly()
 
 export function registerSyncEndpoints<T extends RawServerBase>(app: FastifyInstance<T>, mongo: MongoStorage) {
     app.get(
         '/api/v0/operations',
         {
             schema: {
+                querystring: zodToJsonSchema(getOperationsQueryStringSchema),
                 response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0)) }
             }
         },
         async (req, _resp) => {
             const userId = await auth(req, mongo)
-            return { items: await mongo.allOps(userId) }
+            const query = getOperationsQueryStringSchema.parse(req.query)
+            const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
+            return { items: await mongo.allOps(userId, syncAfter) }
         }
     )
 

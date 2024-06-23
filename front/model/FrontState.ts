@@ -75,7 +75,7 @@ function readDate(date: string | null): DateTime<true> | null {
         return null
     }
 
-    const d = DateTime.fromISO(date)
+    const d = DateTime.fromISO(date, { zone: 'utc' })
 
     if (!d.isValid) {
         return null

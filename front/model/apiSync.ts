@@ -21,13 +21,15 @@ export async function apiSync(frontState: FrontState, engine: Engine) {
         await engine.clearData()
     }
 
+    const startTime = DateTime.utc()
+
     try {
         await syncAccounts(auth, engine)
         await syncCategories(auth, engine)
-        await syncOps(auth, engine)
+        await syncOps(auth, engine, frontState.lastSyncDate)
         await syncWatches(auth, engine)
         runInAction(() => {
-            frontState.lastSyncDate = DateTime.utc()
+            frontState.lastSyncDate = startTime
             frontState.dataUserId = auth.id
         })
     } catch (e) {
@@ -46,48 +48,51 @@ async function syncItems<T extends { id: string, lastModified: DateTime<true> }>
     localItems: readonly T[],
     pushRemote: (items: readonly T[]) => Promise<void>,
     getRemote: (ids: readonly string[]) => Promise<T[]>,
-    pushLocal: (items: readonly T[]) => void
+    pushLocal: (items: readonly T[]) => void,
+    lastSyncDate?: DateTime<true>
 ): Promise<void> {
-    const remoteAccounts = (await getRemoteLastModified()).items
-    const remoteAccountsMap = Object.fromEntries(
-        remoteAccounts.map(i => [i.id, dtFromIso(i.lastModified)])
+    const remoteItems = (await getRemoteLastModified()).items
+    const remoteItemsMap = Object.fromEntries(
+        remoteItems.map(i => [i.id, dtFromIso(i.lastModified)])
     )
 
-    const getAccounts: string[] = []
-    const pushAccounts: T[] = []
+    const itemsToGet: string[] = []
+    const itemsToPush: T[] = []
 
-    for (const a of localItems) {
-        const ra = remoteAccountsMap[a.id]
-        if (ra === undefined) {
-            pushAccounts.push(a)
+    for (const i of localItems) {
+        const ri = remoteItemsMap[i.id]
+        if (ri === undefined) {
+            if (lastSyncDate === undefined || i.lastModified > lastSyncDate) {
+                itemsToPush.push(i)
+            }
             continue
         }
 
-        if (ra.equals(a.lastModified)) {
+        if (ri.equals(i.lastModified)) {
             continue
         }
 
-        if (ra < a.lastModified) {
-            pushAccounts.push(a)
+        if (ri < i.lastModified) {
+            itemsToPush.push(i)
             continue
         }
 
-        getAccounts.push(a.id)
+        itemsToGet.push(i.id)
     }
 
-    const knownAccounts = new Set(localItems.map(i => i.id))
-    for (const { id } of remoteAccounts) {
-        if (!knownAccounts.has(id)) {
-            getAccounts.push(id)
+    const knownItems = new Set(localItems.map(i => i.id))
+    for (const { id } of remoteItems) {
+        if (!knownItems.has(id)) {
+            itemsToGet.push(id)
         }
     }
 
-    if (pushAccounts.length > 0) {
-        await pushRemote(pushAccounts)
+    if (itemsToPush.length > 0) {
+        await pushRemote(itemsToPush)
     }
 
-    if (getAccounts.length > 0) {
-        pushLocal((await getRemote(getAccounts)))
+    if (itemsToGet.length > 0) {
+        pushLocal((await getRemote(itemsToGet)))
     }
 }
 
@@ -161,9 +166,9 @@ async function syncCategories(auth: ApiAuthResponseV0, engine: Engine) {
     )
 }
 
-async function syncOps(auth: ApiAuthResponseV0, engine: Engine) {
+async function syncOps(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: DateTime<true> | null) {
     await syncItems(
-        () => apiOps(auth),
+        () => apiOps(auth, lastSyncDate),
         engine.operations,
         (items: readonly Operation[]): Promise<void> => {
             const ops = items.map((i): ApiOperationV0 => {
@@ -274,7 +279,8 @@ async function syncOps(auth: ApiAuthResponseV0, engine: Engine) {
                     }
                 }
             }),
-        (items: readonly Operation[]) => engine.pushOperations(items)
+        (items: readonly Operation[]) => engine.pushOperations(items),
+        lastSyncDate ?? undefined
     )
 }
 

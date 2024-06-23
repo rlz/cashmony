@@ -80,8 +80,8 @@ export class MongoStorage {
         return await this.users.findOne({ _id: t.userId })
     }
 
-    async allOps(ownerId: string): Promise<ApiComparisonObjectV0[]> {
-        return this.getAll(this.ops, ownerId)
+    async allOps(ownerId: string, syncAfter?: DateTime<true>): Promise<ApiComparisonObjectV0[]> {
+        return this.getAll(this.ops, ownerId, syncAfter)
     }
 
     async getOps(ownerId: string, ids: readonly string[]): Promise<ApiOperationV0[]> {
@@ -203,9 +203,12 @@ export class MongoStorage {
         ].map(i => this.db.createCollection(i)))
     }
 
-    private async getAll<T>(c: Collection<MongoObject<T>>, ownerId: string): Promise<ApiComparisonObjectV0[]> {
+    private async getAll<T>(c: Collection<MongoObject<T>>, ownerId: string, syncAfter?: DateTime<true>): Promise<ApiComparisonObjectV0[]> {
         const items: ApiComparisonObjectV0[] = []
-        const cursor = c.find({ ownerId }, {}).project({ 'data.lastModified': 1 })
+        const query = syncAfter === undefined
+            ? { ownerId }
+            : { ownerId, syncDate: { $gt: syncAfter.toJSDate() } }
+        const cursor = c.find(query).project({ 'data.lastModified': 1 })
         for await (const op of cursor) {
             const parsed = mongoObjectSchema.parse(op)
             items.push({
