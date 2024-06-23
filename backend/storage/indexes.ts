@@ -8,33 +8,40 @@ type CashmonyIndexDescription = IndexDescription & {
 const allIndexes: { [colName: string]: readonly CashmonyIndexDescription[] } = {
     'operations': [
         {
-            name: 'owner_v0',
+            name: 'ownerId_v0',
             key: {
-                owner: 1
+                ownerId: 1
+            }
+        },
+        {
+            name: 'ownerId_syncDate_v0',
+            key: {
+                ownerId: 1,
+                syncDate: 1
             }
         }
     ],
     'accounts': [
         {
-            name: 'owner_v0',
+            name: 'ownerId_v0',
             key: {
-                owner: 1
+                ownerId: 1
             }
         }
     ],
     'categories': [
         {
-            name: 'owner_v0',
+            name: 'ownerId_v0',
             key: {
-                owner: 1
+                ownerId: 1
             }
         }
     ],
     'watches': [
         {
-            name: 'owner_v0',
+            name: 'ownerId_v0',
             key: {
-                owner: 1
+                ownerId: 1
             }
         }
     ],
