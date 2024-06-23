@@ -139,7 +139,6 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                     <Stack spacing={1}>
                         <AccountCard
                             id={'_total'}
-                            total={true}
                             name={'Total'}
                             stats={stats.total}
                         />

@@ -11,23 +11,22 @@ import { AccountSparklinePlot } from '../../widgets/plots/AccountSparklinePlot'
 
 interface Props {
     id: string
-    total?: boolean
     name: string
     stats: TotalAndChangeStats | undefined
 }
 
-export const AccountCard = observer(function AccountCard({ id, total, name, stats }: Props): ReactElement {
-    const appState = useFrontState()
+export const AccountCard = observer(function AccountCard({ id, name, stats }: Props): ReactElement {
+    const frontState = useFrontState()
     const navigate = useNavigate()
 
     if (stats === undefined) {
         return <AccountCardSkeleton />
     }
 
-    const periodInPast = stats.dayTotal[stats.dayTotal.length - 1].date < appState.today
+    const periodInPast = stats.timeSpan.endDate < frontState.today
 
     return (
-        <a onClick={() => { navigate(`/accounts/${encodeURIComponent(total === true ? '_total' : id)}`) }}>
+        <a onClick={() => { navigate(`/accounts/${encodeURIComponent(id)}`) }}>
             <Paper variant={'outlined'}>
                 <Box p={1}>
                     <Stack direction={'row'} spacing={1}>
