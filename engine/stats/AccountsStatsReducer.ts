@@ -28,13 +28,13 @@ export class AccountsStatsReducer extends StatsReducer {
      */
     constructor(accounts: Record<string, string>, currenciesLoader: CurrenciesLoader, timeSpan: HumanTimeSpan, totalCurrency: string, engine: Engine, today: DateTime<true>) {
         super()
+        this.today = today
         this.engine = engine
         this.timeSpan = timeSpan
         this.startDate = timeSpan.startDate
         this.endDate = timeSpan.endDate
         this.total = this.newAccountAmount(totalCurrency)
         this.totalCurrency = totalCurrency
-        this.today = today
         this.accounts = Object.fromEntries(Object.entries(accounts).map(([id, currency]) => [id, this.newAccountAmount(currency)]))
         this.currenciesLoader = currenciesLoader
     }
