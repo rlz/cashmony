@@ -9,7 +9,7 @@ import { Account, Category, Operation, Watch } from '../../engine/model'
 import { dFromIso, dtFromIso } from '../helpers/smallTools'
 import { FrontState } from './FrontState'
 
-export async function apiSync(frontState: FrontState, engine: Engine) {
+export async function apiSync(frontState: FrontState, engine: Engine, full?: boolean) {
     const auth = frontState.auth
 
     if (auth === null) {
@@ -26,7 +26,7 @@ export async function apiSync(frontState: FrontState, engine: Engine) {
     try {
         await syncAccounts(auth, engine)
         await syncCategories(auth, engine)
-        await syncOps(auth, engine, frontState.lastSyncDate)
+        await syncOps(auth, engine, full === true ? null : frontState.lastSyncDate)
         await syncWatches(auth, engine)
         runInAction(() => {
             frontState.lastSyncDate = startTime

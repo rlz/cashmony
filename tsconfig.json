@@ -6,6 +6,9 @@
             "dom.iterable",
             "esnext"
         ],
+        "types": [
+            "vite/client"
+        ],
         "allowJs": true,
         "downlevelIteration": true,
         "skipLibCheck": true,

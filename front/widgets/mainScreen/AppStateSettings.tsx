@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { CloudSync, FilterAlt, GitHub, Logout, Telegram } from '@mui/icons-material'
+import { CloudSync, Dangerous, FilterAlt, GitHub, Logout, Telegram } from '@mui/icons-material'
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
@@ -17,9 +17,11 @@ import { Column } from '../generic/Containers'
 import { DivBody1 } from '../generic/Typography'
 import { PeriodSelector } from '../PeriodSelector'
 
-type Props = Omit<React.ComponentProps<typeof Column>, 'gap'>
+type Props = Omit<React.ComponentProps<typeof Column>, 'gap'> & {
+    onOpenAdvance: () => void
+}
 
-export const AppStateSettings = observer((props: Props): ReactElement => {
+export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Props): ReactElement => {
     const appState = useFrontState()
     const engine = useEngine()
 
@@ -53,7 +55,7 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
     }, [])
 
     return (
-        <Column gap={1} {...props}>
+        <Column gap={1} {...columnProps}>
             {
                 showIf(
                     appState.topBarState.showGlobalCurrencySelector,
@@ -179,6 +181,23 @@ export const AppStateSettings = observer((props: Props): ReactElement => {
                         </ListItemText>
                     </ListItemButton>
                 </ListItem>
+                {
+                    !import.meta.env.PROD
+                    && (
+                        <ListItem disablePadding>
+                            <ListItemButton
+                                onClick={onOpenAdvance}
+                            >
+                                <ListItemIcon>
+                                    <Dangerous />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    {`Advanced`}
+                                </ListItemText>
+                            </ListItemButton>
+                        </ListItem>
+                    )
+                }
             </List>
         </Column>
     )

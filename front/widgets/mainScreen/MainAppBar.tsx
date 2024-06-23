@@ -4,12 +4,12 @@ import { AppBar, IconButton, SwipeableDrawer, type SxProps, Toolbar, Typography 
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useState } from 'react'
 
-import { showIf } from '../../helpers/smallTools'
 import { screenWidthIs } from '../../helpers/useWidth'
 import { useFrontState } from '../../model/FrontState'
 import { FullScreenModal } from '../FullScreenModal'
 import { Column } from '../generic/Containers'
 import { DivBody2 } from '../generic/Typography'
+import { Advanced } from './advanced'
 import { AppStateSettings } from './AppStateSettings'
 
 interface CashmonyAppBarProps {
@@ -79,40 +79,57 @@ export function CashmonyAppBar(props: CashmonyAppBarProps): ReactElement {
 
 export const MainAppBar = observer(function MainAppBar(): ReactElement {
     const appState = useFrontState()
-    const [showSettings, setShowSettings] = useState(false)
+    const [showSettings, setShowSettings] = useState<'close' | 'settings' | 'advanced'>('close')
     const smallScreen = screenWidthIs('xs', 'sm')
 
     return (
         <>
             {
-            showIf(
-                smallScreen,
-                <SwipeableDrawer
-                    open={showSettings}
-                    anchor={'left'}
-                    onOpen={() => { setShowSettings(true) }}
-                    onClose={() => { setShowSettings(false) }}
-                >
-                    <AppStateSettings height={'100%'} width={'90vw'} maxWidth={'20rem'} />
-                </SwipeableDrawer>
-            )
-        }
+                smallScreen
+                && (
+                    <SwipeableDrawer
+                        open={showSettings === 'settings'}
+                        anchor={'left'}
+                        onOpen={() => { setShowSettings('settings') }}
+                        onClose={() => { setShowSettings('close') }}
+                    >
+                        <AppStateSettings
+                            height={'100%'}
+                            width={'90vw'}
+                            maxWidth={'20rem'}
+                            onOpenAdvance={() => setShowSettings('advanced')}
+                        />
+                    </SwipeableDrawer>
+                )
+            }
             {
-            showIf(
-                !smallScreen && showSettings,
-                <FullScreenModal
-                    width={'600px'}
-                    title={'Settings'}
-                    onClose={() => { setShowSettings(false) }}
-                >
-                    <AppStateSettings />
-                </FullScreenModal>
-            )
-        }
+                !smallScreen && showSettings === 'settings'
+                && (
+                    <FullScreenModal
+                        width={'600px'}
+                        title={'Settings'}
+                        onClose={() => { setShowSettings('close') }}
+                    >
+                        <AppStateSettings onOpenAdvance={() => setShowSettings('advanced')} />
+                    </FullScreenModal>
+                )
+            }
+            {
+                showSettings === 'advanced'
+                && (
+                    <FullScreenModal
+                        width={'600px'}
+                        title={'Advanced'}
+                        onClose={() => setShowSettings('close')}
+                    >
+                        <Advanced />
+                    </FullScreenModal>
+                )
+            }
             <CashmonyAppBar
                 title={'Cashmony'}
                 subTitle={appState.topBarState.subTitle}
-                onSettingsClick={() => { setShowSettings(true) }}
+                onSettingsClick={() => { setShowSettings('settings') }}
                 onClose={appState.topBarState.onClose ?? undefined}
             />
         </>
