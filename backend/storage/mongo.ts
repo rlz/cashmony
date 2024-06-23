@@ -196,6 +196,13 @@ export class MongoStorage {
         }))
     }
 
+    async clearAll(ownerId: string) {
+        await this.ops.deleteMany({ ownerId })
+        await this.watches.deleteMany({ ownerId })
+        await this.categories.deleteMany({ ownerId })
+        await this.accounts.deleteMany({ ownerId })
+    }
+
     private async createCollections() {
         await Promise.all([
             'operations', 'accounts', 'categories',

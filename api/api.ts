@@ -173,3 +173,7 @@ export async function apiPushWatches(items: readonly ApiWatchV0[], auth: ApiAuth
 
     await apiCall('post', 'watches/push', auth, null, req, z.undefined())
 }
+
+export async function apiClearAll(auth: ApiAuthResponseV0): Promise<void> {
+    await apiCall('post', 'clearAll', auth, null, null, z.undefined())
+}

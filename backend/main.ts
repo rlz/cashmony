@@ -11,6 +11,7 @@ import path from 'path'
 
 import { AcmeClient } from './acme'
 import { registerAuthEndpoints } from './auth'
+import { registerManagementEndpoints } from './management'
 import { MongoStorage } from './storage/mongo'
 import { registerSyncEndpoints } from './sync'
 
@@ -85,6 +86,7 @@ async function initServer() {
     registerStaticEndpoint(secureServer, 'web')
     registerAuthEndpoints(secureServer, mongo)
     registerSyncEndpoints(secureServer, mongo)
+    registerManagementEndpoints(secureServer, mongo)
 
     await secureServer.listen({
         host: production ? '::' : '::1',
@@ -144,6 +146,7 @@ async function initUnsecureServer(production: boolean, acmeTokens: Record<string
         registerStaticEndpoint(s, 'dist')
         registerAuthEndpoints(s, mongo)
         registerSyncEndpoints(s, mongo)
+        registerManagementEndpoints(s, mongo)
     }
 
     await s.listen({
