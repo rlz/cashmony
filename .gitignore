@@ -7,3 +7,4 @@ coverage
 dev-mongo
 cashmony.cjs
 auth
+/experiments.ts
