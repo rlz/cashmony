@@ -70,7 +70,6 @@ export function OperationScreen(): ReactElement {
                                     <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
                                         <OpsList />
                                         { opId === '' && <AddOperationFab /> }
-
                                     </Box>
                                 </Box>
                             </Panel>

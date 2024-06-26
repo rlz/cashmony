@@ -110,8 +110,6 @@ const router = createBrowserRouter([
     }
 ])
 
-window.routerNavigate = router.navigate.bind(router)
-
 export const App = observer(function App(): ReactElement {
     const engine = useEngine()
     const location = window.location
