@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, useTheme } from '@mui/material'
+import { Box, Paper, SxProps, Typography, useTheme } from '@mui/material'
 import * as Plot from '@observablehq/plot'
 import { observer } from 'mobx-react-lite'
 import React, { useEffect } from 'react'
@@ -13,6 +13,8 @@ interface Props {
     stats: TotalAndChangeStats
     currency: string
 }
+
+const sxHeight250: SxProps = { height: 250 }
 
 export const AccountTotalPlot = observer(function AccountTotalPlot({ stats, currency }: Props): JSX.Element {
     const appState = useFrontState()
@@ -55,7 +57,7 @@ export const AccountTotalPlot = observer(function AccountTotalPlot({ stats, curr
         <Paper variant={'outlined'}>
             <Box p={1}>
                 <Typography variant={'h6'} textAlign={'center'}>{'Amount'}</Typography>
-                <PlotContainer ref={ref} />
+                <PlotContainer ref={ref} sx={sxHeight250} />
             </Box>
         </Paper>
     )

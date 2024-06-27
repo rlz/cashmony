@@ -1,4 +1,4 @@
-import { useTheme } from '@mui/material'
+import { SxProps, useTheme } from '@mui/material'
 import * as ObsPlot from '@observablehq/plot'
 import * as d3 from 'd3'
 import { useEffect } from 'react'
@@ -10,6 +10,8 @@ import { PlotContainer } from './PlotUtils'
 interface Props {
     stats: TotalAndChangeStats
 }
+
+const sxHeight50: SxProps = { height: 50 }
 
 export function AccountSparklinePlot({ stats }: Props): JSX.Element {
     const { width, ref } = useResizeDetector()
@@ -82,5 +84,5 @@ export function AccountSparklinePlot({ stats }: Props): JSX.Element {
         [width, stats]
     )
 
-    return <PlotContainer ref={ref} />
+    return <PlotContainer ref={ref} sx={sxHeight50} />
 }

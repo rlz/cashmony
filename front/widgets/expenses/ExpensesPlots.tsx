@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, useTheme } from '@mui/material'
+import { Box, Paper, SxProps, Typography, useTheme } from '@mui/material'
 import * as Plot from '@observablehq/plot'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect } from 'react'
@@ -16,6 +16,9 @@ interface ExpensesBarsPlotProps {
     daysLeft: number
     sparkline?: boolean
 }
+
+const sxHeight50: SxProps = { height: '50px' }
+const sxHeight250: SxProps = { height: '250px' }
 
 export const ExpensesBarsPlot = observer(({ stats, perDay, leftPerDay, perDayGoal, daysLeft, sparkline }: ExpensesBarsPlotProps): ReactElement => {
     sparkline ??= false
@@ -143,12 +146,12 @@ export const ExpensesBarsPlot = observer(({ stats, perDay, leftPerDay, perDayGoa
     )
 
     return sparkline
-        ? <PlotContainer ref={ref} />
+        ? <PlotContainer ref={ref} sx={sxHeight50} />
         : (
             <Paper variant={'outlined'}>
                 <Box p={1}>
                     <Typography variant={'h6'} textAlign={'center'}>{'Stats'}</Typography>
-                    <PlotContainer ref={ref} />
+                    <PlotContainer ref={ref} sx={sxHeight250} />
                 </Box>
             </Paper>
             )
@@ -286,7 +289,7 @@ export const ExpensesTotalPlot = observer(({ stats, perDayGoal }: TotalCatPlotPr
         <Paper variant={'outlined'}>
             <Box p={1}>
                 <Typography variant={'h6'} textAlign={'center'}>{'Total'}</Typography>
-                <PlotContainer ref={ref} />
+                <PlotContainer ref={ref} sx={sxHeight250} />
             </Box>
         </Paper>
     )
