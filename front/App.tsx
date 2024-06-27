@@ -9,6 +9,7 @@ import { LoadingScreen } from './screens/LoadingScreen'
 import { OperationScreen } from './screens/OperationScreen'
 import { SignupSigninScreen } from './screens/SignupSigninScreen'
 import { ExpensesGoalScreen } from './screens/watch/ExpensesGoalScreen'
+import { AbsoluteNavigateProvider } from './useAbsoluteNavigate'
 import { useEngine } from './useEngine'
 
 declare global {
@@ -129,6 +130,8 @@ export const App = observer(function App(): ReactElement {
     }
 
     return (
-        <RouterProvider router={router} />
+        <AbsoluteNavigateProvider value={(to) => { void router.navigate(to) }}>
+            <RouterProvider router={router} />
+        </AbsoluteNavigateProvider>
     )
 })

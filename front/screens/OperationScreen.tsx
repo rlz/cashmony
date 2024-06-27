@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
 import { uuidv7 } from 'uuidv7'
 
@@ -18,6 +18,7 @@ import { deepEqual } from '../helpers/deepEqual'
 import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools'
 import { screenWidthIs } from '../helpers/useWidth'
 import { useFrontState } from '../model/FrontState'
+import { useAbsoluteNavigate } from '../useAbsoluteNavigate'
 import { useEngine } from '../useEngine'
 import { ActionButton, ActionFab } from '../widgets/generic/ActionButton'
 import { ResizeHandle } from '../widgets/generic/resizeHandle'
@@ -36,7 +37,7 @@ export function OperationScreen(): ReactElement {
     const appState = useFrontState()
 
     const location = useLocation()
-    const navigate = useNavigate()
+    const navigate = useAbsoluteNavigate()
     const pathParams = useParams()
     const smallScreen = screenWidthIs('xs', 'sm')
     const theme = useTheme()
@@ -126,7 +127,7 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
     const appState = useFrontState()
 
     const engine = useEngine()
-    const navigate = useNavigate()
+    const navigate = useAbsoluteNavigate()
     const smallScreen = screenWidthIs('xs', 'sm')
 
     const [opId, setOpId] = useState<string | null>(null)

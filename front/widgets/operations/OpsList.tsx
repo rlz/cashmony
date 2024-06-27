@@ -1,7 +1,6 @@
 import { Box, Skeleton, Stack, Typography, useTheme } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { memo, type ReactElement, useEffect, useState } from 'react'
 
 import { CurrenciesLoader } from '../../../currencies/currencies'
 import { HumanTimeSpan } from '../../../engine/dates'
@@ -11,6 +10,7 @@ import { calcStats, Intervals, StatsReducer } from '../../../engine/stats/stats'
 import { formatCurrency } from '../../helpers/currencies'
 import { runAsync } from '../../helpers/smallTools'
 import { useFrontState } from '../../model/FrontState'
+import { useAbsoluteNavigate } from '../../useAbsoluteNavigate'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader'
 import { useEngine } from '../../useEngine'
 import { Column } from '../generic/Containers'
@@ -27,13 +27,13 @@ interface Props {
     timeSpan?: HumanTimeSpan
 }
 
-export const OpsList = observer(function OpsList(props: Props): ReactElement {
+export const OpsList = memo(observer(function OpsList(props: Props): ReactElement {
     const appState = useFrontState()
     const currenciesLoader = useCurrenciesLoader()
 
     const engine = useEngine()
     const theme = useTheme()
-    const navigate = useNavigate()
+    const navigate = useAbsoluteNavigate()
     const [displayOps, setDisplayOps] = useState<NotDeletedOperation[][] | null>(null)
     const [perDayExpenses, setPerDayExpenses] = useState<number[] | null>(null)
     const [displayDays, setDisplayDays] = useState(30)
@@ -94,16 +94,16 @@ export const OpsList = observer(function OpsList(props: Props): ReactElement {
                             {group[0].date.toLocaleString({ dateStyle: 'full' })}
                         </DivBody2>
                         {
-                        perDayExpenses !== null
-                        && (
-                            <DivBody2
-                                color={`${perDayExpenses[i] < 0 ? 'error' : 'success'}.${conrastColor}`}
-                                fontWeight={'bold'}
-                            >
-                                {formatCurrency(Math.abs(perDayExpenses[i]), masterCurrency)}
-                            </DivBody2>
-                        )
-                    }
+                            perDayExpenses !== null
+                            && (
+                                <DivBody2
+                                    color={`${perDayExpenses[i] < 0 ? 'error' : 'success'}.${conrastColor}`}
+                                    fontWeight={'bold'}
+                                >
+                                    {formatCurrency(Math.abs(perDayExpenses[i]), masterCurrency)}
+                                </DivBody2>
+                            )
+                        }
                     </Stack>
                     <Column gap={1}>
                         {group.map(op => (
@@ -139,7 +139,7 @@ export const OpsList = observer(function OpsList(props: Props): ReactElement {
             <Box minHeight={144} />
         </Box>
     )
-})
+}))
 
 const Transaction = ({ op }: { op: NotDeletedOperation }): ReactElement => {
     if (op.type === 'adjustment') {
