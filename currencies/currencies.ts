@@ -1,3 +1,4 @@
+import { Mutex } from 'async-mutex'
 import { IDBPDatabase, openDB } from 'idb'
 import { DateTime } from 'luxon'
 
@@ -22,23 +23,25 @@ export class CurrenciesLoader {
 
         const key = `${date.toFormat('yyyy-MM')}-${toCurrency}`
 
-        let rates: CurrencyRatesCache | undefined = this.rates[key]
+        return await runExclusive(key, async () => {
+            let rates: CurrencyRatesCache | undefined = this.rates[key]
 
-        if (rates === undefined || (isPartialMonth(rates) && oldCache(rates))) {
-            rates = await loadRates(date, toCurrency)
-            if (rates === undefined || rates.rates.length === 0) {
-                return await this.getFromUsdRate(date.set({ day: 1 }).minus({ day: 1 }), toCurrency)
+            if (rates === undefined || (isPartialMonth(rates) && oldCache(rates))) {
+                rates = await loadRates(date, toCurrency)
+                if (rates === undefined || rates.rates.length === 0) {
+                    return await this.getFromUsdRate(date.set({ day: 1 }).minus({ day: 1 }), toCurrency)
+                }
+                this.rates[key] = rates
             }
-            this.rates[key] = rates
-        }
 
-        const ind = date.day - 1
+            const ind = date.day - 1
 
-        if (ind >= rates.rates.length) {
-            return rates.rates[rates.rates.length - 1]
-        }
+            if (ind >= rates.rates.length) {
+                return rates.rates[rates.rates.length - 1]
+            }
 
-        return rates.rates[ind]
+            return rates.rates[ind]
+        })
     }
 
     async getRate(date: DateTime, fromCurrency: string, toCurrency: string): Promise<number> {
@@ -130,4 +133,11 @@ async function putRates(rates: CurrencyRatesCache): Promise<void> {
 
 function ratesKey(month: DateTime, currency: string): string {
     return `${month.toFormat('yyyy-MM')}-${currency}`
+}
+
+const mutexes: Record<string, Mutex> = {}
+
+async function runExclusive<T>(key: string, action: () => Promise<T>): Promise<T> {
+    const m = mutexes[key] = mutexes[key] ?? new Mutex()
+    return await m.runExclusive(action)
 }
