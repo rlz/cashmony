@@ -109,8 +109,8 @@ export class MongoStorage {
         }))
     }
 
-    async allAccounts(ownerId: string): Promise<ApiComparisonObjectV0[]> {
-        return this.getAll(this.accounts, ownerId)
+    async allAccounts(ownerId: string, syncAfter?: DateTime<true>): Promise<ApiComparisonObjectV0[]> {
+        return this.getAll(this.accounts, ownerId, syncAfter)
     }
 
     async getAccounts(ownerId: string, ids: readonly string[]): Promise<ApiAccountV0[]> {
@@ -138,8 +138,8 @@ export class MongoStorage {
         }))
     }
 
-    async allCategories(ownerId: string): Promise<ApiComparisonObjectV0[]> {
-        return this.getAll(this.categories, ownerId)
+    async allCategories(ownerId: string, syncAfter?: DateTime<true>): Promise<ApiComparisonObjectV0[]> {
+        return this.getAll(this.categories, ownerId, syncAfter)
     }
 
     async getCategories(ownerId: string, ids: readonly string[]): Promise<ApiCategoryV0[]> {
@@ -167,8 +167,8 @@ export class MongoStorage {
         }))
     }
 
-    async allWatches(ownerId: string): Promise<ApiComparisonObjectV0[]> {
-        return this.getAll(this.watches, ownerId)
+    async allWatches(ownerId: string, syncAfter?: DateTime<true>): Promise<ApiComparisonObjectV0[]> {
+        return this.getAll(this.watches, ownerId, syncAfter)
     }
 
     async getWatches(ownerId: string, ids: readonly string[]): Promise<ApiWatchV0[]> {

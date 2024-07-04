@@ -120,8 +120,9 @@ export async function apiPushOps(items: readonly ApiOperationV0[], auth: ApiAuth
     await apiCall('post', 'operations/push', auth, null, req, z.undefined())
 }
 
-export async function apiAccounts(auth: ApiAuthResponseV0): Promise<ApiItemsResponseV0<typeof apiComparisonObjectSchemaV0>> {
-    return apiCall('get', 'accounts', auth, null, null, apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0))
+export async function apiAccounts(auth: ApiAuthResponseV0, syncAfter: DateTime<true> | null): Promise<ApiItemsResponseV0<typeof apiComparisonObjectSchemaV0>> {
+    const queryString = syncAfter === null ? null : { syncAfter: syncAfter.toISO() }
+    return apiCall('get', 'accounts', auth, queryString, null, apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0))
 }
 
 export async function apiAccountsByIds(ids: readonly string[], auth: ApiAuthResponseV0): Promise<ApiItemsResponseV0<typeof apiAccountSchemaV0>> {
@@ -138,8 +139,9 @@ export async function apiPushAccounts(items: readonly ApiAccountV0[], auth: ApiA
     await apiCall('post', 'accounts/push', auth, null, req, z.undefined())
 }
 
-export async function apiCategories(auth: ApiAuthResponseV0): Promise<ApiItemsResponseV0<typeof apiComparisonObjectSchemaV0>> {
-    return apiCall('get', 'categories', auth, null, null, apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0))
+export async function apiCategories(auth: ApiAuthResponseV0, syncAfter: DateTime<true> | null): Promise<ApiItemsResponseV0<typeof apiComparisonObjectSchemaV0>> {
+    const queryString = syncAfter === null ? null : { syncAfter: syncAfter.toISO() }
+    return apiCall('get', 'categories', auth, queryString, null, apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0))
 }
 
 export async function apiCategoriesByIds(ids: readonly string[], auth: ApiAuthResponseV0): Promise<ApiItemsResponseV0<typeof apiCategorySchemaV0>> {
@@ -156,8 +158,9 @@ export async function apiPushCategories(items: readonly ApiCategoryV0[], auth: A
     await apiCall('post', 'categories/push', auth, null, req, z.undefined())
 }
 
-export async function apiWatches(auth: ApiAuthResponseV0): Promise<ApiItemsResponseV0<typeof apiComparisonObjectSchemaV0>> {
-    return apiCall('get', 'watches', auth, null, null, apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0))
+export async function apiWatches(auth: ApiAuthResponseV0, syncAfter: DateTime<true> | null): Promise<ApiItemsResponseV0<typeof apiComparisonObjectSchemaV0>> {
+    const queryString = syncAfter === null ? null : { syncAfter: syncAfter.toISO() }
+    return apiCall('get', 'watches', auth, queryString, null, apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0))
 }
 
 export async function apiWatchesByIds(ids: readonly string[], auth: ApiAuthResponseV0): Promise<ApiItemsResponseV0<typeof apiWatchSchemaV0>> {

@@ -24,10 +24,11 @@ export async function apiSync(frontState: FrontState, engine: Engine, full?: boo
     const startTime = DateTime.utc()
 
     try {
-        await syncAccounts(auth, engine)
-        await syncCategories(auth, engine)
-        await syncOps(auth, engine, full === true ? null : frontState.lastSyncDate)
-        await syncWatches(auth, engine)
+        const lastSyncDate = full === true ? null : frontState.lastSyncDate
+        await syncAccounts(auth, engine, lastSyncDate)
+        await syncCategories(auth, engine, lastSyncDate)
+        await syncOps(auth, engine, lastSyncDate)
+        await syncWatches(auth, engine, lastSyncDate)
         runInAction(() => {
             frontState.lastSyncDate = startTime
             frontState.dataUserId = auth.id
@@ -43,14 +44,21 @@ export async function apiSync(frontState: FrontState, engine: Engine, full?: boo
     }
 }
 
-async function syncItems<T extends { id: string, lastModified: DateTime<true> }>(
-    getRemoteLastModified: () => Promise<ApiItemsResponseV0<typeof apiComparisonObjectSchemaV0>>,
-    localItems: readonly T[],
-    pushRemote: (items: readonly T[]) => Promise<void>,
-    getRemote: (ids: readonly string[]) => Promise<T[]>,
-    pushLocal: (items: readonly T[]) => void,
-    lastSyncDate?: DateTime<true>
-): Promise<void> {
+async function syncItems<T extends { id: string, lastModified: DateTime<true> }>({
+    getRemoteLastModified,
+    localItems,
+    pushRemote,
+    getRemote,
+    pushLocal,
+    lastSyncDate
+}: {
+    getRemoteLastModified: () => Promise<ApiItemsResponseV0<typeof apiComparisonObjectSchemaV0>>
+    localItems: readonly T[]
+    pushRemote: (items: readonly T[]) => Promise<void>
+    getRemote: (ids: readonly string[]) => Promise<T[]>
+    pushLocal: (items: readonly T[]) => void
+    lastSyncDate: DateTime<true> | null
+}): Promise<void> {
     const remoteItems = (await getRemoteLastModified()).items
     const remoteItemsMap = Object.fromEntries(
         remoteItems.map(i => [i.id, dtFromIso(i.lastModified)])
@@ -62,7 +70,7 @@ async function syncItems<T extends { id: string, lastModified: DateTime<true> }>
     for (const i of localItems) {
         const ri = remoteItemsMap[i.id]
         if (ri === undefined) {
-            if (lastSyncDate === undefined || i.lastModified > lastSyncDate) {
+            if (lastSyncDate === null || i.lastModified > lastSyncDate) {
                 itemsToPush.push(i)
             }
             continue
@@ -96,11 +104,11 @@ async function syncItems<T extends { id: string, lastModified: DateTime<true> }>
     }
 }
 
-async function syncAccounts(auth: ApiAuthResponseV0, engine: Engine) {
-    await syncItems(
-        () => apiAccounts(auth),
-        engine.accounts,
-        (items: readonly Account[]) => apiPushAccounts(
+async function syncAccounts(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: DateTime<true> | null) {
+    await syncItems({
+        getRemoteLastModified: () => apiAccounts(auth, lastSyncDate),
+        localItems: engine.accounts,
+        pushRemote: (items: readonly Account[]) => apiPushAccounts(
             items.map((i): ApiAccountV0 => {
                 return {
                     id: i.id,
@@ -113,7 +121,7 @@ async function syncAccounts(auth: ApiAuthResponseV0, engine: Engine) {
             }),
             auth
         ),
-        async (ids: readonly string[]) => (await apiAccountsByIds(ids, auth))
+        getRemote: async (ids: readonly string[]) => (await apiAccountsByIds(ids, auth))
             .items
             .map((a): Account => {
                 return {
@@ -125,15 +133,16 @@ async function syncAccounts(auth: ApiAuthResponseV0, engine: Engine) {
                     lastModified: dtFromIso(a.lastModified)
                 }
             }),
-        (items: readonly Account[]) => items.forEach(i => engine.pushAccount(i))
-    )
+        pushLocal: (items: readonly Account[]) => items.forEach(i => engine.pushAccount(i)),
+        lastSyncDate
+    })
 }
 
-async function syncCategories(auth: ApiAuthResponseV0, engine: Engine) {
-    await syncItems(
-        () => apiCategories(auth),
-        engine.categories,
-        (items: readonly Category[]) => apiPushCategories(
+async function syncCategories(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: DateTime<true> | null) {
+    await syncItems({
+        getRemoteLastModified: () => apiCategories(auth, lastSyncDate),
+        localItems: engine.categories,
+        pushRemote: (items: readonly Category[]) => apiPushCategories(
             items.map((i): ApiCategoryV0 => {
                 return {
                     id: i.id,
@@ -150,7 +159,7 @@ async function syncCategories(auth: ApiAuthResponseV0, engine: Engine) {
             }),
             auth
         ),
-        async (ids: readonly string[]): Promise<Category[]> => (await apiCategoriesByIds(ids, auth))
+        getRemote: async (ids: readonly string[]): Promise<Category[]> => (await apiCategoriesByIds(ids, auth))
             .items
             .map((a): Category => {
                 return {
@@ -162,15 +171,16 @@ async function syncCategories(auth: ApiAuthResponseV0, engine: Engine) {
                     lastModified: dtFromIso(a.lastModified)
                 }
             }),
-        (items: readonly Category[]) => items.forEach(i => engine.pushCategory(i))
-    )
+        pushLocal: (items: readonly Category[]) => items.forEach(i => engine.pushCategory(i)),
+        lastSyncDate
+    })
 }
 
 async function syncOps(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: DateTime<true> | null) {
-    await syncItems(
-        () => apiOps(auth, lastSyncDate),
-        engine.operations,
-        (items: readonly Operation[]): Promise<void> => {
+    await syncItems({
+        getRemoteLastModified: () => apiOps(auth, lastSyncDate),
+        localItems: engine.operations,
+        pushRemote: (items: readonly Operation[]): Promise<void> => {
             const ops = items.map((i): ApiOperationV0 => {
                 if (i.type === 'deleted') {
                     return {
@@ -230,7 +240,7 @@ async function syncOps(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: Da
                 auth
             )
         },
-        async (ids: readonly string[]): Promise<Operation[]> => (await apiOpsByIds(ids, auth))
+        getRemote: async (ids: readonly string[]): Promise<Operation[]> => (await apiOpsByIds(ids, auth))
             .items
             .map((i): Operation => {
                 if (i.type === 'deleted') {
@@ -279,16 +289,16 @@ async function syncOps(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: Da
                     }
                 }
             }),
-        (items: readonly Operation[]) => engine.pushOperations(items),
-        lastSyncDate ?? undefined
-    )
+        pushLocal: (items: readonly Operation[]) => engine.pushOperations(items),
+        lastSyncDate
+    })
 }
 
-async function syncWatches(auth: ApiAuthResponseV0, engine: Engine) {
-    await syncItems(
-        () => apiWatches(auth),
-        engine.watches,
-        (items: readonly Watch[]) => apiPushWatches(
+async function syncWatches(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: DateTime<true> | null) {
+    await syncItems({
+        getRemoteLastModified: () => apiWatches(auth, lastSyncDate),
+        localItems: engine.watches,
+        pushRemote: (items: readonly Watch[]) => apiPushWatches(
             items.map((i): ApiWatchV0 => {
                 return {
                     id: i.id,
@@ -304,7 +314,7 @@ async function syncWatches(auth: ApiAuthResponseV0, engine: Engine) {
             }),
             auth
         ),
-        async (ids: readonly string[]) => (await apiWatchesByIds(ids, auth))
+        getRemote: async (ids: readonly string[]) => (await apiWatchesByIds(ids, auth))
             .items
             .map((i): Watch => {
                 return {
@@ -317,6 +327,7 @@ async function syncWatches(auth: ApiAuthResponseV0, engine: Engine) {
                     lastModified: dtFromIso(i.lastModified)
                 }
             }),
-        (items: readonly Watch[]) => items.forEach(i => engine.pushWatch(i))
-    )
+        pushLocal: (items: readonly Watch[]) => items.forEach(i => engine.pushWatch(i)),
+        lastSyncDate
+    })
 }

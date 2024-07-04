@@ -27,6 +27,13 @@ const allIndexes: { [colName: string]: readonly CashmonyIndexDescription[] } = {
             key: {
                 ownerId: 1
             }
+        },
+        {
+            name: 'ownerId_syncDate_v0',
+            key: {
+                ownerId: 1,
+                syncDate: 1
+            }
         }
     ],
     'categories': [
@@ -35,6 +42,13 @@ const allIndexes: { [colName: string]: readonly CashmonyIndexDescription[] } = {
             key: {
                 ownerId: 1
             }
+        },
+        {
+            name: 'ownerId_syncDate_v0',
+            key: {
+                ownerId: 1,
+                syncDate: 1
+            }
         }
     ],
     'watches': [
@@ -42,6 +56,13 @@ const allIndexes: { [colName: string]: readonly CashmonyIndexDescription[] } = {
             name: 'ownerId_v0',
             key: {
                 ownerId: 1
+            }
+        },
+        {
+            name: 'ownerId_syncDate_v0',
+            key: {
+                ownerId: 1,
+                syncDate: 1
             }
         }
     ],

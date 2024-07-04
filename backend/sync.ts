@@ -9,7 +9,7 @@ import { toValid } from '../common/dates'
 import { auth } from './auth'
 import { MongoStorage } from './storage/mongo'
 
-const getOperationsQueryStringSchema = z.object({
+const getObjectsQueryStringSchema = z.object({
     syncAfter: z.string().datetime().optional()
 }).readonly()
 
@@ -18,13 +18,13 @@ export function registerSyncEndpoints<T extends RawServerBase>(app: FastifyInsta
         '/api/v0/operations',
         {
             schema: {
-                querystring: zodToJsonSchema(getOperationsQueryStringSchema),
+                querystring: zodToJsonSchema(getObjectsQueryStringSchema),
                 response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0)) }
             }
         },
         async (req, _resp) => {
             const userId = await auth(req, mongo)
-            const query = getOperationsQueryStringSchema.parse(req.query)
+            const query = getObjectsQueryStringSchema.parse(req.query)
             const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
             return { items: await mongo.allOps(userId, syncAfter) }
         }
@@ -65,12 +65,15 @@ export function registerSyncEndpoints<T extends RawServerBase>(app: FastifyInsta
         '/api/v0/accounts',
         {
             schema: {
+                querystring: zodToJsonSchema(getObjectsQueryStringSchema),
                 response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0)) }
             }
         },
         async (req, _resp) => {
             const userId = await auth(req, mongo)
-            return { items: await mongo.allAccounts(userId) }
+            const query = getObjectsQueryStringSchema.parse(req.query)
+            const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
+            return { items: await mongo.allAccounts(userId, syncAfter) }
         }
     )
 
@@ -108,12 +111,15 @@ export function registerSyncEndpoints<T extends RawServerBase>(app: FastifyInsta
         '/api/v0/categories',
         {
             schema: {
+                querystring: zodToJsonSchema(getObjectsQueryStringSchema),
                 response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0)) }
             }
         },
         async (req, _resp) => {
             const userId = await auth(req, mongo)
-            return { items: await mongo.allCategories(userId) }
+            const query = getObjectsQueryStringSchema.parse(req.query)
+            const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
+            return { items: await mongo.allCategories(userId, syncAfter) }
         }
     )
 
@@ -151,12 +157,15 @@ export function registerSyncEndpoints<T extends RawServerBase>(app: FastifyInsta
         '/api/v0/watches',
         {
             schema: {
+                querystring: zodToJsonSchema(getObjectsQueryStringSchema),
                 response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0)) }
             }
         },
         async (req, _resp) => {
             const userId = await auth(req, mongo)
-            return { items: await mongo.allWatches(userId) }
+            const query = getObjectsQueryStringSchema.parse(req.query)
+            const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
+            return { items: await mongo.allWatches(userId, syncAfter) }
         }
     )
 
