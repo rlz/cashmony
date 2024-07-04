@@ -61,6 +61,14 @@ const RootNode = observer((): ReactElement => {
     }
 
     useEffect(() => {
+        engine.subscribe({
+            onAccountChange: reSync,
+            onCategoryChange: reSync,
+            onWatchChange: reSync,
+            onOperationChange: reSync,
+            onOperationsChange: reSync
+        })
+
         void (async () => {
             const ls = new CashmonyLocalStorage(engine)
             await ls.loadData()
