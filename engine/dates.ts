@@ -2,7 +2,7 @@ import { DateTime, type DurationLike } from 'luxon'
 
 import { Engine } from './engine'
 
-export function utcToday(): DateTime {
+export function utcToday(): DateTime<true> {
     const now = DateTime.now()
     return utcDate(now)
 }
