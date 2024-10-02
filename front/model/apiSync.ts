@@ -9,38 +9,46 @@ import { Account, Category, Operation, Watch } from '../../engine/model'
 import { dFromIso, dtFromIso } from '../helpers/smallTools'
 import { FrontState } from './FrontState'
 
+let apiSyncInProgress = false
+
 export async function apiSync(frontState: FrontState, engine: Engine, full?: boolean) {
-    const auth = frontState.auth
-
-    if (auth === null) {
-        console.log('Skip sync: unauthenticated')
-        return
-    }
-
-    if (frontState.dataUserId !== auth.id) {
-        await engine.clearData()
-    }
-
-    const startTime = DateTime.utc()
-
+    if (apiSyncInProgress) return
+    apiSyncInProgress = true
     try {
-        const lastSyncDate = full === true ? null : frontState.lastSyncDate
-        await syncAccounts(auth, engine, lastSyncDate)
-        await syncCategories(auth, engine, lastSyncDate)
-        await syncOps(auth, engine, lastSyncDate)
-        await syncWatches(auth, engine, lastSyncDate)
-        runInAction(() => {
-            frontState.lastSyncDate = startTime
-            frontState.dataUserId = auth.id
-        })
-    } catch (e) {
-        if (e instanceof Forbidden) {
-            runInAction(() => {
-                frontState.auth = null
-            })
-        } else {
-            throw e
+        const auth = frontState.auth
+
+        if (auth === null) {
+            console.log('Skip sync: unauthenticated')
+            return
         }
+
+        if (frontState.dataUserId !== auth.id) {
+            await engine.clearData()
+        }
+
+        const startTime = DateTime.utc()
+
+        try {
+            const lastSyncDate = full === true ? null : frontState.lastSyncDate
+            await syncAccounts(auth, engine, lastSyncDate)
+            await syncCategories(auth, engine, lastSyncDate)
+            await syncOps(auth, engine, lastSyncDate)
+            await syncWatches(auth, engine, lastSyncDate)
+            runInAction(() => {
+                frontState.lastSyncDate = startTime
+                frontState.dataUserId = auth.id
+            })
+        } catch (e) {
+            if (e instanceof Forbidden) {
+                runInAction(() => {
+                    frontState.auth = null
+                })
+            } else {
+                throw e
+            }
+        }
+    } finally {
+        apiSyncInProgress = false
     }
 }
 
