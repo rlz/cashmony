@@ -1,4 +1,4 @@
-import { Box, Grid } from '@mui/material'
+import { Box, Grid, Paper, Stack } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import { useEffect, useState } from 'react'
 
@@ -7,6 +7,7 @@ import { calcStats } from '../../engine/stats/stats'
 import { TotalAndChangeReducer } from '../../engine/stats/TotalAndChangeReducer'
 import { YearsComparisonReducer } from '../../engine/stats/YearsComparisonReducer'
 import { YMComparisonReducer } from '../../engine/stats/YMComparisonReducer'
+import { formatCurrency } from '../helpers/currencies'
 import { useFrontState } from '../model/FrontState'
 import { useCurrenciesLoader } from '../useCurrenciesLoader'
 import { useEngine } from '../useEngine'
@@ -18,7 +19,7 @@ interface Props {
     predicate: Predicate
 }
 
-interface Redusers {
+interface Reducers {
     expense: TotalAndChangeReducer
     income: TotalAndChangeReducer
     ym: YMComparisonReducer
@@ -29,14 +30,14 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
     const engine = useEngine()
     const currenciesLoader = useCurrenciesLoader()
     const appState = useFrontState()
-    const [reducers, setReducers] = useState<Redusers | null>(null)
+    const [reducers, setReducers] = useState<Reducers | null>(null)
 
     useEffect(() => {
         void (
             async () => {
                 const ts = appState.timeSpan
                 const today = appState.today
-                const reducers: Redusers = {
+                const reducers: Reducers = {
                     expense: new TotalAndChangeReducer(engine, currenciesLoader, today, ts, EXPENSE_PREDICATE, appState.masterCurrency),
                     income: new TotalAndChangeReducer(engine, currenciesLoader, today, ts, INCOME_PREDICATE, appState.masterCurrency),
                     ym: new YMComparisonReducer(currenciesLoader, appState.masterCurrency),
@@ -54,6 +55,20 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
                 reducers !== null
                 && (
                     <Grid container spacing={1} my={1}>
+                        <Grid item xs={12}>
+                            <Paper variant={'outlined'}>
+                                <Stack direction={'row'} p={1} spacing={1}>
+                                    <Box>
+                                        {'Income: '}
+                                        {formatCurrency(reducers.income.stats.total, appState.masterCurrency)}
+                                    </Box>
+                                    <Box>
+                                        {'Expense: '}
+                                        {formatCurrency(-reducers.expense.stats.total, appState.masterCurrency)}
+                                    </Box>
+                                </Stack>
+                            </Paper>
+                        </Grid>
                         <Grid item xs={12} sm={6}>
                             <TotalAndChangePlot
                                 title={'Expense'}
