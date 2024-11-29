@@ -364,7 +364,7 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
 
     const tagsCategories = useMemo(() => {
         return opType === 'income' || opType === 'expense' ? opCategories?.map(c => c.id) ?? [] : []
-    }, [opType, opCategories])
+    }, [opType, opCategories?.map(c => c.id).sort().join('|')])
 
     if (
         opId === null
