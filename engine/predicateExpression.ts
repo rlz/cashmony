@@ -268,19 +268,19 @@ export const PE = {
             predicates.push(PE.comment(filter.search))
         }
 
-        if (filter.opTypeMode === 'selected') {
+        if (filter.opTypeMode === 'selected' && filter.opType.length > 0) {
             predicates.push(PE.or(...filter.opType.map(i => PE.type(i))))
-        } else if (filter.opTypeMode === 'exclude') {
+        } else if (filter.opTypeMode === 'exclude' && filter.opType.length > 0) {
             predicates.push(PE.not(PE.or(...filter.opType.map(i => PE.type(i)))))
         }
 
-        if (filter.accountsMode === 'selected') {
+        if (filter.accountsMode === 'selected' && filter.accounts.length > 0) {
             predicates.push(PE.or(...filter.accounts.map(i => PE.account(i))))
-        } else if (filter.accountsMode === 'exclude') {
+        } else if (filter.accountsMode === 'exclude' && filter.accounts.length > 0) {
             predicates.push(PE.not(PE.or(...filter.accounts.map(i => PE.account(i)))))
         }
 
-        if (filter.categoriesMode === 'selected') {
+        if (filter.categoriesMode === 'selected' && filter.categories.length > 0) {
             predicates.push(
                 PE.or(
                     PE.type('adjustment'),
@@ -288,7 +288,7 @@ export const PE = {
                     ...filter.categories.map(i => i === '' ? PE.uncat() : PE.cat(i))
                 )
             )
-        } else if (filter.categoriesMode === 'exclude') {
+        } else if (filter.categoriesMode === 'exclude' && filter.categories.length > 0) {
             predicates.push(
                 PE.or(
                     PE.type('adjustment'),
@@ -298,9 +298,9 @@ export const PE = {
             )
         }
 
-        if (filter.tagsMode === 'selected') {
+        if (filter.tagsMode === 'selected' && filter.tags.length > 0) {
             predicates.push(PE.or(...filter.tags.map(i => PE.tag(i))))
-        } else if (filter.tagsMode === 'exclude') {
+        } else if (filter.tagsMode === 'exclude' && filter.tags.length > 0) {
             predicates.push(PE.not(PE.or(...filter.tags.map(i => PE.tag(i)))))
         }
 
