@@ -22,7 +22,7 @@ export const SignupSigninScreen = observer(function SignupSigninScreen(): JSX.El
                 value={tab}
                 variant={'fullWidth'}
                 onChange={(_, tab) => {
-                    navigate(`/${tab}`)
+                    void navigate(`/${tab}`)
                 }}
             >
                 <Tab value={'signin'} label={'Signin'} />
@@ -60,7 +60,7 @@ function SignupForm() {
             try {
                 await signup(name, email, password, password2, frontState)
                 await apiSync(frontState, engine)
-                navigate('/accounts')
+                void navigate('/accounts')
             } finally {
                 setSyncInProgress(false)
             }
@@ -175,7 +175,7 @@ function SigninForm() {
             try {
                 await signin(name, password, frontState)
                 await apiSync(frontState, engine)
-                navigate('/')
+                void navigate('/')
             } finally {
                 setSyncInProgress(false)
             }
