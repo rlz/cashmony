@@ -138,40 +138,40 @@ export function ItemsSelect(props: Props): ReactElement {
                         </Box>
                     </Box>
                     {
-                    times(pages ?? 0).map((p) => {
-                        if (p === 0) {
-                            return undefined
-                        }
-                        return (
-                            <Box key={p} height={pageHeight} overflow={'hidden'} position={'relative'} flex={'0 0 100%'}>
-                                <Box position={'absolute'} top={-pageHeight * p}>
-                                    <Box display={'flex'} flexWrap={'wrap'} gap={1}>
-                                        { items }
+                        times(pages ?? 0).map((p) => {
+                            if (p === 0) {
+                                return undefined
+                            }
+                            return (
+                                <Box key={p} height={pageHeight} overflow={'hidden'} position={'relative'} flex={'0 0 100%'}>
+                                    <Box position={'absolute'} top={-pageHeight * p}>
+                                        <Box display={'flex'} flexWrap={'wrap'} gap={1}>
+                                            { items }
+                                        </Box>
                                     </Box>
                                 </Box>
-                            </Box>
-                        )
-                    })
-                }
+                            )
+                        })
+                    }
                 </Row>
             </Box>
             <Row justifyContent={'center'} gap={1} mt={1} height={10}>
                 {
-                pages > 1
-                    ? times(pages ?? 0).map((p) => {
-                        return (
-                            <a key={p} style={aStyle} onClick={() => { carouselApi?.scrollTo(p) }}>
-                                <Box
-                                    width={10}
-                                    height={10}
-                                    bgcolor={p === page ? 'secondary.main' : 'text.primary'}
-                                    borderRadius={10}
-                                />
-                            </a>
-                        )
-                    })
-                    : null
-            }
+                    pages > 1
+                        ? times(pages ?? 0).map((p) => {
+                            return (
+                                <a key={p} style={aStyle} onClick={() => { carouselApi?.scrollTo(p) }}>
+                                    <Box
+                                        width={10}
+                                        height={10}
+                                        bgcolor={p === page ? 'secondary.main' : 'text.primary'}
+                                        borderRadius={10}
+                                    />
+                                </a>
+                            )
+                        })
+                        : null
+                }
             </Row>
         </Box>
     )
