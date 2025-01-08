@@ -23,6 +23,12 @@ const MULT = {
     year: 1 / 365
 }
 
+const LABEL = {
+    day: 'Per day amount',
+    month: 'Per month amount',
+    year: 'Per year amount'
+}
+
 export function GoalInput(props: Props): ReactElement {
     const [period, setPeriod] = useState<PeriodType>('month')
     const [currencySelector, setCurrecySelector] = useState(false)
@@ -58,7 +64,7 @@ export function GoalInput(props: Props): ReactElement {
                         {getCurrencySymbol(props.currency)}
                     </IconButton>
                     <CurrencyInput
-                        label={'Per day amount'}
+                        label={LABEL[period]}
                         mult={MULT[period]}
                         amount={props.perDayAmount}
                         currency={props.currency}
@@ -67,14 +73,14 @@ export function GoalInput(props: Props): ReactElement {
                 </Row>
             </Column>
             {
-            showIf(currencySelector,
-                <CurrencySelector
-                    currency={props.currency}
-                    onClose={() => { setCurrecySelector(false) }}
-                    onCurrencySelected={props.onCurrencyChange}
-                />
-            )
-        }
+                showIf(currencySelector,
+                    <CurrencySelector
+                        currency={props.currency}
+                        onClose={() => { setCurrecySelector(false) }}
+                        onCurrencySelected={props.onCurrencyChange}
+                    />
+                )
+            }
         </>
     )
 }

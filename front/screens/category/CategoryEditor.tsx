@@ -99,16 +99,16 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
             {
                 newCat.perDayAmount !== undefined
                     ? (
-                        <GoalInput
-                            perDayAmount={newCat.perDayAmount}
-                            onPerDayAmountChange={(perDayAmount) => {
-                                setNewCat({ ...newCat, perDayAmount })
-                            }}
-                            currency={newCat.currency ?? ''}
-                            onCurrencyChange={(currency) => {
-                                setNewCat({ ...newCat, currency })
-                            }}
-                        />
+                            <GoalInput
+                                perDayAmount={newCat.perDayAmount}
+                                onPerDayAmountChange={(perDayAmount) => {
+                                    setNewCat({ ...newCat, perDayAmount })
+                                }}
+                                currency={newCat.currency ?? ''}
+                                onCurrencyChange={(currency) => {
+                                    setNewCat({ ...newCat, currency })
+                                }}
+                            />
                         )
                     : null
             }
