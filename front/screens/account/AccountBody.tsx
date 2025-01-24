@@ -44,13 +44,14 @@ export const AccountBody = observer(() => {
 
     const [acc, setAcc] = useState<Account | null>(null)
     const [stats, setStats] = useState<TotalAndChangeStats | null>(null)
+    const [currencies, setCurrencies] = useState<Record<string, number> | null>(null)
     const navigate = useNavigate()
 
     const [opModalTitle, setOpModalTitle] = useState('')
 
     useEffect(() => {
-        appState.setOnClose(() => {
-            navigate('/accounts')
+        appState.setOnClose(async () => {
+            await navigate('/accounts')
         })
     }, [])
 
@@ -103,10 +104,18 @@ export const AccountBody = observer(() => {
                     [stats]
                 )
                 setStats(stats.total)
+
+                const curStats: Record<string, number> = {}
+                for (const s of Object.values(stats.accounts)) {
+                    curStats[s.currency] = (curStats[s.currency] ?? 0) + s.dayTotal[s.dayTotal.length - 1].value
+                }
+                setCurrencies(curStats)
                 return
             }
 
             if (acc === null) {
+                setStats(null)
+                setCurrencies(null)
                 return
             }
 
@@ -119,6 +128,7 @@ export const AccountBody = observer(() => {
                 [stats]
             )
             setStats(stats.stats)
+            setCurrencies(null)
         })()
     }, [accId, appState.timeSpanInfo, appState.today, engine.operations, acc])
 
@@ -143,7 +153,7 @@ export const AccountBody = observer(() => {
                     </Typography>
                     <Tabs
                         value={tabName}
-                        onChange={(_, tab) => { navigate(`/accounts/${encodeURIComponent(accId)}/${tab as string}`) }}
+                        onChange={async (_, tab) => { await navigate(`/accounts/${encodeURIComponent(accId)}/${tab as string}`) }}
                         variant={'fullWidth'}
                     >
                         <Tab value={'stats'} label={'Stats'} />
@@ -158,12 +168,18 @@ export const AccountBody = observer(() => {
                     <Box px={1}>
                         {
                             match(tabName)
-                                .with('stats', () => <AccountStatsBody account={acc} stats={stats} />)
+                                .with('stats', () => (
+                                    <AccountStatsBody
+                                        currencies={currencies}
+                                        account={acc}
+                                        stats={stats}
+                                    />
+                                ))
                                 .with('modify', () => <AccountEditor acc={acc} setAcc={setAcc} />)
                                 .with('operations', () => (
                                     <OpsList
-                                        onOpClick={(opId) => {
-                                            navigate(`/accounts/${accId}/operations/${opId}`)
+                                        onOpClick={async (opId) => {
+                                            await navigate(`/accounts/${accId}/operations/${opId}`)
                                         }}
                                         predicate={
                                             accId === '_total'
@@ -173,7 +189,7 @@ export const AccountBody = observer(() => {
                                     />
                                 ))
                                 .otherwise(() => { throw Error('Unimplemented tab') })
-                    }
+                        }
                         <Box minHeight={72} />
                     </Box>
                 </Box>
@@ -184,7 +200,7 @@ export const AccountBody = observer(() => {
                         <FullScreenModal
                             width={'850px'}
                             title={opModalTitle}
-                            onClose={() => { navigate(`/accounts/${accId}/operations`) }}
+                            onClose={async () => { await navigate(`/accounts/${accId}/operations`) }}
                         >
                             <Box p={1}>
                                 <OperationScreenBody
@@ -195,7 +211,7 @@ export const AccountBody = observer(() => {
                         </FullScreenModal>
                     )
                 })
-        }
+            }
         </>
     )
 })

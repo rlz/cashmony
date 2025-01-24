@@ -32,10 +32,10 @@ export const CurrencySelector = observer((props: Props): ReactElement => {
                 <Box p={1} color={theme.palette.primary.main}>
                     <Typography variant={'h5'} my={2} textAlign={'center'}>
                         {
-                        currency === null
-                            ? '—'
-                            : `${currency.name}, ${getCurrencySymbol(currency.code)}, ${currency.code}`
-                    }
+                            currency === null
+                                ? '—'
+                                : `${currency.name}, ${getCurrencySymbol(currency.code)}, ${currency.code}`
+                        }
                     </Typography>
                 </Box>
                 <TextField

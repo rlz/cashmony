@@ -49,6 +49,7 @@
     },
     "scripts": {
         "start": "vite",
+        "start-client": "vite",
         "build-client": "vite build",
         "start-server": "tsx backend/main.ts",
         "build-server": "esbuild backend/main.ts --bundle --keep-names --minify --define:process.env.NODE_ENV=\\\"production\\\" --platform=node --format=cjs --outfile=cashmony.cjs",

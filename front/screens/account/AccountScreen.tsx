@@ -30,49 +30,49 @@ export function AccountScreen(): ReactElement {
             {
                 !smallScreen
                     ? (
-                        <PanelGroup direction={'horizontal'}>
-                            <Panel id={'list'} order={1}>
-                                <AccountsBody noFab={accSelected} />
-                            </Panel>
-                            {
-                                showIfLazy(accSelected, () => {
-                                    return (
-                                        <>
-                                            <ResizeHandle />
-                                            <Panel id={'single'} order={2}>
-                                                <AccountBody />
-                                            </Panel>
-                                        </>
-                                    )
-                                })
-                            }
-                        </PanelGroup>
+                            <PanelGroup direction={'horizontal'}>
+                                <Panel id={'list'} order={1}>
+                                    <AccountsBody noFab={accSelected} />
+                                </Panel>
+                                {
+                                    showIfLazy(accSelected, () => {
+                                        return (
+                                            <>
+                                                <ResizeHandle />
+                                                <Panel id={'single'} order={2}>
+                                                    <AccountBody />
+                                                </Panel>
+                                            </>
+                                        )
+                                    })
+                                }
+                            </PanelGroup>
                         )
                     : (
-                        <Box height={'100%'} position={'relative'}>
-                            <Box height={'100%'}>
-                                <AccountsBody noFab={accSelected} />
+                            <Box height={'100%'} position={'relative'}>
+                                <Box height={'100%'}>
+                                    <AccountsBody noFab={accSelected} />
+                                </Box>
+                                {
+                                    showIfLazy(accSelected, () => {
+                                        return (
+                                            <Box
+                                                position={'absolute'}
+                                                top={0}
+                                                left={0}
+                                                height={'100%'}
+                                                width={'100%'}
+                                                bgcolor={theme.palette.background.default}
+                                            >
+                                                <AccountBody />
+                                            </Box>
+                                        )
+                                    })
+                                }
                             </Box>
-                            {
-                                showIfLazy(accSelected, () => {
-                                    return (
-                                        <Box
-                                            position={'absolute'}
-                                            top={0}
-                                            left={0}
-                                            height={'100%'}
-                                            width={'100%'}
-                                            bgcolor={theme.palette.background.default}
-                                        >
-                                            <AccountBody />
-                                        </Box>
-                                    )
-                                })
-                            }
-                        </Box>
                         )
 
-        }
+            }
         </MainScreen>
     )
 }

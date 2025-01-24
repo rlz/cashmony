@@ -97,7 +97,7 @@ export const CURRENCIES: Record<string, {
         decimal_digits: 2,
         rounding: 0,
         code: 'EUR',
-        name_plural: 'euros',
+        name_plural: 'Euros',
         faIcon: faEuroSign
     },
     GBP: {
