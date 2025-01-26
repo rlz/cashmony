@@ -1,6 +1,7 @@
 import { httpErrors } from '@fastify/sensible'
 import { randomBytes, scryptSync } from 'crypto'
 import { FastifyInstance, FastifyRequest, RawServerBase } from 'fastify'
+import fastifyPlugin from 'fastify-plugin'
 import { DateTime } from 'luxon'
 import { Binary, MongoServerError } from 'mongodb'
 import { uuidv7 } from 'uuidv7'
@@ -84,56 +85,62 @@ async function makeTempPassword(mongo: MongoStorage, userId: string): Promise<st
     return password.toString('base64')
 }
 
-export function registerAuthEndpoints<T extends RawServerBase>(app: FastifyInstance<T>, mongo: MongoStorage) {
-    app.post(
-        '/api/v0/signup',
-        {
-            schema: {
-                body: zodToJsonSchema(apiSignupRequestSchemaV0),
-                response: { 200: zodToJsonSchema(apiAuthResponseSchemaV0) }
-            }
-        },
-        async (req, _resp) => {
-            const body = apiSignupRequestSchemaV0.parse(req.body)
-            return await signup(mongo, body.name, body.email, body.password)
-        }
-    )
-
-    app.post(
-        '/api/v0/signin',
-        {
-            schema: {
-                body: zodToJsonSchema(apiSigninRequestSchemaV0),
-                response: { 200: zodToJsonSchema(apiAuthResponseSchemaV0) }
-            }
-        },
-        async (req, _resp) => {
-            const body = apiSigninRequestSchemaV0.parse(req.body)
-            const r = await signin(mongo, body.name, body.password)
-            if (r === null) {
-                return httpErrors.unauthorized()
-            }
-            return r
-        }
-    )
-
-    app.post(
-        '/api/v0/logout',
-        {
-        },
-        async (req, _resp) => {
-            const authHeader = req.headers.authorization
-
-            if (authHeader === undefined) {
-                throw httpErrors.forbidden()
-            }
-
-            const [userId, tempPassword] = authHeader.split(':')
-
-            await logout(mongo, userId, tempPassword)
-        }
-    )
+interface AuthPluginOpts {
+    mongo: MongoStorage
 }
+
+export const authPlugin = fastifyPlugin(
+    function authPlugin<T extends RawServerBase>(app: FastifyInstance<T>, { mongo }: AuthPluginOpts) {
+        app.post(
+            '/api/v0/signup',
+            {
+                schema: {
+                    body: zodToJsonSchema(apiSignupRequestSchemaV0),
+                    response: { 200: zodToJsonSchema(apiAuthResponseSchemaV0) }
+                }
+            },
+            async (req, _resp) => {
+                const body = apiSignupRequestSchemaV0.parse(req.body)
+                return await signup(mongo, body.name, body.email, body.password)
+            }
+        )
+
+        app.post(
+            '/api/v0/signin',
+            {
+                schema: {
+                    body: zodToJsonSchema(apiSigninRequestSchemaV0),
+                    response: { 200: zodToJsonSchema(apiAuthResponseSchemaV0) }
+                }
+            },
+            async (req, _resp) => {
+                const body = apiSigninRequestSchemaV0.parse(req.body)
+                const r = await signin(mongo, body.name, body.password)
+                if (r === null) {
+                    return httpErrors.unauthorized()
+                }
+                return r
+            }
+        )
+
+        app.post(
+            '/api/v0/logout',
+            {
+            },
+            async (req, _resp) => {
+                const authHeader = req.headers.authorization
+
+                if (authHeader === undefined) {
+                    throw httpErrors.forbidden()
+                }
+
+                const [userId, tempPassword] = authHeader.split(':')
+
+                await logout(mongo, userId, tempPassword)
+            }
+        )
+    }
+)
 
 export async function auth(req: Pick<FastifyRequest, 'headers'>, mongo: MongoStorage): Promise<string> {
     const authHeader = req.headers.authorization

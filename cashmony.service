@@ -7,7 +7,7 @@ Type=simple
 User=root
 WorkingDirectory=/cashmony
 Restart=on-failure
-ExecStart=/usr/local/nvm/versions/node/v22.2.0/bin/node /cashmony/cashmony.cjs
+ExecStart=/usr/local/nvm/versions/node/v22.2.0/bin/node /cashmony/dist/main.js
 
 [Install]
 WantedBy=multi-user.target

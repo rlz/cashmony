@@ -28,6 +28,7 @@
         "escape-string-regexp": "^5.0.0",
         "fastify": "^5.1.0",
         "fastify-acme": "^1.0.5",
+        "fastify-plugin": "^5.0.1",
         "idb": "^8.0.0",
         "iterator-helpers-polyfill": "^3.0.1",
         "luxon": "^3.3.0",
@@ -42,6 +43,7 @@
         "react-resizable-panels": "^2.0.2",
         "react-resize-detector": "^11.0.1",
         "react-router-dom": "^7.0.1",
+        "rlz-engine": "^1.0.15",
         "ts-pattern": "^5.0.1",
         "uuidv7": "^1.0.0",
         "zod": "^3.21.4",
@@ -52,10 +54,11 @@
         "start-client": "vite",
         "build-client": "vite build",
         "start-server": "tsx backend/main.ts",
-        "build-server": "esbuild backend/main.ts --bundle --keep-names --minify --define:process.env.NODE_ENV=\\\"production\\\" --platform=node --format=cjs --outfile=cashmony.cjs",
+        "build-server": "tsx tools/build.ts",
         "test": "jest",
         "test-coverage": "jest --coverage",
-        "parser": "peggy -o engine/filterExpressionParser/parser.gen.js --format es engine/filterExpressionParser/parser.peggy"
+        "parser": "peggy -o engine/filterExpressionParser/parser.gen.js --format es engine/filterExpressionParser/parser.peggy",
+        "backup": "tsx tools/backup.ts"
     },
     "browserslist": {
         "production": [
@@ -84,10 +87,12 @@
         "@types/react-dom": "^18.2.4",
         "@typescript-eslint/parser": "^8.16.0",
         "@vitejs/plugin-react": "^4.0.0",
+        "esbuild-plugin-pino": "^2.2.1",
         "eslint": "^9.16.0",
         "eslint-plugin-simple-import-sort": "^12.0.0",
         "jest": "^29.6.1",
         "lodash": "^4.17.21",
+        "node-ssh": "^13.2.0",
         "peggy": "^4.0.2",
         "regenerator-runtime": "^0.14.0",
         "sass": "^1.62.1",
