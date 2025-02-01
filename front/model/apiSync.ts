@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon'
 import { runInAction } from 'mobx'
+import { AuthParam, Forbidden } from 'rlz-engine/dist/client/api/api'
 
-import { apiAccounts, apiAccountsByIds, apiCategories, apiCategoriesByIds, apiOps, apiOpsByIds, apiPushAccounts, apiPushCategories, apiPushOps, apiPushWatches, apiWatches, apiWatchesByIds, Forbidden } from '../../api/api'
-import { ApiAuthResponseV0, apiComparisonObjectSchemaV0, ApiItemsResponseV0 } from '../../common/api_v0'
+import { apiAccounts, apiAccountsByIds, apiCategories, apiCategoriesByIds, apiOps, apiOpsByIds, apiPushAccounts, apiPushCategories, apiPushOps, apiPushWatches, apiWatches, apiWatchesByIds } from '../../api/api'
+import { apiComparisonObjectSchemaV0, ApiItemsResponseV0 } from '../../common/api_v0'
 import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0'
 import { Engine } from '../../engine/engine'
 import { Account, Category, Operation, Watch } from '../../engine/model'
@@ -15,14 +16,14 @@ export async function apiSync(frontState: FrontState, engine: Engine, full?: boo
     if (apiSyncInProgress) return
     apiSyncInProgress = true
     try {
-        const auth = frontState.auth
+        const auth = frontState.authParam
 
         if (auth === null) {
             console.log('Skip sync: unauthenticated')
             return
         }
 
-        if (frontState.dataUserId !== auth.id) {
+        if (frontState.dataUserId !== auth.userId) {
             await engine.clearData()
         }
 
@@ -36,7 +37,7 @@ export async function apiSync(frontState: FrontState, engine: Engine, full?: boo
             await syncWatches(auth, engine, lastSyncDate)
             runInAction(() => {
                 frontState.lastSyncDate = startTime
-                frontState.dataUserId = auth.id
+                frontState.dataUserId = auth.userId
             })
         } catch (e) {
             if (e instanceof Forbidden) {
@@ -112,7 +113,7 @@ async function syncItems<T extends { id: string, lastModified: DateTime<true> }>
     }
 }
 
-async function syncAccounts(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: DateTime<true> | null) {
+async function syncAccounts(auth: AuthParam, engine: Engine, lastSyncDate: DateTime<true> | null) {
     await syncItems({
         getRemoteLastModified: () => apiAccounts(auth, lastSyncDate),
         localItems: engine.accounts,
@@ -146,7 +147,7 @@ async function syncAccounts(auth: ApiAuthResponseV0, engine: Engine, lastSyncDat
     })
 }
 
-async function syncCategories(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: DateTime<true> | null) {
+async function syncCategories(auth: AuthParam, engine: Engine, lastSyncDate: DateTime<true> | null) {
     await syncItems({
         getRemoteLastModified: () => apiCategories(auth, lastSyncDate),
         localItems: engine.categories,
@@ -184,7 +185,7 @@ async function syncCategories(auth: ApiAuthResponseV0, engine: Engine, lastSyncD
     })
 }
 
-async function syncOps(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: DateTime<true> | null) {
+async function syncOps(auth: AuthParam, engine: Engine, lastSyncDate: DateTime<true> | null) {
     await syncItems({
         getRemoteLastModified: () => apiOps(auth, lastSyncDate),
         localItems: engine.operations,
@@ -302,7 +303,7 @@ async function syncOps(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: Da
     })
 }
 
-async function syncWatches(auth: ApiAuthResponseV0, engine: Engine, lastSyncDate: DateTime<true> | null) {
+async function syncWatches(auth: AuthParam, engine: Engine, lastSyncDate: DateTime<true> | null) {
     await syncItems({
         getRemoteLastModified: () => apiWatches(auth, lastSyncDate),
         localItems: engine.watches,

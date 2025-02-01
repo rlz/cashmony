@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
-import { autorun, makeAutoObservable, observable, runInAction } from 'mobx'
+import { autorun, computed, makeAutoObservable, observable, runInAction } from 'mobx'
 import { createContext, useContext } from 'react'
+import { AuthParam } from 'rlz-engine/dist/client/api/api'
 
 import { ApiAuthResponseV0 } from '../../common/api_v0'
 import { AllHistoryTimeSpan, CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, ThisMonthTimeSpan, ThisYearTimeSpan, utcToday, YearTimeSpan } from '../../engine/dates'
@@ -125,7 +126,8 @@ export class FrontState {
         this.engine = engine
 
         makeAutoObservable(this, {
-            auth: observable.shallow
+            auth: observable.shallow,
+            authParam: computed({ keepAlive: true })
         })
 
         setInterval(() => {
@@ -172,6 +174,15 @@ export class FrontState {
                 localStorage.removeItem(DATA_USER_ID_LS_KEY)
             }
         })
+    }
+
+    get authParam(): AuthParam | null {
+        if (this.auth === null) return null
+
+        return {
+            userId: this.auth.id,
+            tempPassword: this.auth.tempPassword
+        }
     }
 
     get timeSpan(): HumanTimeSpan {
@@ -251,6 +262,16 @@ export function useFrontState(): FrontState {
 
 export function useAuth(): ApiAuthResponseV0 {
     const auth = useFrontState().auth
+
+    if (auth === null) {
+        throw Error('Unauthenticated')
+    }
+
+    return auth
+}
+
+export function useAuthParam(): AuthParam {
+    const auth = useFrontState().authParam
 
     if (auth === null) {
         throw Error('Unauthenticated')

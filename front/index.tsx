@@ -6,6 +6,7 @@ import { installIntoGlobal } from 'iterator-helpers-polyfill'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useMemo } from 'react'
 import ReactDOM from 'react-dom/client'
+// import { initFrontConfig } from 'rlz-engine/dist/client/config'
 import { match } from 'ts-pattern'
 
 import { CurrenciesLoader } from '../currencies/currencies'
@@ -19,6 +20,10 @@ import { CurrenciesLoaderProvider } from './useCurrenciesLoader'
 import { EngineProvider } from './useEngine'
 
 installIntoGlobal()
+
+// initFrontConfig({
+//     apiDomain: 'https://app.cashmony.ru/'
+// })
 
 const root = ReactDOM.createRoot(
     nonNull(document.getElementById('root'), 'Root element not found')

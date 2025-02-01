@@ -4,13 +4,13 @@ import { apiClearAll } from '../../../api/api'
 import { utcToday } from '../../../engine/dates'
 import { genTestData } from '../../../engine/testData/gen'
 import { apiSync } from '../../model/apiSync'
-import { useAuth, useFrontState } from '../../model/FrontState'
+import { useAuthParam, useFrontState } from '../../model/FrontState'
 import { useEngine } from '../../useEngine'
 
 export function Advanced(): JSX.Element {
     const frontState = useFrontState()
     const engine = useEngine()
-    const auth = useAuth()
+    const auth = useAuthParam()
 
     return (
         <Box padding={1}>
