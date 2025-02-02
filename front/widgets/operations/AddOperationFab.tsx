@@ -1,6 +1,6 @@
 import { AddCard as AddCardIcon, CreditCard as CreditCardIcon, CurrencyExchange as CurrencyExchangeIcon } from '@mui/icons-material'
 import { Backdrop, Portal, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material'
-import { useState } from 'react'
+import { JSX, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export function AddOperationFab(): JSX.Element {
@@ -23,21 +23,21 @@ export function AddOperationFab(): JSX.Element {
                     tooltipOpen
                     tooltipTitle={'Expence'}
                     FabProps={{ color: 'error', size: 'medium' }}
-                    onClick={() => { navigate('/new-op/expense') }}
+                    onClick={() => { void navigate('/new-op/expense') }}
                 />
                 <SpeedDialAction
                     icon={<AddCardIcon />}
                     tooltipOpen
                     tooltipTitle={'Income'}
                     FabProps={{ color: 'success', size: 'medium' }}
-                    onClick={() => { navigate('/new-op/income') }}
+                    onClick={() => { void navigate('/new-op/income') }}
                 />
                 <SpeedDialAction
                     icon={<CurrencyExchangeIcon />}
                     tooltipOpen
                     tooltipTitle={'Transfer'}
                     FabProps={{ color: 'info', size: 'medium' }}
-                    onClick={() => { navigate('/new-op/transfer') }}
+                    onClick={() => { void navigate('/new-op/transfer') }}
                 />
             </SpeedDial>
         </Portal>

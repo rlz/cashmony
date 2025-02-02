@@ -1,6 +1,6 @@
 import { Box, Tab, Tabs, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import { useEffect, useState } from 'react'
+import { JSX, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
 
@@ -48,7 +48,7 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
 
     useEffect(() => {
         appState.setOnClose(() => {
-            navigate('/categories')
+            void navigate('/categories')
         })
     }, [])
 
@@ -112,7 +112,7 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
                         {'Goal (30d): '}
                         {cat.perDayAmount !== undefined ? cur(30 * cat.perDayAmount) : '-'}
                     </Typography>
-                    <Tabs value={tabName} onChange={(_, tab) => { navigate(`/categories/${catId}/${tab as string}`) }} variant={'fullWidth'}>
+                    <Tabs value={tabName} onChange={(_, tab) => { void navigate(`/categories/${catId}/${tab as string}`) }} variant={'fullWidth'}>
                         <Tab value={'stats'} label={'Stats'} />
                         <Tab value={'modify'} label={'Modify'} />
                         <Tab value={'operations'} label={'Operations'} />
@@ -138,7 +138,7 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
                                 .with('operations', () => (
                                     <OpsList
                                         onOpClick={(opId) => {
-                                            navigate(`/categories/${catId}/operations/${opId}`)
+                                            void navigate(`/categories/${catId}/operations/${opId}`)
                                         }}
                                         predicate={PE.cat(catId)}
                                     />
@@ -155,7 +155,7 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
                         <FullScreenModal
                             width={'850px'}
                             title={opModalTitle}
-                            onClose={() => { navigate(`/categories/${catId}/operations`) }}
+                            onClose={() => { void navigate(`/categories/${catId}/operations`) }}
                         >
                             <Box p={1}>
                                 <OperationScreenBody

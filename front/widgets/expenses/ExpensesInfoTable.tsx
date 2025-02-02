@@ -1,4 +1,5 @@
 import { styled, useTheme } from '@mui/material'
+import { JSX } from 'react'
 import { match, P } from 'ts-pattern'
 
 import { formatCurrency } from '../../helpers/currencies'

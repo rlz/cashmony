@@ -1,7 +1,7 @@
 import { Add as AddIcon } from '@mui/icons-material'
 import { Box, Fab } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { useMemo, useState } from 'react'
+import React, { JSX, useMemo, useState } from 'react'
 
 import { sortCategoriesByUsage } from '../../../engine/sortCategories'
 import { useEngine } from '../../useEngine'
@@ -32,9 +32,9 @@ export const CategoriesScreenBody = observer(function CategoriesScreenBody({ noF
                 {
                     addCategory
                         ? (
-                            <AddCategory
-                                onClose={() => { setAddCategory(false) }}
-                            />
+                                <AddCategory
+                                    onClose={() => { setAddCategory(false) }}
+                                />
                             )
                         : undefined
                 }
@@ -42,13 +42,13 @@ export const CategoriesScreenBody = observer(function CategoriesScreenBody({ noF
                     addCategory || noFab === true
                         ? null
                         : (
-                            <Fab
-                                color={'primary'}
-                                sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                                onClick={() => { setAddCategory(true) }}
-                            >
-                                <AddIcon />
-                            </Fab>
+                                <Fab
+                                    color={'primary'}
+                                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                                    onClick={() => { setAddCategory(true) }}
+                                >
+                                    <AddIcon />
+                                </Fab>
                             )
                 }
                 <Box textAlign={'center'} mt={3}>
@@ -63,9 +63,9 @@ export const CategoriesScreenBody = observer(function CategoriesScreenBody({ noF
             {
                 addCategory
                     ? (
-                        <AddCategory
-                            onClose={() => { setAddCategory(false) }}
-                        />
+                            <AddCategory
+                                onClose={() => { setAddCategory(false) }}
+                            />
                         )
                     : undefined
             }
@@ -73,13 +73,13 @@ export const CategoriesScreenBody = observer(function CategoriesScreenBody({ noF
                 addCategory || noFab === true
                     ? null
                     : (
-                        <Fab
-                            color={'primary'}
-                            sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                            onClick={() => { setAddCategory(true) }}
-                        >
-                            <AddIcon />
-                        </Fab>
+                            <Fab
+                                color={'primary'}
+                                sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                                onClick={() => { setAddCategory(true) }}
+                            >
+                                <AddIcon />
+                            </Fab>
                         )
             }
             <Box p={1} height={'100%'} overflow={'auto'}>

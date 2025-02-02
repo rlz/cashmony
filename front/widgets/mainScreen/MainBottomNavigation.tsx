@@ -1,7 +1,7 @@
 import { AccountBalanceWallet as AccountBalanceWalletIcon, Category as CategoryIcon, List as ListIcon, QueryStats as QueryStatsIcon, Troubleshoot as TroubleshootIcon } from '@mui/icons-material'
 import { Box, Stack, Typography, useTheme } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement } from 'react'
+import React, { JSX, type ReactElement } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { match, P } from 'ts-pattern'
 
@@ -50,9 +50,9 @@ function NavItem(props: NavItemProps): JSX.Element {
                 props.disabled ?? false
                     ? el
                     : (
-                        <a onClick={props.onClick}>
-                            {el}
-                        </a>
+                            <a onClick={props.onClick}>
+                                {el}
+                            </a>
                         )
             }
         </Box>
@@ -81,13 +81,13 @@ export const MainBottomNavigation = observer(function MainBottomNavigation(): Re
                     engine.accounts.length === 0 || engine.categories.length === 0
                         ? undefined
                         : (
-                            <NavItem
-                                selected={active === 'o'}
-                                label={'Operations'}
-                                disabled={engine.accounts.length === 0}
-                                icon={<ListIcon />}
-                                onClick={() => { nav('/operations') }}
-                            />
+                                <NavItem
+                                    selected={active === 'o'}
+                                    label={'Operations'}
+                                    disabled={engine.accounts.length === 0}
+                                    icon={<ListIcon />}
+                                    onClick={() => { void nav('/operations') }}
+                                />
                             )
                 }
                 {
@@ -97,7 +97,7 @@ export const MainBottomNavigation = observer(function MainBottomNavigation(): Re
                             selected={active === 'analitics'}
                             label={'Analitics'}
                             icon={<QueryStatsIcon />}
-                            onClick={() => { nav('/analitics') }}
+                            onClick={() => { void nav('/analitics') }}
                         />
                     )
                 }
@@ -105,33 +105,33 @@ export const MainBottomNavigation = observer(function MainBottomNavigation(): Re
                     engine.accounts.length === 0
                         ? undefined
                         : (
-                            <NavItem
-                                selected={active === 'c'}
-                                label={'Categories'}
-                                disabled={engine.accounts.length === 0}
-                                icon={<CategoryIcon />}
-                                onClick={() => { nav('/categories') }}
-                            />
+                                <NavItem
+                                    selected={active === 'c'}
+                                    label={'Categories'}
+                                    disabled={engine.accounts.length === 0}
+                                    icon={<CategoryIcon />}
+                                    onClick={() => { void nav('/categories') }}
+                                />
                             )
                 }
                 {
                     engine.accounts.length === 0 || engine.categories.length === 0
                         ? undefined
                         : (
-                            <NavItem
-                                selected={active === 'g'}
-                                label={'Goals'}
-                                disabled={engine.accounts.length === 0}
-                                icon={<TroubleshootIcon />}
-                                onClick={() => { nav('/goals') }}
-                            />
+                                <NavItem
+                                    selected={active === 'g'}
+                                    label={'Goals'}
+                                    disabled={engine.accounts.length === 0}
+                                    icon={<TroubleshootIcon />}
+                                    onClick={() => { void nav('/goals') }}
+                                />
                             )
                 }
                 <NavItem
                     selected={active === 'a'}
                     label={'Accounts'}
                     icon={<AccountBalanceWalletIcon />}
-                    onClick={() => { nav('/accounts') }}
+                    onClick={() => { void nav('/accounts') }}
                 />
             </Stack>
         </Stack>

@@ -1,6 +1,6 @@
 import { Box, Grid, Paper, Stack } from '@mui/material'
 import { observer } from 'mobx-react-lite'
-import { useEffect, useState } from 'react'
+import { JSX, useEffect, useState } from 'react'
 
 import { EXPENSE_PREDICATE, INCOME_PREDICATE, Predicate } from '../../engine/predicateExpression'
 import { calcStats } from '../../engine/stats/stats'

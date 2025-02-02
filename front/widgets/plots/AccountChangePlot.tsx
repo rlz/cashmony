@@ -2,7 +2,7 @@ import { Box, Paper, SxProps, Typography, useTheme } from '@mui/material'
 import * as Plot from '@observablehq/plot'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
-import React, { useEffect } from 'react'
+import React, { JSX, useEffect } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 
 import { TotalAndChangeStats } from '../../../engine/stats/model'

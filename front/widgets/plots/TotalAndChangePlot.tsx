@@ -1,6 +1,7 @@
 import { Box, Paper, Typography, useTheme } from '@mui/material'
 import * as Plot from '@observablehq/plot'
 import Color from 'color'
+import { JSX } from 'react'
 
 import { TotalAndChangeStats } from '../../../engine/stats/model'
 import { formatCurrency } from '../../helpers/currencies'

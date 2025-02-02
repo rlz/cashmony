@@ -1,7 +1,7 @@
 import { Box, Paper, SxProps, Typography } from '@mui/material'
 import * as Plot from '@observablehq/plot'
 import * as d3 from 'd3'
-import React, { useEffect, useMemo } from 'react'
+import React, { JSX, useEffect, useMemo } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 
 import { formatCurrency } from '../../helpers/currencies'

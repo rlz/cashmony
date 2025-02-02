@@ -18,7 +18,7 @@ export function monthFormat(month: number): string {
 }
 
 import { Plot } from '@observablehq/plot'
-import React, { useEffect } from 'react'
+import React, { JSX, useEffect } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 
 interface Props {

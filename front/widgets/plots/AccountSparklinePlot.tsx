@@ -1,7 +1,7 @@
 import { SxProps, useTheme } from '@mui/material'
 import * as ObsPlot from '@observablehq/plot'
 import * as d3 from 'd3'
-import { useEffect } from 'react'
+import { JSX, useEffect } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 
 import { TotalAndChangeStats } from '../../../engine/stats/model'

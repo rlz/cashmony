@@ -1,6 +1,6 @@
 import { Box, Paper, Typography, useTheme } from '@mui/material'
 import * as Plot from '@observablehq/plot'
-import React, { useMemo } from 'react'
+import React, { JSX, useMemo } from 'react'
 
 import { formatCurrency } from '../../helpers/currencies'
 import { PlotWidget } from './PlotUtils'

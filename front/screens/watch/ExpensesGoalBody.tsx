@@ -1,7 +1,7 @@
 import { Box, Button, Tab, Tabs, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { JSX, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
 
@@ -111,7 +111,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
                     </Typography>
                     <Tabs
                         value={tabName}
-                        onChange={(_, tab) => { navigate(`/goals/${encodeURIComponent(goal.id)}/${tab as string}`) }}
+                        onChange={(_, tab) => { void navigate(`/goals/${encodeURIComponent(goal.id)}/${tab as string}`) }}
                         variant={'fullWidth'}
                     >
                         <Tab value={'stats'} label={'Stats'} />
@@ -141,7 +141,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
                                                 sx={{ mt: 5 }}
                                                 onClick={() => {
                                                     engine.pushWatch({ ...goal, deleted: true, lastModified: DateTime.utc() })
-                                                    navigate('/goals')
+                                                    void navigate('/goals')
                                                 }}
                                             >
                                                 {'Delete'}
@@ -152,7 +152,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
                                 .with('operations', () => (
                                     <OpsList
                                         onOpClick={(opId) => {
-                                            navigate(`/goals/${goalId}/operations/${opId}`)
+                                            void navigate(`/goals/${goalId}/operations/${opId}`)
                                         }}
                                         predicate={PE.and(EXPENSE_PREDICATE, PE.filter(newGoal.filter))}
                                     />
@@ -169,7 +169,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
                         <FullScreenModal
                             width={'850px'}
                             title={opModalTitle}
-                            onClose={() => { navigate(`/goals/${goalId}/operations`) }}
+                            onClose={() => { void navigate(`/goals/${goalId}/operations`) }}
                         >
                             <Box p={1}>
                                 <OperationScreenBody
