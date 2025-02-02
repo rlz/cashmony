@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { runInAction } from 'mobx'
 import { AuthParam, Forbidden } from 'rlz-engine/dist/client/api/api'
+import { AuthState } from 'rlz-engine/dist/client/state/auth'
 
 import { apiAccounts, apiAccountsByIds, apiCategories, apiCategoriesByIds, apiOps, apiOpsByIds, apiPushAccounts, apiPushCategories, apiPushOps, apiPushWatches, apiWatches, apiWatchesByIds } from '../../api/api'
 import { apiComparisonObjectSchemaV0, ApiItemsResponseV0 } from '../../common/api_v0'
@@ -12,11 +13,12 @@ import { FrontState } from './FrontState'
 
 let apiSyncInProgress = false
 
-export async function apiSync(frontState: FrontState, engine: Engine, full?: boolean) {
+export async function apiSync(authState: AuthState, frontState: FrontState, engine: Engine, full?: boolean) {
     if (apiSyncInProgress) return
     apiSyncInProgress = true
+
     try {
-        const auth = frontState.authParam
+        const auth = authState.authParam
 
         if (auth === null) {
             console.log('Skip sync: unauthenticated')
@@ -41,9 +43,7 @@ export async function apiSync(frontState: FrontState, engine: Engine, full?: boo
             })
         } catch (e) {
             if (e instanceof Forbidden) {
-                runInAction(() => {
-                    frontState.auth = null
-                })
+                authState.logout()
             } else {
                 throw e
             }

@@ -1,8 +1,10 @@
 import { registerAcmeAccount } from 'fastify-acme'
+import { AUTH_API } from 'rlz-engine/dist/back/auth/controllers'
+import { AuthStorage } from 'rlz-engine/dist/back/auth/storage'
 import { PRODUCTION } from 'rlz-engine/dist/back/config'
 import { runServer } from 'rlz-engine/dist/back/server'
+import { MongoStorage as RlzEngineMongoStorage } from 'rlz-engine/dist/back/storage/db'
 
-import { authPlugin } from './auth'
 import { managementPlugin } from './management'
 import { MongoStorage } from './storage/mongo'
 import { syncPlugin } from './sync'
@@ -30,9 +32,12 @@ async function initServer() {
         init: async (server) => {
             const mongo = await MongoStorage.create(server.log.child({ module: 'MONGO' }))
 
-            server.register(authPlugin, { mongo })
-            server.register(syncPlugin, { mongo })
-            server.register(managementPlugin, { mongo })
+            const rlzEngineMongo = new RlzEngineMongoStorage('cashmony-app')
+            const authStorage = new AuthStorage(rlzEngineMongo)
+
+            server.register(AUTH_API, { storage: authStorage })
+            server.register(syncPlugin, { authStorage, mongo })
+            server.register(managementPlugin, { appStorage: mongo, authStorage })
         }
     })
 }

@@ -1,13 +1,13 @@
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
+import { SignupSigninScreen } from 'rlz-engine/dist/client/screens/SignupSigninScreen'
 
 import { AccountScreen } from './screens/account/AccountScreen'
 import { AnaliticsScreen } from './screens/AnaliticsScreen'
 import { CategoryScreen } from './screens/category/CategoryScreen'
 import { LoadingScreen } from './screens/LoadingScreen'
 import { OperationScreen } from './screens/OperationScreen'
-import { SignupSigninScreen } from './screens/SignupSigninScreen'
 import { ExpensesGoalScreen } from './screens/watch/ExpensesGoalScreen'
 import { AbsoluteNavigateProvider } from './useAbsoluteNavigate'
 import { useEngine } from './useEngine'
@@ -19,75 +19,75 @@ declare global {
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <Navigate to={'operations'} />
+        Component: () => <Navigate to={'operations'} />
     },
     {
         path: '/operations',
-        element: <OperationScreen />
+        Component: OperationScreen
     },
     {
         path: '/categories',
-        element: <CategoryScreen />
+        Component: CategoryScreen
     },
     {
         path: '/accounts',
-        element: <AccountScreen />
+        Component: AccountScreen
     },
     {
         path: '/goals',
-        element: <ExpensesGoalScreen />
+        Component: ExpensesGoalScreen
     },
     {
         path: 'operations/:opId',
-        element: <OperationScreen />
+        Component: OperationScreen
     },
     {
         path: '/new-op/expense',
-        element: <OperationScreen />
+        Component: OperationScreen
     },
     {
         path: '/new-op/income',
-        element: <OperationScreen />
+        Component: OperationScreen
     },
     {
         path: '/new-op/transfer',
-        element: <OperationScreen />
+        Component: OperationScreen
     },
     {
         path: '/categories/:catId',
-        element: <CategoryScreen />
+        Component: CategoryScreen
     },
     {
         path: '/categories/:catId/:tabName',
-        element: <CategoryScreen />
+        Component: CategoryScreen
     },
     {
         path: '/categories/:catId/operations/:opId',
-        element: <CategoryScreen />
+        Component: CategoryScreen
     },
     {
         path: '/accounts/:accId',
-        element: <AccountScreen />
+        Component: AccountScreen
     },
     {
         path: '/accounts/:accId/:tabName',
-        element: <AccountScreen />
+        Component: AccountScreen
     },
     {
         path: '/accounts/:accId/operations/:opId',
-        element: <AccountScreen />
+        Component: AccountScreen
     },
     {
         path: '/goals/:goalId',
-        element: <ExpensesGoalScreen />
+        Component: ExpensesGoalScreen
     },
     {
         path: '/goals/:goalId/:tabName',
-        element: <ExpensesGoalScreen />
+        Component: ExpensesGoalScreen
     },
     {
         path: '/goals/:goalId/operations/:opId',
-        element: <ExpensesGoalScreen />
+        Component: ExpensesGoalScreen
     },
     {
         path: '/analitics',
@@ -103,11 +103,15 @@ const router = createBrowserRouter([
     },
     {
         path: '/signin',
-        Component: SignupSigninScreen
+        Component: () => {
+            return <SignupSigninScreen appName={'Cashmony'} />
+        }
     },
     {
         path: '/signup',
-        Component: SignupSigninScreen
+        Component: () => {
+            return <SignupSigninScreen appName={'Cashmony'} />
+        }
     }
 ])
 

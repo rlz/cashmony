@@ -1,29 +1,5 @@
 import { z, ZodType } from 'zod'
 
-export const apiAuthResponseSchemaV0 = z.object({
-    id: z.string().uuid(),
-    name: z.string(),
-    email: z.string().email(),
-    tempPassword: z.string()
-})
-
-export type ApiAuthResponseV0 = z.infer<typeof apiAuthResponseSchemaV0>
-
-export const apiSignupRequestSchemaV0 = z.object({
-    name: z.string(),
-    email: z.string().email(),
-    password: z.string()
-})
-
-export type ApiSignupRequestV0 = z.infer<typeof apiSignupRequestSchemaV0>
-
-export const apiSigninRequestSchemaV0 = z.object({
-    name: z.string(),
-    password: z.string()
-})
-
-export type ApiSigninRequestV0 = z.infer<typeof apiSigninRequestSchemaV0>
-
 export function apiItemsResponseSchemaV0<T extends ZodType>(itemsSchema: T) {
     return z.object({
         items: z.array(itemsSchema).readonly()

@@ -2,27 +2,8 @@ import { DateTime } from 'luxon'
 import { apiCall, AuthParam } from 'rlz-engine/dist/client/api/api'
 import { z } from 'zod'
 
-import { apiAuthResponseSchemaV0, ApiAuthResponseV0, apiComparisonObjectSchemaV0, ApiGetObjectsRequestV0, ApiItemsRequestV0, apiItemsResponseSchemaV0, ApiItemsResponseV0, ApiSigninRequestV0, ApiSignupRequestV0 } from '../common/api_v0'
+import { apiComparisonObjectSchemaV0, ApiGetObjectsRequestV0, ApiItemsRequestV0, apiItemsResponseSchemaV0, ApiItemsResponseV0 } from '../common/api_v0'
 import { apiAccountSchemaV0, ApiAccountV0, apiCategorySchemaV0, ApiCategoryV0, apiOperationSchemaV0, ApiOperationV0, apiWatchSchemaV0, ApiWatchV0 } from '../common/data_v0'
-
-export async function apiSignup(name: string, email: string, password: string): Promise<ApiAuthResponseV0> {
-    const req: ApiSignupRequestV0 = {
-        name,
-        email,
-        password
-    }
-
-    return apiCall('POST', 'v0', 'signup', null, null, req, apiAuthResponseSchemaV0)
-}
-
-export async function apiSignin(name: string, password: string): Promise<ApiAuthResponseV0> {
-    const req: ApiSigninRequestV0 = {
-        name,
-        password
-    }
-
-    return apiCall('POST', 'v0', 'signin', null, null, req, apiAuthResponseSchemaV0)
-}
 
 export async function apiOps(auth: AuthParam, syncAfter: DateTime<true> | null): Promise<ApiItemsResponseV0<typeof apiComparisonObjectSchemaV0>> {
     const queryString = syncAfter === null ? null : { syncAfter: syncAfter.toISO() }

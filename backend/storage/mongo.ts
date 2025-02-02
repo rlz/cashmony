@@ -1,6 +1,6 @@
 import { FastifyBaseLogger } from 'fastify'
 import { DateTime } from 'luxon'
-import { Binary, Collection, Db, MongoClient } from 'mongodb'
+import { Collection, Db, MongoClient } from 'mongodb'
 
 import { ApiComparisonObjectV0 } from '../../common/api_v0'
 import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0'
@@ -26,58 +26,10 @@ export class MongoStorage {
             createIndexes(logger, s.ops),
             createIndexes(logger, s.accounts),
             createIndexes(logger, s.categories),
-            createIndexes(logger, s.watches),
-            createIndexes(logger, s.users),
-            createIndexes(logger, s.tempPasswords)
+            createIndexes(logger, s.watches)
         ])
 
         return s
-    }
-
-    async createUser(id: string, name: string, email: string, passwordSalt: Binary, passwordHash: Binary) {
-        await this.users.insertOne({
-            _id: id,
-            name,
-            email,
-            passwordSalt,
-            passwordHash,
-            lastActivityDate: DateTime.utc().toJSDate()
-        })
-    }
-
-    async getUser(name: string): Promise<MongoUser | null> {
-        return await this.users.findOne({ name })
-    }
-
-    async markUserActive(userId: string) {
-        await this.users.updateOne({ _id: userId }, { $set: { lastActivityDate: DateTime.utc().toJSDate() } })
-    }
-
-    async pushTempPassword(userId: string, passwordHash: Binary, validUntil: Date) {
-        await this.tempPasswords.insertOne({
-            userId,
-            passwordHash,
-            validUntil
-        })
-    }
-
-    async deleteTempPassword(userId: string, passwordHash: Binary) {
-        await this.tempPasswords.deleteOne({ userId, passwordHash })
-    }
-
-    async getUserByTempPassword(userId: string, passwordHash: Binary): Promise<MongoUser | null> {
-        const t = await this.tempPasswords.findOne({ userId, passwordHash })
-
-        if (t === null) {
-            return null
-        }
-
-        if (DateTime.utc() > DateTime.fromJSDate(t.validUntil)) {
-            await this.tempPasswords.deleteOne({ _id: t._id })
-            return null
-        }
-
-        return await this.users.findOne({ _id: t.userId })
     }
 
     async allOps(ownerId: string, syncAfter?: DateTime<true>): Promise<ApiComparisonObjectV0[]> {

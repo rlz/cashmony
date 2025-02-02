@@ -4,6 +4,7 @@ import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toggle
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
+import { useAuthState } from 'rlz-engine/dist/client/state/auth'
 
 import { CURRENCIES } from '../../../currencies/currenciesList'
 import { getCurrencySymbol } from '../../helpers/currencies'
@@ -23,6 +24,7 @@ type Props = Omit<React.ComponentProps<typeof Column>, 'gap'> & {
 
 export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Props): ReactElement => {
     const appState = useFrontState()
+    const authState = useAuthState()
     const engine = useEngine()
 
     const [lastSyncText, setLastSyncText] = useState(
@@ -123,9 +125,9 @@ export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Pro
                                     return icon !== undefined
                                         ? <FontAwesomeIcon icon={icon} fixedWidth />
                                         : (
-                                            <DivBody1 width={20} textAlign={'center'} fontWeight={'bold'}>
-                                                {getCurrencySymbol(appState.masterCurrency)}
-                                            </DivBody1>
+                                                <DivBody1 width={20} textAlign={'center'} fontWeight={'bold'}>
+                                                    {getCurrencySymbol(appState.masterCurrency)}
+                                                </DivBody1>
                                             )
                                 })
                             }
@@ -154,7 +156,7 @@ export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Pro
                 <ListItem disablePadding>
                     <ListItemButton
                         onClick={() => {
-                            void apiSync(appState, engine)
+                            void apiSync(authState, appState, engine)
                         }}
                     >
                         <ListItemIcon>
@@ -168,16 +170,14 @@ export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Pro
                 <ListItem disablePadding>
                     <ListItemButton
                         onClick={() => {
-                            runInAction(() => {
-                                appState.auth = null
-                            })
+                            authState.logout()
                         }}
                     >
                         <ListItemIcon>
                             <Logout />
                         </ListItemIcon>
                         <ListItemText>
-                            {`Logout (${appState.auth?.name})`}
+                            {`Logout (${authState.name})`}
                         </ListItemText>
                     </ListItemButton>
                 </ListItem>

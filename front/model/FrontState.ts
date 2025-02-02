@@ -1,9 +1,7 @@
 import { DateTime } from 'luxon'
-import { autorun, computed, makeAutoObservable, observable, runInAction } from 'mobx'
+import { autorun, makeAutoObservable, runInAction } from 'mobx'
 import { createContext, useContext } from 'react'
-import { AuthParam } from 'rlz-engine/dist/client/api/api'
 
-import { ApiAuthResponseV0 } from '../../common/api_v0'
 import { AllHistoryTimeSpan, CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, ThisMonthTimeSpan, ThisYearTimeSpan, utcToday, YearTimeSpan } from '../../engine/dates'
 import { Engine } from '../../engine/engine'
 import { Filter } from '../../engine/model'
@@ -91,7 +89,6 @@ export class FrontState {
     today = utcToday()
 
     dataUserId: string | null = localStorage.getItem(DATA_USER_ID_LS_KEY)
-    auth: ApiAuthResponseV0 | null = JSON.parse(localStorage.getItem(AUTH_LS_KEY) ?? 'null') as ApiAuthResponseV0 | null
     lastSyncDate = readDate(localStorage.getItem(LAST_SYNC_DATE_LS_KEY))
     theme: UserThemeType = (localStorage.getItem(THEME_LS_KEY) as UserThemeType | null) ?? 'auto'
     timeSpanInfo: TimeSpanInfo = JSON.parse(localStorage.getItem(TIME_SPAN_INFO_LS_KEY) ?? '{ "type": "thisMonth" }')
@@ -126,9 +123,9 @@ export class FrontState {
         this.engine = engine
 
         makeAutoObservable(this, {
-            auth: observable.shallow,
-            authParam: computed({ keepAlive: true })
         })
+
+        localStorage.removeItem(AUTH_LS_KEY)
 
         setInterval(() => {
             const today = utcToday()
@@ -138,10 +135,6 @@ export class FrontState {
                 })
             }
         }, 10000)
-
-        autorun(() => {
-            localStorage.setItem(AUTH_LS_KEY, JSON.stringify(this.auth))
-        })
 
         autorun(() => {
             localStorage.setItem(TIME_SPAN_INFO_LS_KEY, JSON.stringify(this.timeSpanInfo))
@@ -174,15 +167,6 @@ export class FrontState {
                 localStorage.removeItem(DATA_USER_ID_LS_KEY)
             }
         })
-    }
-
-    get authParam(): AuthParam | null {
-        if (this.auth === null) return null
-
-        return {
-            userId: this.auth.id,
-            tempPassword: this.auth.tempPassword
-        }
     }
 
     get timeSpan(): HumanTimeSpan {
@@ -258,24 +242,4 @@ export function useFrontState(): FrontState {
     }
 
     return s
-}
-
-export function useAuth(): ApiAuthResponseV0 {
-    const auth = useFrontState().auth
-
-    if (auth === null) {
-        throw Error('Unauthenticated')
-    }
-
-    return auth
-}
-
-export function useAuthParam(): AuthParam {
-    const auth = useFrontState().authParam
-
-    if (auth === null) {
-        throw Error('Unauthenticated')
-    }
-
-    return auth
 }

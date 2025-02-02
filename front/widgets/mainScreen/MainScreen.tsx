@@ -2,22 +2,22 @@ import { Box, useTheme } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type PropsWithChildren, type ReactElement, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuthState } from 'rlz-engine/dist/client/state/auth'
 
-import { useFrontState } from '../../model/FrontState'
 import { Column } from '../generic/Containers'
 import { MainAppBar } from './MainAppBar'
 import { MainBottomNavigation } from './MainBottomNavigation'
 
 export const MainScreen = observer(function MainScreen({ children }: PropsWithChildren): ReactElement {
-    const appState = useFrontState()
+    const authState = useAuthState()
     const navigate = useNavigate()
     const theme = useTheme()
 
     useEffect(() => {
-        if (appState.auth === null) {
-            navigate('/signin')
+        if (authState.authParam === null) {
+            void navigate('/signin')
         }
-    }, [appState.auth])
+    }, [authState.authParam])
 
     return (
         <Column width={'100vw'} height={'100vh'}>
