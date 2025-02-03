@@ -2,9 +2,9 @@ import { DateTime } from 'luxon'
 import { runInAction } from 'mobx'
 import { AuthParam, Forbidden } from 'rlz-engine/dist/client/api/api'
 import { AuthState } from 'rlz-engine/dist/client/state/auth'
+import { syncItems } from 'rlz-engine/dist/client/sync'
 
 import { apiAccounts, apiAccountsByIds, apiCategories, apiCategoriesByIds, apiOps, apiOpsByIds, apiPushAccounts, apiPushCategories, apiPushOps, apiPushWatches, apiWatches, apiWatchesByIds } from '../../api/api'
-import { apiComparisonObjectSchemaV0, ApiItemsResponseV0 } from '../../common/api_v0'
 import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0'
 import { Engine } from '../../engine/engine'
 import { Account, Category, Operation, Watch } from '../../engine/model'
@@ -50,66 +50,6 @@ export async function apiSync(authState: AuthState, frontState: FrontState, engi
         }
     } finally {
         apiSyncInProgress = false
-    }
-}
-
-async function syncItems<T extends { id: string, lastModified: DateTime<true> }>({
-    getRemoteLastModified,
-    localItems,
-    pushRemote,
-    getRemote,
-    pushLocal,
-    lastSyncDate
-}: {
-    getRemoteLastModified: () => Promise<ApiItemsResponseV0<typeof apiComparisonObjectSchemaV0>>
-    localItems: readonly T[]
-    pushRemote: (items: readonly T[]) => Promise<void>
-    getRemote: (ids: readonly string[]) => Promise<T[]>
-    pushLocal: (items: readonly T[]) => void
-    lastSyncDate: DateTime<true> | null
-}): Promise<void> {
-    const remoteItems = (await getRemoteLastModified()).items
-    const remoteItemsMap = Object.fromEntries(
-        remoteItems.map(i => [i.id, dtFromIso(i.lastModified)])
-    )
-
-    const itemsToGet: string[] = []
-    const itemsToPush: T[] = []
-
-    for (const i of localItems) {
-        const ri = remoteItemsMap[i.id]
-        if (ri === undefined) {
-            if (lastSyncDate === null || i.lastModified > lastSyncDate) {
-                itemsToPush.push(i)
-            }
-            continue
-        }
-
-        if (ri.equals(i.lastModified)) {
-            continue
-        }
-
-        if (ri < i.lastModified) {
-            itemsToPush.push(i)
-            continue
-        }
-
-        itemsToGet.push(i.id)
-    }
-
-    const knownItems = new Set(localItems.map(i => i.id))
-    for (const { id } of remoteItems) {
-        if (!knownItems.has(id)) {
-            itemsToGet.push(id)
-        }
-    }
-
-    if (itemsToPush.length > 0) {
-        await pushRemote(itemsToPush)
-    }
-
-    if (itemsToGet.length > 0) {
-        pushLocal((await getRemote(itemsToGet)))
     }
 }
 

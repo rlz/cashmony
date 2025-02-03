@@ -3,10 +3,10 @@ import fastifyPlugin from 'fastify-plugin'
 import { DateTime } from 'luxon'
 import { AuthStorage } from 'rlz-engine/dist/back/auth/storage'
 import { auth } from 'rlz-engine/dist/back/auth/utils'
+import { API_COMPARISON_OBJECT_SCHEMA_V0, API_GET_OBJECTS_REQUEST_SCHEMA_V0, API_ITEMS_REQUEST_SCHEMA_V0, API_ITEMS_RESPONSE_SCHEMA_V0, ApiItemsResponseV0 } from 'rlz-engine/dist/shared/api/sync'
 import { z } from 'zod'
 import zodToJsonSchema from 'zod-to-json-schema'
 
-import { apiComparisonObjectSchemaV0, apiGetObjectsRequestSchemaV0, apiItemsRequestSchemaV0, apiItemsResponseSchemaV0, ApiItemsResponseV0 } from '../common/api_v0'
 import { apiAccountSchemaV0, apiCategorySchemaV0, apiOperationSchemaV0, apiWatchSchemaV0 } from '../common/data_v0'
 import { toValid } from '../common/dates'
 import { MongoStorage } from './storage/mongo'
@@ -27,7 +27,7 @@ export const syncPlugin = fastifyPlugin(
             {
                 schema: {
                     querystring: zodToJsonSchema(getObjectsQueryStringSchema),
-                    response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0)) }
+                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0)) }
                 }
             },
             async (req, _resp) => {
@@ -42,13 +42,13 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/operations/by-ids',
             {
                 schema: {
-                    body: zodToJsonSchema(apiGetObjectsRequestSchemaV0),
-                    response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiOperationSchemaV0)) }
+                    body: zodToJsonSchema(API_GET_OBJECTS_REQUEST_SCHEMA_V0),
+                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(apiOperationSchemaV0)) }
                 }
             },
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiOperationSchemaV0>> => {
                 const userId = await auth(req.headers, authStorage)
-                const ids = apiGetObjectsRequestSchemaV0.parse(req.body).ids
+                const ids = API_GET_OBJECTS_REQUEST_SCHEMA_V0.parse(req.body).ids
                 return { items: await mongo.getOps(userId, ids) }
             }
         )
@@ -57,13 +57,13 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/operations/push',
             {
                 schema: {
-                    body: zodToJsonSchema(apiItemsRequestSchemaV0(apiOperationSchemaV0))
+                    body: zodToJsonSchema(API_ITEMS_REQUEST_SCHEMA_V0(apiOperationSchemaV0))
                 },
                 bodyLimit: 30 * 1024 * 1024
             },
             async (req, resp) => {
                 const userId = await auth(req.headers, authStorage)
-                const ops = apiItemsRequestSchemaV0(apiOperationSchemaV0).parse(req.body).items
+                const ops = API_ITEMS_REQUEST_SCHEMA_V0(apiOperationSchemaV0).parse(req.body).items
                 await mongo.pushOps(userId, ops)
                 resp.statusCode = 204
             }
@@ -74,7 +74,7 @@ export const syncPlugin = fastifyPlugin(
             {
                 schema: {
                     querystring: zodToJsonSchema(getObjectsQueryStringSchema),
-                    response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0)) }
+                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0)) }
                 }
             },
             async (req, _resp) => {
@@ -89,13 +89,13 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/accounts/by-ids',
             {
                 schema: {
-                    body: zodToJsonSchema(apiGetObjectsRequestSchemaV0),
-                    response: { 200: zodToJsonSchema(apiItemsRequestSchemaV0(apiAccountSchemaV0)) }
+                    body: zodToJsonSchema(API_GET_OBJECTS_REQUEST_SCHEMA_V0),
+                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(apiAccountSchemaV0)) }
                 }
             },
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiAccountSchemaV0>> => {
                 const userId = await auth(req.headers, authStorage)
-                const ids = apiGetObjectsRequestSchemaV0.parse(req.body).ids
+                const ids = API_GET_OBJECTS_REQUEST_SCHEMA_V0.parse(req.body).ids
                 return { items: await mongo.getAccounts(userId, ids) }
             }
         )
@@ -104,12 +104,12 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/accounts/push',
             {
                 schema: {
-                    body: zodToJsonSchema(apiItemsRequestSchemaV0(apiAccountSchemaV0))
+                    body: zodToJsonSchema(API_ITEMS_REQUEST_SCHEMA_V0(apiAccountSchemaV0))
                 }
             },
             async (req, resp) => {
                 const userId = await auth(req.headers, authStorage)
-                const accounts = apiItemsRequestSchemaV0(apiAccountSchemaV0).parse(req.body).items
+                const accounts = API_ITEMS_REQUEST_SCHEMA_V0(apiAccountSchemaV0).parse(req.body).items
                 await mongo.pushAccounts(userId, accounts)
                 resp.statusCode = 204
             }
@@ -120,7 +120,7 @@ export const syncPlugin = fastifyPlugin(
             {
                 schema: {
                     querystring: zodToJsonSchema(getObjectsQueryStringSchema),
-                    response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0)) }
+                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0)) }
                 }
             },
             async (req, _resp) => {
@@ -135,13 +135,13 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/categories/by-ids',
             {
                 schema: {
-                    body: zodToJsonSchema(apiGetObjectsRequestSchemaV0),
-                    response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiCategorySchemaV0)) }
+                    body: zodToJsonSchema(API_GET_OBJECTS_REQUEST_SCHEMA_V0),
+                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(apiCategorySchemaV0)) }
                 }
             },
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiCategorySchemaV0>> => {
                 const userId = await auth(req.headers, authStorage)
-                const ids = apiGetObjectsRequestSchemaV0.parse(req.body).ids
+                const ids = API_GET_OBJECTS_REQUEST_SCHEMA_V0.parse(req.body).ids
                 return { items: await mongo.getCategories(userId, ids) }
             }
         )
@@ -150,12 +150,12 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/categories/push',
             {
                 schema: {
-                    body: zodToJsonSchema(apiItemsRequestSchemaV0(apiCategorySchemaV0))
+                    body: zodToJsonSchema(API_ITEMS_REQUEST_SCHEMA_V0(apiCategorySchemaV0))
                 }
             },
             async (req, resp) => {
                 const userId = await auth(req.headers, authStorage)
-                const categories = apiItemsRequestSchemaV0(apiCategorySchemaV0).parse(req.body).items
+                const categories = API_ITEMS_REQUEST_SCHEMA_V0(apiCategorySchemaV0).parse(req.body).items
                 await mongo.pushCategories(userId, categories)
                 resp.statusCode = 204
             }
@@ -166,7 +166,7 @@ export const syncPlugin = fastifyPlugin(
             {
                 schema: {
                     querystring: zodToJsonSchema(getObjectsQueryStringSchema),
-                    response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiComparisonObjectSchemaV0)) }
+                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0)) }
                 }
             },
             async (req, _resp) => {
@@ -181,13 +181,13 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/watches/by-ids',
             {
                 schema: {
-                    body: zodToJsonSchema(apiGetObjectsRequestSchemaV0),
-                    response: { 200: zodToJsonSchema(apiItemsResponseSchemaV0(apiWatchSchemaV0)) }
+                    body: zodToJsonSchema(API_GET_OBJECTS_REQUEST_SCHEMA_V0),
+                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(apiWatchSchemaV0)) }
                 }
             },
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiWatchSchemaV0>> => {
                 const userId = await auth(req.headers, authStorage)
-                const ids = apiGetObjectsRequestSchemaV0.parse(req.body).ids
+                const ids = API_GET_OBJECTS_REQUEST_SCHEMA_V0.parse(req.body).ids
                 return { items: await mongo.getWatches(userId, ids) }
             }
         )
@@ -196,12 +196,12 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/watches/push',
             {
                 schema: {
-                    body: zodToJsonSchema(apiItemsRequestSchemaV0(apiWatchSchemaV0))
+                    body: zodToJsonSchema(API_ITEMS_REQUEST_SCHEMA_V0(apiWatchSchemaV0))
                 }
             },
             async (req, resp) => {
                 const userId = await auth(req.headers, authStorage)
-                const watches = apiItemsRequestSchemaV0(apiWatchSchemaV0).parse(req.body).items
+                const watches = API_ITEMS_REQUEST_SCHEMA_V0(apiWatchSchemaV0).parse(req.body).items
                 await mongo.pushWatches(userId, watches)
                 resp.statusCode = 204
             }

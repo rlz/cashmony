@@ -1,8 +1,8 @@
 import { FastifyBaseLogger } from 'fastify'
 import { DateTime } from 'luxon'
 import { Collection, Db, MongoClient } from 'mongodb'
+import { ApiComparisonObjectV0 } from 'rlz-engine/dist/shared/api/sync'
 
-import { ApiComparisonObjectV0 } from '../../common/api_v0'
 import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0'
 import { createIndexes } from './indexes'
 import { MongoObject, mongoObjectSchema, MongoTempPassword, MongoUser } from './model'
