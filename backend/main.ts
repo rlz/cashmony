@@ -3,10 +3,10 @@ import { AUTH_API } from 'rlz-engine/dist/back/auth/controllers'
 import { AuthStorage } from 'rlz-engine/dist/back/auth/storage'
 import { PRODUCTION } from 'rlz-engine/dist/back/config'
 import { runServer } from 'rlz-engine/dist/back/server'
-import { MongoStorage as RlzEngineMongoStorage } from 'rlz-engine/dist/back/storage/db'
+import { MongoStorage } from 'rlz-engine/dist/back/storage/db'
 
 import { managementPlugin } from './management'
-import { MongoStorage } from './storage/mongo'
+import { CashmonyStorage } from './storage/mongo'
 import { syncPlugin } from './sync'
 
 const settings = {
@@ -30,14 +30,14 @@ async function initServer() {
         certDir: settings.certDir,
         staticDir: PRODUCTION ? './web' : './front/dist',
         init: async (server) => {
-            const mongo = await MongoStorage.create(server.log.child({ module: 'MONGO' }))
+            const mongo = new MongoStorage('cashmony-app')
 
-            const rlzEngineMongo = new RlzEngineMongoStorage('cashmony-app')
-            const authStorage = new AuthStorage(rlzEngineMongo)
+            const authStorage = await AuthStorage.create(mongo)
+            const cashmonyStorage = await CashmonyStorage.create(server.log.child({ module: 'MONGO' }), mongo)
 
             server.register(AUTH_API, { storage: authStorage })
-            server.register(syncPlugin, { authStorage, mongo })
-            server.register(managementPlugin, { appStorage: mongo, authStorage })
+            server.register(syncPlugin, { authStorage, cashmonyStorage })
+            server.register(managementPlugin, { authStorage, cashmonyStorage })
         }
     })
 }

@@ -1,32 +1,88 @@
 import { FastifyBaseLogger } from 'fastify'
 import { DateTime } from 'luxon'
-import { Collection, Db, MongoClient } from 'mongodb'
+import { Collection, Db } from 'mongodb'
+import { MongoStorage } from 'rlz-engine/dist/back/storage/db'
 import { ApiComparisonObjectV0 } from 'rlz-engine/dist/shared/api/sync'
 
 import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0'
-import { createIndexes } from './indexes'
 import { MongoObject, mongoObjectSchema, MongoTempPassword, MongoUser } from './model'
 
-export class MongoStorage {
+export class CashmonyStorage {
     private readonly logger: FastifyBaseLogger
-    private readonly client: MongoClient
+    private readonly storage: MongoStorage
 
-    private constructor(logger: FastifyBaseLogger) {
+    private constructor(logger: FastifyBaseLogger, storage: MongoStorage) {
         this.logger = logger
 
-        this.client = new MongoClient('mongodb://localhost')
+        this.storage = storage
     }
 
-    static async create(logger: FastifyBaseLogger): Promise<MongoStorage> {
-        const s = new MongoStorage(logger)
+    static async create(logger: FastifyBaseLogger, storage: MongoStorage): Promise<CashmonyStorage> {
+        const s = new CashmonyStorage(logger, storage)
 
         await s.createCollections()
 
         await Promise.all([
-            createIndexes(logger, s.ops),
-            createIndexes(logger, s.accounts),
-            createIndexes(logger, s.categories),
-            createIndexes(logger, s.watches)
+            s.storage.createIndexes(s.ops, [
+                {
+                    name: 'ownerId_v0',
+                    key: {
+                        ownerId: 1
+                    }
+                },
+                {
+                    name: 'ownerId_syncDate_v0',
+                    key: {
+                        ownerId: 1,
+                        syncDate: 1
+                    }
+                }
+            ]),
+            s.storage.createIndexes(s.accounts, [
+                {
+                    name: 'ownerId_v0',
+                    key: {
+                        ownerId: 1
+                    }
+                },
+                {
+                    name: 'ownerId_syncDate_v0',
+                    key: {
+                        ownerId: 1,
+                        syncDate: 1
+                    }
+                }
+            ]),
+            s.storage.createIndexes(s.categories, [
+                {
+                    name: 'ownerId_v0',
+                    key: {
+                        ownerId: 1
+                    }
+                },
+                {
+                    name: 'ownerId_syncDate_v0',
+                    key: {
+                        ownerId: 1,
+                        syncDate: 1
+                    }
+                }
+            ]),
+            s.storage.createIndexes(s.watches, [
+                {
+                    name: 'ownerId_v0',
+                    key: {
+                        ownerId: 1
+                    }
+                },
+                {
+                    name: 'ownerId_syncDate_v0',
+                    key: {
+                        ownerId: 1,
+                        syncDate: 1
+                    }
+                }
+            ])
         ])
 
         return s
@@ -157,9 +213,8 @@ export class MongoStorage {
 
     private async createCollections() {
         await Promise.all([
-            'operations', 'accounts', 'categories',
-            'watches', 'users', 'temp-passwords'
-        ].map(i => this.db.createCollection(i)))
+            'operations', 'accounts', 'categories', 'watches'
+        ].map(i => this.storage.createCollection(i)))
     }
 
     private async getAll<T>(c: Collection<MongoObject<T>>, ownerId: string, syncAfter?: DateTime<true>): Promise<ApiComparisonObjectV0[]> {
@@ -179,7 +234,7 @@ export class MongoStorage {
     }
 
     private get db(): Db {
-        return this.client.db('cashmony-app')
+        return this.storage.db
     }
 
     private get ops(): Collection<MongoObject<ApiOperationV0>> {

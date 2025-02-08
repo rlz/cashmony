@@ -9,7 +9,7 @@ import zodToJsonSchema from 'zod-to-json-schema'
 
 import { apiAccountSchemaV0, apiCategorySchemaV0, apiOperationSchemaV0, apiWatchSchemaV0 } from '../common/data_v0'
 import { toValid } from '../common/dates'
-import { MongoStorage } from './storage/mongo'
+import { CashmonyStorage } from './storage/mongo'
 
 const getObjectsQueryStringSchema = z.object({
     syncAfter: z.string().datetime().optional()
@@ -17,11 +17,11 @@ const getObjectsQueryStringSchema = z.object({
 
 interface SyncPluginOpts {
     authStorage: AuthStorage
-    mongo: MongoStorage
+    cashmonyStorage: CashmonyStorage
 }
 
 export const syncPlugin = fastifyPlugin(
-    function syncPlugin<T extends RawServerBase>(app: FastifyInstance<T>, { authStorage, mongo }: SyncPluginOpts) {
+    function syncPlugin<T extends RawServerBase>(app: FastifyInstance<T>, { authStorage, cashmonyStorage }: SyncPluginOpts) {
         app.get(
             '/api/v0/operations',
             {
@@ -34,7 +34,7 @@ export const syncPlugin = fastifyPlugin(
                 const userId = await auth(req.headers, authStorage)
                 const query = getObjectsQueryStringSchema.parse(req.query)
                 const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
-                return { items: await mongo.allOps(userId, syncAfter) }
+                return { items: await cashmonyStorage.allOps(userId, syncAfter) }
             }
         )
 
@@ -49,7 +49,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiOperationSchemaV0>> => {
                 const userId = await auth(req.headers, authStorage)
                 const ids = API_GET_OBJECTS_REQUEST_SCHEMA_V0.parse(req.body).ids
-                return { items: await mongo.getOps(userId, ids) }
+                return { items: await cashmonyStorage.getOps(userId, ids) }
             }
         )
 
@@ -64,7 +64,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, resp) => {
                 const userId = await auth(req.headers, authStorage)
                 const ops = API_ITEMS_REQUEST_SCHEMA_V0(apiOperationSchemaV0).parse(req.body).items
-                await mongo.pushOps(userId, ops)
+                await cashmonyStorage.pushOps(userId, ops)
                 resp.statusCode = 204
             }
         )
@@ -81,7 +81,7 @@ export const syncPlugin = fastifyPlugin(
                 const userId = await auth(req.headers, authStorage)
                 const query = getObjectsQueryStringSchema.parse(req.query)
                 const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
-                return { items: await mongo.allAccounts(userId, syncAfter) }
+                return { items: await cashmonyStorage.allAccounts(userId, syncAfter) }
             }
         )
 
@@ -96,7 +96,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiAccountSchemaV0>> => {
                 const userId = await auth(req.headers, authStorage)
                 const ids = API_GET_OBJECTS_REQUEST_SCHEMA_V0.parse(req.body).ids
-                return { items: await mongo.getAccounts(userId, ids) }
+                return { items: await cashmonyStorage.getAccounts(userId, ids) }
             }
         )
 
@@ -110,7 +110,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, resp) => {
                 const userId = await auth(req.headers, authStorage)
                 const accounts = API_ITEMS_REQUEST_SCHEMA_V0(apiAccountSchemaV0).parse(req.body).items
-                await mongo.pushAccounts(userId, accounts)
+                await cashmonyStorage.pushAccounts(userId, accounts)
                 resp.statusCode = 204
             }
         )
@@ -127,7 +127,7 @@ export const syncPlugin = fastifyPlugin(
                 const userId = await auth(req.headers, authStorage)
                 const query = getObjectsQueryStringSchema.parse(req.query)
                 const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
-                return { items: await mongo.allCategories(userId, syncAfter) }
+                return { items: await cashmonyStorage.allCategories(userId, syncAfter) }
             }
         )
 
@@ -142,7 +142,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiCategorySchemaV0>> => {
                 const userId = await auth(req.headers, authStorage)
                 const ids = API_GET_OBJECTS_REQUEST_SCHEMA_V0.parse(req.body).ids
-                return { items: await mongo.getCategories(userId, ids) }
+                return { items: await cashmonyStorage.getCategories(userId, ids) }
             }
         )
 
@@ -156,7 +156,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, resp) => {
                 const userId = await auth(req.headers, authStorage)
                 const categories = API_ITEMS_REQUEST_SCHEMA_V0(apiCategorySchemaV0).parse(req.body).items
-                await mongo.pushCategories(userId, categories)
+                await cashmonyStorage.pushCategories(userId, categories)
                 resp.statusCode = 204
             }
         )
@@ -173,7 +173,7 @@ export const syncPlugin = fastifyPlugin(
                 const userId = await auth(req.headers, authStorage)
                 const query = getObjectsQueryStringSchema.parse(req.query)
                 const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
-                return { items: await mongo.allWatches(userId, syncAfter) }
+                return { items: await cashmonyStorage.allWatches(userId, syncAfter) }
             }
         )
 
@@ -188,7 +188,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiWatchSchemaV0>> => {
                 const userId = await auth(req.headers, authStorage)
                 const ids = API_GET_OBJECTS_REQUEST_SCHEMA_V0.parse(req.body).ids
-                return { items: await mongo.getWatches(userId, ids) }
+                return { items: await cashmonyStorage.getWatches(userId, ids) }
             }
         )
 
@@ -202,7 +202,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, resp) => {
                 const userId = await auth(req.headers, authStorage)
                 const watches = API_ITEMS_REQUEST_SCHEMA_V0(apiWatchSchemaV0).parse(req.body).items
-                await mongo.pushWatches(userId, watches)
+                await cashmonyStorage.pushWatches(userId, watches)
                 resp.statusCode = 204
             }
         )
