@@ -26,6 +26,7 @@ export async function apiSync(authState: AuthState, frontState: FrontState, engi
         }
 
         if (frontState.dataUserId !== auth.userId) {
+            frontState.clearLastSyncDate()
             await engine.clearData()
         }
 

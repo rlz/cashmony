@@ -224,6 +224,10 @@ export class FrontState {
             }
         })
     }
+
+    public clearLastSyncDate() {
+        this.lastSyncDate = null
+    }
 }
 
 function makeDate(dateInfo: DateInfo): DateTime {
