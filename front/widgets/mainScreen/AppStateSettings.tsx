@@ -24,8 +24,9 @@ type Props = Omit<React.ComponentProps<typeof Column>, 'gap'> & {
 
 export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Props): ReactElement => {
     const appState = useFrontState()
-    const authState = useAuthState()
     const engine = useEngine()
+    const authState = useAuthState()
+    const userName = useAuthState(i => i.name)
 
     const [lastSyncText, setLastSyncText] = useState(
         appState.lastSyncDate === null
@@ -168,16 +169,12 @@ export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Pro
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
-                    <ListItemButton
-                        onClick={() => {
-                            authState.logout()
-                        }}
-                    >
+                    <ListItemButton onClick={authState.logout}>
                         <ListItemIcon>
                             <Logout />
                         </ListItemIcon>
                         <ListItemText>
-                            {`Logout (${authState.name})`}
+                            {`Logout (${userName})`}
                         </ListItemText>
                     </ListItemButton>
                 </ListItem>

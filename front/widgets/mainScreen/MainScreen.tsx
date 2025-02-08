@@ -9,15 +9,15 @@ import { MainAppBar } from './MainAppBar'
 import { MainBottomNavigation } from './MainBottomNavigation'
 
 export const MainScreen = observer(function MainScreen({ children }: PropsWithChildren): ReactElement {
-    const authState = useAuthState()
+    const authParam = useAuthState(i => i.getAuthParam())
     const navigate = useNavigate()
     const theme = useTheme()
 
     useEffect(() => {
-        if (authState.authParam === null) {
+        if (authParam === null) {
             void navigate('/signin')
         }
-    }, [authState.authParam])
+    }, [authParam])
 
     return (
         <Column width={'100vw'} height={'100vh'}>

@@ -18,7 +18,7 @@ export async function apiSync(authState: AuthState, frontState: FrontState, engi
     apiSyncInProgress = true
 
     try {
-        const auth = authState.authParam
+        const auth = authState.getAuthParam()
 
         if (auth === null) {
             console.log('Skip sync: unauthenticated')

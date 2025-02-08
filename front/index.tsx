@@ -6,7 +6,7 @@ import { installIntoGlobal } from 'iterator-helpers-polyfill'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useMemo } from 'react'
 import ReactDOM from 'react-dom/client'
-import { AuthState, AuthStateContext } from 'rlz-engine/dist/client/state/auth'
+import { useAuthState } from 'rlz-engine/dist/client/state/auth'
 // import { initFrontConfig } from 'rlz-engine/dist/client/config'
 import { match } from 'ts-pattern'
 
@@ -57,17 +57,19 @@ const RootNode = observer((): ReactElement => {
     const engine = useMemo(() => new Engine(), [])
     const frontState = useMemo(() => new FrontState(engine), [])
     const currenciesLoader = new CurrenciesLoader()
-    const authState = new AuthState()
-
-    const reSync = async () => {
-        if (authState.authParam === null) {
-            return
-        }
-
-        await apiSync(authState, frontState, engine)
-    }
 
     useEffect(() => {
+        const reSync = async () => {
+            const authState = useAuthState.getState()
+            const authParam = authState.getAuthParam()
+
+            if (authParam === null) {
+                return
+            }
+
+            await apiSync(authState, frontState, engine)
+        }
+
         engine.subscribe({
             onAccountChange: reSync,
             onCategoryChange: reSync,
@@ -100,14 +102,12 @@ const RootNode = observer((): ReactElement => {
             <EngineProvider value={engine}>
                 <FrontStateProvider value={frontState}>
                     <CurrenciesLoaderProvider value={currenciesLoader}>
-                        <AuthStateContext value={authState}>
-                            <ThemeProvider theme={match(theme).with('light', () => lightTheme).otherwise(() => darkTheme)}>
-                                <CssBaseline />
-                                <Typography component={'div'}>
-                                    <App />
-                                </Typography>
-                            </ThemeProvider>
-                        </AuthStateContext>
+                        <ThemeProvider theme={match(theme).with('light', () => lightTheme).otherwise(() => darkTheme)}>
+                            <CssBaseline />
+                            <Typography component={'div'}>
+                                <App />
+                            </Typography>
+                        </ThemeProvider>
                     </CurrenciesLoaderProvider>
                 </FrontStateProvider>
             </EngineProvider>

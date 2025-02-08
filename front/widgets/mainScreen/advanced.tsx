@@ -12,9 +12,10 @@ import { useEngine } from '../../useEngine'
 
 export const Advanced = observer(
     function Advanced(): JSX.Element {
+        const authState = useAuthState()
         const frontState = useFrontState()
         const engine = useEngine()
-        const authState = useAuthState()
+        const authParam = useAuthState(i => i.getAuthParam())
 
         return (
             <Box padding={1}>
@@ -23,8 +24,8 @@ export const Advanced = observer(
                         variant={'contained'}
                         fullWidth
                         onClick={async () => {
-                            if (authState.authParam !== null) {
-                                await apiClearAll(authState.authParam)
+                            if (authParam !== null) {
+                                await apiClearAll(authParam)
                             }
                         }}
                     >
