@@ -58,7 +58,8 @@
         "test": "jest",
         "test-coverage": "jest --coverage",
         "parser": "peggy -o engine/filterExpressionParser/parser.gen.js --format es engine/filterExpressionParser/parser.peggy",
-        "backup": "tsx tools/backup.ts"
+        "backup": "tsx tools/backup.ts",
+        "restore": "tsx tools/restore.ts"
     },
     "browserslist": {
         "production": [
