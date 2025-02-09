@@ -32,12 +32,12 @@ export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Pro
         appState.lastSyncDate === null
             ? 'never'
             : appState.lastSyncDate
-                .diffNow()
-                .negate()
-                .shiftTo('hours', 'minutes', 'seconds')
-                .set({ seconds: 0 })
-                .shiftTo('hours', 'minutes')
-                .toHuman({ unitDisplay: 'short' })
+                    .diffNow()
+                    .negate()
+                    .shiftTo('hours', 'minutes', 'seconds')
+                    .set({ seconds: 0 })
+                    .shiftTo('hours', 'minutes')
+                    .toHuman({ unitDisplay: 'short' })
     )
 
     useEffect(() => {
@@ -46,12 +46,12 @@ export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Pro
                 appState.lastSyncDate === null
                     ? 'never'
                     : appState.lastSyncDate
-                        .diffNow()
-                        .negate()
-                        .shiftTo('hours', 'minutes', 'seconds')
-                        .set({ seconds: 0 })
-                        .shiftTo('hours', 'minutes')
-                        .toHuman({ unitDisplay: 'short' })
+                            .diffNow()
+                            .negate()
+                            .shiftTo('hours', 'minutes', 'seconds')
+                            .set({ seconds: 0 })
+                            .shiftTo('hours', 'minutes')
+                            .toHuman({ unitDisplay: 'short' })
             )
         }, 10000)
         return () => clearInterval(i)
