@@ -1,4 +1,5 @@
-import { Box, Button, Stack, Tab, Tabs, TextField, Typography, useTheme } from '@mui/material'
+import { Clear, History } from '@mui/icons-material'
+import { Box, Button, FilledInput, FormControl, IconButton, InputAdornment, InputLabel, Paper, Stack, Tab, Tabs, Typography, useTheme } from '@mui/material'
 import color from 'color'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useCallback, useEffect, useState } from 'react'
@@ -8,6 +9,7 @@ import { ParseError, parseFilterQuery } from '../../engine/filterExpressionParse
 import { NotDeletedOperation } from '../../engine/model'
 import { isExpense, isIncome, PE, Predicate } from '../../engine/predicateExpression'
 import { calcStats, StatsReducer } from '../../engine/stats/stats'
+import { useAnaliticsHistoryStore } from '../model/analiticsHistory'
 import { useFrontState } from '../model/FrontState'
 import { useEngine } from '../useEngine'
 import { AnaliticsScreenStats } from '../widgets/AnaliticsScreenStats'
@@ -19,6 +21,8 @@ import { OperationScreenBody } from './OperationScreen'
 export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement {
     const engine = useEngine()
     const appState = useFrontState()
+    const analiticsHistory = useAnaliticsHistoryStore(i => i.history)
+    const analiticsHistoryAdd = useAnaliticsHistoryStore(i => i.addHistory)
 
     const theme = useTheme()
     const location = useLocation()
@@ -27,6 +31,7 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
     const [predicate, setPredicate] = useState<Predicate>(PE.any())
     const [stats, setStats] = useState<Stats | null>(null)
     const [error, setError] = useState<ParseError | null>(null)
+    const [showHistory, setShowHistory] = useState(false)
 
     const tab: 'stats' | 'ops' = location.pathname.startsWith('/analitics/stats')
         ? 'stats'
@@ -39,14 +44,15 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
     appState.setOnClose(null)
     appState.setSubTitle('Analitics')
 
-    const applyFilter = () => {
+    const applyFilter = (query: string) => {
         setError(null)
-        if (filter === '') {
+        if (query === '') {
             setPredicate(PE.any())
             return
         }
         try {
-            setPredicate(parseFilterQuery(filter))
+            setPredicate(parseFilterQuery(query))
+            analiticsHistoryAdd(query)
         } catch (error) {
             if (error instanceof ParseError) {
                 setError(error)
@@ -68,27 +74,79 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
 
     return (
         <MainScreen>
+            {
+                showHistory && (
+                    <FullScreenModal
+                        title={'History'}
+                        onClose={() => setShowHistory(false)}
+                    >
+                        <Stack p={1} gap={1} overflow={'auto'}>
+                            {
+                                analiticsHistory.map((query, i) => (
+                                    <Paper
+                                        key={i}
+                                        variant={'outlined'}
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => {
+                                            setFilter(query)
+                                            applyFilter(query)
+                                            setShowHistory(false)
+                                        }}
+                                    >
+                                        <Box p={1}>
+                                            {query}
+                                        </Box>
+                                    </Paper>
+                                ))
+                            }
+                        </Stack>
+                    </FullScreenModal>
+                )
+            }
             <Stack height={'100%'}>
                 <Stack spacing={1} p={1}>
-                    <Stack direction={'row'} spacing={1}>
-                        <TextField
-                            fullWidth
-                            size={'small'}
-                            variant={'filled'}
-                            value={filter}
-                            label={'Filter'}
-                            error={error !== null}
-                            onChange={(e) => { setFilter(e.target.value) }}
-                            onKeyDown={(e) => {
-                                if (e.code === 'Enter') {
-                                    applyFilter()
-                                }
-                            }}
-                        />
+                    <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                        <div>
+                            <IconButton
+                                onClick={() => { setShowHistory(true) }}
+                            >
+                                <History />
+                            </IconButton>
+                        </div>
+                        <FormControl variant={'filled'} size={'small'} fullWidth>
+                            <InputLabel htmlFor={'filter-input'}>{'Filter'}</InputLabel>
+                            <FilledInput
+                                id={'filter-input'}
+                                fullWidth
+                                size={'small'}
+                                value={filter}
+                                error={error !== null}
+                                onChange={(e) => { setFilter(e.target.value) }}
+                                onKeyDown={(e) => {
+                                    if (e.code === 'Enter') {
+                                        applyFilter(filter)
+                                    }
+                                }}
+                                endAdornment={(
+                                    <InputAdornment position={'end'}>
+                                        <IconButton
+                                            size={'small'}
+                                            edge={'end'}
+                                            onClick={() => {
+                                                setFilter('')
+                                                applyFilter('')
+                                            }}
+                                        >
+                                            <Clear />
+                                        </IconButton>
+                                    </InputAdornment>
+                                )}
+                            />
+                        </FormControl>
                         <Button
                             size={'small'}
                             variant={'contained'}
-                            onClick={applyFilter}
+                            onClick={() => applyFilter(filter)}
                         >
                             {'Apply'}
                         </Button>

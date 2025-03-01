@@ -5,7 +5,7 @@ npm run build-client || exit 1
 rsync -r auth dist cashmony.service cashmony:/cashmony/ || exit 1
 rsync -r --delete ./front/dist/ cashmony:/cashmony/web || exit 1
 
-ssh cashmony 'sudo cp -f /cashmony/cashmony.service /lib/systemd/system/cashmony.service'
-ssh cashmony 'sudo systemctl daemon-reload'
-ssh cashmony 'sudo systemctl restart cashmony'
-ssh cashmony 'sudo systemctl status cashmony'
+ssh cashmony 'cp -f /cashmony/cashmony.service /lib/systemd/system/cashmony.service'
+ssh cashmony 'systemctl daemon-reload'
+ssh cashmony 'systemctl restart cashmony'
+ssh cashmony 'systemctl status cashmony'
