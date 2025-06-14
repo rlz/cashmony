@@ -27,11 +27,15 @@ const CLOSE_BTN_BIG_SCREEN: SxProps = {
     top: '64px'
 }
 
+const APPBAR_SX: SxProps = {
+    zIndex: 100
+}
+
 export function CashmonyAppBar(props: CashmonyAppBarProps): ReactElement {
     const smallScreen = screenWidthIs('xs', 'sm')
 
     return (
-        <AppBar position={'static'}>
+        <AppBar position={'static'} sx={APPBAR_SX}>
             <Toolbar>
                 <IconButton
                     size={'large'}

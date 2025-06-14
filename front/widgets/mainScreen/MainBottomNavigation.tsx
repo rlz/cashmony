@@ -1,5 +1,5 @@
 import { AccountBalanceWallet as AccountBalanceWalletIcon, Category as CategoryIcon, List as ListIcon, QueryStats as QueryStatsIcon, Troubleshoot as TroubleshootIcon } from '@mui/icons-material'
-import { Box, Stack, Typography, useTheme } from '@mui/material'
+import { Box, Stack, SxProps, Theme, Typography, useTheme } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { JSX, type ReactElement } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -59,6 +59,11 @@ function NavItem(props: NavItemProps): JSX.Element {
     )
 }
 
+const BOTTOMNAV_SX: SxProps<Theme> = theme => ({
+    boxShadow: theme.shadows[3],
+    zIndex: 100
+})
+
 export const MainBottomNavigation = observer(function MainBottomNavigation(): ReactElement {
     const engine = useEngine()
 
@@ -75,7 +80,7 @@ export const MainBottomNavigation = observer(function MainBottomNavigation(): Re
         .otherwise(() => null)
 
     return (
-        <Stack direction={'row'} justifyContent={'center'}>
+        <Stack direction={'row'} justifyContent={'center'} sx={BOTTOMNAV_SX}>
             <Stack direction={'row'} width={'100%'} maxWidth={'500px'} overflow={'hidden'}>
                 {
                     engine.accounts.length === 0 || engine.categories.length === 0
