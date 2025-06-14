@@ -43,65 +43,65 @@ export function YMExpensesComparisonPlot({ title, stats, currency }: Props): JSX
 
             const p = width < 550
                 ? Plot.plot({
-                    width,
-                    height: 550,
-                    x: {
-                        tickFormat: v => formatCurrency(v, currency, true),
-                        grid: true,
-                        label: null,
-                        domain: [
-                            Math.min(d3.min(data, d => d.amount)!, 0),
-                            Math.max(d3.max(data, d => d.amount)!, 1)
-                        ]
-                    },
-                    y: { axis: null, type: 'band' },
-                    fy: { label: 'Month' },
-                    color: { type: 'ordinal', scheme: 'Observable10', legend: true },
-                    marks: [
-                        Plot.barX(data, {
-                            x: 'amount',
-                            y: 'Year',
-                            fill: 'Year',
-                            fy: 'month'
-                        }),
-                        Plot.ruleX([0]),
-                        Plot.axisFy({
+                        width,
+                        height: 550,
+                        x: {
+                            tickFormat: v => formatCurrency(v, currency, true),
+                            grid: true,
                             label: null,
-                            anchor: 'left',
-                            tickFormat: monthFormat
-                        })
-                    ]
-                })
+                            domain: [
+                                Math.min(d3.min(data, d => d.amount)!, 0),
+                                Math.max(d3.max(data, d => d.amount)!, 1)
+                            ]
+                        },
+                        y: { axis: null, type: 'band' },
+                        fy: { label: 'Month' },
+                        color: { type: 'ordinal', scheme: 'Observable10', legend: true },
+                        marks: [
+                            Plot.barX(data, {
+                                x: 'amount',
+                                y: 'Year',
+                                fill: 'Year',
+                                fy: 'month'
+                            }),
+                            Plot.ruleX([0]),
+                            Plot.axisFy({
+                                label: null,
+                                anchor: 'left',
+                                tickFormat: monthFormat
+                            })
+                        ]
+                    })
                 : Plot.plot({
-                    width,
-                    height: 250,
-                    x: { axis: null, type: 'band' },
-                    y: {
-                        tickFormat: v => formatCurrency(v, currency, true),
-                        grid: true,
-                        label: 'Total',
-                        domain: [
-                            Math.min(d3.min(data, d => d.amount)!, 0),
-                            Math.max(d3.max(data, d => d.amount)!, 1)
+                        width,
+                        height: 250,
+                        x: { axis: null, type: 'band' },
+                        y: {
+                            tickFormat: v => formatCurrency(v, currency, true),
+                            grid: true,
+                            label: 'Total',
+                            domain: [
+                                Math.min(d3.min(data, d => d.amount)!, 0),
+                                Math.max(d3.max(data, d => d.amount)!, 1)
+                            ]
+                        },
+                        fx: { label: 'Month' },
+                        color: { type: 'ordinal', scheme: 'Observable10', legend: true },
+                        marks: [
+                            Plot.barY(data, {
+                                x: 'Year',
+                                y: 'amount',
+                                fill: 'Year',
+                                fx: 'month'
+                            }),
+                            Plot.ruleY([0]),
+                            Plot.axisFx({
+                                label: null,
+                                anchor: 'bottom',
+                                tickFormat: monthFormat
+                            })
                         ]
-                    },
-                    fx: { label: 'Month' },
-                    color: { type: 'ordinal', scheme: 'Observable10', legend: true },
-                    marks: [
-                        Plot.barY(data, {
-                            x: 'Year',
-                            y: 'amount',
-                            fill: 'Year',
-                            fx: 'month'
-                        }),
-                        Plot.ruleY([0]),
-                        Plot.axisFx({
-                            label: null,
-                            anchor: 'bottom',
-                            tickFormat: monthFormat
-                        })
-                    ]
-                })
+                    })
             ref.current.append(p)
 
             return () => {

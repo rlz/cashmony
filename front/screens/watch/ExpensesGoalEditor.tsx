@@ -68,11 +68,11 @@ export function ExpensesGoalEditor({ goal, onChange }: Props): ReactElement {
                 value={newGoal.name}
                 error={newNameTrimmed === '' || nameCollision}
                 helperText={
-                match([newNameTrimmed, nameCollision])
-                    .with(['', P._], () => 'Empty')
-                    .with([P._, true], () => 'Already exists')
-                    .otherwise(() => 'ok')
-            }
+                    match([newNameTrimmed, nameCollision])
+                        .with(['', P._], () => 'Empty')
+                        .with([P._, true], () => 'Already exists')
+                        .otherwise(() => 'ok')
+                }
                 onChange={(ev) => {
                     setNewGoal({ ...newGoal, name: ev.target.value })
                 }}
@@ -99,20 +99,20 @@ export function ExpensesGoalEditor({ goal, onChange }: Props): ReactElement {
             {
                 goal.name === '' // create new goal
                     ? (
-                        <ActionButton
-                            variant={'contained'}
-                            action={onSave}
-                        >
-                            {'Create'}
-                        </ActionButton>
+                            <ActionButton
+                                variant={'contained'}
+                                action={onSave}
+                            >
+                                {'Create'}
+                            </ActionButton>
                         )
                     : (
-                        <ActionFab
-                            action={onSave}
-                            bottom={goal.name === '' && smallScreen ? '20px' : undefined}
-                        >
-                            <FontAwesomeIcon icon={faCheck} />
-                        </ActionFab>
+                            <ActionFab
+                                action={onSave}
+                                bottom={goal.name === '' && smallScreen ? '20px' : undefined}
+                            >
+                                <FontAwesomeIcon icon={faCheck} />
+                            </ActionFab>
                         )
             }
             {

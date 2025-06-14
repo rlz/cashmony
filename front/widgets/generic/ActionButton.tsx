@@ -47,33 +47,33 @@ export function ActionButton({ confirmationTitle, confirmation, action, children
             >
                 {inProgress
                     ? (
-                        <>
-                            <FontAwesomeIcon icon={faSpinner} pulse />
-                            {children}
-                        </>
+                            <>
+                                <FontAwesomeIcon icon={faSpinner} pulse />
+                                {children}
+                            </>
                         )
                     : children}
             </Button>
             {
-            showIf(
-                dialogOpen,
-                <Dialog
-                    open={true}
-                    TransitionComponent={Transition}
-                    onClose={() => { setDialogOpen(false) }}
-                >
-                    <DialogTitle>{confirmationTitle ?? 'Confirmation'}</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>{confirmation}</DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button color={'error'} onClick={() => { setDialogOpen(false) }}>{'No'}</Button>
-                        <Button color={'primary'} onClick={() => { setDialogOpen(false); runAction() }}>{'Yes'}</Button>
-                    </DialogActions>
-                </Dialog>
+                showIf(
+                    dialogOpen,
+                    <Dialog
+                        open={true}
+                        TransitionComponent={Transition}
+                        onClose={() => { setDialogOpen(false) }}
+                    >
+                        <DialogTitle>{confirmationTitle ?? 'Confirmation'}</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText>{confirmation}</DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button color={'error'} onClick={() => { setDialogOpen(false) }}>{'No'}</Button>
+                            <Button color={'primary'} onClick={() => { setDialogOpen(false); runAction() }}>{'Yes'}</Button>
+                        </DialogActions>
+                    </Dialog>
 
-            )
-        }
+                )
+            }
         </>
     )
 }

@@ -48,14 +48,14 @@ export function CashmonyAppBar(props: CashmonyAppBarProps): ReactElement {
                         {props.title}
                     </Typography>
                     {
-                    props.subTitle !== undefined
-                        ? (
-                            <DivBody2 noWrap>
-                                {props.subTitle}
-                            </DivBody2>
-                            )
-                        : undefined
-                }
+                        props.subTitle !== undefined
+                            ? (
+                                    <DivBody2 noWrap>
+                                        {props.subTitle}
+                                    </DivBody2>
+                                )
+                            : undefined
+                    }
                 </Column>
                 <IconButton
                     size={'large'}

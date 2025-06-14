@@ -30,48 +30,48 @@ export function CategoryScreen(): ReactElement {
             {
                 smallScreen
                     ? (
-                        <Box height={'100%'} position={'relative'}>
-                            <Box height={'100%'}>
-                                <CategoriesScreenBody noFab={!noCatSelected} />
+                            <Box height={'100%'} position={'relative'}>
+                                <Box height={'100%'}>
+                                    <CategoriesScreenBody noFab={!noCatSelected} />
+                                </Box>
+                                {
+                                    showIfLazy(!noCatSelected, () => {
+                                        return (
+                                            <Box
+                                                position={'absolute'}
+                                                top={0}
+                                                left={0}
+                                                height={'100%'}
+                                                width={'100%'}
+                                                bgcolor={theme.palette.background.default}
+                                            >
+                                                <CategoryScreenBody />
+                                            </Box>
+                                        )
+                                    })
+                                }
                             </Box>
-                            {
-                                showIfLazy(!noCatSelected, () => {
-                                    return (
-                                        <Box
-                                            position={'absolute'}
-                                            top={0}
-                                            left={0}
-                                            height={'100%'}
-                                            width={'100%'}
-                                            bgcolor={theme.palette.background.default}
-                                        >
-                                            <CategoryScreenBody />
-                                        </Box>
-                                    )
-                                })
-                            }
-                        </Box>
                         )
                     : (
-                        <PanelGroup direction={'horizontal'}>
-                            <Panel id={'list'} order={1}>
-                                <CategoriesScreenBody noFab={!noCatSelected} />
-                            </Panel>
-                            {
-                                showIfLazy(!noCatSelected, () => {
-                                    return (
-                                        <>
-                                            <ResizeHandle />
-                                            <Panel id={'single'} order={2}>
-                                                <CategoryScreenBody />
-                                            </Panel>
-                                        </>
-                                    )
-                                })
-                            }
-                        </PanelGroup>
+                            <PanelGroup direction={'horizontal'}>
+                                <Panel id={'list'} order={1}>
+                                    <CategoriesScreenBody noFab={!noCatSelected} />
+                                </Panel>
+                                {
+                                    showIfLazy(!noCatSelected, () => {
+                                        return (
+                                            <>
+                                                <ResizeHandle />
+                                                <Panel id={'single'} order={2}>
+                                                    <CategoryScreenBody />
+                                                </Panel>
+                                            </>
+                                        )
+                                    })
+                                }
+                            </PanelGroup>
                         )
-        }
+            }
         </MainScreen>
     )
 }

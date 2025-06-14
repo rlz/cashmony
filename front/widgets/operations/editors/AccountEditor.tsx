@@ -53,24 +53,24 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                 {props.account === null || account === null || account === undefined || props.opCurrency === account.currency
                     ? null
                     : (
-                        <Box mt={1}>
-                            <CurrencyInput
-                                mult={props.negative ? -1 : 1}
-                                label={`Amount — ${formatExchangeRate(Math.abs(props.opAmount), Math.abs(props.account.amount))}`}
-                                amount={props.account.amount}
-                                currency={account.currency}
-                                onAmountChange={(accountAmount) => {
-                                    if (props.account === null) {
-                                        throw Error('Not null props.account expected here')
-                                    }
+                            <Box mt={1}>
+                                <CurrencyInput
+                                    mult={props.negative ? -1 : 1}
+                                    label={`Amount — ${formatExchangeRate(Math.abs(props.opAmount), Math.abs(props.account.amount))}`}
+                                    amount={props.account.amount}
+                                    currency={account.currency}
+                                    onAmountChange={(accountAmount) => {
+                                        if (props.account === null) {
+                                            throw Error('Not null props.account expected here')
+                                        }
 
-                                    props.onAccountChange({
-                                        id: props.account.id,
-                                        amount: accountAmount
-                                    })
-                                }}
-                            />
-                        </Box>
+                                        props.onAccountChange({
+                                            id: props.account.id,
+                                            amount: accountAmount
+                                        })
+                                    }}
+                                />
+                            </Box>
                         )}
             </AccordionDetails>
         </Accordion>

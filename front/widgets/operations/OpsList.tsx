@@ -126,14 +126,14 @@ export const OpsList = memo(observer(function OpsList(props: Props): ReactElemen
             )}
             {displayOps !== null && displayDays < displayOps.length
                 ? (
-                    <Typography color={'text.primary'} textAlign={'center'} mt={2}>
-                        <a onClick={() => {
-                            setDisplayDays(Math.min(displayOps.length, displayDays + 10))
-                        }}
-                        >
-                            {'Show more'}
-                        </a>
-                    </Typography>
+                        <Typography color={'text.primary'} textAlign={'center'} mt={2}>
+                            <a onClick={() => {
+                                setDisplayDays(Math.min(displayOps.length, displayDays + 10))
+                            }}
+                            >
+                                {'Show more'}
+                            </a>
+                        </Typography>
                     )
                 : null}
             <Box minHeight={144} />

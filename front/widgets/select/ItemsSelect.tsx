@@ -61,11 +61,11 @@ export function ItemsSelect(props: Props): ReactElement {
         const items = filter === null
             ? props.items
             : run(() => {
-                const re = new RegExp(filter, 'i')
-                return props.items.filter(
-                    i => re.test(i.label)
-                )
-            })
+                    const re = new RegExp(filter, 'i')
+                    return props.items.filter(
+                        i => re.test(i.label)
+                    )
+                })
 
         return items.map((i) => {
             const fontStyle = match(i).with(P.string, _v => undefined).otherwise(v => v.fontStyle)
@@ -159,17 +159,17 @@ export function ItemsSelect(props: Props): ReactElement {
                 {
                     pages > 1
                         ? times(pages ?? 0).map((p) => {
-                            return (
-                                <a key={p} style={aStyle} onClick={() => { carouselApi?.scrollTo(p) }}>
-                                    <Box
-                                        width={10}
-                                        height={10}
-                                        bgcolor={p === page ? 'secondary.main' : 'text.primary'}
-                                        borderRadius={10}
-                                    />
-                                </a>
-                            )
-                        })
+                                return (
+                                    <a key={p} style={aStyle} onClick={() => { carouselApi?.scrollTo(p) }}>
+                                        <Box
+                                            width={10}
+                                            height={10}
+                                            bgcolor={p === page ? 'secondary.main' : 'text.primary'}
+                                            borderRadius={10}
+                                        />
+                                    </a>
+                                )
+                            })
                         : null
                 }
             </Row>

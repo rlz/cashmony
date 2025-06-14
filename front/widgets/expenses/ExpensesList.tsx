@@ -33,17 +33,17 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
                 const today = appState.today
                 const reducers = categories !== undefined
                     ? Object.fromEntries(
-                        categories.map(c => [
-                            c.id,
-                            new TotalAndChangeReducer(engine, currenciesLoader, today, ts, PE.cat(c.id), c.currency ?? appState.masterCurrency)
-                        ])
-                    )
+                            categories.map(c => [
+                                c.id,
+                                new TotalAndChangeReducer(engine, currenciesLoader, today, ts, PE.cat(c.id), c.currency ?? appState.masterCurrency)
+                            ])
+                        )
                     : Object.fromEntries(
-                        (goals ?? []).map(g => [
-                            g.id,
-                            new TotalAndChangeReducer(engine, currenciesLoader, today, ts, PE.and(EXPENSE_PREDICATE, PE.filter(g.filter)), g.currency)
-                        ])
-                    )
+                            (goals ?? []).map(g => [
+                                g.id,
+                                new TotalAndChangeReducer(engine, currenciesLoader, today, ts, PE.and(EXPENSE_PREDICATE, PE.filter(g.filter)), g.currency)
+                            ])
+                        )
                 await calcStats(
                     engine,
                     PE.any(),
@@ -99,18 +99,18 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
                             )
                         })
                     : categories.map((cat) => {
-                        const url = `/categories/${encodeURIComponent(cat.id)}`
-                        return (
-                            <ExpensesCard
-                                key={cat.id}
-                                url={url}
-                                name={cat.name}
-                                perDayGoal={cat.perDayAmount ?? null}
-                                stats={stats[cat.id]}
-                                currency={cat.currency ?? appState.masterCurrency}
-                            />
-                        )
-                    })
+                            const url = `/categories/${encodeURIComponent(cat.id)}`
+                            return (
+                                <ExpensesCard
+                                    key={cat.id}
+                                    url={url}
+                                    name={cat.name}
+                                    perDayGoal={cat.perDayAmount ?? null}
+                                    stats={stats[cat.id]}
+                                    currency={cat.currency ?? appState.masterCurrency}
+                                />
+                            )
+                        })
             }
         </Box>
     )

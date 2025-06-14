@@ -73,18 +73,18 @@ function SearchFilter({ filter, setFilter }: EditorProps): ReactElement {
                     })
                 }}
                 endAdornment={
-                showIf(
-                    filter.search !== null,
-                    <InputAdornment position={'end'}>
-                        <IconButton
-                            onClick={() => { setFilter({ ...filter, search: null }) }}
-                            edge={'end'}
-                        >
-                            <FontAwesomeIcon icon={faXmark} />
-                        </IconButton>
-                    </InputAdornment>
-                )
-            }
+                    showIf(
+                        filter.search !== null,
+                        <InputAdornment position={'end'}>
+                            <IconButton
+                                onClick={() => { setFilter({ ...filter, search: null }) }}
+                                edge={'end'}
+                            >
+                                <FontAwesomeIcon icon={faXmark} />
+                            </IconButton>
+                        </InputAdornment>
+                    )
+                }
                 label={'Search'}
             />
         </FormControl>
@@ -137,56 +137,56 @@ function CategoriesFilter({ filter, setFilter }: EditorProps): ReactElement {
                 </ToggleButtonGroup>
             </Row>
             {
-            showIf(
-                filter.categoriesMode !== 'all',
-                <>
-                    <Stack mt={1} direction={'row'} alignItems={'center'}>
-                        <Box flexGrow={1}>
-                            {
-                                filter.categoriesMode !== 'all'
-                                    ? filter.categories.map((i, index) => {
-                                        const el = (
-                                            <SpanBody2
-                                                key={i}
-                                                color={'secondary.main'}
-                                            >
-                                                {engine.categoriesById[i]?.name ?? i}
-                                            </SpanBody2>
-                                        )
-                                        if (index === 0) {
-                                            return el
-                                        }
-                                        return (
-                                            <Fragment key={`c-${i}`}>
-                                                {', '}
-                                                {el}
-                                            </Fragment>
-                                        )
-                                    })
-                                    : null
-                            }
-                        </Box>
-                        <Box>
-                            <IconButton onClick={() => setFilter({ ...filter, categories: [] })}>
-                                <Clear />
-                            </IconButton>
-                        </Box>
-                    </Stack>
-                    <CategoriesSelect
-                        sx={{ my: 1 }}
-                        selected={filter.categories}
-                        onSelectedChange={(selected) => {
-                            setFilter({
-                                ...filter,
-                                categories: selected
-                            })
-                        }}
-                        selectMany={true}
-                        selectZero={true}
-                    />
-                </>
-            )
-        }
+                showIf(
+                    filter.categoriesMode !== 'all',
+                    <>
+                        <Stack mt={1} direction={'row'} alignItems={'center'}>
+                            <Box flexGrow={1}>
+                                {
+                                    filter.categoriesMode !== 'all'
+                                        ? filter.categories.map((i, index) => {
+                                                const el = (
+                                                    <SpanBody2
+                                                        key={i}
+                                                        color={'secondary.main'}
+                                                    >
+                                                        {engine.categoriesById[i]?.name ?? i}
+                                                    </SpanBody2>
+                                                )
+                                                if (index === 0) {
+                                                    return el
+                                                }
+                                                return (
+                                                    <Fragment key={`c-${i}`}>
+                                                        {', '}
+                                                        {el}
+                                                    </Fragment>
+                                                )
+                                            })
+                                        : null
+                                }
+                            </Box>
+                            <Box>
+                                <IconButton onClick={() => setFilter({ ...filter, categories: [] })}>
+                                    <Clear />
+                                </IconButton>
+                            </Box>
+                        </Stack>
+                        <CategoriesSelect
+                            sx={{ my: 1 }}
+                            selected={filter.categories}
+                            onSelectedChange={(selected) => {
+                                setFilter({
+                                    ...filter,
+                                    categories: selected
+                                })
+                            }}
+                            selectMany={true}
+                            selectZero={true}
+                        />
+                    </>
+                )
+            }
         </Paper>
     )
 }
@@ -215,54 +215,54 @@ function AccountsFilter({ filter, setFilter }: EditorProps): ReactElement {
                 </ToggleButtonGroup>
             </Row>
             {
-            showIf(
-                filter.accountsMode !== 'all',
-                <>
-                    <Stack direction={'row'} mt={1} alignItems={'center'}>
-                        <DivBody2 flexGrow={1}>
-                            {
-                                filter.accountsMode !== 'all'
-                                    ? filter.accounts.map((i, index) => {
-                                        const el = (
-                                            <SpanBody2 key={i} color={'secondary.main'}>
-                                                {engine.accountsById[i]?.name ?? i}
-                                            </SpanBody2>
-                                        )
-                                        if (index === 0) {
-                                            return el
-                                        }
-                                        return (
-                                            <Fragment key={`c-${i}`}>
-                                                {', '}
-                                                {el}
-                                            </Fragment>
-                                        )
-                                    })
-                                    : null
-                            }
-                        </DivBody2>
-                        <Box>
-                            <IconButton onClick={() => setFilter({ ...filter, accounts: [] })}>
-                                <Clear />
-                            </IconButton>
-                        </Box>
-                    </Stack>
-                    <AccountsSelect
-                        sx={{ my: 1 }}
-                        selected={filter.accounts}
-                        onSelectedChange={(selected) => {
-                            setFilter({
-                                ...filter,
-                                accounts: selected
-                            })
-                        }}
-                        selectMany={true}
-                        selectZero={true}
-                        showHidden={true}
-                    />
-                </>
-            )
-        }
+                showIf(
+                    filter.accountsMode !== 'all',
+                    <>
+                        <Stack direction={'row'} mt={1} alignItems={'center'}>
+                            <DivBody2 flexGrow={1}>
+                                {
+                                    filter.accountsMode !== 'all'
+                                        ? filter.accounts.map((i, index) => {
+                                                const el = (
+                                                    <SpanBody2 key={i} color={'secondary.main'}>
+                                                        {engine.accountsById[i]?.name ?? i}
+                                                    </SpanBody2>
+                                                )
+                                                if (index === 0) {
+                                                    return el
+                                                }
+                                                return (
+                                                    <Fragment key={`c-${i}`}>
+                                                        {', '}
+                                                        {el}
+                                                    </Fragment>
+                                                )
+                                            })
+                                        : null
+                                }
+                            </DivBody2>
+                            <Box>
+                                <IconButton onClick={() => setFilter({ ...filter, accounts: [] })}>
+                                    <Clear />
+                                </IconButton>
+                            </Box>
+                        </Stack>
+                        <AccountsSelect
+                            sx={{ my: 1 }}
+                            selected={filter.accounts}
+                            onSelectedChange={(selected) => {
+                                setFilter({
+                                    ...filter,
+                                    accounts: selected
+                                })
+                            }}
+                            selectMany={true}
+                            selectZero={true}
+                            showHidden={true}
+                        />
+                    </>
+                )
+            }
         </Paper>
     )
 }
@@ -289,50 +289,50 @@ function TagsFilter({ filter, setFilter }: EditorProps): ReactElement {
                 </ToggleButtonGroup>
             </Row>
             {
-            showIf(
-                filter.tagsMode !== 'all',
-                <>
-                    <Stack direction={'row'} alignItems={'center'} mt={1}>
-                        <DivBody2 flexGrow={1}>
-                            {
-                                filter.tagsMode !== 'all'
-                                    ? filter.tags.map((i, index) => {
-                                        const el = <SpanBody2 key={i} color={'secondary.main'}>{i}</SpanBody2>
-                                        if (index === 0) {
-                                            return el
-                                        }
-                                        return (
-                                            <Fragment key={`c-${i}`}>
-                                                {', '}
-                                                {el}
-                                            </Fragment>
-                                        )
-                                    })
-                                    : null
-                            }
-                        </DivBody2>
-                        <Box>
-                            <IconButton onClick={() => setFilter({ ...filter, tags: [] })}>
-                                <Clear />
-                            </IconButton>
-                        </Box>
-                    </Stack>
-                    <TagsSelect
-                        sx={{ my: 1 }}
-                        opType={null}
-                        categories={[]}
-                        addedTags={[]}
-                        selected={filter.tags}
-                        onSelectedChange={(selected) => {
-                            setFilter({
-                                ...filter,
-                                tags: selected
-                            })
-                        }}
-                    />
-                </>
-            )
-        }
+                showIf(
+                    filter.tagsMode !== 'all',
+                    <>
+                        <Stack direction={'row'} alignItems={'center'} mt={1}>
+                            <DivBody2 flexGrow={1}>
+                                {
+                                    filter.tagsMode !== 'all'
+                                        ? filter.tags.map((i, index) => {
+                                                const el = <SpanBody2 key={i} color={'secondary.main'}>{i}</SpanBody2>
+                                                if (index === 0) {
+                                                    return el
+                                                }
+                                                return (
+                                                    <Fragment key={`c-${i}`}>
+                                                        {', '}
+                                                        {el}
+                                                    </Fragment>
+                                                )
+                                            })
+                                        : null
+                                }
+                            </DivBody2>
+                            <Box>
+                                <IconButton onClick={() => setFilter({ ...filter, tags: [] })}>
+                                    <Clear />
+                                </IconButton>
+                            </Box>
+                        </Stack>
+                        <TagsSelect
+                            sx={{ my: 1 }}
+                            opType={null}
+                            categories={[]}
+                            addedTags={[]}
+                            selected={filter.tags}
+                            onSelectedChange={(selected) => {
+                                setFilter({
+                                    ...filter,
+                                    tags: selected
+                                })
+                            }}
+                        />
+                    </>
+                )
+            }
         </Paper>
     )
 }

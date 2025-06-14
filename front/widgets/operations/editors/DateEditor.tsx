@@ -32,14 +32,14 @@ export const DateEditor = (props: Props): ReactElement => {
             <AccordionDetails>
                 { props.expanded
                     ? (
-                        <Calendar
-                            maxDate={appState.today.toJSDate()}
-                            value={props.date.toJSDate()}
-                            onClickDay={(date) => {
-                                const utc = DateTime.utc(date.getFullYear(), date.getMonth() + 1, date.getDate())
-                                props.onDateChange(utc)
-                            }}
-                        />
+                            <Calendar
+                                maxDate={appState.today.toJSDate()}
+                                value={props.date.toJSDate()}
+                                onClickDay={(date) => {
+                                    const utc = DateTime.utc(date.getFullYear(), date.getMonth() + 1, date.getDate())
+                                    props.onDateChange(utc)
+                                }}
+                            />
                         )
                     : null}
             </AccordionDetails>

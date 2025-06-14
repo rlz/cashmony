@@ -16,7 +16,8 @@ export default [
     },
     {
         ignores: [
-            'engine/filterExpressionParser/parser.gen.js'
+            'engine/filterExpressionParser/parser.gen.js',
+            'front/dist/**/*.js'
         ]
     },
     ...tsEslint.configs.recommended,

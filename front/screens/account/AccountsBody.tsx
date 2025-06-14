@@ -65,9 +65,9 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                 {
                     addAccount
                         ? (
-                            <AddAccount
-                                onClose={() => { setAddAccount(false) }}
-                            />
+                                <AddAccount
+                                    onClose={() => { setAddAccount(false) }}
+                                />
                             )
                         : undefined
                 }
@@ -75,13 +75,13 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                     addAccount || noFab === true
                         ? undefined
                         : (
-                            <Fab
-                                color={'primary'}
-                                sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                                onClick={() => { setAddAccount(true) }}
-                            >
-                                <FontAwesomeIcon icon={faPlus} />
-                            </Fab>
+                                <Fab
+                                    color={'primary'}
+                                    sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                                    onClick={() => { setAddAccount(true) }}
+                                >
+                                    <FontAwesomeIcon icon={faPlus} />
+                                </Fab>
                             )
                 }
                 <Column textAlign={'center'} mt={3}>
@@ -115,9 +115,9 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
             {
                 addAccount
                     ? (
-                        <AddAccount
-                            onClose={() => { setAddAccount(false) }}
-                        />
+                            <AddAccount
+                                onClose={() => { setAddAccount(false) }}
+                            />
                         )
                     : undefined
             }
@@ -125,13 +125,13 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                 addAccount || noFab === true
                     ? undefined
                     : (
-                        <Fab
-                            color={'primary'}
-                            sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                            onClick={() => { setAddAccount(true) }}
-                        >
-                            <FontAwesomeIcon icon={faPlus} />
-                        </Fab>
+                            <Fab
+                                color={'primary'}
+                                sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                                onClick={() => { setAddAccount(true) }}
+                            >
+                                <FontAwesomeIcon icon={faPlus} />
+                            </Fab>
                         )
             }
             <Box p={1} height={'100%'} overflow={'auto'}>
@@ -156,24 +156,24 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                             hiddenAccounts.length > 0
                                 ? (showHidden
                                         ? hiddenAccounts.map(account => (
-                                            <AccountCard
-                                                key={account.id}
-                                                id={account.id}
-                                                name={account.name}
-                                                stats={stats.accounts[account.id]}
-                                            />
-                                        ))
+                                                <AccountCard
+                                                    key={account.id}
+                                                    id={account.id}
+                                                    name={account.name}
+                                                    stats={stats.accounts[account.id]}
+                                                />
+                                            ))
                                         : (
-                                            <Typography color={'primary.main'} textAlign={'center'}>
-                                                <a onClick={() => { setShowHidden(true) }}>
-                                                    {'Show '}
-                                                    {hiddenAccounts.length}
-                                                    {' hidden'}
-                                                </a>
-                                            </Typography>
+                                                <Typography color={'primary.main'} textAlign={'center'}>
+                                                    <a onClick={() => { setShowHidden(true) }}>
+                                                        {'Show '}
+                                                        {hiddenAccounts.length}
+                                                        {' hidden'}
+                                                    </a>
+                                                </Typography>
                                             ))
                                 : null
-}
+                        }
                     </Stack>
                     <Box minHeight={144} />
                 </Box>

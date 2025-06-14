@@ -29,47 +29,47 @@ export function ExpensesGoalScreen(): ReactElement {
         }
 
         appState.setOnClose(() => {
-            navigate('/goals')
+            void navigate('/goals')
         })
     }, [params.goalId])
 
     return (
         <MainScreen>
             {
-            smallScreen
-                ? (
-                    <>
-                        <ExpensesGoalsScreenBody
-                            noFab={params.goalId !== undefined}
-                            hide={params.goalId !== undefined}
-                        />
-                        {
-                            showIfLazy(params.goalId !== undefined, () => {
-                                return <ExpensesGoalBody />
-                            })
-                        }
-                    </>
-                    )
-                : (
-                    <PanelGroup direction={'horizontal'}>
-                        <Panel id={'list'} order={1}>
-                            <ExpensesGoalsScreenBody noFab={params.goalId !== undefined} />
-                        </Panel>
-                        {
-                            showIfLazy(params.goalId !== undefined, () => {
-                                return (
-                                    <>
-                                        <ResizeHandle />
-                                        <Panel id={'single'} order={2}>
-                                            <ExpensesGoalBody />
-                                        </Panel>
-                                    </>
-                                )
-                            })
-                        }
-                    </PanelGroup>
-                    )
-        }
+                smallScreen
+                    ? (
+                            <>
+                                <ExpensesGoalsScreenBody
+                                    noFab={params.goalId !== undefined}
+                                    hide={params.goalId !== undefined}
+                                />
+                                {
+                                    showIfLazy(params.goalId !== undefined, () => {
+                                        return <ExpensesGoalBody />
+                                    })
+                                }
+                            </>
+                        )
+                    : (
+                            <PanelGroup direction={'horizontal'}>
+                                <Panel id={'list'} order={1}>
+                                    <ExpensesGoalsScreenBody noFab={params.goalId !== undefined} />
+                                </Panel>
+                                {
+                                    showIfLazy(params.goalId !== undefined, () => {
+                                        return (
+                                            <>
+                                                <ResizeHandle />
+                                                <Panel id={'single'} order={2}>
+                                                    <ExpensesGoalBody />
+                                                </Panel>
+                                            </>
+                                        )
+                                    })
+                                }
+                            </PanelGroup>
+                        )
+            }
         </MainScreen>
     )
 }
@@ -104,9 +104,9 @@ export const ExpensesGoalsScreenBody = observer(({ noFab, hide }: ExpensesGoalsS
             {
                 add
                     ? (
-                        <AddExpensesGoalModal
-                            onClose={() => { setAdd(false) }}
-                        />
+                            <AddExpensesGoalModal
+                                onClose={() => { setAdd(false) }}
+                            />
                         )
                     : undefined
             }
@@ -114,13 +114,13 @@ export const ExpensesGoalsScreenBody = observer(({ noFab, hide }: ExpensesGoalsS
                 add || noFab === true
                     ? undefined
                     : (
-                        <Fab
-                            color={'primary'}
-                            sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
-                            onClick={() => { setAdd(true) }}
-                        >
-                            <FontAwesomeIcon icon={faPlus} />
-                        </Fab>
+                            <Fab
+                                color={'primary'}
+                                sx={{ position: 'fixed', bottom: '70px', right: '20px' }}
+                                onClick={() => { setAdd(true) }}
+                            >
+                                <FontAwesomeIcon icon={faPlus} />
+                            </Fab>
                         )
             }
             <Box p={1} height={'100%'} overflow={'auto'} display={hide === true ? 'none' : 'block'}>

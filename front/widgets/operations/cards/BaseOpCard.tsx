@@ -50,14 +50,14 @@ export function BaseOpCard(props: Props): ReactElement {
                             {props.tags.join(', ')}
                         </DivBody2>
                         {
-                    showIf(
-                        props.accountName !== null,
-                        <DivBody2 noWrap>
-                            {'Acc.: '}
-                            {props.accountName}
-                        </DivBody2>
-                    )
-                }
+                            showIf(
+                                props.accountName !== null,
+                                <DivBody2 noWrap>
+                                    {'Acc.: '}
+                                    {props.accountName}
+                                </DivBody2>
+                            )
+                        }
                     </Row>
                     <DivBody2 fontStyle={'italic'} noWrap>
                         {(props.comment ?? '') === '' ? '\u00a0' : props.comment}

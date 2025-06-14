@@ -73,10 +73,10 @@ export function AddAccount({ onClose }: { onClose: () => void }): ReactElement {
                         value={name}
                         error={name.trim() === '' || exists}
                         helperText={
-                        name.trim() === ''
-                            ? 'Empty'
-                            : (exists ? 'Already exists' : undefined)
-                    }
+                            name.trim() === ''
+                                ? 'Empty'
+                                : (exists ? 'Already exists' : undefined)
+                        }
                         onChange={(ev) => {
                             setName(ev.target.value)
                         }}
@@ -100,14 +100,14 @@ export function AddAccount({ onClose }: { onClose: () => void }): ReactElement {
                 </Button>
                 {curSelOpen
                     ? (
-                        <CurrencySelector
-                            currency={currency}
-                            onClose={() => { setCurSelOpen(false) }}
-                            onCurrencySelected={(c) => {
-                                setCurrency(c)
-                                setCurSelOpen(false)
-                            }}
-                        />
+                            <CurrencySelector
+                                currency={currency}
+                                onClose={() => { setCurSelOpen(false) }}
+                                onCurrencySelected={(c) => {
+                                    setCurrency(c)
+                                    setCurSelOpen(false)
+                                }}
+                            />
                         )
                     : undefined}
             </Column>

@@ -33,10 +33,10 @@ export function DeleteCategory({ id, open, setOpen }: Props): ReactElement {
             <DialogContent>
                 <DialogContentText>
                     {
-                    opsCount === 0
-                        ? 'Category was never used in operations'
-                        : `Category was used in ${opsCount} operations`
-                }
+                        opsCount === 0
+                            ? 'Category was never used in operations'
+                            : `Category was used in ${opsCount} operations`
+                    }
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -52,7 +52,7 @@ export function DeleteCategory({ id, open, setOpen }: Props): ReactElement {
                                     deleteCategory(id, engine)
                                 } finally {
                                     setDelInProcess(true)
-                                    navigate('/categories')
+                                    await navigate('/categories')
                                 }
                             }
                             void action()

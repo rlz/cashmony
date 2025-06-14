@@ -45,7 +45,7 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
 
     return (
         <Box sx={props.sx}>
-            <a onClick={() => { navigate(props.url) }}>
+            <a onClick={async () => { await navigate(props.url) }}>
                 <Paper variant={'outlined'}>
                     <Box p={1}>
                         <Box display={'flex'} gap={1}>

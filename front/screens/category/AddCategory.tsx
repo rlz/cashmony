@@ -15,7 +15,7 @@ export function AddCategory({ onClose }: { onClose: () => void }): ReactElement 
     const [name, setName] = useState('')
     const smallScreen = screenWidthIs('xs', 'sm')
 
-    const save = (): void => {
+    const save = async () => {
         const trimmedName = name.trim()
 
         // reuse ids of deleted categories
@@ -27,7 +27,7 @@ export function AddCategory({ onClose }: { onClose: () => void }): ReactElement 
             lastModified: DateTime.utc()
         })
         onClose()
-        navigate(`/categories/${encodeURIComponent(id)}/modify`)
+        await navigate(`/categories/${encodeURIComponent(id)}/modify`)
     }
 
     const exists = engine.hasCategoryWithName(name.trim()) && engine.getCategoryByName(name.trim()).deleted !== true
@@ -42,10 +42,10 @@ export function AddCategory({ onClose }: { onClose: () => void }): ReactElement 
                     value={name}
                     error={name.trim() === '' || exists}
                     helperText={
-                    name.trim() === ''
-                        ? 'Empty'
-                        : (exists ? 'Already exists' : undefined)
-                }
+                        name.trim() === ''
+                            ? 'Empty'
+                            : (exists ? 'Already exists' : undefined)
+                    }
                     onChange={(ev) => {
                         setName(ev.target.value)
                     }}
@@ -55,7 +55,7 @@ export function AddCategory({ onClose }: { onClose: () => void }): ReactElement 
                     fullWidth
                     variant={'contained'}
                     disabled={name.trim() === '' || exists}
-                    onClick={() => { void save() }}
+                    onClick={async () => { await save() }}
                 >
                     {'Create'}
                 </Button>

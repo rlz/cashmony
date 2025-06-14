@@ -33,10 +33,10 @@ export function DeleteAccount({ id, open, setOpen }: Props): ReactElement {
             <DialogContent>
                 <DialogContentText>
                     {
-                    opsCount === 0
-                        ? 'No operation exists on this account'
-                        : `This will delete ${opsCount} operations on this account`
-                }
+                        opsCount === 0
+                            ? 'No operation exists on this account'
+                            : `This will delete ${opsCount} operations on this account`
+                    }
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -52,7 +52,7 @@ export function DeleteAccount({ id, open, setOpen }: Props): ReactElement {
                                     await deleteAccount(id, engine)
                                 } finally {
                                     setDelInProcess(true)
-                                    navigate('/accounts')
+                                    await navigate('/accounts')
                                 }
                             }
                             void action()

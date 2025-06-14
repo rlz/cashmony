@@ -65,53 +65,53 @@ export function OperationScreen(): ReactElement {
             {
                 !smallScreen
                     ? (
-                        <PanelGroup direction={'horizontal'}>
-                            <Panel id={'list'} order={1}>
-                                <Box height={'100%'} overflow={'auto'}>
-                                    <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
-                                        <OpsList />
-                                        { opId === '' && <AddOperationFab /> }
+                            <PanelGroup direction={'horizontal'}>
+                                <Panel id={'list'} order={1}>
+                                    <Box height={'100%'} overflow={'auto'}>
+                                        <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
+                                            <OpsList />
+                                            { opId === '' && <AddOperationFab /> }
+                                        </Box>
                                     </Box>
-                                </Box>
-                            </Panel>
-                            {
-                                showIfLazy(opId !== '', () => (
-                                    <>
-                                        <ResizeHandle />
-                                        <Panel id={'single'} order={2}>
-                                            <Box p={1} overflow={'auto'} height={'100%'}>
-                                                <OperationScreenBody urlOpId={opId} />
-                                            </Box>
-                                        </Panel>
-                                    </>
-                                ))
-                            }
-                        </PanelGroup>
+                                </Panel>
+                                {
+                                    showIfLazy(opId !== '', () => (
+                                        <>
+                                            <ResizeHandle />
+                                            <Panel id={'single'} order={2}>
+                                                <Box p={1} overflow={'auto'} height={'100%'}>
+                                                    <OperationScreenBody urlOpId={opId} />
+                                                </Box>
+                                            </Panel>
+                                        </>
+                                    ))
+                                }
+                            </PanelGroup>
                         )
                     : (
-                        <Box position={'relative'} height={'100%'}>
-                            <Box p={1} height={'100%'} overflow={'auto'}>
-                                <OpsList />
-                                { opId === '' && <AddOperationFab /> }
+                            <Box position={'relative'} height={'100%'}>
+                                <Box p={1} height={'100%'} overflow={'auto'}>
+                                    <OpsList />
+                                    { opId === '' && <AddOperationFab /> }
+                                </Box>
+                                {
+                                    showIfLazy(opId !== '', () => {
+                                        return (
+                                            <Box
+                                                p={1}
+                                                position={'absolute'}
+                                                top={0}
+                                                left={0}
+                                                width={'100%'}
+                                                height={'100%'}
+                                                bgcolor={theme.palette.background.default}
+                                            >
+                                                <OperationScreenBody urlOpId={opId} />
+                                            </Box>
+                                        )
+                                    })
+                                }
                             </Box>
-                            {
-                                showIfLazy(opId !== '', () => {
-                                    return (
-                                        <Box
-                                            p={1}
-                                            position={'absolute'}
-                                            top={0}
-                                            left={0}
-                                            width={'100%'}
-                                            height={'100%'}
-                                            bgcolor={theme.palette.background.default}
-                                        >
-                                            <OperationScreenBody urlOpId={opId} />
-                                        </Box>
-                                    )
-                                })
-                            }
-                        </Box>
                         )
             }
         </MainScreen>
@@ -452,38 +452,38 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
             {
                 opType === 'transfer'
                     ? (
-                        <>
-                            <AccountEditor
-                                title={'To account'}
-                                opAmount={opAmount}
-                                negative={false}
-                                opCurrency={opCurrency}
-                                expanded={expanded === 'toAccount'}
-                                onExpandedChange={(expanded) => { setExpanded(expanded ? 'toAccount' : null) }}
-                                account={opToAccount}
-                                onAccountChange={(toAccount) => {
-                                    propagateAndSave(opAmount, opCurrency, opCategories, opAccount, toAccount)
-                                }}
-                                hideAccount={opAccount?.id}
-                            />
-                        </>
+                            <>
+                                <AccountEditor
+                                    title={'To account'}
+                                    opAmount={opAmount}
+                                    negative={false}
+                                    opCurrency={opCurrency}
+                                    expanded={expanded === 'toAccount'}
+                                    onExpandedChange={(expanded) => { setExpanded(expanded ? 'toAccount' : null) }}
+                                    account={opToAccount}
+                                    onAccountChange={(toAccount) => {
+                                        propagateAndSave(opAmount, opCurrency, opCategories, opAccount, toAccount)
+                                    }}
+                                    hideAccount={opAccount?.id}
+                                />
+                            </>
                         )
                     : null
             }
             {
                 opType === 'expense' || opType === 'income'
                     ? (
-                        <CategoriesEditor
-                            expanded={expanded === 'categories'}
-                            onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
-                            opAmount={opAmount}
-                            negative={opType === 'expense'}
-                            opCurrency={opCurrency}
-                            categories={nonNull(opCategories, 'non null opCAtegories expected here')}
-                            onCategoriesChange={(categories) => {
-                                propagateAndSave(opAmount, opCurrency, categories, opAccount, opToAccount)
-                            }}
-                        />
+                            <CategoriesEditor
+                                expanded={expanded === 'categories'}
+                                onExpandedChange={(expanded) => { setExpanded(expanded ? 'categories' : null) }}
+                                opAmount={opAmount}
+                                negative={opType === 'expense'}
+                                opCurrency={opCurrency}
+                                categories={nonNull(opCategories, 'non null opCAtegories expected here')}
+                                onCategoriesChange={(categories) => {
+                                    propagateAndSave(opAmount, opCurrency, categories, opAccount, opToAccount)
+                                }}
+                            />
                         )
                     : null
             }
@@ -511,26 +511,26 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
                 location.pathname.startsWith('/new-op/')
                     ? null
                     : (
-                        <ActionButton
-                            variant={'contained'}
-                            fullWidth
-                            color={'error'}
-                            sx={{ mt: 4 }}
-                            confirmation={'Are you sure that you want to delete this operation?'}
-                            action={() => {
-                                clearOpState()
-                                setOpId(urlOpId)
-                                setOpType('deleted')
-                                engine.pushOperation({ id: urlOpId, type: 'deleted', lastModified: DateTime.utc() })
+                            <ActionButton
+                                variant={'contained'}
+                                fullWidth
+                                color={'error'}
+                                sx={{ mt: 4 }}
+                                confirmation={'Are you sure that you want to delete this operation?'}
+                                action={() => {
+                                    clearOpState()
+                                    setOpId(urlOpId)
+                                    setOpType('deleted')
+                                    engine.pushOperation({ id: urlOpId, type: 'deleted', lastModified: DateTime.utc() })
 
-                                if (smallScreen && setModalTitle === undefined) {
-                                // todo: fix navigation from non operation screens
-                                    navigate('/operations')
-                                }
-                            }}
-                        >
-                            {'Delete'}
-                        </ActionButton>
+                                    if (smallScreen && setModalTitle === undefined) {
+                                        // todo: fix navigation from non operation screens
+                                        navigate('/operations')
+                                    }
+                                }}
+                            >
+                                {'Delete'}
+                            </ActionButton>
                         )
             }
             <Box minHeight={128} />
@@ -681,14 +681,14 @@ const BasicInfo = observer(({ opType, opDate, opAmount, opCurrency, opCategories
                     opAccount === null
                         ? '-'
                         : (
-                            <>
-                                {engine.getAccount(opAccount.id).name}
-                                {
-                                    accountCurrency === undefined || accountCurrency === null
-                                        ? null
-                                        : ` (${formatCurrency(opAccount.amount, accountCurrency)})`
-                                }
-                            </>
+                                <>
+                                    {engine.getAccount(opAccount.id).name}
+                                    {
+                                        accountCurrency === undefined || accountCurrency === null
+                                            ? null
+                                            : ` (${formatCurrency(opAccount.amount, accountCurrency)})`
+                                    }
+                                </>
                             )
                 }
             </Typography>
@@ -701,14 +701,14 @@ const BasicInfo = observer(({ opType, opDate, opAmount, opCurrency, opCategories
                             opToAccount === null
                                 ? '-'
                                 : (
-                                    <>
-                                        {engine.getAccount(opToAccount.id).name}
-                                        {
-                                            opToAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
-                                                ? null
-                                                : ` (${formatCurrency(opToAccount.amount, toAccountCurrency)})`
-                                        }
-                                    </>
+                                        <>
+                                            {engine.getAccount(opToAccount.id).name}
+                                            {
+                                                opToAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
+                                                    ? null
+                                                    : ` (${formatCurrency(opToAccount.amount, toAccountCurrency)})`
+                                            }
+                                        </>
                                     )
                         }
                     </Typography>

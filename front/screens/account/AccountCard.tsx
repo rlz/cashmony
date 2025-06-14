@@ -26,7 +26,7 @@ export const AccountCard = observer(function AccountCard({ id, name, stats }: Pr
     const periodInPast = stats.timeSpan.endDate < frontState.today
 
     return (
-        <a onClick={() => { navigate(`/accounts/${encodeURIComponent(id)}`) }}>
+        <a onClick={async () => { await navigate(`/accounts/${encodeURIComponent(id)}`) }}>
             <Paper variant={'outlined'}>
                 <Box p={1}>
                     <Stack direction={'row'} spacing={1}>
