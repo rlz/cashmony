@@ -6,7 +6,7 @@ const SSH = new NodeSSH()
 
 console.log('Connecting...')
 await SSH.connect({
-    host: '51.250.106.10',
+    host: '93.183.81.2',
     username: 'root',
     privateKeyPath: '/Users/rlz/.ssh/id_rsa'
 })
