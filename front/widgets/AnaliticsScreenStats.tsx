@@ -55,7 +55,7 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
                 reducers !== null
                 && (
                     <Grid container spacing={1} my={1}>
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <Paper variant={'outlined'}>
                                 <Stack direction={'row'} p={1} spacing={1}>
                                     <Box>
@@ -69,7 +69,7 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
                                 </Stack>
                             </Paper>
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <TotalAndChangePlot
                                 title={'Expense'}
                                 expense
@@ -77,28 +77,28 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
                                 currency={appState.masterCurrency}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <TotalAndChangePlot
                                 title={'Income'}
                                 stats={reducers.income.stats}
                                 currency={appState.masterCurrency}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <YMExpensesComparisonPlot
                                 title={'Y/M Expenses Comparison'}
                                 stats={reducers.ym.expenses}
                                 currency={appState.masterCurrency}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <YMExpensesComparisonPlot
                                 title={'Y/M Incomes Comparison'}
                                 stats={reducers.ym.incomes}
                                 currency={appState.masterCurrency}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <YearExpenseIncomeComparisonPlot
                                 incomes={reducers.years.incomes}
                                 expenses={reducers.years.expenses}

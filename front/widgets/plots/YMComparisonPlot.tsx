@@ -1,4 +1,4 @@
-import { Box, Paper, SxProps, Typography } from '@mui/material'
+import { Box, Paper, Typography } from '@mui/material'
 import * as Plot from '@observablehq/plot'
 import * as d3 from 'd3'
 import React, { JSX, useEffect, useMemo } from 'react'
@@ -15,9 +15,6 @@ interface Props {
     stats: readonly Record<number, number>[]
     currency: string
 }
-
-const sxHeight250: SxProps = { height: 250 }
-const sxHeight550: SxProps = { height: 550 }
 
 export function YMExpensesComparisonPlot({ title, stats, currency }: Props): JSX.Element {
     const { width, ref } = useResizeDetector()
@@ -115,7 +112,7 @@ export function YMExpensesComparisonPlot({ title, stats, currency }: Props): JSX
         <Paper variant={'outlined'}>
             <Box p={1}>
                 <Typography variant={'h6'} textAlign={'center'}>{title}</Typography>
-                <PlotContainer ref={ref} sx={width === undefined || width < 550 ? sxHeight550 : sxHeight250} />
+                <PlotContainer ref={ref} />
             </Box>
         </Paper>
     )
