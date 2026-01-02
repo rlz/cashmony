@@ -2,9 +2,9 @@ import { faExclamation } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { type ReactElement } from 'react'
 
-import { type AdjustmentOperation } from '../../../../engine/model'
-import { useEngine } from '../../../useEngine'
-import { BaseOpCard } from './BaseOpCard'
+import { type AdjustmentOperation } from '../../../../engine/model.js'
+import { useEngine } from '../../../useEngine.js'
+import { BaseOpCard } from './BaseOpCard.js'
 
 interface Props {
     operation: AdjustmentOperation

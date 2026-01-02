@@ -2,8 +2,8 @@ import { type SxProps } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React from 'react'
 
-import { useEngine } from '../../useEngine'
-import { ItemsSelect } from './ItemsSelect'
+import { useEngine } from '../../useEngine.js'
+import { ItemsSelect } from './ItemsSelect.js'
 
 interface Props {
     selected: readonly string[]

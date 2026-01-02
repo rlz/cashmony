@@ -3,13 +3,13 @@ import React, { type ReactElement, useEffect } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
 import { useLocation } from 'react-router-dom'
 
-import { showIfLazy } from '../../helpers/smallTools'
-import { screenWidthIs } from '../../helpers/useWidth'
-import { useFrontState } from '../../model/FrontState'
-import { ResizeHandle } from '../../widgets/generic/resizeHandle'
-import { MainScreen } from '../../widgets/mainScreen/MainScreen'
-import { CategoriesScreenBody } from './CategoriesBody'
-import { CategoryScreenBody } from './CategoryBody'
+import { showIfLazy } from '../../helpers/smallTools.js'
+import { screenWidthIs } from '../../helpers/useWidth.js'
+import { useFrontState } from '../../model/FrontState.js'
+import { ResizeHandle } from '../../widgets/generic/resizeHandle.js'
+import { MainScreen } from '../../widgets/mainScreen/MainScreen.js'
+import { CategoriesScreenBody } from './CategoriesBody.js'
+import { CategoryScreenBody } from './CategoryBody.js'
 
 export function CategoryScreen(): ReactElement {
     const appState = useFrontState()

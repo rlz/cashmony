@@ -1,6 +1,6 @@
-import { CURRENCIES } from '../currencies/currenciesList'
-import { Engine } from './engine'
-import { compareByStats } from './statsComparator'
+import { CURRENCIES } from '../currencies/currenciesList.js'
+import { Engine } from './engine.js'
+import { compareByStats } from './statsComparator.js'
 
 const rank = [
     'USD',

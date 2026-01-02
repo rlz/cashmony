@@ -3,13 +3,13 @@ import React, { type ReactElement, useEffect } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
 import { useLocation } from 'react-router-dom'
 
-import { showIfLazy } from '../../helpers/smallTools'
-import { screenWidthIs } from '../../helpers/useWidth'
-import { useFrontState } from '../../model/FrontState'
-import { ResizeHandle } from '../../widgets/generic/resizeHandle'
-import { MainScreen } from '../../widgets/mainScreen/MainScreen'
-import { AccountBody } from './AccountBody'
-import { AccountsBody } from './AccountsBody'
+import { showIfLazy } from '../../helpers/smallTools.js'
+import { screenWidthIs } from '../../helpers/useWidth.js'
+import { useFrontState } from '../../model/FrontState.js'
+import { ResizeHandle } from '../../widgets/generic/resizeHandle.js'
+import { MainScreen } from '../../widgets/mainScreen/MainScreen.js'
+import { AccountBody } from './AccountBody.js'
+import { AccountsBody } from './AccountsBody.js'
 
 export function AccountScreen(): ReactElement {
     const appState = useFrontState()

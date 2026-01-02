@@ -1,7 +1,7 @@
 import { InputAdornment, TextField } from '@mui/material'
 import React, { type ReactElement, useEffect, useState } from 'react'
 
-import { getCurrencySymbol } from '../helpers/currencies'
+import { getCurrencySymbol } from '../helpers/currencies.js'
 
 interface Props {
     autoFocus?: boolean

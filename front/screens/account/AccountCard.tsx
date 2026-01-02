@@ -3,11 +3,11 @@ import { observer } from 'mobx-react-lite'
 import { ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { formatCurrency } from '../../helpers/currencies'
-import { useFrontState } from '../../model/FrontState'
-import { DivBody1, DivBody2, SpanBody2 } from '../../widgets/generic/Typography'
-import { AccountSparklinePlot } from '../../widgets/plots/AccountSparklinePlot'
+import { TotalAndChangeStats } from '../../../engine/stats/model.js'
+import { formatCurrency } from '../../helpers/currencies.js'
+import { useFrontState } from '../../model/FrontState.js'
+import { DivBody1, DivBody2, SpanBody2 } from '../../widgets/generic/Typography.js'
+import { AccountSparklinePlot } from '../../widgets/plots/AccountSparklinePlot.js'
 
 interface Props {
     id: string

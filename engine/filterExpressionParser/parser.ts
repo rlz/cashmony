@@ -1,5 +1,5 @@
-import { Predicate } from '../predicateExpression'
-import { parse } from './parser.gen'
+import { Predicate } from '../predicateExpression.js'
+import { parse } from './parser.gen.js'
 
 export function parseFilterQuery(filter: string): Predicate {
     try {

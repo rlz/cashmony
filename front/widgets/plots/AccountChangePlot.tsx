@@ -5,10 +5,10 @@ import { observer } from 'mobx-react-lite'
 import React, { JSX, useEffect } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 
-import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { formatCurrency } from '../../helpers/currencies'
-import { useFrontState } from '../../model/FrontState'
-import { PlotContainer } from './PlotUtils'
+import { TotalAndChangeStats } from '../../../engine/stats/model.js'
+import { formatCurrency } from '../../helpers/currencies.js'
+import { useFrontState } from '../../model/FrontState.js'
+import { PlotContainer } from './PlotUtils.js'
 
 interface Props {
     stats: TotalAndChangeStats

@@ -1,16 +1,16 @@
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
-import { SignupSigninScreen } from 'rlz-engine/dist/client/screens/SignupSigninScreen'
+import { SignupSigninScreen } from 'rlz-engine/client/screens/SignupSigninScreen.js'
 
-import { AccountScreen } from './screens/account/AccountScreen'
-import { AnaliticsScreen } from './screens/AnaliticsScreen'
-import { CategoryScreen } from './screens/category/CategoryScreen'
-import { LoadingScreen } from './screens/LoadingScreen'
-import { OperationScreen } from './screens/OperationScreen'
-import { ExpensesGoalScreen } from './screens/watch/ExpensesGoalScreen'
-import { AbsoluteNavigateProvider } from './useAbsoluteNavigate'
-import { useEngine } from './useEngine'
+import { AccountScreen } from './screens/account/AccountScreen.js'
+import { AnaliticsScreen } from './screens/AnaliticsScreen.js'
+import { CategoryScreen } from './screens/category/CategoryScreen.js'
+import { LoadingScreen } from './screens/LoadingScreen.js'
+import { OperationScreen } from './screens/OperationScreen.js'
+import { ExpensesGoalScreen } from './screens/watch/ExpensesGoalScreen.js'
+import { AbsoluteNavigateProvider } from './useAbsoluteNavigate.js'
+import { useEngine } from './useEngine.js'
 
 declare global {
     interface Window { routerNavigate: (to: string) => Promise<void> }

@@ -4,10 +4,10 @@ import React, { type ReactElement, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { uuidv7 } from 'uuidv7'
 
-import { screenWidthIs } from '../../helpers/useWidth'
-import { useEngine } from '../../useEngine'
-import { FullScreenModal } from '../../widgets/FullScreenModal'
-import { Column } from '../../widgets/generic/Containers'
+import { screenWidthIs } from '../../helpers/useWidth.js'
+import { useEngine } from '../../useEngine.js'
+import { FullScreenModal } from '../../widgets/FullScreenModal.js'
+import { Column } from '../../widgets/generic/Containers.js'
 
 export function AddCategory({ onClose }: { onClose: () => void }): ReactElement {
     const engine = useEngine()

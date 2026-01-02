@@ -2,11 +2,11 @@ import { type SxProps } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { useEffect, useState } from 'react'
 
-import { type NotDeletedOperation } from '../../../engine/model'
-import { mergeTags, TagsEngine } from '../../../engine/tags'
-import { deepEqual } from '../../helpers/deepEqual'
-import { useEngine } from '../../useEngine'
-import { ItemsSelect } from './ItemsSelect'
+import { type NotDeletedOperation } from '../../../engine/model.js'
+import { mergeTags, TagsEngine } from '../../../engine/tags.js'
+import { deepEqual } from '../../helpers/deepEqual.js'
+import { useEngine } from '../../useEngine.js'
+import { ItemsSelect } from './ItemsSelect.js'
 
 interface Props {
     opType: NotDeletedOperation['type'] | null

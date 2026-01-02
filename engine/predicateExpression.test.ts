@@ -2,10 +2,10 @@ import 'regenerator-runtime/runtime'
 
 import { DateTime } from 'luxon'
 
-import { utcToday } from './dates'
-import { Engine } from './engine'
-import { ExpenseOperation, IncomeOperation, TransferOperation } from './model'
-import { compilePredicate, PE } from './predicateExpression'
+import { utcToday } from './dates.js'
+import { Engine } from './engine.js'
+import { ExpenseOperation, IncomeOperation, TransferOperation } from './model.js'
+import { compilePredicate, PE } from './predicateExpression.js'
 
 test('Any predicate', () => {
     const engine = new Engine()

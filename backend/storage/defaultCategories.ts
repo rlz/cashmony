@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { uuidv7 } from 'uuidv7'
 
-import { ApiCategoryV0 } from '../../common/data_v0'
+import { ApiCategoryV0 } from '../../common/data_v0.js'
 
 export function makeDefaultCategories(): ApiCategoryV0[] {
     const lastModified = DateTime.utc().toISO()

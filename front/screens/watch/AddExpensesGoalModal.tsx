@@ -4,13 +4,13 @@ import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useMemo, useState } from 'react'
 import { uuidv7 } from 'uuidv7'
 
-import { DEFAULT_FILTER, type Watch } from '../../../engine/model'
-import { sortCurrencies } from '../../../engine/sortCurrencies'
-import { screenWidthIs } from '../../helpers/useWidth'
-import { useEngine } from '../../useEngine'
-import { FullScreenModal } from '../../widgets/FullScreenModal'
-import { Column } from '../../widgets/generic/Containers'
-import { ExpensesGoalEditor } from './ExpensesGoalEditor'
+import { DEFAULT_FILTER, type Watch } from '../../../engine/model.js'
+import { sortCurrencies } from '../../../engine/sortCurrencies.js'
+import { screenWidthIs } from '../../helpers/useWidth.js'
+import { useEngine } from '../../useEngine.js'
+import { FullScreenModal } from '../../widgets/FullScreenModal.js'
+import { Column } from '../../widgets/generic/Containers.js'
+import { ExpensesGoalEditor } from './ExpensesGoalEditor.js'
 
 export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void }): ReactElement => {
     const engine = useEngine()

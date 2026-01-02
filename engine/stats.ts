@@ -1,7 +1,7 @@
-import { HumanTimeSpan } from './dates'
-import { Engine } from './engine'
-import { NotDeletedOperation } from './model'
-import { compilePredicate, Predicate } from './predicateExpression'
+import { HumanTimeSpan } from './dates.js'
+import { Engine } from './engine.js'
+import { NotDeletedOperation } from './model.js'
+import { compilePredicate, Predicate } from './predicateExpression.js'
 
 export function countOperations(engine: Engine, predicate: Predicate, timeSpan: HumanTimeSpan | null): number {
     let count = 0
@@ -12,7 +12,7 @@ export function countOperations(engine: Engine, predicate: Predicate, timeSpan: 
     return count
 }
 
-export function * listOperations(engine: Engine, predicate: Predicate, timeSpan: HumanTimeSpan | null): Generator<NotDeletedOperation> {
+export function* listOperations(engine: Engine, predicate: Predicate, timeSpan: HumanTimeSpan | null): Generator<NotDeletedOperation> {
     engine.requireInitialized()
 
     const filter = compilePredicate(predicate, engine)

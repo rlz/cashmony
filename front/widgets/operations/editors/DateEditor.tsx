@@ -7,8 +7,8 @@ import { DateTime } from 'luxon'
 import React, { type ReactElement } from 'react'
 import Calendar from 'react-calendar'
 
-import { utcToday } from '../../../../engine/dates'
-import { useFrontState } from '../../../model/FrontState'
+import { utcToday } from '../../../../engine/dates.js'
+import { useFrontState } from '../../../model/FrontState.js'
 
 interface Props {
     date: DateTime

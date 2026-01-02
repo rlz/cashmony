@@ -2,12 +2,12 @@ import { Box, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemTex
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useMemo, useState } from 'react'
 
-import { CURRENCIES } from '../../currencies/currenciesList'
-import { sortCurrencies } from '../../engine/sortCurrencies'
-import { getCurrencySymbol } from '../helpers/currencies'
-import { useEngine } from '../useEngine'
-import { FullScreenModal } from './FullScreenModal'
-import { Column } from './generic/Containers'
+import { CURRENCIES } from '../../currencies/currenciesList.js'
+import { sortCurrencies } from '../../engine/sortCurrencies.js'
+import { getCurrencySymbol } from '../helpers/currencies.js'
+import { useEngine } from '../useEngine.js'
+import { FullScreenModal } from './FullScreenModal.js'
+import { Column } from './generic/Containers.js'
 
 interface Props {
     currency: string | null

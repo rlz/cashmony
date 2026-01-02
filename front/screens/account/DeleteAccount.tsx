@@ -5,11 +5,11 @@ import { DateTime } from 'luxon'
 import React, { type ReactElement, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Engine } from '../../../engine/engine'
-import { type DeletedOperation } from '../../../engine/model'
-import { PE } from '../../../engine/predicateExpression'
-import { countOperations, listOperations } from '../../../engine/stats'
-import { useEngine } from '../../useEngine'
+import { Engine } from '../../../engine/engine.js'
+import { type DeletedOperation } from '../../../engine/model.js'
+import { PE } from '../../../engine/predicateExpression.js'
+import { countOperations, listOperations } from '../../../engine/stats.js'
+import { useEngine } from '../../useEngine.js'
 
 interface Props {
     id: string

@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Button, TextField, Typography } from '@mui/material'
 import React, { memo, type ReactElement, useState } from 'react'
 
-import { type Operation } from '../../../../engine/model'
-import { TagsSelect } from '../../select/TagsSelect'
+import { type Operation } from '../../../../engine/model.js'
+import { TagsSelect } from '../../select/TagsSelect.js'
 
 interface Props {
     expanded: boolean

@@ -2,11 +2,11 @@ import { faArrowRightLong, faMoneyBillTransfer } from '@fortawesome/free-solid-s
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { type ReactElement } from 'react'
 
-import { type TransferOperation } from '../../../../engine/model'
-import { useEngine } from '../../../useEngine'
-import { Row } from '../../generic/Containers'
-import { DivBody2 } from '../../generic/Typography'
-import { BaseOpCard } from './BaseOpCard'
+import { type TransferOperation } from '../../../../engine/model.js'
+import { useEngine } from '../../../useEngine.js'
+import { Row } from '../../generic/Containers.js'
+import { DivBody2 } from '../../generic/Typography.js'
+import { BaseOpCard } from './BaseOpCard.js'
 
 interface Props {
     operation: TransferOperation

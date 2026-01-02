@@ -1,14 +1,14 @@
 import { Box, Button, Stack } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import { JSX } from 'react'
-import { useAuthState } from 'rlz-engine/dist/client/state/auth'
+import { useAuthState } from 'rlz-engine/client/state/auth.js'
 
-import { apiClearAll } from '../../../api/api'
-import { utcToday } from '../../../engine/dates'
-import { genTestData } from '../../../engine/testData/gen'
-import { apiSync } from '../../model/apiSync'
-import { useFrontState } from '../../model/FrontState'
-import { useEngine } from '../../useEngine'
+import { apiClearAll } from '../../../api/api.js'
+import { utcToday } from '../../../engine/dates.js'
+import { genTestData } from '../../../engine/testData/gen.js'
+import { apiSync } from '../../model/apiSync.js'
+import { useFrontState } from '../../model/FrontState.js'
+import { useEngine } from '../../useEngine.js'
 
 export const Advanced = observer(
     function Advanced(): JSX.Element {

@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 
-import { HumanTimeSpan } from '../dates'
+import { HumanTimeSpan } from '../dates.js'
 
 export interface Point {
     date: DateTime<true>

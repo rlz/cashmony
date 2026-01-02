@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon'
 
-import { HumanTimeSpan } from '../dates'
-import { Engine } from '../engine'
-import { NotDeletedOperation } from '../model'
-import { compilePredicate, Predicate } from '../predicateExpression'
+import { HumanTimeSpan } from '../dates.js'
+import { Engine } from '../engine.js'
+import { NotDeletedOperation } from '../model.js'
+import { compilePredicate, Predicate } from '../predicateExpression.js'
 
 interface Interval {
     readonly start: DateTime

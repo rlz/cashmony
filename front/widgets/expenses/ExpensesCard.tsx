@@ -3,12 +3,12 @@ import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { formatCurrency } from '../../helpers/currencies'
-import { useFrontState } from '../../model/FrontState'
-import { DivBody2, SpanBody1 } from '../generic/Typography'
-import { ExpensesInfoTable } from './ExpensesInfoTable'
-import { ExpensesBarsPlot } from './ExpensesPlots'
+import { TotalAndChangeStats } from '../../../engine/stats/model.js'
+import { formatCurrency } from '../../helpers/currencies.js'
+import { useFrontState } from '../../model/FrontState.js'
+import { DivBody2, SpanBody1 } from '../generic/Typography.js'
+import { ExpensesInfoTable } from './ExpensesInfoTable.js'
+import { ExpensesBarsPlot } from './ExpensesPlots.js'
 
 interface Props {
     url: string

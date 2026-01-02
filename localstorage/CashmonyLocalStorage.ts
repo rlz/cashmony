@@ -1,9 +1,9 @@
 import { type IDBPDatabase, openDB } from 'idb'
 import { DateTime } from 'luxon'
 
-import { Engine } from '../engine/engine'
-import { Account, Category, Operation, Watch } from '../engine/model'
-import { accFromIdb, accToIdb, catFromIdb, catToIdb, goalFromIdb, goalToIdb, opFromIdb, opToIdb } from './model'
+import { Engine } from '../engine/engine.js'
+import { Account, Category, Operation, Watch } from '../engine/model.js'
+import { accFromIdb, accToIdb, catFromIdb, catToIdb, goalFromIdb, goalToIdb, opFromIdb, opToIdb } from './model.js'
 
 const OPERATIONS_STORE_NAME = 'operations'
 const OPERATIONS_DATE_INDEX_NAME = 'date'

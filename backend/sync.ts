@@ -1,15 +1,15 @@
 import { FastifyInstance, RawServerBase } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
 import { DateTime } from 'luxon'
-import { AuthStorage } from 'rlz-engine/dist/back/auth/storage'
-import { auth } from 'rlz-engine/dist/back/auth/utils'
-import { API_COMPARISON_OBJECT_SCHEMA_V0, API_GET_OBJECTS_REQUEST_SCHEMA_V0, API_ITEMS_REQUEST_SCHEMA_V0, API_ITEMS_RESPONSE_SCHEMA_V0, ApiItemsResponseV0 } from 'rlz-engine/dist/shared/api/sync'
+import { AuthStorage } from 'rlz-engine/back/auth/storage.js'
+import { auth } from 'rlz-engine/back/auth/utils.js'
+import { API_COMPARISON_OBJECT_SCHEMA_V0, API_GET_OBJECTS_REQUEST_SCHEMA_V0, API_ITEMS_REQUEST_SCHEMA_V0, API_ITEMS_RESPONSE_SCHEMA_V0, ApiItemsResponseV0 } from 'rlz-engine/shared/api/sync.js'
 import { z } from 'zod'
-import zodToJsonSchema from 'zod-to-json-schema'
+import { zodToJsonSchema } from 'zod-to-json-schema'
 
-import { apiAccountSchemaV0, apiCategorySchemaV0, apiOperationSchemaV0, apiWatchSchemaV0 } from '../common/data_v0'
-import { toValid } from '../common/dates'
-import { CashmonyStorage } from './storage/mongo'
+import { apiAccountSchemaV0, apiCategorySchemaV0, apiOperationSchemaV0, apiWatchSchemaV0 } from '../common/data_v0.js'
+import { toValid } from '../common/dates.js'
+import { CashmonyStorage } from './storage/mongo.js'
 
 const getObjectsQueryStringSchema = z.object({
     syncAfter: z.string().datetime().optional()

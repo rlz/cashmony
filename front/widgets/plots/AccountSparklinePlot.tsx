@@ -4,8 +4,8 @@ import * as d3 from 'd3'
 import { JSX, useEffect } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 
-import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { PlotContainer } from './PlotUtils'
+import { TotalAndChangeStats } from '../../../engine/stats/model.js'
+import { PlotContainer } from './PlotUtils.js'
 
 interface Props {
     stats: TotalAndChangeStats

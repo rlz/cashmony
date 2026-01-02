@@ -4,9 +4,9 @@ import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 
-import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { formatCurrency } from '../../helpers/currencies'
-import { PlotContainer } from '../plots/PlotUtils'
+import { TotalAndChangeStats } from '../../../engine/stats/model.js'
+import { formatCurrency } from '../../helpers/currencies.js'
+import { PlotContainer } from '../plots/PlotUtils.js'
 
 interface ExpensesBarsPlotProps {
     stats: TotalAndChangeStats

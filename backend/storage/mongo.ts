@@ -1,11 +1,11 @@
 import { FastifyBaseLogger } from 'fastify'
 import { DateTime } from 'luxon'
 import { Collection, Db } from 'mongodb'
-import { MongoStorage } from 'rlz-engine/dist/back/storage/db'
-import { ApiComparisonObjectV0 } from 'rlz-engine/dist/shared/api/sync'
+import { MongoStorage } from 'rlz-engine/back/storage/db.js'
+import { ApiComparisonObjectV0 } from 'rlz-engine/shared/api/sync.js'
 
-import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0'
-import { MongoObject, mongoObjectSchema, MongoTempPassword, MongoUser } from './model'
+import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0.js'
+import { MongoObject, mongoObjectSchema, MongoTempPassword, MongoUser } from './model.js'
 
 export class CashmonyStorage {
     private readonly logger: FastifyBaseLogger

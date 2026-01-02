@@ -1,8 +1,8 @@
 import { Skeleton, Tab, Tabs, Typography } from '@mui/material'
 import React, { type ReactElement } from 'react'
 
-import { Column } from '../generic/Containers'
-import { DivBody2, PBody2 } from '../generic/Typography'
+import { Column } from '../generic/Containers.js'
+import { DivBody2, PBody2 } from '../generic/Typography.js'
 
 export function ExpensesGroupScreenSkeleton(): ReactElement {
     return (

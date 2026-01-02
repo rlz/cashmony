@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { match, P } from 'ts-pattern'
 import { uuidv7 } from 'uuidv7'
 
-import { Account, Category, Filter, NotDeletedOperation, Operation, Watch } from '../engine/model'
+import { Account, Category, Filter, NotDeletedOperation, Operation, Watch } from '../engine/model.js'
 
 export interface IdbAccountV0 {
     readonly name: string

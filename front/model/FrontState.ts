@@ -2,10 +2,10 @@ import { DateTime } from 'luxon'
 import { autorun, makeAutoObservable, runInAction } from 'mobx'
 import { createContext, useContext } from 'react'
 
-import { AllHistoryTimeSpan, CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, ThisMonthTimeSpan, ThisYearTimeSpan, utcToday, YearTimeSpan } from '../../engine/dates'
-import { Engine } from '../../engine/engine'
-import { Filter } from '../../engine/model'
-import { run } from '../helpers/smallTools'
+import { AllHistoryTimeSpan, CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, ThisMonthTimeSpan, ThisYearTimeSpan, utcToday, YearTimeSpan } from '../../engine/dates.js'
+import { Engine } from '../../engine/engine.js'
+import { Filter } from '../../engine/model.js'
+import { run } from '../helpers/smallTools.js'
 
 interface ThisMonthTimeSpanInfo {
     readonly type: 'thisMonth'

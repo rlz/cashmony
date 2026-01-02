@@ -1,8 +1,8 @@
 import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 
-import { Account, Category, NotDeletedOperation, Operation, Watch } from './model'
-import { operationComparator } from './operationsComparator'
-import { compareByStats } from './statsComparator'
+import { Account, Category, NotDeletedOperation, Operation, Watch } from './model.js'
+import { operationComparator } from './operationsComparator.js'
+import { compareByStats } from './statsComparator.js'
 
 export interface EngineDataChangeListener {
     onAccountChange?: (a: Account) => void | Promise<void>

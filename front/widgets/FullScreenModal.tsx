@@ -1,9 +1,9 @@
 import { Box, Modal } from '@mui/material'
 import React, { type PropsWithChildren, type ReactElement } from 'react'
 
-import { screenWidthIs } from '../helpers/useWidth'
-import { Column, Row } from './generic/Containers'
-import { CashmonyAppBar } from './mainScreen/MainAppBar'
+import { screenWidthIs } from '../helpers/useWidth.js'
+import { Column, Row } from './generic/Containers.js'
+import { CashmonyAppBar } from './mainScreen/MainAppBar.js'
 
 interface Props extends PropsWithChildren {
     title: string

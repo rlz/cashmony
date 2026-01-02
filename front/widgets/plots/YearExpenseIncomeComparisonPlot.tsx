@@ -2,8 +2,8 @@ import { Box, Paper, Typography, useTheme } from '@mui/material'
 import * as Plot from '@observablehq/plot'
 import React, { JSX, useMemo } from 'react'
 
-import { formatCurrency } from '../../helpers/currencies'
-import { PlotWidget } from './PlotUtils'
+import { formatCurrency } from '../../helpers/currencies.js'
+import { PlotWidget } from './PlotUtils.js'
 
 interface Props {
     expenses: Record<number, number>

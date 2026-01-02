@@ -1,15 +1,15 @@
 import { DateTime } from 'luxon'
 import { runInAction } from 'mobx'
-import { AuthParam, Forbidden } from 'rlz-engine/dist/client/api/api'
-import { AuthState } from 'rlz-engine/dist/client/state/auth'
-import { syncItems } from 'rlz-engine/dist/client/sync'
+import { AuthParam, Forbidden } from 'rlz-engine/client/api/api.js'
+import { AuthState } from 'rlz-engine/client/state/auth.js'
+import { syncItems } from 'rlz-engine/client/sync.js'
 
-import { apiAccounts, apiAccountsByIds, apiCategories, apiCategoriesByIds, apiOps, apiOpsByIds, apiPushAccounts, apiPushCategories, apiPushOps, apiPushWatches, apiWatches, apiWatchesByIds } from '../../api/api'
-import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0'
-import { Engine } from '../../engine/engine'
-import { Account, Category, Operation, Watch } from '../../engine/model'
-import { dFromIso, dtFromIso } from '../helpers/smallTools'
-import { FrontState } from './FrontState'
+import { apiAccounts, apiAccountsByIds, apiCategories, apiCategoriesByIds, apiOps, apiOpsByIds, apiPushAccounts, apiPushCategories, apiPushOps, apiPushWatches, apiWatches, apiWatchesByIds } from '../../api/api.js'
+import { ApiAccountV0, ApiCategoryV0, ApiOperationV0, ApiWatchV0 } from '../../common/data_v0.js'
+import { Engine } from '../../engine/engine.js'
+import { Account, Category, Operation, Watch } from '../../engine/model.js'
+import { dFromIso, dtFromIso } from '../helpers/smallTools.js'
+import { FrontState } from './FrontState.js'
 
 let apiSyncInProgress = false
 

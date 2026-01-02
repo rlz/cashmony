@@ -1,8 +1,8 @@
-import { Engine } from './engine'
-import { Category } from './model'
-import { PE } from './predicateExpression'
-import { listOperations } from './stats'
-import { compareByStats } from './statsComparator'
+import { Engine } from './engine.js'
+import { Category } from './model.js'
+import { PE } from './predicateExpression.js'
+import { listOperations } from './stats.js'
+import { compareByStats } from './statsComparator.js'
 
 export function sortCategoriesByUsage(engine: Engine): Category[] {
     engine.requireInitialized()

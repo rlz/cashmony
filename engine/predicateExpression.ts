@@ -1,8 +1,8 @@
 import escapeStringRegexp from 'escape-string-regexp'
 import { match, P } from 'ts-pattern'
 
-import { Engine } from './engine'
-import { Filter, NotDeletedOperation } from './model'
+import { Engine } from './engine.js'
+import { Filter, NotDeletedOperation } from './model.js'
 
 export type ComparisonOperator = '<' | '>' | '=' | '<=' | '>=' | '!='
 

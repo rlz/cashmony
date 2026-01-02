@@ -7,8 +7,8 @@ import React, { type ReactElement, useCallback, useEffect, useMemo, useState } f
 import { useResizeDetector } from 'react-resize-detector'
 import { match, P } from 'ts-pattern'
 
-import { run, times } from '../../helpers/smallTools'
-import { Row } from '../generic/Containers'
+import { run, times } from '../../helpers/smallTools.js'
+import { Row } from '../generic/Containers.js'
 
 export type ItemType = { value: string, label: string, fontStyle?: string }
 export type ItemsType = readonly ItemType[]

@@ -1,10 +1,10 @@
 import { Avatar, Box, Paper, Skeleton, Stack, useTheme } from '@mui/material'
 import React, { type ReactElement } from 'react'
 
-import { formatCurrency } from '../../../helpers/currencies'
-import { showIf } from '../../../helpers/smallTools'
-import { Row } from '../../generic/Containers'
-import { DivBody1, DivBody2 } from '../../generic/Typography'
+import { formatCurrency } from '../../../helpers/currencies.js'
+import { showIf } from '../../../helpers/smallTools.js'
+import { Row } from '../../generic/Containers.js'
+import { DivBody1, DivBody2 } from '../../generic/Typography.js'
 
 interface Props {
     opId: string

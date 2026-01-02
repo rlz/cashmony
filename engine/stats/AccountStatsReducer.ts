@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon'
 
-import { HumanTimeSpan } from '../dates'
-import { NotDeletedOperation } from '../model'
-import { Point, TotalAndChangeStats } from './model'
-import { Intervals, StatsReducer } from './stats'
+import { HumanTimeSpan } from '../dates.js'
+import { NotDeletedOperation } from '../model.js'
+import { Point, TotalAndChangeStats } from './model.js'
+import { Intervals, StatsReducer } from './stats.js'
 
 export class AccountStatsReducer extends StatsReducer {
     private id: string

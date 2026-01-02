@@ -1,4 +1,4 @@
-import { Operation } from './model'
+import { Operation } from './model.js'
 
 const OP_WEIGHTS = {
     income: 0,

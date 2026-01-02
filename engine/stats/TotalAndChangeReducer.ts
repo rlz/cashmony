@@ -1,12 +1,12 @@
 import { DateTime } from 'luxon'
 
-import { CurrenciesLoader } from '../../currencies/currencies'
-import { HumanTimeSpan } from '../dates'
-import { Engine } from '../engine'
-import { NotDeletedOperation } from '../model'
-import { compilePredicate, Predicate } from '../predicateExpression'
-import { Point, TotalAndChangeStats } from './model'
-import { Intervals, StatsReducer } from './stats'
+import { CurrenciesLoader } from '../../currencies/currencies.js'
+import { HumanTimeSpan } from '../dates.js'
+import { Engine } from '../engine.js'
+import { NotDeletedOperation } from '../model.js'
+import { compilePredicate, Predicate } from '../predicateExpression.js'
+import { Point, TotalAndChangeStats } from './model.js'
+import { Intervals, StatsReducer } from './stats.js'
 
 export class TotalAndChangeReducer extends StatsReducer {
     private predicate: (op: NotDeletedOperation) => boolean

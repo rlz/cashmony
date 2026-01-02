@@ -4,9 +4,9 @@ import { Accordion, AccordionDetails, AccordionSummary, Box, IconButton, Typogra
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useState } from 'react'
 
-import { getCurrencySymbol } from '../../../helpers/currencies'
-import { CurrencyInput } from '../../CurrencyInput'
-import { CurrencySelector } from '../../CurrencySelector'
+import { getCurrencySymbol } from '../../../helpers/currencies.js'
+import { CurrencyInput } from '../../CurrencyInput.js'
+import { CurrencySelector } from '../../CurrencySelector.js'
 
 interface Props {
     amount: number

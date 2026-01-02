@@ -5,7 +5,7 @@ import React, { JSX, type ReactElement } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { match, P } from 'ts-pattern'
 
-import { useEngine } from '../../useEngine'
+import { useEngine } from '../../useEngine.js'
 
 type Tabs = 'o' | 'c' | 'g' | 'a' | 'analitics' | null
 

@@ -4,7 +4,7 @@ import { Button, type ButtonProps, Dialog, DialogActions, DialogContent, DialogC
 import { type TransitionProps } from '@mui/material/transitions'
 import React, { type PropsWithChildren, type ReactElement, useCallback, useState } from 'react'
 
-import { runAsync, showIf } from '../../helpers/smallTools'
+import { runAsync, showIf } from '../../helpers/smallTools.js'
 
 type Props = Omit<PropsWithChildren<ButtonProps>, 'action' | 'disabled'> & {
     confirmationTitle?: string

@@ -5,8 +5,8 @@ import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { match, P } from 'ts-pattern'
 
-import { type ExpenseOperation } from '../../../../engine/model'
-import { CategoriesSelect } from '../../select/CategoriesSelect'
+import { type ExpenseOperation } from '../../../../engine/model.js'
+import { CategoriesSelect } from '../../select/CategoriesSelect.js'
 
 interface Props {
     expanded: boolean

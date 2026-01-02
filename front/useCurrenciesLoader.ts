@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-import { CurrenciesLoader } from '../currencies/currencies'
+import { CurrenciesLoader } from '../currencies/currencies.js'
 
 const currenciesLoaderContext = createContext<CurrenciesLoader | null>(null)
 

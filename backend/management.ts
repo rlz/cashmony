@@ -1,9 +1,9 @@
 import { FastifyInstance, RawServerBase } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
-import { AuthStorage } from 'rlz-engine/dist/back/auth/storage'
-import { auth } from 'rlz-engine/dist/back/auth/utils'
+import { AuthStorage } from 'rlz-engine/back/auth/storage.js'
+import { auth } from 'rlz-engine/back/auth/utils.js'
 
-import { CashmonyStorage } from './storage/mongo'
+import { CashmonyStorage } from './storage/mongo.js'
 
 interface ManagementPluginOpts {
     cashmonyStorage: CashmonyStorage

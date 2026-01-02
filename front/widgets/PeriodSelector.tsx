@@ -7,12 +7,12 @@ import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useState } from 'react'
 import Calendar from 'react-calendar'
 
-import { utcDate } from '../../engine/dates'
-import { showIf } from '../helpers/smallTools'
-import { screenWidthIs } from '../helpers/useWidth'
-import { useFrontState } from '../model/FrontState'
-import { FullScreenModal } from './FullScreenModal'
-import { Row } from './generic/Containers'
+import { utcDate } from '../../engine/dates.js'
+import { showIf } from '../helpers/smallTools.js'
+import { screenWidthIs } from '../helpers/useWidth.js'
+import { useFrontState } from '../model/FrontState.js'
+import { FullScreenModal } from './FullScreenModal.js'
+import { Row } from './generic/Containers.js'
 
 export const PeriodSelector = observer((): ReactElement => {
     const appState = useFrontState()

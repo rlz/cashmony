@@ -5,11 +5,11 @@ import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { match } from 'ts-pattern'
 
-import { type NotDeletedOperation } from '../../../../engine/model'
-import { formatExchangeRate } from '../../../helpers/currencies'
-import { useEngine } from '../../../useEngine'
-import { CurrencyInput } from '../../CurrencyInput'
-import { AccountsSelect } from '../../select/AccountsSelect'
+import { type NotDeletedOperation } from '../../../../engine/model.js'
+import { formatExchangeRate } from '../../../helpers/currencies.js'
+import { useEngine } from '../../../useEngine.js'
+import { CurrencyInput } from '../../CurrencyInput.js'
+import { AccountsSelect } from '../../select/AccountsSelect.js'
 
 interface Props {
     title: string

@@ -2,16 +2,16 @@ import { Box } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 
-import { type Category, type Watch } from '../../../engine/model'
-import { EXPENSE_PREDICATE, PE } from '../../../engine/predicateExpression'
-import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { calcStats } from '../../../engine/stats/stats'
-import { TotalAndChangeReducer } from '../../../engine/stats/TotalAndChangeReducer'
-import { runAsync } from '../../helpers/smallTools'
-import { useFrontState } from '../../model/FrontState'
-import { useCurrenciesLoader } from '../../useCurrenciesLoader'
-import { useEngine } from '../../useEngine'
-import { ExpensesCard, ExpensesCardSkeleton } from './ExpensesCard'
+import { type Category, type Watch } from '../../../engine/model.js'
+import { EXPENSE_PREDICATE, PE } from '../../../engine/predicateExpression.js'
+import { TotalAndChangeStats } from '../../../engine/stats/model.js'
+import { calcStats } from '../../../engine/stats/stats.js'
+import { TotalAndChangeReducer } from '../../../engine/stats/TotalAndChangeReducer.js'
+import { runAsync } from '../../helpers/smallTools.js'
+import { useFrontState } from '../../model/FrontState.js'
+import { useCurrenciesLoader } from '../../useCurrenciesLoader.js'
+import { useEngine } from '../../useEngine.js'
+import { ExpensesCard, ExpensesCardSkeleton } from './ExpensesCard.js'
 
 interface ExpensesListProps {
     categories?: readonly Category[]
@@ -31,7 +31,7 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
             runAsync(async () => {
                 const ts = appState.timeSpan
                 const today = appState.today
-                const reducers = categories !== undefined
+                const reducers: Record<string, TotalAndChangeReducer> = categories !== undefined
                     ? Object.fromEntries(
                             categories.map(c => [
                                 c.id,

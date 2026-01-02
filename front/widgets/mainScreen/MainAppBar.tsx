@@ -4,13 +4,13 @@ import { AppBar, IconButton, SwipeableDrawer, type SxProps, Toolbar, Typography 
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useState } from 'react'
 
-import { screenWidthIs } from '../../helpers/useWidth'
-import { useFrontState } from '../../model/FrontState'
-import { FullScreenModal } from '../FullScreenModal'
-import { Column } from '../generic/Containers'
-import { DivBody2 } from '../generic/Typography'
-import { Advanced } from './advanced'
-import { AppStateSettings } from './AppStateSettings'
+import { screenWidthIs } from '../../helpers/useWidth.js'
+import { useFrontState } from '../../model/FrontState.js'
+import { FullScreenModal } from '../FullScreenModal.js'
+import { Column } from '../generic/Containers.js'
+import { DivBody2 } from '../generic/Typography.js'
+import { Advanced } from './advanced.js'
+import { AppStateSettings } from './AppStateSettings.js'
 
 interface CashmonyAppBarProps {
     modal?: boolean

@@ -1,5 +1,5 @@
-import { Engine } from './engine'
-import { compareByStats } from './statsComparator'
+import { Engine } from './engine.js'
+import { compareByStats } from './statsComparator.js'
 
 export class TagsEngine {
     private readonly engine: Engine

@@ -1,6 +1,6 @@
 import { DateTime, type DurationLike } from 'luxon'
 
-import { Engine } from './engine'
+import { Engine } from './engine.js'
 
 export function utcToday(): DateTime<true> {
     const now = DateTime.now()

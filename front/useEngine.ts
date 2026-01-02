@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-import { Engine } from '../engine/engine'
+import { Engine } from '../engine/engine.js'
 
 const engineContext = createContext<Engine | null>(null)
 

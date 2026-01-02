@@ -1,7 +1,7 @@
-import { CurrenciesLoader } from '../../currencies/currencies'
-import { NotDeletedOperation } from '../model'
-import { isExpense, isIncome } from '../predicateExpression'
-import { Intervals, StatsReducer } from './stats'
+import { CurrenciesLoader } from '../../currencies/currencies.js'
+import { NotDeletedOperation } from '../model.js'
+import { isExpense, isIncome } from '../predicateExpression.js'
+import { Intervals, StatsReducer } from './stats.js'
 
 export class YMComparisonReducer extends StatsReducer {
     private curency: string

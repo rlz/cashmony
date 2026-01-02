@@ -1,12 +1,12 @@
 import { Box, Paper, Stack } from '@mui/material'
 import { CSSProperties, ReactElement } from 'react'
 
-import { CURRENCIES } from '../../../currencies/currenciesList'
-import { Account } from '../../../engine/model'
-import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { formatCurrency } from '../../helpers/currencies'
-import { AccountChangePlot } from '../../widgets/plots/AccountChangePlot'
-import { AccountTotalPlot } from '../../widgets/plots/AccountTotalPlot'
+import { CURRENCIES } from '../../../currencies/currenciesList.js'
+import { Account } from '../../../engine/model.js'
+import { TotalAndChangeStats } from '../../../engine/stats/model.js'
+import { formatCurrency } from '../../helpers/currencies.js'
+import { AccountChangePlot } from '../../widgets/plots/AccountChangePlot.js'
+import { AccountTotalPlot } from '../../widgets/plots/AccountTotalPlot.js'
 
 interface Props {
     currencies: Record<string, number> | null

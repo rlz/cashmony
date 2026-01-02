@@ -1,5 +1,8 @@
 import { build } from 'esbuild'
-import esbuildPluginPino from 'esbuild-plugin-pino'
+import { esbuildPluginPino } from 'esbuild-plugin-pino'
+import { createRequire } from 'module'
+
+global.require = createRequire(import.meta.url)
 
 // esbuild backend/main.ts --bundle --keep-names --minify --define:process.env.NODE_ENV=\\\"production\\\" --platform=node --format=cjs --outfile=taskmony.cjs
 await build({

@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon'
-import { apiCall, AuthParam } from 'rlz-engine/dist/client/api/api'
-import { API_COMPARISON_OBJECT_SCHEMA_V0, API_ITEMS_RESPONSE_SCHEMA_V0, ApiGetObjectsRequestV0, ApiItemsRequestV0, ApiItemsResponseV0 } from 'rlz-engine/dist/shared/api/sync'
+import { apiCall, AuthParam } from 'rlz-engine/client/api/api.js'
+import { API_COMPARISON_OBJECT_SCHEMA_V0, API_ITEMS_RESPONSE_SCHEMA_V0, ApiGetObjectsRequestV0, ApiItemsRequestV0, ApiItemsResponseV0 } from 'rlz-engine/shared/api/sync.js'
 import { z } from 'zod'
 
-import { apiAccountSchemaV0, ApiAccountV0, apiCategorySchemaV0, ApiCategoryV0, apiOperationSchemaV0, ApiOperationV0, apiWatchSchemaV0, ApiWatchV0 } from '../common/data_v0'
+import { apiAccountSchemaV0, ApiAccountV0, apiCategorySchemaV0, ApiCategoryV0, apiOperationSchemaV0, ApiOperationV0, apiWatchSchemaV0, ApiWatchV0 } from '../common/data_v0.js'
 
 export async function apiOps(auth: AuthParam, syncAfter: DateTime<true> | null): Promise<ApiItemsResponseV0<typeof API_COMPARISON_OBJECT_SCHEMA_V0>> {
     const queryString = syncAfter === null ? null : { syncAfter: syncAfter.toISO() }

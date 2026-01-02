@@ -3,9 +3,9 @@ import * as Plot from '@observablehq/plot'
 import Color from 'color'
 import { JSX } from 'react'
 
-import { TotalAndChangeStats } from '../../../engine/stats/model'
-import { formatCurrency } from '../../helpers/currencies'
-import { PlotWidget } from './PlotUtils'
+import { TotalAndChangeStats } from '../../../engine/stats/model.js'
+import { formatCurrency } from '../../helpers/currencies.js'
+import { PlotWidget } from './PlotUtils.js'
 
 interface Props {
     title: string

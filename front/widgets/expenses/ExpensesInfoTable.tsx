@@ -2,8 +2,8 @@ import { styled, useTheme } from '@mui/material'
 import { JSX } from 'react'
 import { match, P } from 'ts-pattern'
 
-import { formatCurrency } from '../../helpers/currencies'
-import { Italic } from '../generic/Typography'
+import { formatCurrency } from '../../helpers/currencies.js'
+import { Italic } from '../generic/Typography.js'
 
 interface Props {
     currency: string

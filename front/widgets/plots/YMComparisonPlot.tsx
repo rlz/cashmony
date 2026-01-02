@@ -4,8 +4,8 @@ import * as d3 from 'd3'
 import React, { JSX, useEffect, useMemo } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 
-import { formatCurrency } from '../../helpers/currencies'
-import { monthFormat, PlotContainer } from './PlotUtils'
+import { formatCurrency } from '../../helpers/currencies.js'
+import { monthFormat, PlotContainer } from './PlotUtils.js'
 
 interface Props {
     title: string

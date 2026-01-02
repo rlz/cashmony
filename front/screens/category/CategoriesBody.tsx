@@ -3,10 +3,10 @@ import { Box, Fab } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { JSX, useMemo, useState } from 'react'
 
-import { sortCategoriesByUsage } from '../../../engine/sortCategories'
-import { useEngine } from '../../useEngine'
-import { ExpensesList } from '../../widgets/expenses/ExpensesList'
-import { AddCategory } from './AddCategory'
+import { sortCategoriesByUsage } from '../../../engine/sortCategories.js'
+import { useEngine } from '../../useEngine.js'
+import { ExpensesList } from '../../widgets/expenses/ExpensesList.js'
+import { AddCategory } from './AddCategory.js'
 
 interface CategoriesScreenBodyProps {
     noFab?: boolean

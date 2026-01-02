@@ -2,9 +2,9 @@ import { Mutex } from 'async-mutex'
 import { IDBPDatabase, openDB } from 'idb'
 import { DateTime } from 'luxon'
 
-import { utcToday } from '../engine/dates'
-import { nonNull } from '../front/helpers/smallTools'
-import { CURRENCY_RATES_SCHEMA, CurrencyRates, CurrencyRatesCache, ratesMonth } from './model'
+import { utcToday } from '../engine/dates.js'
+import { nonNull } from '../front/helpers/smallTools.js'
+import { CURRENCY_RATES_SCHEMA, CurrencyRates, CurrencyRatesCache, ratesMonth } from './model.js'
 
 const RATES_STORE_NAME = 'rates'
 

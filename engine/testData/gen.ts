@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon'
 import { uuidv7 } from 'uuidv7'
 
-import { toValid } from '../../common/dates'
-import { Account, AdjustmentOperation, Category, ExpenseOperation, IncomeOperation, Operation, TransferOperation } from '../model'
+import { toValid } from '../../common/dates.js'
+import { Account, AdjustmentOperation, Category, ExpenseOperation, IncomeOperation, Operation, TransferOperation } from '../model.js'
 
 interface TestData {
     readonly accounts: readonly Account[]

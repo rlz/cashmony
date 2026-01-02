@@ -1,5 +1,5 @@
 import { boolean, command, flag, positional, run, string } from 'cmd-ts'
-import { Directory } from 'cmd-ts/dist/cjs/batteries/fs'
+import { Directory } from 'cmd-ts/dist/cjs/batteries/fs.js'
 import { NodeSSH } from 'node-ssh'
 
 const APP = command({

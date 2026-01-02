@@ -1,12 +1,12 @@
 import { IconButton, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import React, { type ReactElement, useState } from 'react'
 
-import { getCurrencySymbol } from '../../../helpers/currencies'
-import { showIf } from '../../../helpers/smallTools'
-import { CurrencyInput } from '../../CurrencyInput'
-import { CurrencySelector } from '../../CurrencySelector'
-import { Column, Row } from '../../generic/Containers'
-import { DivBody1 } from '../../generic/Typography'
+import { getCurrencySymbol } from '../../../helpers/currencies.js'
+import { showIf } from '../../../helpers/smallTools.js'
+import { CurrencyInput } from '../../CurrencyInput.js'
+import { CurrencySelector } from '../../CurrencySelector.js'
+import { Column, Row } from '../../generic/Containers.js'
+import { DivBody1 } from '../../generic/Typography.js'
 
 interface Props {
     currency: string

@@ -1,13 +1,13 @@
 import { registerAcmeAccount } from 'fastify-acme'
-import { AUTH_API } from 'rlz-engine/dist/back/auth/controllers'
-import { AuthStorage } from 'rlz-engine/dist/back/auth/storage'
-import { PRODUCTION } from 'rlz-engine/dist/back/config'
-import { runServer } from 'rlz-engine/dist/back/server'
-import { MongoStorage } from 'rlz-engine/dist/back/storage/db'
+import { AUTH_API } from 'rlz-engine/back/auth/controllers.js'
+import { AuthStorage } from 'rlz-engine/back/auth/storage.js'
+import { PRODUCTION } from 'rlz-engine/back/config.js'
+import { runServer } from 'rlz-engine/back/server.js'
+import { MongoStorage } from 'rlz-engine/back/storage/db.js'
 
-import { managementPlugin } from './management'
-import { CashmonyStorage } from './storage/mongo'
-import { syncPlugin } from './sync'
+import { managementPlugin } from './management.js'
+import { CashmonyStorage } from './storage/mongo.js'
+import { syncPlugin } from './sync.js'
 
 const settings = {
     certDir: './auth',
