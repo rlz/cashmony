@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const uuidSchema = z.string().uuid()
+const uuidSchema = z.uuid()
 
 export const moneyValueSchemaV0 = z.object({
     currency: z.string(),
@@ -14,12 +14,12 @@ export const apiLinkedAmountSchemaV0 = z.object({
 
 const apiBaseOperationSchemaV0 = z.object({
     id: uuidSchema,
-    date: z.string().date(),
+    date: z.iso.date(),
     value: moneyValueSchemaV0,
     account: apiLinkedAmountSchemaV0,
     tags: z.array(z.string()).readonly(),
     comment: z.string().nullable(),
-    lastModified: z.string().datetime()
+    lastModified: z.iso.datetime()
 }).readonly()
 
 export const apiIncomeOperationSchemaV0 = apiBaseOperationSchemaV0.and(z.object({
@@ -61,7 +61,7 @@ export const apiCategorySchemaV0 = z.object({
     name: z.string(),
     perDayGoal: moneyValueSchemaV0.nullable(),
     deleted: z.boolean(),
-    lastModified: z.string().datetime()
+    lastModified: z.iso.datetime()
 }).readonly()
 
 export type ApiCategoryV0 = z.infer<typeof apiCategorySchemaV0>
@@ -96,9 +96,13 @@ export const apiFilterSchemaV0 = z.object({
     tags: z.array(z.string()).readonly()
 }).readonly()
 
-export const apiWatchSchemaV0 = apiCategorySchemaV0.and(z.object({
+export const apiWatchSchemaV0 = z.object({
+    id: uuidSchema,
+    name: z.string(),
+    deleted: z.boolean(),
+    lastModified: z.iso.datetime(),
     perDayGoal: moneyValueSchemaV0,
     filter: apiFilterSchemaV0
-})).readonly()
+}).readonly()
 
 export type ApiWatchV0 = z.infer<typeof apiWatchSchemaV0>

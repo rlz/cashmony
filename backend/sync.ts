@@ -5,7 +5,6 @@ import { AuthStorage } from 'rlz-engine/back/auth/storage.js'
 import { auth } from 'rlz-engine/back/auth/utils.js'
 import { API_COMPARISON_OBJECT_SCHEMA_V0, API_GET_OBJECTS_REQUEST_SCHEMA_V0, API_ITEMS_REQUEST_SCHEMA_V0, API_ITEMS_RESPONSE_SCHEMA_V0, ApiItemsResponseV0 } from 'rlz-engine/shared/api/sync.js'
 import { z } from 'zod'
-import { zodToJsonSchema } from 'zod-to-json-schema'
 
 import { apiAccountSchemaV0, apiCategorySchemaV0, apiOperationSchemaV0, apiWatchSchemaV0 } from '../common/data_v0.js'
 import { toValid } from '../common/dates.js'
@@ -26,8 +25,9 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/operations',
             {
                 schema: {
-                    querystring: zodToJsonSchema(getObjectsQueryStringSchema),
-                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0)) }
+                    querystring: getObjectsQueryStringSchema.toJSONSchema({ target: 'draft-07' })
+                    // TODO: restore validation
+                    // response: { 200: API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0).toJSONSchema({ target: 'draft-07' }) }
                 }
             },
             async (req, _resp) => {
@@ -42,8 +42,9 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/operations/by-ids',
             {
                 schema: {
-                    body: zodToJsonSchema(API_GET_OBJECTS_REQUEST_SCHEMA_V0),
-                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(apiOperationSchemaV0)) }
+                    body: API_GET_OBJECTS_REQUEST_SCHEMA_V0.toJSONSchema({ target: 'draft-07' })
+                    // TODO: restore validation
+                    // response: { 200: API_ITEMS_RESPONSE_SCHEMA_V0(apiOperationSchemaV0).toJSONSchema({ target: 'draft-07' }) }
                 }
             },
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiOperationSchemaV0>> => {
@@ -57,7 +58,8 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/operations/push',
             {
                 schema: {
-                    body: zodToJsonSchema(API_ITEMS_REQUEST_SCHEMA_V0(apiOperationSchemaV0))
+                    // TODO: restore validation
+                    // body: API_ITEMS_REQUEST_SCHEMA_V0(apiOperationSchemaV0).toJSONSchema({ target: 'draft-07' })
                 },
                 bodyLimit: 30 * 1024 * 1024
             },
@@ -73,8 +75,8 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/accounts',
             {
                 schema: {
-                    querystring: zodToJsonSchema(getObjectsQueryStringSchema),
-                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0)) }
+                    querystring: getObjectsQueryStringSchema.toJSONSchema({ target: 'draft-07' }),
+                    response: { 200: API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0).toJSONSchema({ target: 'draft-07' }) }
                 }
             },
             async (req, _resp) => {
@@ -89,8 +91,8 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/accounts/by-ids',
             {
                 schema: {
-                    body: zodToJsonSchema(API_GET_OBJECTS_REQUEST_SCHEMA_V0),
-                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(apiAccountSchemaV0)) }
+                    body: API_GET_OBJECTS_REQUEST_SCHEMA_V0.toJSONSchema({ target: 'draft-07' }),
+                    response: { 200: API_ITEMS_RESPONSE_SCHEMA_V0(apiAccountSchemaV0).toJSONSchema({ target: 'draft-07' }) }
                 }
             },
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiAccountSchemaV0>> => {
@@ -104,7 +106,7 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/accounts/push',
             {
                 schema: {
-                    body: zodToJsonSchema(API_ITEMS_REQUEST_SCHEMA_V0(apiAccountSchemaV0))
+                    body: API_ITEMS_REQUEST_SCHEMA_V0(apiAccountSchemaV0).toJSONSchema({ target: 'draft-07' })
                 }
             },
             async (req, resp) => {
@@ -119,8 +121,8 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/categories',
             {
                 schema: {
-                    querystring: zodToJsonSchema(getObjectsQueryStringSchema),
-                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0)) }
+                    querystring: getObjectsQueryStringSchema.toJSONSchema({ target: 'draft-07' }),
+                    response: { 200: API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0).toJSONSchema({ target: 'draft-07' }) }
                 }
             },
             async (req, _resp) => {
@@ -135,8 +137,8 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/categories/by-ids',
             {
                 schema: {
-                    body: zodToJsonSchema(API_GET_OBJECTS_REQUEST_SCHEMA_V0),
-                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(apiCategorySchemaV0)) }
+                    body: API_GET_OBJECTS_REQUEST_SCHEMA_V0.toJSONSchema({ target: 'draft-07' }),
+                    response: { 200: API_ITEMS_RESPONSE_SCHEMA_V0(apiCategorySchemaV0).toJSONSchema({ target: 'draft-07' }) }
                 }
             },
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiCategorySchemaV0>> => {
@@ -150,7 +152,7 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/categories/push',
             {
                 schema: {
-                    body: zodToJsonSchema(API_ITEMS_REQUEST_SCHEMA_V0(apiCategorySchemaV0))
+                    body: API_ITEMS_REQUEST_SCHEMA_V0(apiCategorySchemaV0).toJSONSchema({ target: 'draft-07' })
                 }
             },
             async (req, resp) => {
@@ -165,8 +167,8 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/watches',
             {
                 schema: {
-                    querystring: zodToJsonSchema(getObjectsQueryStringSchema),
-                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0)) }
+                    querystring: getObjectsQueryStringSchema.toJSONSchema({ target: 'draft-07' }),
+                    response: { 200: API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0).toJSONSchema({ target: 'draft-07' }) }
                 }
             },
             async (req, _resp) => {
@@ -181,8 +183,8 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/watches/by-ids',
             {
                 schema: {
-                    body: zodToJsonSchema(API_GET_OBJECTS_REQUEST_SCHEMA_V0),
-                    response: { 200: zodToJsonSchema(API_ITEMS_RESPONSE_SCHEMA_V0(apiWatchSchemaV0)) }
+                    body: API_GET_OBJECTS_REQUEST_SCHEMA_V0.toJSONSchema({ target: 'draft-07' }),
+                    response: { 200: API_ITEMS_RESPONSE_SCHEMA_V0(apiWatchSchemaV0).toJSONSchema({ target: 'draft-07' }) }
                 }
             },
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiWatchSchemaV0>> => {
@@ -196,7 +198,7 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/watches/push',
             {
                 schema: {
-                    body: zodToJsonSchema(API_ITEMS_REQUEST_SCHEMA_V0(apiWatchSchemaV0))
+                    body: API_ITEMS_REQUEST_SCHEMA_V0(apiWatchSchemaV0).toJSONSchema({ target: 'draft-07' })
                 }
             },
             async (req, resp) => {
