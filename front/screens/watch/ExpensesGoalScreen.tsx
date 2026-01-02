@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Fab } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
-import { Panel, PanelGroup } from 'react-resizable-panels'
+import { Group, Panel } from 'react-resizable-panels'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { showIfLazy } from '../../helpers/smallTools.js'
@@ -51,8 +51,8 @@ export function ExpensesGoalScreen(): ReactElement {
                             </>
                         )
                     : (
-                            <PanelGroup direction={'horizontal'}>
-                                <Panel id={'list'} order={1}>
+                            <Group orientation={'horizontal'} style={{ height: '100%' }}>
+                                <Panel id={'list'}>
                                     <ExpensesGoalsScreenBody noFab={params.goalId !== undefined} />
                                 </Panel>
                                 {
@@ -60,14 +60,14 @@ export function ExpensesGoalScreen(): ReactElement {
                                         return (
                                             <>
                                                 <ResizeHandle />
-                                                <Panel id={'single'} order={2}>
+                                                <Panel id={'single'}>
                                                     <ExpensesGoalBody />
                                                 </Panel>
                                             </>
                                         )
                                     })
                                 }
-                            </PanelGroup>
+                            </Group>
                         )
             }
         </MainScreen>

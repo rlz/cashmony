@@ -4,7 +4,7 @@ import { Box, Skeleton, Typography, useTheme } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
-import { Panel, PanelGroup } from 'react-resizable-panels'
+import { Group, Panel } from 'react-resizable-panels'
 import { useLocation, useParams } from 'react-router-dom'
 import { match } from 'ts-pattern'
 import { uuidv7 } from 'uuidv7'
@@ -65,8 +65,8 @@ export function OperationScreen(): ReactElement {
             {
                 !smallScreen
                     ? (
-                            <PanelGroup direction={'horizontal'}>
-                                <Panel id={'list'} order={1}>
+                            <Group orientation={'horizontal'} style={{ height: '100%' }}>
+                                <Panel id={'list'}>
                                     <Box height={'100%'} overflow={'auto'}>
                                         <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
                                             <OpsList />
@@ -78,7 +78,7 @@ export function OperationScreen(): ReactElement {
                                     showIfLazy(opId !== '', () => (
                                         <>
                                             <ResizeHandle />
-                                            <Panel id={'single'} order={2}>
+                                            <Panel id={'single'}>
                                                 <Box p={1} overflow={'auto'} height={'100%'}>
                                                     <OperationScreenBody urlOpId={opId} />
                                                 </Box>
@@ -86,7 +86,7 @@ export function OperationScreen(): ReactElement {
                                         </>
                                     ))
                                 }
-                            </PanelGroup>
+                            </Group>
                         )
                     : (
                             <Box position={'relative'} height={'100%'}>

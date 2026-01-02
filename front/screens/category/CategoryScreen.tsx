@@ -1,6 +1,6 @@
 import { Box, useTheme } from '@mui/material'
 import React, { type ReactElement, useEffect } from 'react'
-import { Panel, PanelGroup } from 'react-resizable-panels'
+import { Group, Panel } from 'react-resizable-panels'
 import { useLocation } from 'react-router-dom'
 
 import { showIfLazy } from '../../helpers/smallTools.js'
@@ -53,8 +53,8 @@ export function CategoryScreen(): ReactElement {
                             </Box>
                         )
                     : (
-                            <PanelGroup direction={'horizontal'}>
-                                <Panel id={'list'} order={1}>
+                            <Group orientation={'horizontal'} style={{ height: '100%' }}>
+                                <Panel id={'list'}>
                                     <CategoriesScreenBody noFab={!noCatSelected} />
                                 </Panel>
                                 {
@@ -62,14 +62,14 @@ export function CategoryScreen(): ReactElement {
                                         return (
                                             <>
                                                 <ResizeHandle />
-                                                <Panel id={'single'} order={2}>
+                                                <Panel id={'single'}>
                                                     <CategoryScreenBody />
                                                 </Panel>
                                             </>
                                         )
                                     })
                                 }
-                            </PanelGroup>
+                            </Group>
                         )
             }
         </MainScreen>
