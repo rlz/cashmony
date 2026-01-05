@@ -21,7 +21,7 @@ import { useEngine } from '../../useEngine.js'
 import { FullScreenModal } from '../../widgets/FullScreenModal.js'
 import { Column } from '../../widgets/generic/Containers.js'
 import { OpsList } from '../../widgets/operations/OpsList.js'
-import { OperationScreenBody } from '../OperationScreen.js'
+import { OperationViewEditor } from '../operation/OperationViewEditor.js'
 import { AccountEditor } from './AccountEditor.js'
 import { AccountStatsBody } from './AccountStats.js'
 
@@ -203,7 +203,7 @@ export const AccountBody = observer(() => {
                             onClose={async () => { await navigate(`/accounts/${accId}/operations`) }}
                         >
                             <Box p={1}>
-                                <OperationScreenBody
+                                <OperationViewEditor
                                     urlOpId={opId ?? ''}
                                     setModalTitle={setOpModalTitle}
                                 />

@@ -20,7 +20,7 @@ import { ExpensesStatsWidget } from '../../widgets/expenses/ExpensesStatsWidget.
 import { FullScreenModal } from '../../widgets/FullScreenModal.js'
 import { Column } from '../../widgets/generic/Containers.js'
 import { OpsList } from '../../widgets/operations/OpsList.js'
-import { OperationScreenBody } from '../OperationScreen.js'
+import { OperationViewEditor } from '../operation/OperationViewEditor.js'
 import { ExpensesGoalEditor } from './ExpensesGoalEditor.js'
 
 export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Element {
@@ -172,7 +172,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
                             onClose={() => { void navigate(`/goals/${goalId}/operations`) }}
                         >
                             <Box p={1}>
-                                <OperationScreenBody
+                                <OperationViewEditor
                                     urlOpId={opId ?? ''}
                                     setModalTitle={setOpModalTitle}
                                 />

@@ -16,7 +16,7 @@ import { AnaliticsScreenStats } from '../widgets/AnaliticsScreenStats.js'
 import { FullScreenModal } from '../widgets/FullScreenModal.js'
 import { MainScreen } from '../widgets/mainScreen/MainScreen.js'
 import { OpsList } from '../widgets/operations/OpsList.js'
-import { OperationScreenBody } from './OperationScreen.js'
+import { OperationViewEditor } from './operation/OperationViewEditor.js'
 
 export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement {
     const engine = useEngine()
@@ -205,7 +205,7 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                         onClose={() => navigate('/analitics')}
                     >
                         <Box p={1}>
-                            <OperationScreenBody urlOpId={opId} />
+                            <OperationViewEditor urlOpId={opId} />
                         </Box>
                     </FullScreenModal>
                 )

@@ -1,129 +1,37 @@
 import { faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Box, Skeleton, Typography, useTheme } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
-import React, { type ReactElement, useEffect, useMemo, useState } from 'react'
-import { Group, Panel } from 'react-resizable-panels'
-import { useLocation, useParams } from 'react-router-dom'
-import { match } from 'ts-pattern'
+import { ReactElement, useEffect, useMemo, useState } from 'react'
 import { uuidv7 } from 'uuidv7'
 
-import { utcToday } from '../../engine/dates.js'
-import { Engine } from '../../engine/engine.js'
-import { type BaseTransaction, type NotDeletedOperation, type Operation } from '../../engine/model.js'
-import { sortCurrencies } from '../../engine/sortCurrencies.js'
-import { formatCurrency } from '../helpers/currencies.js'
-import { deepEqual } from '../helpers/deepEqual.js'
-import { nonNull, run, runAsync, showIfLazy } from '../helpers/smallTools.js'
-import { screenWidthIs } from '../helpers/useWidth.js'
-import { useFrontState } from '../model/FrontState.js'
-import { useAbsoluteNavigate } from '../useAbsoluteNavigate.js'
-import { useEngine } from '../useEngine.js'
-import { ActionButton, ActionFab } from '../widgets/generic/ActionButton.js'
-import { ResizeHandle } from '../widgets/generic/resizeHandle.js'
-import { PBody2 } from '../widgets/generic/Typography.js'
-import { MainScreen } from '../widgets/mainScreen/MainScreen.js'
-import { AddOperationFab } from '../widgets/operations/AddOperationFab.js'
-import { AccountEditor } from '../widgets/operations/editors/AccountEditor.js'
-import { AmountEditor } from '../widgets/operations/editors/AmountEditor.js'
-import { CategoriesEditor } from '../widgets/operations/editors/CategoriesEditor.js'
-import { CommentEditor } from '../widgets/operations/editors/CommentEditor.js'
-import { DateEditor } from '../widgets/operations/editors/DateEditor.js'
-import { TagsEditor } from '../widgets/operations/editors/TagsEditor.js'
-import { OpsList } from '../widgets/operations/OpsList.js'
-
-export function OperationScreen(): ReactElement {
-    const appState = useFrontState()
-
-    const location = useLocation()
-    const navigate = useAbsoluteNavigate()
-    const pathParams = useParams()
-    const smallScreen = screenWidthIs('xs', 'sm')
-    const theme = useTheme()
-
-    const opId = match(location.pathname)
-        .with('/new-op/expense', () => 'new-expense')
-        .with('/new-op/income', () => 'new-income')
-        .with('/new-op/transfer', () => 'new-transfer')
-        .otherwise(() => pathParams.opId ?? '')
-
-    useEffect(() => {
-        if (opId === '') {
-            appState.setSubTitle('Operations')
-            appState.setOnClose(null)
-            return
-        }
-
-        appState.setOnClose(() => {
-            navigate('/operations')
-        })
-    }, [opId])
-
-    return (
-        <MainScreen>
-            {
-                !smallScreen
-                    ? (
-                            <Group orientation={'horizontal'} style={{ height: '100%' }}>
-                                <Panel id={'list'}>
-                                    <Box height={'100%'} overflow={'auto'}>
-                                        <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
-                                            <OpsList />
-                                            { opId === '' && <AddOperationFab /> }
-                                        </Box>
-                                    </Box>
-                                </Panel>
-                                {
-                                    showIfLazy(opId !== '', () => (
-                                        <>
-                                            <ResizeHandle />
-                                            <Panel id={'single'}>
-                                                <Box p={1} overflow={'auto'} height={'100%'}>
-                                                    <OperationScreenBody urlOpId={opId} />
-                                                </Box>
-                                            </Panel>
-                                        </>
-                                    ))
-                                }
-                            </Group>
-                        )
-                    : (
-                            <Box position={'relative'} height={'100%'}>
-                                <Box p={1} height={'100%'} overflow={'auto'}>
-                                    <OpsList />
-                                    { opId === '' && <AddOperationFab /> }
-                                </Box>
-                                {
-                                    showIfLazy(opId !== '', () => {
-                                        return (
-                                            <Box
-                                                p={1}
-                                                position={'absolute'}
-                                                top={0}
-                                                left={0}
-                                                width={'100%'}
-                                                height={'100%'}
-                                                bgcolor={theme.palette.background.default}
-                                            >
-                                                <OperationScreenBody urlOpId={opId} />
-                                            </Box>
-                                        )
-                                    })
-                                }
-                            </Box>
-                        )
-            }
-        </MainScreen>
-    )
-}
+import { utcToday } from '../../../engine/dates.js'
+import { Engine } from '../../../engine/engine.js'
+import { BaseTransaction, NotDeletedOperation, Operation } from '../../../engine/model.js'
+import { sortCurrencies } from '../../../engine/sortCurrencies.js'
+import { deepEqual } from '../../helpers/deepEqual.js'
+import { nonNull, run, runAsync } from '../../helpers/smallTools.js'
+import { screenWidthIs } from '../../helpers/useWidth.js'
+import { useFrontState } from '../../model/FrontState.js'
+import { useAbsoluteNavigate } from '../../useAbsoluteNavigate.js'
+import { useEngine } from '../../useEngine.js'
+import { ActionButton, ActionFab } from '../../widgets/generic/ActionButton.js'
+import { AccountEditor } from '../../widgets/operations/editors/AccountEditor.js'
+import { AmountEditor } from '../../widgets/operations/editors/AmountEditor.js'
+import { CategoriesEditor } from '../../widgets/operations/editors/CategoriesEditor.js'
+import { CommentEditor } from '../../widgets/operations/editors/CommentEditor.js'
+import { DateEditor } from '../../widgets/operations/editors/DateEditor.js'
+import { TagsEditor } from '../../widgets/operations/editors/TagsEditor.js'
+import { OperationBasicInfo } from './OperationBasicInfo.js'
+import { OperationViewEditorSkeleton } from './OperationViewEditorSkeleton.js'
 
 interface BodyProps {
     urlOpId: string
     setModalTitle?: (title: string) => void
 }
 
-export const OperationScreenBody = observer(function OperationScreenBody({ urlOpId, setModalTitle }: BodyProps): ReactElement {
+export const OperationViewEditor = observer(function OperationScreenBody({ urlOpId, setModalTitle }: BodyProps): ReactElement {
     const appState = useFrontState()
 
     const engine = useEngine()
@@ -378,7 +286,7 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
         if (opType === 'deleted') {
             return <Typography variant={'h5'} mt={10} textAlign={'center'}>{'This operation was deleted'}</Typography>
         }
-        return <SkeletonBody />
+        return <OperationViewEditorSkeleton />
     }
 
     const propagateAndSave = (
@@ -407,7 +315,7 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
     return (
         <Box>
             <Box pt={1} pb={2}>
-                <BasicInfo
+                <OperationBasicInfo
                     opType={opType}
                     opDate={opDate}
                     opAmount={opAmount}
@@ -538,36 +446,6 @@ export const OperationScreenBody = observer(function OperationScreenBody({ urlOp
     )
 })
 
-function SkeletonBody(): ReactElement {
-    const theme = useTheme()
-
-    return (
-        <Box px={1} color={theme.palette.getContrastText(theme.palette.background.default)}>
-            <Box py={2}>
-                <PBody2>
-                    <Skeleton width={90} sx={{ margin: '0 auto' }} />
-                </PBody2>
-                <Typography variant={'h4'}>
-                    <Skeleton width={180} sx={{ margin: '0 auto' }} />
-                </Typography>
-                <PBody2 mt={1}>
-                    <Skeleton width={190} />
-                    <Skeleton width={170} />
-                    <Skeleton width={230} sx={{ mt: 1 }} />
-                    <Skeleton width={270} />
-                </PBody2>
-            </Box>
-            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-            <Skeleton variant={'rounded'} sx={{ height: 48, mb: '1px' }} />
-            <Skeleton variant={'rounded'} sx={{ height: 36, mt: 2 }} />
-        </Box>
-    )
-}
-
 function propagateAmount(
     engine: Engine,
     opType: string,
@@ -613,112 +491,3 @@ function propagateAmount(
 
     return [opCategories, opAccount, opToAccount]
 }
-
-interface BasicInfoProps {
-    opType: NotDeletedOperation['type']
-    opDate: DateTime
-    opAmount: number
-    opCurrency: string
-    opCategories: readonly BaseTransaction[] | null
-    opAccount: NotDeletedOperation['account'] | null
-    opToAccount: NotDeletedOperation['account'] | null
-    opTags: readonly string[]
-    opComment: string | null
-}
-
-const BasicInfo = observer(({ opType, opDate, opAmount, opCurrency, opCategories, opAccount, opToAccount, opTags, opComment }: BasicInfoProps): ReactElement => {
-    const engine = useEngine()
-
-    const theme = useTheme()
-
-    const accountCurrency = opAccount !== null ? engine.getAccount(opAccount.id).currency : null
-    const toAccountCurrency = opToAccount !== null ? engine.getAccount(opToAccount.id).currency : null
-
-    const amountColor = {
-        expense: theme.palette.error,
-        income: theme.palette.success,
-        transfer: theme.palette.info,
-        adjustment: theme.palette.warning
-    }[opType].light
-
-    let categoryInfo: ReactElement | null = null
-    if (opType === 'expense' || opType === 'income') {
-        const opCats = nonNull(opCategories, 'not null opCategories expected here')
-
-        if (opCats.length === 0) {
-            categoryInfo = <Typography variant={'body2'}>{'Cat.: -'}</Typography>
-        } else {
-            categoryInfo = (
-                <>
-                    {
-                        opCats
-                            .map(c => (
-                                <Typography key={c.id} variant={'body2'}>
-                                    {`Cat.: ${engine.getCategory(c.id).name} (${formatCurrency(c.amount, opCurrency)})`}
-                                </Typography>
-                            ))
-                    }
-                </>
-            )
-        }
-    }
-
-    return (
-        <>
-            <Typography variant={'body2'} textAlign={'center'}>
-                {opDate.toLocaleString({ dateStyle: 'full' })}
-            </Typography>
-            <Typography variant={'h4'} textAlign={'center'} color={amountColor}>
-                {Math.abs(opAmount).toLocaleString(undefined, {
-                    style: 'currency',
-                    currency: opCurrency,
-                    currencyDisplay: 'narrowSymbol'
-                })}
-            </Typography>
-            <Typography variant={'body2'} mt={1}>
-                {opType === 'transfer' ? 'From acc.: ' : 'Acc.: '}
-                {
-                    opAccount === null
-                        ? '-'
-                        : (
-                                <>
-                                    {engine.getAccount(opAccount.id).name}
-                                    {
-                                        accountCurrency === undefined || accountCurrency === null
-                                            ? null
-                                            : ` (${formatCurrency(opAccount.amount, accountCurrency)})`
-                                    }
-                                </>
-                            )
-                }
-            </Typography>
-            {
-                opType === 'transfer'
-                && (
-                    <Typography variant={'body2'}>
-                        {'To acc.: '}
-                        {
-                            opToAccount === null
-                                ? '-'
-                                : (
-                                        <>
-                                            {engine.getAccount(opToAccount.id).name}
-                                            {
-                                                opToAccount === null || toAccountCurrency === undefined || toAccountCurrency === null
-                                                    ? null
-                                                    : ` (${formatCurrency(opToAccount.amount, toAccountCurrency)})`
-                                            }
-                                        </>
-                                    )
-                        }
-                    </Typography>
-                )
-            }
-            {categoryInfo}
-            <Typography variant={'body2'} mt={1} color={'primary.light'} noWrap>
-                {opTags.join(', ')}
-            </Typography>
-            <Typography variant={'body2'} fontStyle={'italic'}>{opComment}</Typography>
-        </>
-    )
-})

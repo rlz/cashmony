@@ -19,7 +19,7 @@ import { ExpensesStatsWidget } from '../../widgets/expenses/ExpensesStatsWidget.
 import { FullScreenModal } from '../../widgets/FullScreenModal.js'
 import { Column } from '../../widgets/generic/Containers.js'
 import { OpsList } from '../../widgets/operations/OpsList.js'
-import { OperationScreenBody } from '../OperationScreen.js'
+import { OperationViewEditor } from '../operation/OperationViewEditor.js'
 import { CategoryEditor } from './CategoryEditor.js'
 
 export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.Element {
@@ -158,7 +158,7 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
                             onClose={() => { void navigate(`/categories/${catId}/operations`) }}
                         >
                             <Box p={1}>
-                                <OperationScreenBody
+                                <OperationViewEditor
                                     urlOpId={opId ?? ''}
                                     setModalTitle={setOpModalTitle}
                                 />
