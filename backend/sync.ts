@@ -25,9 +25,8 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/operations',
             {
                 schema: {
-                    querystring: getObjectsQueryStringSchema.toJSONSchema({ target: 'draft-07' })
-                    // TODO: restore validation
-                    // response: { 200: API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0).toJSONSchema({ target: 'draft-07' }) }
+                    querystring: getObjectsQueryStringSchema.toJSONSchema({ target: 'draft-07' }),
+                    response: { 200: API_ITEMS_RESPONSE_SCHEMA_V0(API_COMPARISON_OBJECT_SCHEMA_V0).toJSONSchema({ target: 'draft-07' }) }
                 }
             },
             async (req, _resp) => {
@@ -42,9 +41,19 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/operations/by-ids',
             {
                 schema: {
-                    body: API_GET_OBJECTS_REQUEST_SCHEMA_V0.toJSONSchema({ target: 'draft-07' })
-                    // TODO: restore validation
-                    // response: { 200: API_ITEMS_RESPONSE_SCHEMA_V0(apiOperationSchemaV0).toJSONSchema({ target: 'draft-07' }) }
+                    body: API_GET_OBJECTS_REQUEST_SCHEMA_V0.toJSONSchema({ target: 'draft-07' }),
+                    response: {
+                        200: API_ITEMS_RESPONSE_SCHEMA_V0(apiOperationSchemaV0)
+                            .toJSONSchema({
+                                target: 'openapi-3.0',
+                                // TODO: remove when https://github.com/colinhacks/zod/issues/5491 get resolved
+                                override(ctx) {
+                                    if (ctx.path.at(-2) === 'allOf' && ctx.jsonSchema.type === 'object') {
+                                        delete ctx.jsonSchema.additionalProperties
+                                    }
+                                }
+                            })
+                    }
                 }
             },
             async (req, _resp): Promise<ApiItemsResponseV0<typeof apiOperationSchemaV0>> => {
@@ -58,8 +67,16 @@ export const syncPlugin = fastifyPlugin(
             '/api/v0/operations/push',
             {
                 schema: {
-                    // TODO: restore validation
-                    // body: API_ITEMS_REQUEST_SCHEMA_V0(apiOperationSchemaV0).toJSONSchema({ target: 'draft-07' })
+                    body: API_ITEMS_REQUEST_SCHEMA_V0(apiOperationSchemaV0)
+                        .toJSONSchema({
+                            target: 'draft-07',
+                            // TODO: remove when https://github.com/colinhacks/zod/issues/5491 get resolved
+                            override(ctx) {
+                                if (ctx.path.at(-2) === 'allOf' && ctx.jsonSchema.type === 'object') {
+                                    delete ctx.jsonSchema.additionalProperties
+                                }
+                            }
+                        })
                 },
                 bodyLimit: 30 * 1024 * 1024
             },
