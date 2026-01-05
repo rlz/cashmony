@@ -1,6 +1,6 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Box, Fab, Skeleton, Stack, Typography } from '@mui/material'
+import { Box, Fab, Stack, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import { ReactElement, useEffect, useState } from 'react'
 
@@ -185,12 +185,6 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
 function AccountsScreenSkeleton(): ReactElement {
     return (
         <Column width={'100%'} p={1}>
-            <Typography component={'div'} variant={'h6'} textAlign={'center'} my={1}>
-                <Skeleton sx={{ maxWidth: 85, mx: 'auto' }} />
-                <Typography variant={'body1'} color={'primary.main'}>
-                    <Skeleton sx={{ maxWidth: 65, mx: 'auto' }} />
-                </Typography>
-            </Typography>
             <Box
                 display={'flex'}
                 flexDirection={'column'}
