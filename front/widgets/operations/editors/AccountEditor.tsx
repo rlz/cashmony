@@ -19,8 +19,8 @@ interface Props {
     expanded: boolean
     onExpandedChange: (expanded: boolean) => void
     account: NotDeletedOperation['account'] | null
-    onAccountChange: (account: NotDeletedOperation['account']) => void
-    hideAccount?: string
+    onAccountChange: (account: NotDeletedOperation['account'] | null) => void
+    alreadySelected?: string
 }
 
 export const AccountEditor = observer((props: Props): ReactElement => {
@@ -41,37 +41,44 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                 <AccountsSelect
                     selected={match(props.account).with(null, () => []).otherwise(v => [v.id])}
                     onSelectedChange={(selected) => {
-                        props.onAccountChange({
-                            id: selected[0],
-                            amount: props.account?.amount ?? 0
-                        })
+                        if (selected.length > 0) {
+                            props.onAccountChange({
+                                id: selected[0],
+                                amount: props.account?.amount ?? 0
+                            })
+                        } else {
+                            props.onAccountChange(null)
+                        }
                     }}
+                    alreadySelected={props.alreadySelected}
                     selectMany={false}
-                    selectZero={false}
+                    selectZero={props.alreadySelected !== undefined}
                     showHidden={false}
                 />
-                {props.account === null || account === null || account === undefined || props.opCurrency === account.currency
-                    ? null
-                    : (
-                            <Box mt={1}>
-                                <CurrencyInput
-                                    mult={props.negative ? -1 : 1}
-                                    label={`Amount — ${formatExchangeRate(Math.abs(props.opAmount), Math.abs(props.account.amount))}`}
-                                    amount={props.account.amount}
-                                    currency={account.currency}
-                                    onAmountChange={(accountAmount) => {
-                                        if (props.account === null) {
-                                            throw Error('Not null props.account expected here')
-                                        }
+                {
+                    props.account === null || account === null || account === undefined || props.opCurrency === account.currency
+                        ? null
+                        : (
+                                <Box mt={1}>
+                                    <CurrencyInput
+                                        mult={props.negative ? -1 : 1}
+                                        label={`Amount — ${formatExchangeRate(Math.abs(props.opAmount), Math.abs(props.account.amount))}`}
+                                        amount={props.account.amount}
+                                        currency={account.currency}
+                                        onAmountChange={(accountAmount) => {
+                                            if (props.account === null) {
+                                                throw Error('Not null props.account expected here')
+                                            }
 
-                                        props.onAccountChange({
-                                            id: props.account.id,
-                                            amount: accountAmount
-                                        })
-                                    }}
-                                />
-                            </Box>
-                        )}
+                                            props.onAccountChange({
+                                                id: props.account.id,
+                                                amount: accountAmount
+                                            })
+                                        }}
+                                    />
+                                </Box>
+                            )
+                }
             </AccordionDetails>
         </Accordion>
     )

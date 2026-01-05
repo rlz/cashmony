@@ -185,7 +185,7 @@ export const OperationViewEditor = observer(function OperationScreenBody({ urlOp
                 || opAmount === 0
                 || opAccount === null
                 || opAccount.amount === 0
-                || (opType === 'transfer' && (opToAccount === null || opToAccount.amount === 0))
+                || (opType === 'transfer' && (opToAccount === null || opToAccount.id === opAccount.id || opToAccount.amount === 0))
                 || (!isChanged())
             ) {
                 return null
@@ -355,7 +355,7 @@ export const OperationViewEditor = observer(function OperationScreenBody({ urlOp
                 onExpandedChange={(expanded) => { setExpanded(expanded ? 'account' : null) }}
                 account={opAccount}
                 onAccountChange={(account) => { propagateAndSave(opAmount, opCurrency, opCategories, account, opToAccount) }}
-                hideAccount={opType === 'transfer' ? opToAccount?.id : undefined}
+                alreadySelected={opType === 'transfer' ? opToAccount?.id : undefined}
             />
             {
                 opType === 'transfer'
@@ -372,7 +372,7 @@ export const OperationViewEditor = observer(function OperationScreenBody({ urlOp
                                     onAccountChange={(toAccount) => {
                                         propagateAndSave(opAmount, opCurrency, opCategories, opAccount, toAccount)
                                     }}
-                                    hideAccount={opAccount?.id}
+                                    alreadySelected={opAccount?.id}
                                 />
                             </>
                         )

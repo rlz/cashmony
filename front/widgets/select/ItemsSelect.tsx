@@ -1,9 +1,9 @@
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Box, Chip, FilledInput, FormControl, IconButton, InputAdornment, InputLabel, type SxProps } from '@mui/material'
+import { Box, Chip, FilledInput, FormControl, IconButton, InputAdornment, InputLabel, type SxProps, useTheme } from '@mui/material'
 import useEmblaCarousel from 'embla-carousel-react'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
-import React, { type ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, type ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 import { match, P } from 'ts-pattern'
 
@@ -19,14 +19,16 @@ interface Props {
     onSelectedChange: (selected: string[]) => void
     selectMany: boolean
     selectZero: boolean
+    disabled?: readonly string[]
     sx?: SxProps
 }
 
-const aStyle = { fontSize: '0' }
+const aStyle: CSSProperties = { fontSize: '0' }
 
 export function ItemsSelect(props: Props): ReactElement {
     const { height, ref } = useResizeDetector()
     const [carouselRef, carouselApi] = useEmblaCarousel({}, [WheelGesturesPlugin()])
+    const theme = useTheme()
 
     const selected = new Set(props.selected)
     const pageHeight = (24 + 8) * 4
@@ -69,6 +71,24 @@ export function ItemsSelect(props: Props): ReactElement {
 
         return items.map((i) => {
             const fontStyle = match(i).with(P.string, _v => undefined).otherwise(v => v.fontStyle)
+            if (props.disabled?.includes(i.value)) {
+                if (selected.has(i.value)) {
+                    const chip = <Chip key={i.value} color={'error'} size={'small'} label={i.label} sx={{ fontStyle }} />
+                    return (
+                        <a
+                            key={i.value}
+                            style={aStyle}
+                            onClick={() => {
+                                onSelectedChangeContainer.v(props.selected.filter(s => s !== i.value))
+                            }}
+                        >
+                            {chip}
+                        </a>
+                    )
+                }
+
+                return <Chip key={i.value} size={'small'} label={i.label} sx={{ fontStyle, color: theme.palette.text.disabled }} />
+            }
             if (selected.has(i.value)) {
                 const chip = <Chip key={i.value} color={'primary'} size={'small'} label={i.label} sx={{ fontStyle }} />
 

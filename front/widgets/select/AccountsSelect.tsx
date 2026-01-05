@@ -11,6 +11,7 @@ interface Props {
     selectMany: boolean
     selectZero: boolean
     showHidden: boolean
+    alreadySelected?: string
     sx?: SxProps
 }
 
@@ -35,6 +36,7 @@ export const AccountsSelect = observer((props: Props) => {
             onSelectedChange={props.onSelectedChange}
             selectMany={props.selectMany}
             selectZero={props.selectZero}
+            disabled={props.alreadySelected !== undefined ? [props.alreadySelected] : undefined}
             sx={props.sx}
         />
     )
