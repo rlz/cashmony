@@ -57,7 +57,7 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
                     <Grid container spacing={1} my={1}>
                         <Grid size={12}>
                             <Paper variant={'outlined'}>
-                                <Stack direction={'row'} p={1} spacing={1}>
+                                <Stack direction={'row'} p={1} gap={1} flexWrap={'wrap'}>
                                     <Box>
                                         {'Income: '}
                                         {formatCurrency(reducers.income.stats.total, appState.masterCurrency)}
@@ -65,6 +65,13 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
                                     <Box>
                                         {'Expense: '}
                                         {formatCurrency(-reducers.expense.stats.total, appState.masterCurrency)}
+                                    </Box>
+                                    <Box>
+                                        {'Diff: '}
+                                        {formatCurrency(
+                                            reducers.income.stats.total + reducers.expense.stats.total,
+                                            appState.masterCurrency
+                                        )}
                                     </Box>
                                 </Stack>
                             </Paper>

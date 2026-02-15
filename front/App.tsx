@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
+// import { initFrontConfig } from 'rlz-engine/client/config.js'
 import { SignupSigninScreen } from 'rlz-engine/client/screens/SignupSigninScreen.js'
 
 import { AccountScreen } from './screens/account/AccountScreen.js'
@@ -15,6 +16,10 @@ import { useEngine } from './useEngine.js'
 declare global {
     interface Window { routerNavigate: (to: string) => Promise<void> }
 }
+
+// initFrontConfig({
+//     apiDomain: 'https://app.cashmony.ru/'
+// })
 
 const router = createBrowserRouter([
     {
