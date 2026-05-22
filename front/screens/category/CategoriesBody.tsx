@@ -51,7 +51,7 @@ export const CategoriesScreenBody = observer(function CategoriesScreenBody({ noF
                                 </Fab>
                             )
                 }
-                <Box textAlign={'center'} mt={3}>
+                <Box sx={{ textAlign: 'center', mt: 3 }}>
                     {'You need to add category'}
                 </Box>
             </>
@@ -82,10 +82,10 @@ export const CategoriesScreenBody = observer(function CategoriesScreenBody({ noF
                             </Fab>
                         )
             }
-            <Box p={1} height={'100%'} overflow={'auto'}>
-                <Box maxWidth={900} mx={'auto'}>
+            <Box sx={{ p: 1, height: '100%', overflow: 'auto' }}>
+                <Box sx={{ maxWidth: 900, mx: 'auto' }}>
                     <ExpensesList categories={cats} />
-                    <Box minHeight={144} />
+                    <Box sx={{ minHeight: 144 }} />
                 </Box>
             </Box>
         </>

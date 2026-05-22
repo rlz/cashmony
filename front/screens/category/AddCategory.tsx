@@ -1,4 +1,4 @@
-import { Button, TextField } from '@mui/material'
+import { Button, Stack, TextField } from '@mui/material'
 import { DateTime } from 'luxon'
 import React, { type ReactElement, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -7,8 +7,6 @@ import { uuidv7 } from 'uuidv7'
 import { screenWidthIs } from '../../helpers/useWidth.js'
 import { useEngine } from '../../useEngine.js'
 import { FullScreenModal } from '../../widgets/FullScreenModal.js'
-import { Column } from '../../widgets/generic/Containers.js'
-
 export function AddCategory({ onClose }: { onClose: () => void }): ReactElement {
     const engine = useEngine()
     const navigate = useNavigate()
@@ -34,7 +32,7 @@ export function AddCategory({ onClose }: { onClose: () => void }): ReactElement 
 
     return (
         <FullScreenModal title={'Add category'} onClose={onClose}>
-            <Column gap={1} p={1} minWidth={smallScreen ? undefined : '800px'}>
+            <Stack direction={'column'} sx={{ gap: 1, p: 1, minWidth: smallScreen ? undefined : '800px' }}>
                 <TextField
                     label={'Name'}
                     variant={'filled'}
@@ -59,7 +57,7 @@ export function AddCategory({ onClose }: { onClose: () => void }): ReactElement 
                 >
                     {'Create'}
                 </Button>
-            </Column>
+            </Stack>
         </FullScreenModal>
     )
 }

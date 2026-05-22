@@ -1,9 +1,8 @@
-import { styled, useTheme } from '@mui/material'
+import { styled, Typography, useTheme } from '@mui/material'
 import { JSX } from 'react'
 import { match, P } from 'ts-pattern'
 
 import { formatCurrency } from '../../helpers/currencies.js'
-import { Italic } from '../generic/Typography.js'
 
 interface Props {
     currency: string
@@ -47,7 +46,7 @@ export function ExpensesInfoTable({ currency, periodPace, perDayGoal, leftPerDay
                             match(leftPerDay)
                                 .with(null, () => '-')
                                 .with(P.number.gt(0), v => formatCurrency(v, currency))
-                                .otherwise(() => <Italic color={'warning.main'}>{'overspend'}</Italic>)
+                                .otherwise(() => <Typography color={'warning.main'} sx={{ fontStyle: 'italic' }}>{'overspend'}</Typography>)
                         }
                     </td>
                 </tr>

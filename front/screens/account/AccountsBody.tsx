@@ -13,7 +13,6 @@ import { runAsync } from '../../helpers/smallTools.js'
 import { useFrontState } from '../../model/FrontState.js'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader.js'
 import { useEngine } from '../../useEngine.js'
-import { Column } from '../../widgets/generic/Containers.js'
 import { AddAccount } from './AccountAdd.js'
 import { AccountCard, AccountCardSkeleton } from './AccountCard.js'
 
@@ -84,13 +83,13 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                                 </Fab>
                             )
                 }
-                <Column textAlign={'center'} mt={3}>
+                <Stack direction={'column'} sx={{ textAlign: 'center', mt: 3 }}>
                     {'Before start tracking your finances you need to create an account'}
                     <br />
                     {'Account is your bank account or cash'}
                     <br />
                     {'You can create as many accounts as you need'}
-                </Column>
+                </Stack>
             </>
         )
     }
@@ -134,8 +133,8 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                             </Fab>
                         )
             }
-            <Box p={1} height={'100%'} overflow={'auto'}>
-                <Box maxWidth={900} mx={'auto'}>
+            <Box sx={{ p: 1, height: '100%', overflow: 'auto' }}>
+                <Box sx={{ maxWidth: 900, mx: 'auto' }}>
                     <Stack spacing={1}>
                         <AccountCard
                             id={'_total'}
@@ -164,7 +163,7 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                                                 />
                                             ))
                                         : (
-                                                <Typography color={'primary.main'} textAlign={'center'}>
+                                                <Typography sx={{ color: 'primary.main', textAlign: 'center' }}>
                                                     <a onClick={() => { setShowHidden(true) }}>
                                                         {'Show '}
                                                         {hiddenAccounts.length}
@@ -175,7 +174,7 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
                                 : null
                         }
                     </Stack>
-                    <Box minHeight={144} />
+                    <Box sx={{ minHeight: 144 }} />
                 </Box>
             </Box>
         </>
@@ -184,15 +183,10 @@ export const AccountsBody = observer(({ noFab }: Props): ReactElement => {
 
 function AccountsScreenSkeleton(): ReactElement {
     return (
-        <Column width={'100%'} p={1}>
-            <Box
-                display={'flex'}
-                flexDirection={'column'}
-                gap={1}
-                width={'100%'}
-            >
+        <Stack direction={'column'} sx={{ width: '100%', p: 1 }}>
+            <Stack direction={'column'} sx={{ gap: 1, width: '100%' }}>
                 {[1, 1, 1].map((_, i) => <AccountCardSkeleton key={i} />)}
-            </Box>
-        </Column>
+            </Stack>
+        </Stack>
     )
 }

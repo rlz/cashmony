@@ -80,8 +80,8 @@ export function TotalAndChangePlot({ title, expense, stats, currency }: Props): 
     })
     return (
         <Paper variant={'outlined'}>
-            <Box p={1}>
-                <Typography variant={'h6'} textAlign={'center'}>{title}</Typography>
+            <Box sx={{ p: 1 }}>
+                <Typography variant={'h6'} sx={{ textAlign: 'center' }}>{title}</Typography>
                 <PlotWidget plot={totalPlot} />
                 <PlotWidget plot={changePlot} />
             </Box>

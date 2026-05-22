@@ -1,4 +1,4 @@
-import { Button, IconButton, TextField } from '@mui/material'
+import { Button, IconButton, Stack, TextField } from '@mui/material'
 import { DateTime } from 'luxon'
 import React, { type ReactElement, useState } from 'react'
 import { uuidv7 } from 'uuidv7'
@@ -11,7 +11,6 @@ import { useEngine } from '../../useEngine.js'
 import { CurrencyInput } from '../../widgets/CurrencyInput.js'
 import { CurrencySelector } from '../../widgets/CurrencySelector.js'
 import { FullScreenModal } from '../../widgets/FullScreenModal.js'
-import { Column, Row } from '../../widgets/generic/Containers.js'
 
 export function AddAccount({ onClose }: { onClose: () => void }): ReactElement {
     const engine = useEngine()
@@ -57,8 +56,8 @@ export function AddAccount({ onClose }: { onClose: () => void }): ReactElement {
 
     return (
         <FullScreenModal title={'Add account'} onClose={onClose}>
-            <Column gap={1} p={1} minWidth={smallScreen ? undefined : '800px'}>
-                <Row gap={1} alignItems={'flex-start'}>
+            <Stack direction={'column'} sx={{ gap: 1, p: 1, minWidth: smallScreen ? undefined : '800px' }}>
+                <Stack direction={'row'} sx={{ gap: 1, alignItems: 'flex-start' }}>
                     <IconButton
                         color={'primary'}
                         sx={{ width: 48 }}
@@ -82,7 +81,7 @@ export function AddAccount({ onClose }: { onClose: () => void }): ReactElement {
                         }}
                         sx={{ flex: '1 0 0' }}
                     />
-                </Row>
+                </Stack>
                 <CurrencyInput
                     allowZero
                     label={'Initial amount'}
@@ -110,7 +109,7 @@ export function AddAccount({ onClose }: { onClose: () => void }): ReactElement {
                             />
                         )
                     : undefined}
-            </Column>
+            </Stack>
         </FullScreenModal>
     )
 }

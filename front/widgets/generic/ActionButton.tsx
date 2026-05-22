@@ -59,7 +59,7 @@ export function ActionButton({ confirmationTitle, confirmation, action, children
                     dialogOpen,
                     <Dialog
                         open={true}
-                        TransitionComponent={Transition}
+                        slots={{ transition: Transition }}
                         onClose={() => { setDialogOpen(false) }}
                     >
                         <DialogTitle>{confirmationTitle ?? 'Confirmation'}</DialogTitle>

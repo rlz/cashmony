@@ -149,8 +149,8 @@ export const ExpensesBarsPlot = observer(({ stats, perDay, leftPerDay, perDayGoa
         ? <PlotContainer ref={ref} sx={sxHeight50} />
         : (
                 <Paper variant={'outlined'}>
-                    <Box p={1}>
-                        <Typography variant={'h6'} textAlign={'center'}>{'Stats'}</Typography>
+                    <Box sx={{ p: 1 }}>
+                        <Typography component={'div'} variant={'h6'} sx={{ textAlign: 'center' }}>{'Stats'}</Typography>
                         <PlotContainer ref={ref} sx={sxHeight250} />
                     </Box>
                 </Paper>
@@ -287,8 +287,8 @@ export const ExpensesTotalPlot = observer(({ stats, perDayGoal }: TotalCatPlotPr
 
     return (
         <Paper variant={'outlined'}>
-            <Box p={1}>
-                <Typography variant={'h6'} textAlign={'center'}>{'Total'}</Typography>
+            <Box sx={{ p: 1 }}>
+                <Typography component={'div'} variant={'h6'} sx={{ textAlign: 'center' }}>{'Total'}</Typography>
                 <PlotContainer ref={ref} sx={sxHeight250} />
             </Box>
         </Paper>

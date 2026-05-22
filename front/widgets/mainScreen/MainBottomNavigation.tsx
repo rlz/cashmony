@@ -28,16 +28,18 @@ function NavItem(props: NavItemProps): JSX.Element {
             )
 
     const el = (
-        <Stack color={color} alignItems={'center'} py={1} spacing={0.4}>
+        <Stack sx={{ color: color, alignItems: 'center', py: 1, spacing: 0.4 }}>
             {props.icon}
             <Typography
-                width={'100%'}
-                textAlign={'center'}
                 variant={'body2'}
-                overflow={'hidden'}
-                whiteSpace={'nowrap'}
-                textOverflow={'ellipsis'}
-                fontSize={'0.7rem'}
+                sx={{
+                    width: '100%',
+                    textAlign: 'center',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
+                    fontSize: '0.7rem'
+                }}
             >
                 {props.label}
             </Typography>
@@ -45,7 +47,7 @@ function NavItem(props: NavItemProps): JSX.Element {
     )
 
     return (
-        <Box flex={'1 1 0'} minWidth={0}>
+        <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
             {
                 props.disabled ?? false
                     ? el
@@ -61,6 +63,7 @@ function NavItem(props: NavItemProps): JSX.Element {
 
 const BOTTOMNAV_SX: SxProps<Theme> = theme => ({
     boxShadow: theme.shadows[3],
+    justifyContent: 'center',
     zIndex: 100
 })
 
@@ -80,8 +83,8 @@ export const MainBottomNavigation = observer(function MainBottomNavigation(): Re
         .otherwise(() => null)
 
     return (
-        <Stack direction={'row'} justifyContent={'center'} sx={BOTTOMNAV_SX}>
-            <Stack direction={'row'} width={'100%'} maxWidth={'500px'} overflow={'hidden'}>
+        <Stack direction={'row'} sx={BOTTOMNAV_SX}>
+            <Stack direction={'row'} sx={{ width: '100%', maxWidth: '500px', overflow: 'hidden' }}>
                 {
                     engine.accounts.length === 0 || engine.categories.length === 0
                         ? undefined

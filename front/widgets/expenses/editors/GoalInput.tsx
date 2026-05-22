@@ -1,12 +1,10 @@
-import { IconButton, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { IconButton, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import React, { type ReactElement, useState } from 'react'
 
 import { getCurrencySymbol } from '../../../helpers/currencies.js'
 import { showIf } from '../../../helpers/smallTools.js'
 import { CurrencyInput } from '../../CurrencyInput.js'
 import { CurrencySelector } from '../../CurrencySelector.js'
-import { Column, Row } from '../../generic/Containers.js'
-import { DivBody1 } from '../../generic/Typography.js'
 
 interface Props {
     currency: string
@@ -35,9 +33,9 @@ export function GoalInput(props: Props): ReactElement {
 
     return (
         <>
-            <Column gap={1}>
-                <Row alignItems={'center'} gap={1}>
-                    <DivBody1 flex={'1 1 0'}>{'Set goal'}</DivBody1>
+            <Stack direction={'column'} sx={{ gap: 1 }}>
+                <Stack direction={'row'} sx={{ alignItems: 'center', gap: 1 }}>
+                    <Typography component={'div'} variant={'body1'} sx={{ flex: '1 1 0' }}>{'Set goal'}</Typography>
                     <ToggleButtonGroup
                         size={'small'}
                         exclusive
@@ -54,8 +52,8 @@ export function GoalInput(props: Props): ReactElement {
                         <ToggleButton value={'month'}>{'Month'}</ToggleButton>
                         <ToggleButton value={'year'}>{'Year'}</ToggleButton>
                     </ToggleButtonGroup>
-                </Row>
-                <Row gap={1}>
+                </Stack>
+                <Stack direction={'row'} sx={{ gap: 1 }}>
                     <IconButton
                         color={'primary'}
                         sx={{ width: 48 }}
@@ -70,8 +68,8 @@ export function GoalInput(props: Props): ReactElement {
                         currency={props.currency}
                         onAmountChange={(a) => { props.onPerDayAmountChange(a) }}
                     />
-                </Row>
-            </Column>
+                </Stack>
+            </Stack>
             {
                 showIf(currencySelector,
                     <CurrencySelector

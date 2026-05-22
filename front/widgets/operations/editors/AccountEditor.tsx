@@ -59,7 +59,7 @@ export const AccountEditor = observer((props: Props): ReactElement => {
                     props.account === null || account === null || account === undefined || props.opCurrency === account.currency
                         ? null
                         : (
-                                <Box mt={1}>
+                                <Box sx={{ mt: 1 }}>
                                     <CurrencyInput
                                         mult={props.negative ? -1 : 1}
                                         label={`Amount — ${formatExchangeRate(Math.abs(props.opAmount), Math.abs(props.account.amount))}`}

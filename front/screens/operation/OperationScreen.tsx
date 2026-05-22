@@ -48,8 +48,8 @@ export function OperationScreen(): ReactElement {
                     ? (
                             <Group orientation={'horizontal'} style={{ height: '100%' }}>
                                 <Panel id={'list'}>
-                                    <Box height={'100%'} overflow={'auto'}>
-                                        <Box p={1} height={'100%'} maxWidth={900} mx={'auto'}>
+                                    <Box sx={{ height: '100%', overflow: 'auto' }}>
+                                        <Box sx={{ p: 1, height: '100%', maxWidth: 900, mx: 'auto' }}>
                                             <OpsList />
                                             { opId === '' && <AddOperationFab /> }
                                         </Box>
@@ -60,7 +60,7 @@ export function OperationScreen(): ReactElement {
                                         <>
                                             <ResizeHandle />
                                             <Panel id={'single'}>
-                                                <Box p={1} overflow={'auto'} height={'100%'}>
+                                                <Box sx={{ p: 1, overflow: 'auto', height: '100%' }}>
                                                     <OperationViewEditor urlOpId={opId} />
                                                 </Box>
                                             </Panel>
@@ -70,8 +70,8 @@ export function OperationScreen(): ReactElement {
                             </Group>
                         )
                     : (
-                            <Box position={'relative'} height={'100%'}>
-                                <Box p={1} height={'100%'} overflow={'auto'}>
+                            <Box sx={{ position: 'relative', height: '100%' }}>
+                                <Box sx={{ p: 1, height: '100%', overflow: 'auto' }}>
                                     <OpsList />
                                     { opId === '' && <AddOperationFab /> }
                                 </Box>
@@ -79,13 +79,15 @@ export function OperationScreen(): ReactElement {
                                     showIfLazy(opId !== '', () => {
                                         return (
                                             <Box
-                                                p={1}
-                                                position={'absolute'}
-                                                top={0}
-                                                left={0}
-                                                width={'100%'}
-                                                height={'100%'}
-                                                bgcolor={theme.palette.background.default}
+                                                sx={{
+                                                    p: 1,
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    bgcolor: theme.palette.background.default
+                                                }}
                                             >
                                                 <OperationViewEditor urlOpId={opId} />
                                             </Box>

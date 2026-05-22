@@ -86,7 +86,7 @@ export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
     )
 
     return (
-        <Box mt={1}>
+        <Box sx={{ mt: 1 }}>
             <TextField
                 error={trimmedName === '' || nameConflict}
                 helperText={match(null)
@@ -114,7 +114,7 @@ export function AccountEditor({ acc, setAcc }: EditorProps): ReactElement {
                 )}
                 label={'Hidden'}
             />
-            <Box my={4}>
+            <Box sx={{ my: 4 }}>
                 <CurrencyInput
                     label={'Adjust amount'}
                     currency={newAcc.currency}

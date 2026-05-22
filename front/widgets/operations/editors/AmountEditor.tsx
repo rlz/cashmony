@@ -1,6 +1,6 @@
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Accordion, AccordionDetails, AccordionSummary, Box, IconButton, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, IconButton, Stack, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useState } from 'react'
 
@@ -35,7 +35,7 @@ export const AmountEditor = observer((props: Props): ReactElement => {
                     {
                         props.expanded
                         && (
-                            <Box display={'flex'} gap={1}>
+                            <Stack direction={'row'} sx={{ gap: 1 }}>
                                 <IconButton
                                     color={'primary'}
                                     sx={{ width: 48, height: 48 }}
@@ -51,7 +51,7 @@ export const AmountEditor = observer((props: Props): ReactElement => {
                                     currency={props.currency}
                                     onAmountChange={props.onAmountChange}
                                 />
-                            </Box>
+                            </Stack>
                         )
                     }
                 </AccordionDetails>

@@ -1,4 +1,4 @@
-import { Box, Tab, Tabs, Typography } from '@mui/material'
+import { Box, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import { JSX, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -17,7 +17,6 @@ import { useEngine } from '../../useEngine.js'
 import { ExpensesGroupScreenSkeleton } from '../../widgets/expenses/ExpensesGroupScreenSkeleton.js'
 import { ExpensesStatsWidget } from '../../widgets/expenses/ExpensesStatsWidget.js'
 import { FullScreenModal } from '../../widgets/FullScreenModal.js'
-import { Column } from '../../widgets/generic/Containers.js'
 import { OpsList } from '../../widgets/operations/OpsList.js'
 import { OperationViewEditor } from '../operation/OperationViewEditor.js'
 import { CategoryEditor } from './CategoryEditor.js'
@@ -96,19 +95,19 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
 
     return (
         <>
-            <Column height={'100%'}>
-                <Box p={1}>
-                    <Typography variant={'h6'} textAlign={'center'} mt={1}>
+            <Stack direction={'column'} sx={{ height: '100%' }}>
+                <Box sx={{ p: 1 }}>
+                    <Typography variant={'h6'} sx={{ textAlign: 'center', mt: 1 }}>
                         {
                             match(cat.name.trim())
                                 .with('', () => '-')
                                 .otherwise(v => v)
                         }
                     </Typography>
-                    <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
+                    <Typography variant={'h6'} sx={{ textAlign: 'center', color: 'primary.main', mb: 1 }}>
                         {cur(-stats.total)}
                     </Typography>
-                    <Typography variant={'body2'} textAlign={'center'}>
+                    <Typography variant={'body2'} sx={{ textAlign: 'center' }}>
                         {'Goal (30d): '}
                         {cat.perDayAmount !== undefined ? cur(30 * cat.perDayAmount) : '-'}
                     </Typography>
@@ -118,8 +117,8 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
                         <Tab value={'operations'} label={'Operations'} />
                     </Tabs>
                 </Box>
-                <Box overflow={'auto'} flex={'1 1 auto'}>
-                    <Box px={1}>
+                <Box sx={{ overflow: 'auto', flex: '1 1 auto' }}>
+                    <Box sx={{ px: 1 }}>
                         {
                             match(tabName)
                                 .with('stats', () => (
@@ -145,10 +144,10 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
                                 ))
                                 .otherwise(() => { throw Error('Unimplenented tab') })
                         }
-                        <Box minHeight={72} />
+                        <Box sx={{ minHeight: 72 }} />
                     </Box>
                 </Box>
-            </Column>
+            </Stack>
             {
                 showIfLazy(opId !== null, () => {
                     return (
@@ -157,7 +156,7 @@ export const CategoryScreenBody = observer(function CategoryScreenBody(): JSX.El
                             title={opModalTitle}
                             onClose={() => { void navigate(`/categories/${catId}/operations`) }}
                         >
-                            <Box p={1}>
+                            <Box sx={{ p: 1 }}>
                                 <OperationViewEditor
                                     urlOpId={opId ?? ''}
                                     setModalTitle={setOpModalTitle}

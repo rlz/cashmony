@@ -13,8 +13,6 @@ import { useFrontState } from '../../model/FrontState.js'
 import { useAbsoluteNavigate } from '../../useAbsoluteNavigate.js'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader.js'
 import { useEngine } from '../../useEngine.js'
-import { Column } from '../generic/Containers.js'
-import { DivBody2 } from '../generic/Typography.js'
 import { AdjustmentCard } from './cards/AdjustmentCard.js'
 import { OpCardSkeleton } from './cards/BaseOpCard.js'
 import { ExpenseCard } from './cards/ExpenseCard.js'
@@ -72,40 +70,48 @@ export const OpsList = memo(observer(function OpsList(props: Props): ReactElemen
 
     if (displayOps === null) {
         return (
-            <Box height={'100%'} overflow={'hidden'}>
-                <DivBody2 pt={2}>
+            <Box sx={{ height: '100%', overflow: 'hidden' }}>
+                <Typography component={'div'} variant={'body2'} sx={{ pt: 2 }}>
                     <Skeleton width={80} sx={{ maxWidth: '100%' }} />
-                </DivBody2>
-                <Column gap={1}>
+                </Typography>
+                <Stack direction={'column'} sx={{ gap: 1 }}>
                     <OpCardSkeleton />
                     <OpCardSkeleton />
                     <OpCardSkeleton />
-                </Column>
+                </Stack>
             </Box>
         )
     }
 
     return (
-        <Box height={'100%'}>
+        <Box sx={{ height: '100%' }}>
             {displayOps.slice(0, displayDays).map((group, i) => (
                 <Box key={group[0].date.toISODate()}>
-                    <Stack direction={'row'} spacing={1} justifyContent={'space-between'} pt={3} pb={1} px={1}>
-                        <DivBody2 fontWeight={'bold'}>
+                    <Stack
+                        direction={'row'}
+                        spacing={1}
+                        sx={{ justifyContent: 'space-between', pt: 3, pb: 1, px: 1 }}
+                    >
+                        <Typography component={'div'} variant={'body2'} sx={{ fontWeight: 'bold' }}>
                             {group[0].date.toLocaleString({ dateStyle: 'full' })}
-                        </DivBody2>
+                        </Typography>
                         {
                             perDayExpenses !== null
                             && (
-                                <DivBody2
-                                    color={`${perDayExpenses[i] < 0 ? 'error' : 'success'}.${conrastColor}`}
-                                    fontWeight={'bold'}
+                                <Typography
+                                    component={'div'}
+                                    variant={'body2'}
+                                    sx={{
+                                        color: `${perDayExpenses[i] < 0 ? 'error' : 'success'}.${conrastColor}`,
+                                        fontWeight: 'bold'
+                                    }}
                                 >
                                     {formatCurrency(Math.abs(perDayExpenses[i]), masterCurrency)}
-                                </DivBody2>
+                                </Typography>
                             )
                         }
                     </Stack>
-                    <Column gap={1}>
+                    <Stack direction={'column'} sx={{ gap: 1 }}>
                         {group.map(op => (
                             <a
                                 key={op.id}
@@ -120,13 +126,13 @@ export const OpsList = memo(observer(function OpsList(props: Props): ReactElemen
                                 <Transaction op={op} />
                             </a>
                         ))}
-                    </Column>
+                    </Stack>
                 </Box>
             )
             )}
             {displayOps !== null && displayDays < displayOps.length
                 ? (
-                        <Typography color={'text.primary'} textAlign={'center'} mt={2}>
+                        <Typography color={'text.primary'} sx={{ textAlign: 'center', mt: 2 }}>
                             <a onClick={() => {
                                 setDisplayDays(Math.min(displayOps.length, displayDays + 10))
                             }}
@@ -136,7 +142,7 @@ export const OpsList = memo(observer(function OpsList(props: Props): ReactElemen
                         </Typography>
                     )
                 : null}
-            <Box minHeight={144} />
+            <Box sx={{ minHeight: 144 }} />
         </Box>
     )
 }))

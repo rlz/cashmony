@@ -1,4 +1,4 @@
-import { Box, Paper, Stack } from '@mui/material'
+import { Paper, Stack } from '@mui/material'
 import { CSSProperties, ReactElement } from 'react'
 
 import { CURRENCIES } from '../../../currencies/currenciesList.js'
@@ -20,12 +20,12 @@ const currencyTdStyle: CSSProperties = {
 
 export function AccountStatsBody({ currencies, account, stats }: Props): ReactElement {
     return (
-        <Box display={'flex'} flexDirection={'column'} gap={1} mt={1}>
+        <Stack direction={'column'} sx={{ gap: 1, mt: 1 }}>
             {
                 currencies !== null
                 && (
                     <Paper variant={'outlined'}>
-                        <Stack p={1} direction={'column'} gap={1} flexWrap={'wrap'}>
+                        <Stack direction={'column'} sx={{ p: 1, gap: 1, flexWrap: 'wrap' }}>
                             <table>
                                 <tbody>
                                     {
@@ -51,6 +51,6 @@ export function AccountStatsBody({ currencies, account, stats }: Props): ReactEl
             }
             <AccountTotalPlot stats={stats} currency={account.currency} />
             <AccountChangePlot stats={stats} currency={account.currency} />
-        </Box>
+        </Stack>
     )
 }

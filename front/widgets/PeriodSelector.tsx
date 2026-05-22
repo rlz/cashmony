@@ -1,6 +1,6 @@
 import { faArrowRightLong } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Box, Button, Divider, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import { Box, Button, Divider, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
@@ -12,7 +12,6 @@ import { showIf } from '../helpers/smallTools.js'
 import { screenWidthIs } from '../helpers/useWidth.js'
 import { useFrontState } from '../model/FrontState.js'
 import { FullScreenModal } from './FullScreenModal.js'
-import { Row } from './generic/Containers.js'
 
 export const PeriodSelector = observer((): ReactElement => {
     const appState = useFrontState()
@@ -75,11 +74,11 @@ export const PeriodSelector = observer((): ReactElement => {
     }
 
     return (
-        <Box display={'flex'} flexDirection={'column'} gap={1}>
+        <Stack direction={'column'} sx={{ gap: 1 }}>
             {selector}
             <Box>
-                <Typography variant={'h6'} textAlign={'center'}>{'Period'}</Typography>
-                <Typography variant={'body1'} textAlign={'center'}>
+                <Typography component={'h2'} variant={'h6'} sx={{ textAlign: 'center' }}>{'Period'}</Typography>
+                <Typography component={'div'} variant={'body1'} sx={{ textAlign: 'center' }}>
                     {appState.timeSpan.startDate.toISODate()}
                     {' '}
                     <FontAwesomeIcon icon={faArrowRightLong} />
@@ -87,8 +86,8 @@ export const PeriodSelector = observer((): ReactElement => {
                     {appState.timeSpan.endDate.toISODate()}
                 </Typography>
             </Box>
-            <Box display={'flex'} gap={1} justifyContent={'space-between'} alignItems={'center'}>
-                <Typography>{'Current:'}</Typography>
+            <Stack direction={'row'} sx={{ gap: 1, justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography component={'span'} variant={'body1'}>{'Current:'}</Typography>
                 <ToggleButtonGroup
                     size={'small'}
                     color={'primary'}
@@ -107,9 +106,9 @@ export const PeriodSelector = observer((): ReactElement => {
                     <ToggleButton value={'thisMonth'}>{'Month'}</ToggleButton>
                     <ToggleButton value={'thisYear'}>{'Year'}</ToggleButton>
                 </ToggleButtonGroup>
-            </Box>
-            <Box display={'flex'} gap={1} justifyContent={'space-between'} alignItems={'center'}>
-                <Typography>{'Selected:'}</Typography>
+            </Stack>
+            <Stack direction={'row'} sx={{ gap: 1, justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography component={'span'} variant={'body1'}>{'Selected:'}</Typography>
                 <ToggleButtonGroup
                     size={'small'}
                     color={'primary'}
@@ -126,9 +125,9 @@ export const PeriodSelector = observer((): ReactElement => {
                     <ToggleButton value={'month'}>{'Month'}</ToggleButton>
                     <ToggleButton value={'year'}>{'Year'}</ToggleButton>
                 </ToggleButtonGroup>
-            </Box>
-            <Box display={'flex'} gap={1} justifyContent={'space-between'} alignItems={'center'}>
-                <Typography>{'Last:'}</Typography>
+            </Stack>
+            <Stack direction={'row'} sx={{ gap: 1, justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography component={'span'} variant={'body1'}>{'Last:'}</Typography>
                 <ToggleButtonGroup
                     size={'small'}
                     color={'primary'}
@@ -148,7 +147,7 @@ export const PeriodSelector = observer((): ReactElement => {
                     <ToggleButton value={'lastQuarter'}>{'Quarter'}</ToggleButton>
                     <ToggleButton value={'lastYear'}>{'Year'}</ToggleButton>
                 </ToggleButtonGroup>
-            </Box>
+            </Stack>
             <ToggleButtonGroup
                 fullWidth
                 size={'small'}
@@ -171,7 +170,7 @@ export const PeriodSelector = observer((): ReactElement => {
                 <ToggleButton value={'allHistory'}>{'All history'}</ToggleButton>
                 <ToggleButton value={'custom'}>{'Custom'}</ToggleButton>
             </ToggleButtonGroup>
-        </Box>
+        </Stack>
     )
 })
 
@@ -187,7 +186,7 @@ function MonthSelector(props: MonthSelectorProps): ReactElement {
 
     return (
         <FullScreenModal title={'Select month'} onClose={props.onClose}>
-            <Box p={1}>
+            <Box sx={{ p: 1 }}>
                 <Calendar
                     maxDate={today.toJSDate()}
                     maxDetail={'year'}
@@ -214,7 +213,7 @@ function YearSelector(props: YearSelectorProps): ReactElement {
 
     return (
         <FullScreenModal title={'Select year'} onClose={props.onClose}>
-            <Box p={1}>
+            <Box sx={{ p: 1 }}>
                 <Calendar
                     maxDate={today.toJSDate()}
                     maxDetail={'decade'}
@@ -246,7 +245,7 @@ function CustomSelector(props: CustomSelectorProps): ReactElement {
             title={'Select period'}
             onClose={props.onClose}
         >
-            <Box p={1} mb={1}>
+            <Box sx={{ p: 1, mb: 1 }}>
                 <Calendar
                     selectRange
                     maxDate={today.toJSDate()}
@@ -257,7 +256,7 @@ function CustomSelector(props: CustomSelectorProps): ReactElement {
                 />
             </Box>
             { showIf(!smallScreen, <Divider />) }
-            <Row p={1} justifyContent={smallScreen ? 'center' : 'end'}>
+            <Stack direction={'row'} sx={{ p: 1, justifyContent: smallScreen ? 'center' : 'end' }}>
                 <Button
                     color={'primary'}
                     variant={'contained'}
@@ -271,7 +270,7 @@ function CustomSelector(props: CustomSelectorProps): ReactElement {
                 >
                     {'Save'}
                 </Button>
-            </Row>
+            </Stack>
         </FullScreenModal>
     )
 }

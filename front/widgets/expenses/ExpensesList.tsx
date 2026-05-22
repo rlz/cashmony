@@ -1,4 +1,4 @@
-import { Box } from '@mui/material'
+import { Stack } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
 
@@ -67,21 +67,19 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
 
     if (stats === null) {
         return (
-            <Box
-                display={'flex'}
-                flexDirection={'column'}
-                gap={1}
+            <Stack
+                direction={'column'}
+                sx={{ gap: 1 }}
             >
                 {[1, 1, 1].map((_, i) => <ExpensesCardSkeleton key={i} />)}
-            </Box>
+            </Stack>
         )
     }
 
     return (
-        <Box
-            display={'flex'}
-            flexDirection={'column'}
-            gap={1}
+        <Stack
+            direction={'column'}
+            sx={{ gap: 1 }}
         >
             {
                 categories === undefined
@@ -112,6 +110,6 @@ export const ExpensesList = observer(({ categories, goals }: ExpensesListProps):
                             )
                         })
             }
-        </Box>
+        </Stack>
     )
 })

@@ -1,7 +1,7 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Clear } from '@mui/icons-material'
-import { Box, Button, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Paper, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Box, Button, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Paper, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import React, { Fragment, type ReactElement, useState } from 'react'
 
 import { Filter } from '../../engine/model.js'
@@ -9,8 +9,6 @@ import { deepEqual } from '../helpers/deepEqual.js'
 import { showIf } from '../helpers/smallTools.js'
 import { useEngine } from '../useEngine.js'
 import { FullScreenModal } from './FullScreenModal.js'
-import { Column, Row } from './generic/Containers.js'
-import { DivBody2, PBody2, SpanBody2 } from './generic/Typography.js'
 import { AccountsSelect } from './select/AccountsSelect.js'
 import { CategoriesSelect } from './select/CategoriesSelect.js'
 import { TagsSelect } from './select/TagsSelect.js'
@@ -30,15 +28,15 @@ export function FilterEditor(props: Props): ReactElement {
             title={'Global filter'}
             onClose={props.onClose}
         >
-            <Column height={'100%'} width={'100%'}>
-                <Column gap={1} p={1} overflow={'auto'}>
+            <Stack direction={'column'} sx={{ height: '100%', width: '100%' }}>
+                <Stack direction={'column'} sx={{ gap: 1, p: 1, overflow: 'auto' }}>
                     <SearchFilter filter={filter} setFilter={setFilter} />
                     <OpTypeFilter filter={filter} setFilter={setFilter} />
                     <CategoriesFilter filter={filter} setFilter={setFilter} />
                     <AccountsFilter filter={filter} setFilter={setFilter} />
                     <TagsFilter filter={filter} setFilter={setFilter} />
-                </Column>
-                <Box p={1}>
+                </Stack>
+                <Box sx={{ p: 1 }}>
                     <Button
                         color={'primary'}
                         fullWidth
@@ -49,7 +47,7 @@ export function FilterEditor(props: Props): ReactElement {
                         {'Apply'}
                     </Button>
                 </Box>
-            </Column>
+            </Stack>
         </FullScreenModal>
     )
 }
@@ -94,7 +92,7 @@ function SearchFilter({ filter, setFilter }: EditorProps): ReactElement {
 function OpTypeFilter({ filter, setFilter }: EditorProps): ReactElement {
     return (
         <Paper sx={{ p: 1 }}>
-            <PBody2 mb={1} flex={'1 1 0'}>{'Op. type:'}</PBody2>
+            <Typography component={'p'} variant={'body2'} sx={{ mb: 1, flex: '1 1 0' }}>{'Op. type:'}</Typography>
             <ToggleButtonGroup
                 fullWidth
                 size={'small'}
@@ -118,8 +116,8 @@ function CategoriesFilter({ filter, setFilter }: EditorProps): ReactElement {
 
     return (
         <Paper sx={{ p: 1 }}>
-            <Row alignItems={'center'} gap={1}>
-                <SpanBody2 flex={'1 1 0'}>{'Categories:'}</SpanBody2>
+            <Stack direction={'row'} sx={{ alignItems: 'center', gap: 1 }}>
+                <Typography component={'span'} variant={'body2'} sx={{ flex: '1 1 0' }}>{'Categories:'}</Typography>
                 <ToggleButtonGroup
                     exclusive
                     size={'small'}
@@ -135,23 +133,25 @@ function CategoriesFilter({ filter, setFilter }: EditorProps): ReactElement {
                     <ToggleButton value={'selected'}>{'Selected'}</ToggleButton>
                     <ToggleButton value={'exclude'}>{'Exclude'}</ToggleButton>
                 </ToggleButtonGroup>
-            </Row>
+            </Stack>
             {
                 showIf(
                     filter.categoriesMode !== 'all',
                     <>
-                        <Stack mt={1} direction={'row'} alignItems={'center'}>
-                            <Box flexGrow={1}>
+                        <Stack direction={'row'} sx={{ mt: 1, alignItems: 'center' }}>
+                            <Box sx={{ flexGrow: 1 }}>
                                 {
                                     filter.categoriesMode !== 'all'
                                         ? filter.categories.map((i, index) => {
                                                 const el = (
-                                                    <SpanBody2
+                                                    <Typography
                                                         key={i}
-                                                        color={'secondary.main'}
+                                                        component={'span'}
+                                                        variant={'body2'}
+                                                        sx={{ color: 'secondary.main' }}
                                                     >
                                                         {engine.categoriesById[i]?.name ?? i}
-                                                    </SpanBody2>
+                                                    </Typography>
                                                 )
                                                 if (index === 0) {
                                                     return el
@@ -196,8 +196,8 @@ function AccountsFilter({ filter, setFilter }: EditorProps): ReactElement {
 
     return (
         <Paper sx={{ p: 1 }}>
-            <Row alignItems={'center'}>
-                <SpanBody2 flex={'1 1 0'}>{'Accounts:'}</SpanBody2>
+            <Stack direction={'row'} sx={{ alignItems: 'center' }}>
+                <Typography component={'span'} variant={'body2'} sx={{ flex: '1 1 0' }}>{'Accounts:'}</Typography>
                 <ToggleButtonGroup
                     exclusive
                     size={'small'}
@@ -213,20 +213,20 @@ function AccountsFilter({ filter, setFilter }: EditorProps): ReactElement {
                     <ToggleButton value={'selected'}>{'Selected'}</ToggleButton>
                     <ToggleButton value={'exclude'}>{'Exclude'}</ToggleButton>
                 </ToggleButtonGroup>
-            </Row>
+            </Stack>
             {
                 showIf(
                     filter.accountsMode !== 'all',
                     <>
-                        <Stack direction={'row'} mt={1} alignItems={'center'}>
-                            <DivBody2 flexGrow={1}>
+                        <Stack direction={'row'} sx={{ mt: 1, alignItems: 'center' }}>
+                            <Typography component={'div'} variant={'body2'} sx={{ flexGrow: 1 }}>
                                 {
                                     filter.accountsMode !== 'all'
                                         ? filter.accounts.map((i, index) => {
                                                 const el = (
-                                                    <SpanBody2 key={i} color={'secondary.main'}>
+                                                    <Typography component={'span'} variant={'body2'} sx={{ color: 'secondary.main' }} key={i}>
                                                         {engine.accountsById[i]?.name ?? i}
-                                                    </SpanBody2>
+                                                    </Typography>
                                                 )
                                                 if (index === 0) {
                                                     return el
@@ -240,7 +240,7 @@ function AccountsFilter({ filter, setFilter }: EditorProps): ReactElement {
                                             })
                                         : null
                                 }
-                            </DivBody2>
+                            </Typography>
                             <Box>
                                 <IconButton onClick={() => setFilter({ ...filter, accounts: [] })}>
                                     <Clear />
@@ -270,8 +270,8 @@ function AccountsFilter({ filter, setFilter }: EditorProps): ReactElement {
 function TagsFilter({ filter, setFilter }: EditorProps): ReactElement {
     return (
         <Paper sx={{ p: 1 }}>
-            <Row alignItems={'center'}>
-                <SpanBody2 flex={'1 1 0'}>{'Tags:'}</SpanBody2>
+            <Stack direction={'row'} sx={{ alignItems: 'center' }}>
+                <Typography component={'span'} variant={'body2'} sx={{ flex: '1 1 0' }}>{'Tags:'}</Typography>
                 <ToggleButtonGroup
                     exclusive
                     size={'small'}
@@ -287,17 +287,17 @@ function TagsFilter({ filter, setFilter }: EditorProps): ReactElement {
                     <ToggleButton value={'selected'}>{'Selected'}</ToggleButton>
                     <ToggleButton value={'exclude'}>{'Exclude'}</ToggleButton>
                 </ToggleButtonGroup>
-            </Row>
+            </Stack>
             {
                 showIf(
                     filter.tagsMode !== 'all',
                     <>
-                        <Stack direction={'row'} alignItems={'center'} mt={1}>
-                            <DivBody2 flexGrow={1}>
+                        <Stack direction={'row'} sx={{ alignItems: 'center', mt: 1 }}>
+                            <Typography component={'div'} variant={'body2'} sx={{ flexGrow: 1 }}>
                                 {
                                     filter.tagsMode !== 'all'
                                         ? filter.tags.map((i, index) => {
-                                                const el = <SpanBody2 key={i} color={'secondary.main'}>{i}</SpanBody2>
+                                                const el = <Typography component={'span'} variant={'body2'} sx={{ color: 'secondary.main' }} key={i}>{i}</Typography>
                                                 if (index === 0) {
                                                     return el
                                                 }
@@ -310,7 +310,7 @@ function TagsFilter({ filter, setFilter }: EditorProps): ReactElement {
                                             })
                                         : null
                                 }
-                            </DivBody2>
+                            </Typography>
                             <Box>
                                 <IconButton onClick={() => setFilter({ ...filter, tags: [] })}>
                                     <Clear />

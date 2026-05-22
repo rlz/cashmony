@@ -1,4 +1,4 @@
-import { Box, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, TextField, Typography, useTheme } from '@mui/material'
+import { Box, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, TextField, Typography, useTheme } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useMemo, useState } from 'react'
 
@@ -7,8 +7,6 @@ import { sortCurrencies } from '../../engine/sortCurrencies.js'
 import { getCurrencySymbol } from '../helpers/currencies.js'
 import { useEngine } from '../useEngine.js'
 import { FullScreenModal } from './FullScreenModal.js'
-import { Column } from './generic/Containers.js'
-
 interface Props {
     currency: string | null
     onClose: () => void
@@ -28,9 +26,9 @@ export const CurrencySelector = observer((props: Props): ReactElement => {
 
     return (
         <FullScreenModal width={'600px'} title={'Currency'} onClose={props.onClose}>
-            <Column height={'100%'} p={1} gap={1}>
-                <Box p={1} color={theme.palette.primary.main}>
-                    <Typography variant={'h5'} my={2} textAlign={'center'}>
+            <Stack direction={'column'} sx={{ height: '100%', p: 1, gap: 1 }}>
+                <Box sx={{ p: 1, color: theme.palette.primary.main }}>
+                    <Typography component={'div'} variant={'h5'} sx={{ my: 2, textAlign: 'center' }}>
                         {
                             currency === null
                                 ? '—'
@@ -47,7 +45,7 @@ export const CurrencySelector = observer((props: Props): ReactElement => {
                         setSearch(ev.target.value)
                     }}
                 />
-                <Box overflow={'auto'} flex={'1 1 auto'}>
+                <Box sx={{ overflow: 'auto', flex: '1 1 auto' }}>
                     <List>
                         {
                             currencies
@@ -81,7 +79,7 @@ export const CurrencySelector = observer((props: Props): ReactElement => {
                         }
                     </List>
                 </Box>
-            </Column>
+            </Stack>
         </FullScreenModal>
     )
 })

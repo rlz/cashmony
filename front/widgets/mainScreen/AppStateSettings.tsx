@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CloudSync, Dangerous, FilterAlt, GitHub, Logout, Telegram } from '@mui/icons-material'
-import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, SxProps, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
@@ -14,15 +14,14 @@ import { useFrontState } from '../../model/FrontState.js'
 import { useEngine } from '../../useEngine.js'
 import { CurrencySelector } from '../CurrencySelector.js'
 import { FilterEditor } from '../FilterEditor.js'
-import { Column } from '../generic/Containers.js'
-import { DivBody1 } from '../generic/Typography.js'
 import { PeriodSelector } from '../PeriodSelector.js'
 
-type Props = Omit<React.ComponentProps<typeof Column>, 'gap'> & {
+type Props = {
+    sx?: SxProps
     onOpenAdvance: () => void
 }
 
-export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Props): ReactElement => {
+export const AppStateSettings = observer(({ onOpenAdvance, sx }: Props): ReactElement => {
     const appState = useFrontState()
     const engine = useEngine()
     const authState = useAuthState()
@@ -58,7 +57,7 @@ export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Pro
     }, [])
 
     return (
-        <Column gap={1} {...columnProps}>
+        <Stack direction={'column'} sx={{ ...sx, gap: 1 }}>
             {
                 showIf(
                     appState.topBarState.showGlobalCurrencySelector,
@@ -83,10 +82,10 @@ export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Pro
                     />
                 )
             }
-            <Box flex={'1 1 0'} mt={1} px={1}>
+            <Box sx={{ flex: '1 1 0', mt: 1, px: 1 }}>
                 <PeriodSelector />
             </Box>
-            <Box px={1} display={'flex'} gap={1} justifyContent={'space-between'} alignItems={'center'}>
+            <Stack direction={'row'} sx={{ px: 1, gap: 1, justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>{'Theme:'}</div>
                 <ToggleButtonGroup
                     size={'small'}
@@ -107,7 +106,7 @@ export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Pro
                     <ToggleButton value={'dark'}>{'Dark'}</ToggleButton>
                     <ToggleButton value={'auto'}>{'Auto'}</ToggleButton>
                 </ToggleButtonGroup>
-            </Box>
+            </Stack>
             <List>
                 <ListItem disablePadding>
                     <ListItemButton onClick={() => { runInAction(() => { appState.topBarState.showGlobalFilterEditor = true }) }}>
@@ -126,9 +125,9 @@ export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Pro
                                     return icon !== undefined
                                         ? <FontAwesomeIcon icon={icon} fixedWidth />
                                         : (
-                                                <DivBody1 width={20} textAlign={'center'} fontWeight={'bold'}>
+                                                <Typography component={'div'} variant={'body1'} sx={{ width: 20, textAlign: 'center', fontWeight: 'bold' }}>
                                                     {getCurrencySymbol(appState.masterCurrency)}
-                                                </DivBody1>
+                                                </Typography>
                                             )
                                 })
                             }
@@ -196,6 +195,6 @@ export const AppStateSettings = observer(({ onOpenAdvance, ...columnProps }: Pro
                     )
                 }
             </List>
-        </Column>
+        </Stack>
     )
 })

@@ -1,6 +1,6 @@
 import { faCheck, faFilter } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button, TextField } from '@mui/material'
+import { Button, Stack, TextField } from '@mui/material'
 import { DateTime } from 'luxon'
 import React, { type ReactElement, useMemo, useState } from 'react'
 import { match, P } from 'ts-pattern'
@@ -13,7 +13,6 @@ import { useEngine } from '../../useEngine.js'
 import { GoalInput } from '../../widgets/expenses/editors/GoalInput.js'
 import { FilterEditor } from '../../widgets/FilterEditor.js'
 import { ActionButton, ActionFab } from '../../widgets/generic/ActionButton.js'
-import { Column } from '../../widgets/generic/Containers.js'
 
 interface Props {
     goal: Watch
@@ -60,7 +59,7 @@ export function ExpensesGoalEditor({ goal, onChange }: Props): ReactElement {
     )
 
     return (
-        <Column mt={1} gap={1}>
+        <Stack direction={'column'} sx={{ mt: 1, gap: 1 }}>
             <TextField
                 label={'Name'}
                 variant={'filled'}
@@ -124,6 +123,6 @@ export function ExpensesGoalEditor({ goal, onChange }: Props): ReactElement {
                     />
                 )
             }
-        </Column>
+        </Stack>
     )
 }

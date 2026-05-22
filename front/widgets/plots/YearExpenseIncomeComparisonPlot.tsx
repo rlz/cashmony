@@ -48,8 +48,8 @@ export function YearExpenseIncomeComparisonPlot({ expenses, incomes, currency }:
 
     return (
         <Paper variant={'outlined'}>
-            <Box p={1}>
-                <Typography variant={'h6'} textAlign={'center'}>{'Expense/Income by Year'}</Typography>
+            <Box sx={{ p: 1 }}>
+                <Typography variant={'h6'} sx={{ textAlign: 'center' }}>{'Expense/Income by Year'}</Typography>
                 <PlotWidget plot={plot} />
             </Box>
         </Paper>

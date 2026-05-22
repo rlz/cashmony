@@ -55,8 +55,8 @@ export const AccountTotalPlot = observer(function AccountTotalPlot({ stats, curr
 
     return (
         <Paper variant={'outlined'}>
-            <Box p={1}>
-                <Typography variant={'h6'} textAlign={'center'}>{'Amount'}</Typography>
+            <Box sx={{ p: 1 }}>
+                <Typography variant={'h6'} sx={{ textAlign: 'center' }}>{'Amount'}</Typography>
                 <PlotContainer ref={ref} sx={sxHeight250} />
             </Box>
         </Paper>

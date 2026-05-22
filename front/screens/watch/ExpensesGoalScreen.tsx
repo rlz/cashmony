@@ -123,10 +123,10 @@ export const ExpensesGoalsScreenBody = observer(({ noFab, hide }: ExpensesGoalsS
                             </Fab>
                         )
             }
-            <Box p={1} height={'100%'} overflow={'auto'} display={hide === true ? 'none' : 'block'}>
-                <Box maxWidth={900} mx={'auto'}>
+            <Box sx={{ p: 1, height: '100%', overflow: 'auto', display: hide === true ? 'none' : 'block' }}>
+                <Box sx={{ maxWidth: 900, mx: 'auto' }}>
                     <ExpensesList goals={goals} />
-                    <Box minHeight={144} />
+                    <Box sx={{ minHeight: 144 }} />
                 </Box>
             </Box>
         </>

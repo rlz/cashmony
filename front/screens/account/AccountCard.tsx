@@ -1,4 +1,4 @@
-import { Box, Paper, Skeleton, Stack } from '@mui/material'
+import { Box, Paper, Skeleton, Stack, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import { ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom'
 import { TotalAndChangeStats } from '../../../engine/stats/model.js'
 import { formatCurrency } from '../../helpers/currencies.js'
 import { useFrontState } from '../../model/FrontState.js'
-import { DivBody1, DivBody2, SpanBody2 } from '../../widgets/generic/Typography.js'
 import { AccountSparklinePlot } from '../../widgets/plots/AccountSparklinePlot.js'
 
 interface Props {
@@ -28,25 +27,25 @@ export const AccountCard = observer(function AccountCard({ id, name, stats }: Pr
     return (
         <a onClick={async () => { await navigate(`/accounts/${encodeURIComponent(id)}`) }}>
             <Paper variant={'outlined'}>
-                <Box p={1}>
+                <Box sx={{ p: 1 }}>
                     <Stack direction={'row'} spacing={1}>
-                        <DivBody1>{name}</DivBody1>
-                        <DivBody1 flex={'1 1 0'} textAlign={'right'} color={'primary.main'}>
+                        <Typography component={'div'} variant={'body1'}>{name}</Typography>
+                        <Typography component={'div'} variant={'body1'} sx={{ flex: '1 1 0', textAlign: 'right', color: 'primary.main' }}>
                             {
                                 formatCurrency(stats.dayTotal.at(-1)?.value ?? 0, stats.currency)
                             }
-                        </DivBody1>
+                        </Typography>
                     </Stack>
                     {
                         periodInPast
                         && (
-                            <DivBody2 textAlign={'right'}>
-                                <SpanBody2 color={'secondary.main'}>{'now: '}</SpanBody2>
+                            <Typography component={'div'} variant={'body2'} sx={{ textAlign: 'right' }}>
+                                <Typography component={'span'} variant={'body2'} color={'secondary.main'}>{'now: '}</Typography>
                                 {formatCurrency(stats.total, stats.currency)}
-                            </DivBody2>
+                            </Typography>
                         )
                     }
-                    <Box mt={1}>
+                    <Box sx={{ mt: 1 }}>
                         <AccountSparklinePlot stats={stats} />
                     </Box>
                 </Box>
@@ -58,12 +57,12 @@ export const AccountCard = observer(function AccountCard({ id, name, stats }: Pr
 export function AccountCardSkeleton(): ReactElement {
     return (
         <Paper sx={{ p: 1, maxWidth: 900, mx: 'auto', width: '100%' }}>
-            <Box display={'flex'} mb={1}>
-                <DivBody1 flex={'1 1 0'}><Skeleton sx={{ maxWidth: 85 }} /></DivBody1>
-                <DivBody1 textAlign={'right'} color={'primary.main'}>
+            <Stack direction={'row'} sx={{ mb: 1 }}>
+                <Typography component={'div'} variant={'body1'} sx={{ flex: '1 1 0' }}><Skeleton sx={{ maxWidth: 85 }} /></Typography>
+                <Typography component={'div'} variant={'body1'} sx={{ textAlign: 'right', color: 'primary.main' }}>
                     <Skeleton sx={{ minWidth: 55 }} />
-                </DivBody1>
-            </Box>
+                </Typography>
+            </Stack>
             <Skeleton variant={'rectangular'} height={50} />
         </Paper>
     )

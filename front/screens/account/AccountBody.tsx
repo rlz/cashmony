@@ -1,4 +1,4 @@
-import { Box, Skeleton, Tab, Tabs, Typography } from '@mui/material'
+import { Box, Skeleton, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import { ReactElement, useEffect, useState } from 'react'
@@ -19,7 +19,6 @@ import { useFrontState } from '../../model/FrontState.js'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader.js'
 import { useEngine } from '../../useEngine.js'
 import { FullScreenModal } from '../../widgets/FullScreenModal.js'
-import { Column } from '../../widgets/generic/Containers.js'
 import { OpsList } from '../../widgets/operations/OpsList.js'
 import { OperationViewEditor } from '../operation/OperationViewEditor.js'
 import { AccountEditor } from './AccountEditor.js'
@@ -143,12 +142,12 @@ export const AccountBody = observer(() => {
 
     return (
         <>
-            <Column height={'100%'}>
-                <Box p={1}>
-                    <Typography variant={'h6'} textAlign={'center'} mt={1}>
+            <Stack direction={'column'} sx={{ height: '100%' }}>
+                <Box sx={{ p: 1 }}>
+                    <Typography variant={'h6'} sx={{ textAlign: 'center', mt: 1 }}>
                         {acc.name}
                     </Typography>
-                    <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
+                    <Typography variant={'h6'} sx={{ textAlign: 'center', color: 'primary.main', mb: 1 }}>
                         {cur(stats.dayTotal[stats.dayTotal.length - 1].value)}
                     </Typography>
                     <Tabs
@@ -164,8 +163,8 @@ export const AccountBody = observer(() => {
                         <Tab value={'operations'} label={'Operations'} />
                     </Tabs>
                 </Box>
-                <Box overflow={'auto'} flex={'1 1 auto'}>
-                    <Box px={1}>
+                <Box sx={{ overflow: 'auto', flex: '1 1 auto' }}>
+                    <Box sx={{ px: 1 }}>
                         {
                             match(tabName)
                                 .with('stats', () => (
@@ -190,10 +189,10 @@ export const AccountBody = observer(() => {
                                 ))
                                 .otherwise(() => { throw Error('Unimplemented tab') })
                         }
-                        <Box minHeight={72} />
+                        <Box sx={{ minHeight: 72 }} />
                     </Box>
                 </Box>
-            </Column>
+            </Stack>
             {
                 showIfLazy(opId !== null, () => {
                     return (
@@ -202,7 +201,7 @@ export const AccountBody = observer(() => {
                             title={opModalTitle}
                             onClose={async () => { await navigate(`/accounts/${accId}/operations`) }}
                         >
-                            <Box p={1}>
+                            <Box sx={{ p: 1 }}>
                                 <OperationViewEditor
                                     urlOpId={opId ?? ''}
                                     setModalTitle={setOpModalTitle}
@@ -219,10 +218,10 @@ export const AccountBody = observer(() => {
 function AccountScreenSkeleton(): ReactElement {
     return (
         <>
-            <Typography variant={'h6'} mt={2}>
+            <Typography variant={'h6'} sx={{ mt: 2 }}>
                 <Skeleton width={75} sx={{ mx: 'auto' }} />
             </Typography>
-            <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
+            <Typography variant={'h6'} sx={{ textAlign: 'center', color: 'primary.main', mb: 1 }}>
                 <Skeleton width={95} sx={{ mx: 'auto' }} />
             </Typography>
             <Tabs value={0} variant={'fullWidth'}>
@@ -230,11 +229,11 @@ function AccountScreenSkeleton(): ReactElement {
                 <Tab label={<Skeleton width={65} />} />
                 <Tab label={<Skeleton width={35} />} />
             </Tabs>
-            <Column gap={1} mt={1}>
+            <Stack direction={'column'} sx={{ gap: 1, mt: 1 }}>
                 <Skeleton variant={'rounded'} height={185} />
                 <Skeleton variant={'rounded'} height={200} />
                 <Skeleton variant={'rounded'} height={180} />
-            </Column>
+            </Stack>
         </>
     )
 }

@@ -65,7 +65,7 @@ export const CategoryEditor = observer(({ cat, setCat }: EditorProps): ReactElem
     )
 
     return (
-        <Box mt={1}>
+        <Box sx={{ mt: 1 }}>
             <TextField
                 error={trimmedName === '' || nameConflict}
                 helperText={match(null)

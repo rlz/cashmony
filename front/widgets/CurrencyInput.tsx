@@ -75,8 +75,10 @@ export function CurrencyInput(props: Props): ReactElement {
             value={amountText}
             error={error}
             helperText={helperText}
-            InputProps={{
-                startAdornment: <InputAdornment position={'start'}>{getCurrencySymbol(props.currency)}</InputAdornment>
+            slotProps={{
+                input: {
+                    startAdornment: <InputAdornment position={'start'}>{getCurrencySymbol(props.currency)}</InputAdornment>
+                }
             }}
             onChange={(ev) => {
                 const text = ev.target.value

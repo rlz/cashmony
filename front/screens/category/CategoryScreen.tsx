@@ -30,20 +30,22 @@ export function CategoryScreen(): ReactElement {
             {
                 smallScreen
                     ? (
-                            <Box height={'100%'} position={'relative'}>
-                                <Box height={'100%'}>
+                            <Box sx={{ height: '100%', position: 'relative' }}>
+                                <Box sx={{ height: '100%' }}>
                                     <CategoriesScreenBody noFab={!noCatSelected} />
                                 </Box>
                                 {
                                     showIfLazy(!noCatSelected, () => {
                                         return (
                                             <Box
-                                                position={'absolute'}
-                                                top={0}
-                                                left={0}
-                                                height={'100%'}
-                                                width={'100%'}
-                                                bgcolor={theme.palette.background.default}
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                    height: '100%',
+                                                    width: '100%',
+                                                    bgcolor: theme.palette.background.default
+                                                }}
                                             >
                                                 <CategoryScreenBody />
                                             </Box>

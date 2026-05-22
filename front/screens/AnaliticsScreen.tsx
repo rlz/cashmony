@@ -80,7 +80,7 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                         title={'History'}
                         onClose={() => setShowHistory(false)}
                     >
-                        <Stack p={1} gap={1} overflow={'auto'}>
+                        <Stack sx={{ p: 1, gap: 1, overflow: 'auto' }}>
                             {
                                 analiticsHistory.map((query, i) => (
                                     <Paper
@@ -93,7 +93,7 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                                             setShowHistory(false)
                                         }}
                                     >
-                                        <Box p={1}>
+                                        <Box sx={{ p: 1 }}>
                                             {query}
                                         </Box>
                                     </Paper>
@@ -103,9 +103,9 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                     </FullScreenModal>
                 )
             }
-            <Stack height={'100%'}>
-                <Stack spacing={1} p={1}>
-                    <Stack direction={'row'} spacing={1} alignItems={'center'}>
+            <Stack sx={{ height: '100%' }}>
+                <Stack sx={{ gap: 1, p: 1 }}>
+                    <Stack direction={'row'} sx={{ gap: 1, alignItems: 'center' }}>
                         <div>
                             <IconButton
                                 onClick={() => { setShowHistory(true) }}
@@ -155,12 +155,14 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                         error !== null
                         && (
                             <Box
-                                borderRadius={1}
-                                border={'solid 1px'}
-                                borderColor={theme.palette.error.main}
-                                bgcolor={color(theme.palette.error.main).opaquer(-0.8).hexa()}
-                                p={1}
-                                overflow={'auto'}
+                                sx={{
+                                    borderRadius: 1,
+                                    border: 'solid 1px',
+                                    borderColor: theme.palette.error.main,
+                                    bgcolor: color(theme.palette.error.main).opaquer(-0.8).hexa(),
+                                    p: 1,
+                                    overflow: 'auto'
+                                }}
                             >
                                 <pre>{error.message}</pre>
                             </Box>
@@ -180,7 +182,7 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                         <Tab value={'stats'} label={'Stats'} />
                     </Tabs>
                 </Stack>
-                <Box overflow={'auto'} flexGrow={1} p={1}>
+                <Box sx={{ overflow: 'auto', flexGrow: 1, p: 1 }}>
                     {
                         tab === 'ops'
                         && (
@@ -204,7 +206,7 @@ export const AnaliticsScreen = observer(function AnaliticsScreen(): ReactElement
                         title={'Operation'}
                         onClose={() => navigate('/analitics')}
                     >
-                        <Box p={1}>
+                        <Box sx={{ p: 1 }}>
                             <OperationViewEditor urlOpId={opId} />
                         </Box>
                     </FullScreenModal>

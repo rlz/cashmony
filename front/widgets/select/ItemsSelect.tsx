@@ -1,6 +1,6 @@
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Box, Chip, FilledInput, FormControl, IconButton, InputAdornment, InputLabel, type SxProps, useTheme } from '@mui/material'
+import { Box, Chip, FilledInput, FormControl, IconButton, InputAdornment, InputLabel, Stack, type SxProps, useTheme } from '@mui/material'
 import useEmblaCarousel from 'embla-carousel-react'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import React, { CSSProperties, type ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
@@ -8,8 +8,6 @@ import { useResizeDetector } from 'react-resize-detector'
 import { match, P } from 'ts-pattern'
 
 import { run, times } from '../../helpers/smallTools.js'
-import { Row } from '../generic/Containers.js'
-
 export type ItemType = { value: string, label: string, fontStyle?: string }
 export type ItemsType = readonly ItemType[]
 
@@ -150,12 +148,12 @@ export function ItemsSelect(props: Props): ReactElement {
                     )}
                 />
             </FormControl>
-            <Box overflow={'hidden'} ref={carouselRef}>
-                <Row>
-                    <Box height={pageHeight} overflow={'hidden'} flex={'0 0 100%'}>
-                        <Box display={'flex'} ref={ref} flexWrap={'wrap'} gap={1}>
+            <Box sx={{ overflow: 'hidden' }} ref={carouselRef}>
+                <Stack direction={'row'}>
+                    <Box sx={{ height: pageHeight, overflow: 'hidden', flex: '0 0 100%' }}>
+                        <Stack direction={'row'} ref={ref} sx={{ flexWrap: 'wrap', gap: 1 }}>
                             { items }
-                        </Box>
+                        </Stack>
                     </Box>
                     {
                         times(pages ?? 0).map((p) => {
@@ -163,36 +161,38 @@ export function ItemsSelect(props: Props): ReactElement {
                                 return undefined
                             }
                             return (
-                                <Box key={p} height={pageHeight} overflow={'hidden'} position={'relative'} flex={'0 0 100%'}>
-                                    <Box position={'absolute'} top={-pageHeight * p}>
-                                        <Box display={'flex'} flexWrap={'wrap'} gap={1}>
+                                <Box key={p} sx={{ height: pageHeight, overflow: 'hidden', position: 'relative', flex: '0 0 100%' }}>
+                                    <Box sx={{ position: 'absolute', top: -pageHeight * p }}>
+                                        <Stack direction={'row'} sx={{ flexWrap: 'wrap', gap: 1 }}>
                                             { items }
-                                        </Box>
+                                        </Stack>
                                     </Box>
                                 </Box>
                             )
                         })
                     }
-                </Row>
+                </Stack>
             </Box>
-            <Row justifyContent={'center'} gap={1} mt={1} height={10}>
+            <Stack direction={'row'} sx={{ justifyContent: 'center', gap: 1, mt: 1, height: 10 }}>
                 {
                     pages > 1
                         ? times(pages ?? 0).map((p) => {
                                 return (
                                     <a key={p} style={aStyle} onClick={() => { carouselApi?.scrollTo(p) }}>
                                         <Box
-                                            width={10}
-                                            height={10}
-                                            bgcolor={p === page ? 'secondary.main' : 'text.primary'}
-                                            borderRadius={10}
+                                            sx={{
+                                                width: 10,
+                                                height: 10,
+                                                bgcolor: p === page ? 'secondary.main' : 'text.primary',
+                                                borderRadius: 10
+                                            }}
                                         />
                                     </a>
                                 )
                             })
                         : null
                 }
-            </Row>
+            </Stack>
         </Box>
     )
 }

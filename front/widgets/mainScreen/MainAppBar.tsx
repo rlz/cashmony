@@ -1,14 +1,12 @@
 import { faBars, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { AppBar, IconButton, SwipeableDrawer, type SxProps, Toolbar, Typography } from '@mui/material'
+import { AppBar, IconButton, Stack, SwipeableDrawer, type SxProps, Toolbar, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useState } from 'react'
 
 import { screenWidthIs } from '../../helpers/useWidth.js'
 import { useFrontState } from '../../model/FrontState.js'
 import { FullScreenModal } from '../FullScreenModal.js'
-import { Column } from '../generic/Containers.js'
-import { DivBody2 } from '../generic/Typography.js'
 import { Advanced } from './advanced.js'
 import { AppStateSettings } from './AppStateSettings.js'
 
@@ -47,20 +45,20 @@ export function CashmonyAppBar(props: CashmonyAppBarProps): ReactElement {
                 >
                     <FontAwesomeIcon icon={faBars} />
                 </IconButton>
-                <Column flex={'1 1 0'} textAlign={'center'} gap={0.3}>
-                    <Typography variant={'h6'} component={'div'} lineHeight={1}>
+                <Stack direction={'column'} sx={{ flex: '1 1 0', textAlign: 'center', gap: 0.3 }}>
+                    <Typography variant={'h6'} component={'div'} sx={{ lineHeight: 1 }}>
                         {props.title}
                     </Typography>
                     {
                         props.subTitle !== undefined
                             ? (
-                                    <DivBody2 noWrap>
+                                    <Typography component={'div'} variant={'body2'} noWrap>
                                         {props.subTitle}
-                                    </DivBody2>
+                                    </Typography>
                                 )
                             : undefined
                     }
-                </Column>
+                </Stack>
                 <IconButton
                     size={'large'}
                     edge={'end'}
@@ -98,9 +96,11 @@ export const MainAppBar = observer(function MainAppBar(): ReactElement {
                         onClose={() => { setShowSettings('close') }}
                     >
                         <AppStateSettings
-                            height={'100%'}
-                            width={'90vw'}
-                            maxWidth={'20rem'}
+                            sx={{
+                                height: '100%',
+                                width: '90vw',
+                                maxWidth: '20rem'
+                            }}
                             onOpenAdvance={() => setShowSettings('advanced')}
                         />
                     </SwipeableDrawer>

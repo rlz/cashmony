@@ -110,8 +110,8 @@ export function YMExpensesComparisonPlot({ title, stats, currency }: Props): JSX
 
     return (
         <Paper variant={'outlined'}>
-            <Box p={1}>
-                <Typography variant={'h6'} textAlign={'center'}>{title}</Typography>
+            <Box sx={{ p: 1 }}>
+                <Typography variant={'h6'} sx={{ textAlign: 'center' }}>{title}</Typography>
                 <PlotContainer ref={ref} />
             </Box>
         </Paper>

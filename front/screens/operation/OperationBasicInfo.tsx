@@ -59,17 +59,17 @@ export const OperationBasicInfo = observer(({ opType, opDate, opAmount, opCurren
 
     return (
         <>
-            <Typography variant={'body2'} textAlign={'center'}>
+            <Typography variant={'body2'} sx={{ textAlign: 'center' }}>
                 {opDate.toLocaleString({ dateStyle: 'full' })}
             </Typography>
-            <Typography variant={'h4'} textAlign={'center'} color={amountColor}>
+            <Typography variant={'h4'} sx={{ textAlign: 'center', color: amountColor }}>
                 {Math.abs(opAmount).toLocaleString(undefined, {
                     style: 'currency',
                     currency: opCurrency,
                     currencyDisplay: 'narrowSymbol'
                 })}
             </Typography>
-            <Typography variant={'body2'} mt={1}>
+            <Typography variant={'body2'} sx={{ mt: 1 }}>
                 {opType === 'transfer' ? 'From acc.: ' : 'Acc.: '}
                 {
                     opAccount === null
@@ -109,10 +109,10 @@ export const OperationBasicInfo = observer(({ opType, opDate, opAmount, opCurren
                 )
             }
             {categoryInfo}
-            <Typography variant={'body2'} mt={1} color={'primary.light'} noWrap>
+            <Typography variant={'body2'} noWrap sx={{ mt: 1, color: 'primary.light' }}>
                 {opTags.join(', ')}
             </Typography>
-            <Typography variant={'body2'} fontStyle={'italic'}>{opComment}</Typography>
+            <Typography variant={'body2'} sx={{ fontStyle: 'italic' }}>{opComment}</Typography>
         </>
     )
 })

@@ -20,23 +20,35 @@ export function AddOperationFab(): JSX.Element {
             >
                 <SpeedDialAction
                     icon={<CreditCardIcon />}
-                    tooltipOpen
-                    tooltipTitle={'Expence'}
-                    FabProps={{ color: 'error', size: 'medium' }}
+                    slotProps={{
+                        tooltip: {
+                            open,
+                            title: 'Expence'
+                        },
+                        fab: { color: 'error', size: 'medium' }
+                    }}
                     onClick={() => { void navigate('/new-op/expense') }}
                 />
                 <SpeedDialAction
                     icon={<AddCardIcon />}
-                    tooltipOpen
-                    tooltipTitle={'Income'}
-                    FabProps={{ color: 'success', size: 'medium' }}
+                    slotProps={{
+                        tooltip: {
+                            open,
+                            title: 'Income'
+                        },
+                        fab: { color: 'success', size: 'medium' }
+                    }}
                     onClick={() => { void navigate('/new-op/income') }}
                 />
                 <SpeedDialAction
                     icon={<CurrencyExchangeIcon />}
-                    tooltipOpen
-                    tooltipTitle={'Transfer'}
-                    FabProps={{ color: 'info', size: 'medium' }}
+                    slotProps={{
+                        tooltip: {
+                            open,
+                            title: 'Transfer'
+                        },
+                        fab: { color: 'info', size: 'medium' }
+                    }}
                     onClick={() => { void navigate('/new-op/transfer') }}
                 />
             </SpeedDial>

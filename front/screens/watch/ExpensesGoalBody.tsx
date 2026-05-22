@@ -1,4 +1,4 @@
-import { Box, Button, Tab, Tabs, Typography } from '@mui/material'
+import { Box, Button, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { JSX, useEffect, useMemo, useState } from 'react'
@@ -18,7 +18,6 @@ import { useEngine } from '../../useEngine.js'
 import { ExpensesGroupScreenSkeleton } from '../../widgets/expenses/ExpensesGroupScreenSkeleton.js'
 import { ExpensesStatsWidget } from '../../widgets/expenses/ExpensesStatsWidget.js'
 import { FullScreenModal } from '../../widgets/FullScreenModal.js'
-import { Column } from '../../widgets/generic/Containers.js'
 import { OpsList } from '../../widgets/operations/OpsList.js'
 import { OperationViewEditor } from '../operation/OperationViewEditor.js'
 import { ExpensesGoalEditor } from './ExpensesGoalEditor.js'
@@ -90,22 +89,22 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
         || newGoalNameTrimmed === undefined
         || stats === null
     ) {
-        return <Box p={1}><ExpensesGroupScreenSkeleton /></Box>
+        return <Box sx={{ p: 1 }}><ExpensesGroupScreenSkeleton /></Box>
     }
 
     const cur = (amount: number, compact = false): string => formatCurrency(amount, newGoal.currency, compact)
 
     return (
         <>
-            <Column height={'100%'}>
-                <Box p={1}>
-                    <Typography variant={'h6'} textAlign={'center'} mt={1}>
+            <Stack direction={'column'} sx={{ height: '100%' }}>
+                <Box sx={{ p: 1 }}>
+                    <Typography variant={'h6'} sx={{ textAlign: 'center', mt: 1 }}>
                         {newGoal.name.trim() === '' ? '-' : newGoal.name}
                     </Typography>
-                    <Typography variant={'h6'} textAlign={'center'} color={'primary.main'} mb={1}>
+                    <Typography variant={'h6'} sx={{ textAlign: 'center', color: 'primary.main', mb: 1 }}>
                         {cur(-stats.total)}
                     </Typography>
-                    <Typography variant={'body2'} textAlign={'center'}>
+                    <Typography variant={'body2'} sx={{ textAlign: 'center' }}>
                         {'Goal (30d): '}
                         {cur(30 * newGoal.perDayAmount)}
                     </Typography>
@@ -119,8 +118,8 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
                         <Tab value={'operations'} label={'Operations'} />
                     </Tabs>
                 </Box>
-                <Box overflow={'auto'} flex={'1 1 auto'}>
-                    <Box px={1}>
+                <Box sx={{ overflow: 'auto', flex: '1 1 auto' }}>
+                    <Box sx={{ px: 1 }}>
                         {
                             match(tabName)
                                 .with('stats', () => (
@@ -159,10 +158,10 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
                                 ))
                                 .otherwise(() => { throw Error('Unimplenented tab') })
                         }
-                        <Box minHeight={80} />
+                        <Box sx={{ minHeight: 80 }} />
                     </Box>
                 </Box>
-            </Column>
+            </Stack>
             {
                 showIfLazy(opId !== null, () => {
                     return (
@@ -171,7 +170,7 @@ export const ExpensesGoalBody = observer(function ExpensesGoalBody(): JSX.Elemen
                             title={opModalTitle}
                             onClose={() => { void navigate(`/goals/${goalId}/operations`) }}
                         >
-                            <Box p={1}>
+                            <Box sx={{ p: 1 }}>
                                 <OperationViewEditor
                                     urlOpId={opId ?? ''}
                                     setModalTitle={setOpModalTitle}

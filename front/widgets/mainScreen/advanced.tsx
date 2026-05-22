@@ -18,8 +18,8 @@ export const Advanced = observer(
         const authParam = useAuthState(i => i.getAuthParam())
 
         return (
-            <Box padding={1}>
-                <Stack direction={'column'} gap={1}>
+            <Box sx={{ padding: 1 }}>
+                <Stack direction={'column'} sx={{ gap: 1 }}>
                     <Button
                         variant={'contained'}
                         fullWidth

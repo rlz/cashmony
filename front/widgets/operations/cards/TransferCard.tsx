@@ -1,11 +1,10 @@
 import { faArrowRightLong, faMoneyBillTransfer } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Stack, Typography } from '@mui/material'
 import React, { type ReactElement } from 'react'
 
 import { type TransferOperation } from '../../../../engine/model.js'
 import { useEngine } from '../../../useEngine.js'
-import { Row } from '../../generic/Containers.js'
-import { DivBody2 } from '../../generic/Typography.js'
 import { BaseOpCard } from './BaseOpCard.js'
 
 interface Props {
@@ -28,11 +27,11 @@ export function TransferCard({ operation }: Props): ReactElement {
             tags={operation.tags}
             comment={operation.comment}
             transferElement={(
-                <Row gap={1}>
-                    <DivBody2 flex={'0 1 auto'} noWrap>{engine.getAccount(operation.account.id).name}</DivBody2>
-                    <DivBody2><FontAwesomeIcon icon={faArrowRightLong} /></DivBody2>
-                    <DivBody2 flex={'0 1 auto'} noWrap>{engine.getAccount(operation.toAccount.id).name}</DivBody2>
-                </Row>
+                <Stack direction={'row'} sx={{ gap: 1 }}>
+                    <Typography component={'div'} variant={'body2'} sx={{ flex: '0 1 auto' }} noWrap>{engine.getAccount(operation.account.id).name}</Typography>
+                    <Typography component={'div'} variant={'body2'}><FontAwesomeIcon icon={faArrowRightLong} /></Typography>
+                    <Typography component={'div'} variant={'body2'} sx={{ flex: '0 1 auto' }} noWrap>{engine.getAccount(operation.toAccount.id).name}</Typography>
+                </Stack>
             )}
         />
     )

@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Paper, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useEffect, useState } from 'react'
@@ -15,7 +15,6 @@ import { runAsync } from '../../helpers/smallTools.js'
 import { useFrontState } from '../../model/FrontState.js'
 import { useCurrenciesLoader } from '../../useCurrenciesLoader.js'
 import { useEngine } from '../../useEngine.js'
-import { DivBody2 } from '../generic/Typography.js'
 import { YMExpensesComparisonPlot } from '../plots/YMComparisonPlot.js'
 import { ExpensesInfoTable } from './ExpensesInfoTable.js'
 import { ExpensesBarsPlot, ExpensesTotalPlot } from './ExpensesPlots.js'
@@ -98,31 +97,31 @@ export const ExpensesStatsWidget = observer(({ stats, predicate, perDayGoal }: P
         : -(totalAmount) / (totalDays - daysLeft + (timeSpan.includesDate(today) ? 1 : 0))
 
     return (
-        <Box display={'flex'} flexDirection={'column'} gap={1} pb={1}>
-            <DivBody2 mt={1} py={1}>
+        <Stack direction={'column'} sx={{ gap: 1, pb: 1 }}>
+            <Typography component={'div'} variant={'body2'} sx={{ mt: 1, py: 1 }}>
                 <ExpensesInfoTable currency={stats.currency} periodPace={perDay === null ? null : perDay * 30} leftPerDay={leftPerDay} />
-            </DivBody2>
+            </Typography>
             <Paper variant={'outlined'} sx={{ p: 1 }}>
-                <Typography variant={'h6'} textAlign={'center'}>
+                <Typography variant={'h6'} sx={{ textAlign: 'center' }}>
                     {'Avg. Pace (30d)'}
                 </Typography>
-                <Box display={'flex'} mb={1}>
-                    <Typography variant={'body2'} textAlign={'center'} flex={'1 1 0'} noWrap minWidth={0}>
+                <Stack direction={'row'} sx={{ mb: 1 }}>
+                    <Typography variant={'body2'} noWrap sx={{ textAlign: 'center', flex: '1 1 0', minWidth: 0 }}>
                         {'1 month'}
                         <br />
                         {cur(lastYearsStats.lastMonth, true)}
                     </Typography>
-                    <Typography variant={'body2'} textAlign={'center'} flex={'1 1 0'} noWrap minWidth={0}>
+                    <Typography variant={'body2'} noWrap sx={{ textAlign: 'center', flex: '1 1 0', minWidth: 0 }}>
                         {'3 month'}
                         <br />
                         {cur(lastYearsStats.last3Month, true)}
                     </Typography>
-                    <Typography variant={'body2'} textAlign={'center'} flex={'1 1 0'} noWrap minWidth={0}>
+                    <Typography variant={'body2'} noWrap sx={{ textAlign: 'center', flex: '1 1 0', minWidth: 0 }}>
                         {'1 year'}
                         <br />
                         {cur(lastYearsStats.lastYear, true)}
                     </Typography>
-                </Box>
+                </Stack>
             </Paper>
             <ExpensesBarsPlot
                 stats={stats}
@@ -140,7 +139,7 @@ export const ExpensesStatsWidget = observer(({ stats, predicate, perDayGoal }: P
                 stats={lastYearsStats.monthsComparison.expenses}
                 currency={stats.currency}
             />
-        </Box>
+        </Stack>
     )
 })
 

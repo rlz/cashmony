@@ -1,10 +1,8 @@
-import { Avatar, Box, Paper, Skeleton, Stack, useTheme } from '@mui/material'
+import { Avatar, Box, Paper, Skeleton, Stack, Typography, useTheme } from '@mui/material'
 import React, { type ReactElement } from 'react'
 
 import { formatCurrency } from '../../../helpers/currencies.js'
 import { showIf } from '../../../helpers/smallTools.js'
-import { Row } from '../../generic/Containers.js'
-import { DivBody1, DivBody2 } from '../../generic/Typography.js'
 
 interface Props {
     opId: string
@@ -26,42 +24,46 @@ export function BaseOpCard(props: Props): ReactElement {
 
     return (
         <Paper variant={'outlined'}>
-            <Stack p={1} direction={'row'} spacing={2}>
+            <Stack direction={'row'} spacing={2} sx={{ p: 1 }}>
                 <Box>
                     <Avatar sx={{ bgcolor: color }}>{props.icon}</Avatar>
                 </Box>
-                <Box flex={'1 1 0'} minWidth={0}>
-                    <Row gap={1}>
-                        <DivBody1
-                            flex={'1 1 0'}
-                            minWidth={30}
-                            color={props.categoryGrey === true ? 'grey.500' : undefined}
+                <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
+                    <Stack direction={'row'} sx={{ gap: 1 }}>
+                        <Typography
+                            component={'div'}
+                            variant={'body1'}
+                            sx={{
+                                flex: '1 1 0',
+                                minWidth: 30,
+                                color: props.categoryGrey === true ? 'grey.500' : undefined
+                            }}
                             noWrap
                         >
                             {props.categoryName}
-                        </DivBody1>
-                        <DivBody1 color={color} noWrap>
+                        </Typography>
+                        <Typography component={'div'} variant={'body1'} color={color} noWrap>
                             { formatCurrency(props.amount, props.currency) }
-                        </DivBody1>
-                    </Row>
+                        </Typography>
+                    </Stack>
                     {props.transferElement}
-                    <Row gap={1}>
-                        <DivBody2 flex={'1 1 0'} minWidth={30} noWrap>
+                    <Stack direction={'row'} sx={{ gap: 1 }}>
+                        <Typography component={'div'} variant={'body2'} sx={{ flex: '1 1 0', minWidth: 30 }} noWrap>
                             {props.tags.join(', ')}
-                        </DivBody2>
+                        </Typography>
                         {
                             showIf(
                                 props.accountName !== null,
-                                <DivBody2 noWrap>
+                                <Typography component={'div'} variant={'body2'} noWrap>
                                     {'Acc.: '}
                                     {props.accountName}
-                                </DivBody2>
+                                </Typography>
                             )
                         }
-                    </Row>
-                    <DivBody2 fontStyle={'italic'} noWrap>
+                    </Stack>
+                    <Typography component={'div'} variant={'body2'} sx={{ fontStyle: 'italic' }} noWrap>
                         {(props.comment ?? '') === '' ? '\u00a0' : props.comment}
-                    </DivBody2>
+                    </Typography>
                 </Box>
             </Stack>
         </Paper>
@@ -70,34 +72,37 @@ export function BaseOpCard(props: Props): ReactElement {
 
 export function OpCardSkeleton(): ReactElement {
     return (
-        <Paper elevation={1} sx={{ p: 1, display: 'flex', gap: 2 }}>
-            <Box>
-                <Skeleton variant={'circular'} width={40} height={40} />
-            </Box>
-            <Box flex={'1 1 0'} minWidth={0}>
-                <Row gap={1}>
-                    <DivBody1
-                        flex={'1 1 0'}
-                        minWidth={30}
-                    >
-                        <Skeleton width={90} sx={{ maxWidth: '100%' }} />
-                    </DivBody1>
-                    <DivBody1 flex={'0 1 auto'} minWidth={0}>
-                        <Skeleton width={70} sx={{ maxWidth: '100%' }} />
-                    </DivBody1>
-                </Row>
-                <Row gap={1}>
-                    <DivBody2 flex={'1 1 0'} minWidth={30}>
-                        <Skeleton width={110} sx={{ maxWidth: '100%' }} />
-                    </DivBody2>
-                    <DivBody2 flex={'0 1 auto'} minWidth={0}>
-                        <Skeleton width={140} sx={{ maxWidth: '100%' }} />
-                    </DivBody2>
-                </Row>
-                <DivBody2>
-                    <Skeleton width={80} sx={{ maxWidth: '100%' }} />
-                </DivBody2>
-            </Box>
+        <Paper elevation={1}>
+            <Stack direction={'row'} sx={{ p: 1, gap: 2 }}>
+                <Box>
+                    <Skeleton variant={'circular'} width={40} height={40} />
+                </Box>
+                <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
+                    <Stack direction={'row'} sx={{ gap: 1 }}>
+                        <Typography
+                            component={'div'}
+                            variant={'body1'}
+                            sx={{ flex: '1 1 0', minWidth: 30 }}
+                        >
+                            <Skeleton width={90} sx={{ maxWidth: '100%' }} />
+                        </Typography>
+                        <Typography component={'div'} variant={'body1'} sx={{ flex: '0 1 auto', minWidth: 0 }}>
+                            <Skeleton width={70} sx={{ maxWidth: '100%' }} />
+                        </Typography>
+                    </Stack>
+                    <Stack direction={'row'} sx={{ gap: 1 }}>
+                        <Typography component={'div'} variant={'body2'} sx={{ flex: '1 1 0', minWidth: 30 }}>
+                            <Skeleton width={110} sx={{ maxWidth: '100%' }} />
+                        </Typography>
+                        <Typography component={'div'} variant={'body2'} sx={{ flex: '0 1 auto', minWidth: 0 }}>
+                            <Skeleton width={140} sx={{ maxWidth: '100%' }} />
+                        </Typography>
+                    </Stack>
+                    <Typography component={'div'} variant={'body2'}>
+                        <Skeleton width={80} sx={{ maxWidth: '100%' }} />
+                    </Typography>
+                </Box>
+            </Stack>
         </Paper>
     )
 }

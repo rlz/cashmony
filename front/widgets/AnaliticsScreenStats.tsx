@@ -54,10 +54,10 @@ export const AnaliticsScreenStats = observer(function AnaliticsScreenStats({ pre
             {
                 reducers !== null
                 && (
-                    <Grid container spacing={1} my={1}>
+                    <Grid container sx={{ gap: 1, my: 1 }}>
                         <Grid size={12}>
                             <Paper variant={'outlined'}>
-                                <Stack direction={'row'} p={1} gap={1} flexWrap={'wrap'}>
+                                <Stack direction={'row'} sx={{ p: 1, gap: 1, flexWrap: 'wrap' }}>
                                     <Box>
                                         {'Income: '}
                                         {formatCurrency(reducers.income.stats.total, appState.masterCurrency)}

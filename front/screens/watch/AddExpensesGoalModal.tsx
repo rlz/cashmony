@@ -1,4 +1,4 @@
-import { Box } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import { DateTime } from 'luxon'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement, useMemo, useState } from 'react'
@@ -9,7 +9,6 @@ import { sortCurrencies } from '../../../engine/sortCurrencies.js'
 import { screenWidthIs } from '../../helpers/useWidth.js'
 import { useEngine } from '../../useEngine.js'
 import { FullScreenModal } from '../../widgets/FullScreenModal.js'
-import { Column } from '../../widgets/generic/Containers.js'
 import { ExpensesGoalEditor } from './ExpensesGoalEditor.js'
 
 export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void }): ReactElement => {
@@ -38,7 +37,14 @@ export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void
                 width={'600px'}
                 onClose={onClose}
             >
-                <Column gap={1} p={1} overflow={'auto'}>
+                <Stack
+                    direction={'column'}
+                    sx={{
+                        gap: 1,
+                        p: 1,
+                        overflow: 'auto'
+                    }}
+                >
                     <ExpensesGoalEditor
                         goal={goal}
                         onChange={(w) => {
@@ -46,10 +52,10 @@ export const AddExpensesGoalModal = observer(({ onClose }: { onClose: () => void
                             onClose()
                         }}
                     />
-                </Column>
+                </Stack>
                 {
                     smallScreen
-                    && <Box height={'80px'} />
+                    && <Box sx={{ height: '80px' }} />
                 }
             </FullScreenModal>
         </>

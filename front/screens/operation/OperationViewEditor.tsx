@@ -284,7 +284,7 @@ export const OperationViewEditor = observer(function OperationScreenBody({ urlOp
         || opTags === null
     ) {
         if (opType === 'deleted') {
-            return <Typography variant={'h5'} mt={10} textAlign={'center'}>{'This operation was deleted'}</Typography>
+            return <Typography variant={'h5'} sx={{ mt: 10, textAlign: 'center' }}>{'This operation was deleted'}</Typography>
         }
         return <OperationViewEditorSkeleton />
     }
@@ -314,7 +314,7 @@ export const OperationViewEditor = observer(function OperationScreenBody({ urlOp
 
     return (
         <Box>
-            <Box pt={1} pb={2}>
+            <Box sx={{ pt: 1, pb: 2 }}>
                 <OperationBasicInfo
                     opType={opType}
                     opDate={opDate}
@@ -441,7 +441,7 @@ export const OperationViewEditor = observer(function OperationScreenBody({ urlOp
                             </ActionButton>
                         )
             }
-            <Box minHeight={128} />
+            <Box sx={{ minHeight: 128 }} />
         </Box>
     )
 })

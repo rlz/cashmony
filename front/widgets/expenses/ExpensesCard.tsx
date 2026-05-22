@@ -1,4 +1,4 @@
-import { Box, Paper, Skeleton, type SxProps } from '@mui/material'
+import { Box, Paper, Skeleton, Stack, type SxProps, Typography } from '@mui/material'
 import { observer } from 'mobx-react-lite'
 import React, { type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom'
 import { TotalAndChangeStats } from '../../../engine/stats/model.js'
 import { formatCurrency } from '../../helpers/currencies.js'
 import { useFrontState } from '../../model/FrontState.js'
-import { DivBody2, SpanBody1 } from '../generic/Typography.js'
 import { ExpensesInfoTable } from './ExpensesInfoTable.js'
 import { ExpensesBarsPlot } from './ExpensesPlots.js'
 
@@ -47,25 +46,25 @@ export const ExpensesCard = observer((props: Props): ReactElement => {
         <Box sx={props.sx}>
             <a onClick={async () => { await navigate(props.url) }}>
                 <Paper variant={'outlined'}>
-                    <Box p={1}>
-                        <Box display={'flex'} gap={1}>
-                            <SpanBody1>{ props.name }</SpanBody1>
-                            <SpanBody1
-                                color={'primary.main'}
-                                flex={'1 1 0'}
-                                textAlign={'right'}
+                    <Box sx={{ p: 1 }}>
+                        <Stack direction={'row'} sx={{ gap: 1 }}>
+                            <Typography component={'span'} variant={'body1'}>{ props.name }</Typography>
+                            <Typography
+                                component={'span'}
+                                variant={'body1'}
+                                sx={{ color: 'primary.main', flex: '1 1 0', textAlign: 'right' }}
                             >
                                 {cur(-props.stats.total)}
-                            </SpanBody1>
-                        </Box>
-                        <DivBody2 my={1}>
+                            </Typography>
+                        </Stack>
+                        <Typography component={'div'} variant={'body2'} sx={{ my: 1 }}>
                             <ExpensesInfoTable
                                 currency={props.currency}
                                 periodPace={perDay === null ? null : perDay * 30}
                                 perDayGoal={props.perDayGoal}
                                 leftPerDay={leftPerDay}
                             />
-                        </DivBody2>
+                        </Typography>
                         <ExpensesBarsPlot
                             stats={props.stats}
                             perDay={perDay}
@@ -85,15 +84,15 @@ export function ExpensesCardSkeleton({ name, sx }: { name?: string | ReactElemen
     return (
         <Box sx={sx}>
             <Paper sx={{ p: 1 }}>
-                <Box display={'flex'} gap={1}>
-                    <SpanBody1 flex={'1 1 0'}>
+                <Stack direction={'row'} sx={{ gap: 1 }}>
+                    <Typography component={'span'} variant={'body1'} sx={{ flex: '1 1 0' }}>
                         { name ?? <Skeleton sx={{ maxWidth: 60 }} /> }
-                    </SpanBody1>
-                    <SpanBody1>
+                    </Typography>
+                    <Typography component={'span'} variant={'body1'}>
                         <Skeleton sx={{ minWidth: 55 }} />
-                    </SpanBody1>
-                </Box>
-                <DivBody2 my={1}>
+                    </Typography>
+                </Stack>
+                <Typography component={'div'} variant={'body2'} sx={{ my: 1 }}>
                     <table className={'stats'}>
                         <tbody>
                             <tr>
@@ -110,7 +109,7 @@ export function ExpensesCardSkeleton({ name, sx }: { name?: string | ReactElemen
                             </tr>
                         </tbody>
                     </table>
-                </DivBody2>
+                </Typography>
                 <Skeleton variant={'rectangular'} height={50} />
             </Paper>
         </Box>

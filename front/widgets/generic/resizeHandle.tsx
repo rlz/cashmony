@@ -1,15 +1,13 @@
-import { Box } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import React, { type ReactElement } from 'react'
 import { Separator } from 'react-resizable-panels'
-
-import { Column } from './Containers.js'
 
 export function ResizeHandle(): ReactElement {
     return (
         <Separator>
-            <Column justifyContent={'center'} height={'100%'}>
-                <Box borderRadius={500} bgcolor={'secondary.main'} height={20} width={5}></Box>
-            </Column>
+            <Stack direction={'column'} sx={{ justifyContent: 'center', height: '100%' }}>
+                <Box sx={{ borderRadius: 500, bgcolor: 'secondary.main', height: 20, width: 5 }}></Box>
+            </Stack>
         </Separator>
     )
 }
