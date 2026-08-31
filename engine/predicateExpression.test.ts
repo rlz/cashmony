@@ -1,6 +1,5 @@
-import 'regenerator-runtime/runtime'
-
 import { DateTime } from 'luxon'
+import { expect, test } from 'vitest'
 
 import { utcToday } from './dates.js'
 import { Engine } from './engine.js'
@@ -260,7 +259,7 @@ test('Not predicate', () => {
 test('Cat predicate', () => {
     const engine = new Engine()
 
-    const f = compilePredicate(PE.cat('Food & Drinks'), engine)
+    const f = compilePredicate(PE.cat('2'), engine)
     const expense: ExpenseOperation = {
         id: '',
         type: 'expense',

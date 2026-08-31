@@ -6,7 +6,7 @@ import { NotDeletedOperation } from '../model.js'
 import { compilePredicate, Predicate } from '../predicateExpression.js'
 
 interface Interval {
-    readonly start: DateTime
+    readonly start: DateTime<true>
     readonly isFirstDay: boolean
     readonly isPast: boolean
     readonly isNow: boolean
@@ -31,7 +31,7 @@ export async function calcStats(
     engine: Engine,
     predicate: Predicate,
     timeSpan: HumanTimeSpan,
-    today: DateTime,
+    today: DateTime<true>,
     reducers: readonly StatsReducer[]
 ): Promise<void> {
     engine.requireInitialized()
@@ -77,7 +77,7 @@ export async function calcStats(
     await Promise.all(reducers.map(r => r.done()))
 }
 
-function calcIntervals(date: DateTime, today: DateTime): Intervals {
+function calcIntervals(date: DateTime<true>, today: DateTime<true>): Intervals {
     const sWeekFirstDay = date.weekday === 7
     const mWeekFirstDay = date.weekday === 1
     const monthFirstDay = date.day === 1
