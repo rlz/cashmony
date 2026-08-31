@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
+import { toValidDateTime } from 'rlz-engine/shared/utils/datetime.js'
 import { uuidv7 } from 'uuidv7'
 
-import { toValid } from '../../common/dates.js'
 import { Account, AdjustmentOperation, Category, ExpenseOperation, IncomeOperation, Operation, TransferOperation } from '../model.js'
 
 interface TestData {
@@ -96,8 +96,8 @@ const categoryDetails: { [key: string]: { comments: string[], tags: string[] } }
 function generateMonthlyExpenses(from: DateTime<true>, to: DateTime<true>, category: Category, accounts: Account[], amountRange: [number, number], fixedDay?: number): ExpenseOperation[] {
     const expenses: ExpenseOperation[] = []
 
-    for (let current = toValid(DateTime.utc(from.year, from.month, 1)); current <= to; current = current.plus({ month: 1 })) {
-        const date = toValid(
+    for (let current = toValidDateTime(DateTime.utc(from.year, from.month, 1)); current <= to; current = current.plus({ month: 1 })) {
+        const date = toValidDateTime(
             fixedDay
                 ? DateTime.utc(current.year, current.month, fixedDay)
                 : getRandomDate(current, current.endOf('month'))
@@ -195,7 +195,7 @@ function generateRandomExpenses(from: DateTime<true>, to: DateTime<true>, catego
     return expenses
 }
 
-function generateIncomeOperation(date: DateTime, account: Account, amountRange: [number, number]): IncomeOperation {
+function generateIncomeOperation(date: DateTime<true>, account: Account, amountRange: [number, number]): IncomeOperation {
     const amount = getRandomAmount(amountRange[0], amountRange[1])
     const currency = Math.random() < 0.2 ? getRandomElement(['USD', 'EUR', 'CNY']) : account.currency
     return {
@@ -228,7 +228,7 @@ function generateTransferOperation(date: DateTime<true>, fromAccount: Account, t
     }
 }
 
-function generateAdjustmentOperation(date: DateTime, account: Account, amountRange: [number, number]): AdjustmentOperation {
+function generateAdjustmentOperation(date: DateTime<true>, account: Account, amountRange: [number, number]): AdjustmentOperation {
     const amount = getRandomAmount(amountRange[0], amountRange[1])
     return {
         id: uuidv7(),

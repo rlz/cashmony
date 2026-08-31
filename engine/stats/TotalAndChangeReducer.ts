@@ -75,22 +75,22 @@ export class TotalAndChangeReducer extends StatsReducer {
     }
 }
 
-function addDay(amount: TotalAndChangeStats, date: DateTime): void {
+function addDay(amount: TotalAndChangeStats, date: DateTime<true>): void {
     amount.dayChange.push({ date, value: 0 })
     amount.dayTotal.push({ date, value: amount.total })
 }
 
-function addSweek(amount: TotalAndChangeStats, date: DateTime): void {
+function addSweek(amount: TotalAndChangeStats, date: DateTime<true>): void {
     amount.sWeekChange.push({ date, value: 0 })
     amount.sWeekTotal.push({ date, value: amount.total })
 }
 
-function addMweek(amount: TotalAndChangeStats, date: DateTime): void {
+function addMweek(amount: TotalAndChangeStats, date: DateTime<true>): void {
     amount.mWeekChange.push({ date, value: 0 })
     amount.mWeekTotal.push({ date, value: amount.total })
 }
 
-function addMonth(amount: TotalAndChangeStats, date: DateTime): void {
+function addMonth(amount: TotalAndChangeStats, date: DateTime<true>): void {
     amount.monthChange.push({ date, value: 0 })
     amount.monthTotal.push({ date, value: amount.total })
 }

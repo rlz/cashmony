@@ -40,8 +40,8 @@ export const OperationViewEditor = observer(function OperationScreenBody({ urlOp
 
     const [opId, setOpId] = useState<string | null>(null)
     const [opType, setOpType] = useState<Operation['type'] | null>(null)
-    const [opDate, setOpDate] = useState<DateTime | null>(null)
-    const [origOpDate, setOrigOpDate] = useState<DateTime | null>(null)
+    const [opDate, setOpDate] = useState<DateTime<true> | null>(null)
+    const [origOpDate, setOrigOpDate] = useState<DateTime<true> | null>(null)
     const [opAmount, setOpAmount] = useState<number | null>(null)
     const [origOpAmount, setOrigOpAmount] = useState<number | null>(null)
     const [opCurrency, setOpCurrency] = useState<string | null>(null)

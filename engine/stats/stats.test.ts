@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
+import { toValidDateTime } from 'rlz-engine/shared/utils/datetime.js'
 import { expect, test } from 'vitest'
 
-import { toValid } from '../../common/dates.js'
 import { CustomTimeSpan } from '../dates.js'
 import { Engine } from '../engine.js'
 import { DeletedOperation, ExpenseOperation, IncomeOperation, NotDeletedOperation } from '../model.js'
@@ -66,9 +66,12 @@ test('runs reducers for every day and calculates calendar interval boundaries', 
     const engine = new Engine()
     engine.init([], [], [], [])
     const reducer = new RecordingReducer()
-    const span = new CustomTimeSpan(DateTime.utc(2026, 1, 31), DateTime.utc(2026, 2, 2))
+    const span = new CustomTimeSpan(
+        toValidDateTime(DateTime.utc(2026, 1, 31)),
+        toValidDateTime(DateTime.utc(2026, 2, 2))
+    )
 
-    await calcStats(engine, PE.any(), span, toValid(DateTime.utc(2026, 2, 1)), [reducer])
+    await calcStats(engine, PE.any(), span, toValidDateTime(DateTime.utc(2026, 2, 1)), [reducer])
 
     expect(reducer.days.map(day => ({ date: day.date, init: day.init }))).toEqual([
         { date: '2026-01-31', init: true },
@@ -120,14 +123,14 @@ test('runs reducers for every day and calculates calendar interval boundaries', 
 
 test('processes only matching, non-deleted operations within the time span in date order', async () => {
     const engine = new Engine()
-    const februaryFirst = toValid(DateTime.utc(2026, 2, 1))
-    const februarySecond = toValid(DateTime.utc(2026, 2, 2))
+    const februaryFirst = toValidDateTime(DateTime.utc(2026, 2, 1))
+    const februarySecond = toValidDateTime(DateTime.utc(2026, 2, 2))
 
     engine.init([], [], [
-        expense('after-span', toValid(DateTime.utc(2026, 2, 3))),
+        expense('after-span', toValidDateTime(DateTime.utc(2026, 2, 3))),
         income('wrong-type', februaryFirst),
         deleted('removed'),
-        expense('before-span', toValid(DateTime.utc(2026, 1, 31))),
+        expense('before-span', toValidDateTime(DateTime.utc(2026, 1, 31))),
         expense('second-day', februarySecond),
         expense('first-day', februaryFirst)
     ], [])
@@ -144,8 +147,11 @@ test('requires an initialized engine', async () => {
     await expect(calcStats(
         new Engine(),
         PE.any(),
-        new CustomTimeSpan(DateTime.utc(2026, 2, 1), DateTime.utc(2026, 2, 1)),
-        toValid(DateTime.utc(2026, 2, 1)),
+        new CustomTimeSpan(
+            toValidDateTime(DateTime.utc(2026, 2, 1)),
+            toValidDateTime(DateTime.utc(2026, 2, 1))
+        ),
+        toValidDateTime(DateTime.utc(2026, 2, 1)),
         []
     )).rejects.toThrow('Uninitialized engine')
 })

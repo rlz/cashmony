@@ -1,4 +1,5 @@
 import { DateTime, type DurationLike } from 'luxon'
+import { toValidDateTime } from 'rlz-engine/shared/utils/datetime.js'
 
 import { Engine } from './engine.js'
 
@@ -7,21 +8,21 @@ export function utcToday(): DateTime<true> {
     return utcDate(now)
 }
 
-export function utcDate(date: Date | DateTime): DateTime {
+export function utcDate(date: Date | DateTime<true>): DateTime<true> {
     if (date instanceof Date) {
-        date = DateTime.fromJSDate(date)
+        date = toValidDateTime(DateTime.fromJSDate(date))
     }
-    return DateTime.utc(date.year, date.month, date.day)
+    return toValidDateTime(DateTime.utc(date.year, date.month, date.day))
 }
 
 export abstract class HumanTimeSpan {
-    private datesCache: DateTime[] | null = null
+    private datesCache: DateTime<true>[] | null = null
 
-    abstract get startDate(): DateTime
-    abstract get endDate(): DateTime
+    abstract get startDate(): DateTime<true>
+    abstract get endDate(): DateTime<true>
 
-    private makeAllDates(): DateTime[] {
-        const dates: DateTime[] = []
+    private makeAllDates(): DateTime<true>[] {
+        const dates: DateTime<true>[] = []
 
         const startDate = this.startDate.minus({ day: 1 })
         const endDate = this.endDate
@@ -65,22 +66,22 @@ export abstract class HumanTimeSpan {
 }
 
 export class ThisMonthTimeSpan extends HumanTimeSpan {
-    get startDate(): DateTime {
+    get startDate(): DateTime<true> {
         return utcToday().set({ day: 1 })
     }
 
-    get endDate(): DateTime {
+    get endDate(): DateTime<true> {
         const today = utcToday()
         return today.set({ day: today.daysInMonth })
     }
 }
 
 export class ThisYearTimeSpan extends HumanTimeSpan {
-    get startDate(): DateTime {
+    get startDate(): DateTime<true> {
         return utcToday().set({ day: 1, month: 1 })
     }
 
-    get endDate(): DateTime {
+    get endDate(): DateTime<true> {
         return utcToday().set({ day: 31, month: 12 })
     }
 }
@@ -95,13 +96,13 @@ export class MonthTimeSpan extends HumanTimeSpan {
         this.month = month
     }
 
-    get startDate(): DateTime {
-        return DateTime.utc(this.year, this.month)
+    get startDate(): DateTime<true> {
+        return toValidDateTime(DateTime.utc(this.year, this.month))
     }
 
-    get endDate(): DateTime {
+    get endDate(): DateTime<true> {
         const date = DateTime.utc(this.year, this.month)
-        return date.set({ day: date.daysInMonth })
+        return toValidDateTime(date.set({ day: date.daysInMonth }))
     }
 }
 
@@ -113,12 +114,12 @@ export class YearTimeSpan extends HumanTimeSpan {
         this.year = year
     }
 
-    get startDate(): DateTime {
-        return DateTime.utc(this.year)
+    get startDate(): DateTime<true> {
+        return toValidDateTime(DateTime.utc(this.year))
     }
 
-    get endDate(): DateTime {
-        return DateTime.utc(this.year, 12, 31)
+    get endDate(): DateTime<true> {
+        return toValidDateTime(DateTime.utc(this.year, 12, 31))
     }
 }
 
@@ -130,30 +131,30 @@ export class LastPeriodTimeSpan extends HumanTimeSpan {
         this.duration = duration
     }
 
-    get startDate(): DateTime {
+    get startDate(): DateTime<true> {
         return utcToday().minus(this.duration).plus({ day: 1 })
     }
 
-    get endDate(): DateTime {
+    get endDate(): DateTime<true> {
         return utcToday()
     }
 }
 
 export class CustomTimeSpan extends HumanTimeSpan {
-    private readonly _start: DateTime
-    private readonly _end: DateTime
+    private readonly _start: DateTime<true>
+    private readonly _end: DateTime<true>
 
-    constructor(start: DateTime, end: DateTime) {
+    constructor(start: DateTime<true>, end: DateTime<true>) {
         super()
         this._start = start
         this._end = end
     }
 
-    get startDate(): DateTime {
+    get startDate(): DateTime<true> {
         return this._start
     }
 
-    get endDate(): DateTime {
+    get endDate(): DateTime<true> {
         return this._end
     }
 }
@@ -166,12 +167,12 @@ export class AllHistoryTimeSpan extends HumanTimeSpan {
         this.engine = engine
     }
 
-    get startDate(): DateTime {
+    get startDate(): DateTime<true> {
         const firstOp = this.engine.firstOp
         return firstOp?.date ?? utcToday()
     }
 
-    get endDate(): DateTime {
+    get endDate(): DateTime<true> {
         return utcToday()
     }
 }

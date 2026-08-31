@@ -6,6 +6,7 @@ import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Button
 import { DateTime } from 'luxon'
 import React, { type ReactElement } from 'react'
 import Calendar from 'react-calendar'
+import { toValidDateTime } from 'rlz-engine/shared/utils/datetime.js'
 
 import { utcToday } from '../../../../engine/dates.js'
 import { useFrontState } from '../../../model/FrontState.js'
@@ -14,7 +15,7 @@ interface Props {
     date: DateTime
     expanded: boolean
     onExpandedChange: (expanded: boolean) => void
-    onDateChange: (date: DateTime) => void
+    onDateChange: (date: DateTime<true>) => void
 }
 
 export const DateEditor = (props: Props): ReactElement => {
@@ -36,7 +37,7 @@ export const DateEditor = (props: Props): ReactElement => {
                                 maxDate={appState.today.toJSDate()}
                                 value={props.date.toJSDate()}
                                 onClickDay={(date) => {
-                                    const utc = DateTime.utc(date.getFullYear(), date.getMonth() + 1, date.getDate())
+                                    const utc = toValidDateTime(DateTime.utc(date.getFullYear(), date.getMonth() + 1, date.getDate()))
                                     props.onDateChange(utc)
                                 }}
                             />

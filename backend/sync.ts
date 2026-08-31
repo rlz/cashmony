@@ -4,14 +4,14 @@ import { DateTime } from 'luxon'
 import { AuthStorage } from 'rlz-engine/back/auth/storage.js'
 import { auth } from 'rlz-engine/back/auth/utils.js'
 import { API_COMPARISON_OBJECT_SCHEMA_V0, API_GET_OBJECTS_REQUEST_SCHEMA_V0, API_ITEMS_REQUEST_SCHEMA_V0, API_ITEMS_RESPONSE_SCHEMA_V0, ApiItemsResponseV0 } from 'rlz-engine/shared/api/sync.js'
+import { toValidDateTime } from 'rlz-engine/shared/utils/datetime.js'
 import { z } from 'zod'
 
 import { apiAccountSchemaV0, apiCategorySchemaV0, apiOperationSchemaV0, apiWatchSchemaV0 } from '../common/data_v0.js'
-import { toValid } from '../common/dates.js'
 import { CashmonyStorage } from './storage/mongo.js'
 
 const getObjectsQueryStringSchema = z.object({
-    syncAfter: z.string().datetime().optional()
+    syncAfter: z.iso.datetime().optional()
 }).readonly()
 
 interface SyncPluginOpts {
@@ -32,7 +32,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, _resp) => {
                 const userId = await auth(req.headers, authStorage)
                 const query = getObjectsQueryStringSchema.parse(req.query)
-                const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
+                const syncAfter = query.syncAfter !== undefined ? toValidDateTime(DateTime.fromISO(query.syncAfter)) : undefined
                 return { items: await cashmonyStorage.allOps(userId, syncAfter) }
             }
         )
@@ -99,7 +99,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, _resp) => {
                 const userId = await auth(req.headers, authStorage)
                 const query = getObjectsQueryStringSchema.parse(req.query)
-                const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
+                const syncAfter = query.syncAfter !== undefined ? toValidDateTime(DateTime.fromISO(query.syncAfter)) : undefined
                 return { items: await cashmonyStorage.allAccounts(userId, syncAfter) }
             }
         )
@@ -145,7 +145,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, _resp) => {
                 const userId = await auth(req.headers, authStorage)
                 const query = getObjectsQueryStringSchema.parse(req.query)
-                const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
+                const syncAfter = query.syncAfter !== undefined ? toValidDateTime(DateTime.fromISO(query.syncAfter)) : undefined
                 return { items: await cashmonyStorage.allCategories(userId, syncAfter) }
             }
         )
@@ -191,7 +191,7 @@ export const syncPlugin = fastifyPlugin(
             async (req, _resp) => {
                 const userId = await auth(req.headers, authStorage)
                 const query = getObjectsQueryStringSchema.parse(req.query)
-                const syncAfter = query.syncAfter !== undefined ? toValid(DateTime.fromISO(query.syncAfter)) : undefined
+                const syncAfter = query.syncAfter !== undefined ? toValidDateTime(DateTime.fromISO(query.syncAfter)) : undefined
                 return { items: await cashmonyStorage.allWatches(userId, syncAfter) }
             }
         )

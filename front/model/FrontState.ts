@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { autorun, makeAutoObservable, runInAction } from 'mobx'
 import { createContext, useContext } from 'react'
+import { toValidDateTime } from 'rlz-engine/shared/utils/datetime.js'
 
 import { AllHistoryTimeSpan, CustomTimeSpan, type HumanTimeSpan, LastPeriodTimeSpan, MonthTimeSpan, ThisMonthTimeSpan, ThisYearTimeSpan, utcToday, YearTimeSpan } from '../../engine/dates.js'
 import { Engine } from '../../engine/engine.js'
@@ -54,10 +55,10 @@ interface CustomTimeSpanInfo {
     readonly to: DateInfo
 }
 
-type TimeSpanInfo = ThisMonthTimeSpanInfo |
-    ThisYearTimeSpanInfo | MonthTimeSpanInfo | YearTimeSpanInfo |
-    LastMonthTimeSpanInfo | LastQuarterTimeSpanInfo | LastYearTimeSpanInfo |
-    AllHistoryTimeSpanInfo | CustomTimeSpanInfo
+type TimeSpanInfo = ThisMonthTimeSpanInfo
+    | ThisYearTimeSpanInfo | MonthTimeSpanInfo | YearTimeSpanInfo
+    | LastMonthTimeSpanInfo | LastQuarterTimeSpanInfo | LastYearTimeSpanInfo
+    | AllHistoryTimeSpanInfo | CustomTimeSpanInfo
 
 const AUTH_LS_KEY = 'AppState.auth'
 const DATA_USER_ID_LS_KEY = 'AppState.dataUserId'
@@ -230,8 +231,8 @@ export class FrontState {
     }
 }
 
-function makeDate(dateInfo: DateInfo): DateTime {
-    return DateTime.utc(dateInfo.year, dateInfo.month, dateInfo.day)
+function makeDate(dateInfo: DateInfo): DateTime<true> {
+    return toValidDateTime(DateTime.utc(dateInfo.year, dateInfo.month, dateInfo.day))
 }
 
 const frontStateContext = createContext<FrontState | null>(null)

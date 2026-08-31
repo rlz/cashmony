@@ -1,4 +1,4 @@
-import { action, computed, makeObservable, observable, runInAction } from 'mobx'
+import { action, computed, makeObservable, observable, observableShallow, runInAction } from 'mobx'
 
 import { Account, Category, NotDeletedOperation, Operation, Watch } from './model.js'
 import { operationComparator } from './operationsComparator.js'
@@ -28,10 +28,10 @@ export class Engine {
             this,
             {
                 initialised: observable,
-                accounts: observable.shallow,
-                categories: observable.shallow,
-                operations: observable.shallow,
-                watches: observable.shallow,
+                accounts: observableShallow,
+                categories: observableShallow,
+                operations: observableShallow,
+                watches: observableShallow,
                 init: action,
                 accountsSortedByUsage: computed,
                 pushAccount: action,
